@@ -15,8 +15,20 @@ set /p COUNTRY_CODE=
 goto country_select
 
 :country_ok
+
+REM Calling PSPATHS.BAT will replace your %PATH% with one which has access to the SDK executables for this session only.
+CALL SDK\PSPATHS.BAT
+
 IF NOT EXIST "build\Files_%COUNTRY_CODE%" (
 	ECHO The disc is not extracted with "dumpsxiso".
+	ECHO Please place your iso as either "FroggerA.bin" or "FroggerE.bin" in the root folder of the repository.
+	ECHO Then run "extractdisc.bat".
+	ECHO "FroggerA" corresponds to NTSC isos, and "FroggerE" corresponds to PAL isos.
+	goto :error
+)
+
+IF NOT EXIST "source\main.exe" (
+	ECHO The game has not been compiled yet. Use "compile.bat" to compile the game.
 	goto :error
 )
 
@@ -30,7 +42,7 @@ copy source\main.sym "build\Files_%COUNTRY_CODE%\frogger.sym"
 :: Create .bin/.cue CD image.
 if exist "build\Disc%COUNTRY_CODE%.bin" del "build\Disc%COUNTRY_CODE%.bin"
 if exist "build\Disc%COUNTRY_CODE%.cue" del "build\Disc%COUNTRY_CODE%.cue"
-mkpsxiso --output "build\Disc%COUNTRY_CODE%.bin" --cuefile "build\Disc%COUNTRY_CODE%.cue" "build\Disc%COUNTRY_CODE%.xml"
+sdk\bin\mkpsxiso.exe --output "build\Disc%COUNTRY_CODE%.bin" --cuefile "build\Disc%COUNTRY_CODE%.cue" "build\Disc%COUNTRY_CODE%.xml"
 if errorlevel 1 goto :error
 
 goto okay

@@ -7,3 +7,5 @@ source/*.sym
 source/*.map
 build/
 merge/frogpsx.mwi
+*.cue
+*.bin
