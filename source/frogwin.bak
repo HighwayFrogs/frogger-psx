@@ -1,0 +1,353 @@
+// Set up DOS paths
+SetSamplePath           "z:\audio\sfx\"
+SetBankPath             "l:\frogger\vab\"
+
+// Define samples to be used
+// Please note :-
+// 1. This order should not be changed!!!!
+// 2. New samples should be added to the bottom of the
+//    list and not inserted in the middle!!!!
+// 3. Changes to this list should be reflected in the array
+//    "gaSamplesInfo[]" in sound.c!!!
+StartHeader
+	DefSample	"GENERIC\WAVs\gen_frog drown.WAV"			0 1 11025 16		// 000
+	DefSample	"GENERIC\WAVs\gen_frog_croak.WAV"			0 1 11025 16		// 
+	DefSample	"GENERIC\WAVs\gen_frog_fly_gulp.WAV"		0 1 11025 16		// 
+	DefSample	"GENERIC\WAVs\gen_frog_hop.WAV"				0 1 11025 16		// 
+	DefSample	"GENERIC\WAVs\music_levelcomplete.WAV"		0 1 11025 16		// 
+	DefSample	"GENERIC\WAVs\music_targetcomplete.WAV"		0 1 11025 16		// 
+	DefSample	"GENERIC\WAVs\music_timeout.WAV"			0 1 11025 16		// 
+	DefSample	"GENERIC\WAVs\gen_fly_buzz.WAV"				0 1 11025 16		// 
+    DefSample   "GENERIC\WAVs\gen_frog_croak.WAV"           0 1 11025 16        // 008
+
+	DefSample	"CAVE\WAVs\cav_bat.WAV"						0 1 11025 16		// 009
+	DefSample	"CAVE\WAVs\cav_firefly.WAV"					0 1 11025 16		// 010
+	DefSample	"CAVE\WAVs\cav_lavadrop_bubble.WAV"			0 1 11025 16		// 
+	DefSample	"CAVE\WAVs\cav_lavadrop_floorhit.WAV"		0 1 11025 16		// 
+	DefSample	"CAVE\WAVs\cav_rockfallfloor.WAV"			0 1 11025 16		// 
+	DefSample	"CAVE\WAVs\cav_ropebridge01.WAV"			0 1 11025 16		// 
+	DefSample	"CAVE\WAVs\cav_ropebridge02.WAV"			0 1 11025 16		// 
+	DefSample	"CAVE\WAVs\cav_slime.WAV"					0 1 11025 16		// 
+	DefSample	"CAVE\WAVs\cav_snail_move.WAV"				0 1 11025 16		// 
+	DefSample	"CAVE\WAVs\cav_snail_slime.WAV"				0 1 11025 16		// 
+	DefSample	"CAVE\WAVs\cav_spider.WAV"					0 1 11025 16		// 
+	DefSample	"CAVE\WAVs\cav_vamp_bat.WAV"				0 1 11025 16		// 020
+
+	DefSample	"DESERT\WAVs\des_bison.WAV"					0 1 11025 16		// 021
+	DefSample	"DESERT\WAVs\des_bisonnoise.WAV"			0 1 11025 16		// 
+	DefSample	"DESERT\WAVs\des_crack.WAV"					0 1 11025 16		// 
+	DefSample	"DESERT\WAVs\des_earthquake.WAV"			0 1 11025 16		// 
+	DefSample	"DESERT\WAVs\des_falling_rock.WAV"			0 1 11025 16		// 
+	DefSample	"DESERT\WAVs\des_hole01.WAV"				0 1 11025 16		// 
+	DefSample	"DESERT\WAVs\des_hole02.WAV"				0 1 11025 16		// 
+	DefSample	"DESERT\WAVs\des_lizard.WAV"				0 1 11025 16		// 
+	DefSample	"DESERT\WAVs\des_salamander.WAV"			0 1 11025 16		// 
+	DefSample	"DESERT\WAVs\des_sandstorm.WAV"				0 1 11025 16		// 030
+	DefSample	"DESERT\WAVs\des_snake_hiss.WAV"			0 1 11025 16		// 
+	DefSample	"DESERT\WAVs\des_snake_rattle.WAV"			0 1 11025 16		// 
+	DefSample	"DESERT\WAVs\des_vulture.WAV"				0 1 11025 16		// 
+	DefSample	"DESERT\WAVs\des_lizard.WAV"				0 1 11025 16		// 034
+
+	// Dummy entry (forest)
+	DefSample	"DESERT\WAVs\des_lizard.WAV"				0 1 11025 16		// 035
+
+	// Dummy entry	(jungle)
+	DefSample	"DESERT\WAVs\des_lizard.WAV"				0 1 11025 16		// 036
+
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_babyfrog_croak.WAV"		0 1 11025 16		// 037
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_babyfrog_hop.WAV"			0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_beaver_splash.WAV"			0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_bulldozer_horn.WAV"		0 1 11025 16		// 040
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_bulldozer_horn02.WAV"		0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_car_horn01.WAV"			0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_car_horn02.WAV"			0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_crocodile_snap.WAV"		0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_frog_croc_munch.WAV"		0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_frog_traffic_splat2.WAV"	0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_frog_turtle_thud.WAV"		0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_ladyfrog_croak.WAV"		0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_ladyfrog_hop.WAV"			0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_log_small.WAV"				0 1 11025 16		// 050
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_roadnoise.WAV"				0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_snake_hiss.WAV"			0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_turtle_splash.WAV"			0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_waternoise.WAV"			0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_lorry_horn01.WAV"			0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_lorry_horn02.WAV"			0 1 11025 16		// 
+	DefSample	"ORIGINAL_LEVEL\WAVs\org_frog_traffic_splat.WAV"	0 1 11025 16		// 057
+
+	// Dummy entry	(ruins)
+	DefSample	"DESERT\WAVs\des_lizard.WAV"						0 1 11025 16		// 058
+
+	// Swamp
+	DefSample	"SWAMP\WAVs\swp_box.WAV"							0 1 11025 16		// 059
+	DefSample	"SWAMP\WAVs\swp_crusher.WAV"						0 1 11025 16		// 060
+	DefSample	"SWAMP\WAVs\swp_newspaper.WAV"						0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_newspaper_torn.WAV"					0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_nuclear_barrel_explode.WAV"			0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_nuclear_barrel_geiger.WAV"			0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_oil_drum.WAV"						0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_pallet.WAV"							0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_rat.WAV"							0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_raccoon.WAV"						0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_stat_flume.WAV"						0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_stat_pipe.WAV"						0 1 11025 16		// 070
+	DefSample	"SWAMP\WAVs\swp_stat_pipe_big_str.WAV"				0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_stat_pipe_hole.WAV"					0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_stat_pipe_str.WAV"					0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_stat_sunkcar.WAV"					0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_stat_marsh.WAV"						0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_stat_weir.WAV"						0 1 11025 16		// 
+	DefSample	"SWAMP\WAVs\swp_waste_barrel.WAV"					0 1 11025 16		// 077
+
+	// Sky
+	DefSample	"SKY\WAVs\sky_biplane1.WAV"							0 1 11025 16		// 078
+	DefSample	"SKY\WAVs\sky_biplane_banner1.WAV"					0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_bird1_call.WAV"						0 1 11025 16		// 080
+	DefSample	"SKY\WAVs\sky_bird1_call_frenzied.WAV"				0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_bird1_wing.WAV"						0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_bird1_wing_frenzied.WAV"				0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_bird2_call.WAV"						0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_bird2_call_frenzied.WAV"				0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_bird3_call.WAV"						0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_bird3_call_frenzied.WAV"				0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_bird4_call.WAV"						0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_bird4_call_frenzied.WAV"				0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_birdhawk_call.WAV"					0 1 11025 16		// 090
+	DefSample	"SKY\WAVs\sky_birdhawk_dive.WAV"					0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_flocking1.WAV"						0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_flocking1.WAV"						0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_hawk_call.WAV"						0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_hawk_dive.WAV"						0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_helicopter_frog_kill.WAV"				0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_helicopter_noise.WAV"					0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_helium_balloon_croak.WAV"				0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_helium_balloon_pop.WAV"				0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_jet1.WAV"								0 1 11025 16		// 100
+	DefSample	"SKY\WAVs\sky_jet3 .WAV"							0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_little_bird_call.WAV"					0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_little_bird_call_frenz.WAV"			0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_rubber_balloon_fart.WAV"				0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_rubber_balloon_squeak.WAV"			0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_thundercloud_lightening.WAV"			0 1 11025 16		// 
+	DefSample	"SKY\WAVs\sky_thundercloud_rumble.WAV"				0 1 11025 16		// 107
+
+	// Suburbia
+	DefSample	"SUBURBIA\WAVs\sub_car_horn01.WAV"					0 1 11025 16		// 108
+	DefSample	"SUBURBIA\WAVs\sub_car_horn02.WAV"					0 1 11025 16		// 
+	DefSample	"SUBURBIA\WAVs\sub_dog bark.WAV"					0 1 11025 16		// 110
+	DefSample	"SUBURBIA\WAVs\sub_dog eat.WAV"						0 1 11025 16		// 
+	DefSample	"SUBURBIA\WAVs\sub_dog growl.WAV"					0 1 11025 16		// 
+	DefSample	"SUBURBIA\WAVs\sub_fish jump.WAV"					0 1 11025 16		// 
+	DefSample	"SUBURBIA\WAVs\sub_frog_mowed.WAV"					0 1 11025 16		// 
+	DefSample	"SUBURBIA\WAVs\sub_hedgehog_hit.WAV"				0 1 11025 16		// 
+	DefSample	"SUBURBIA\WAVs\sub_hedgehog_rolling.WAV"			0 1 11025 16		// 
+	DefSample	"SUBURBIA\WAVs\sub_lilly_pad.WAV"					0 1 11025 16		// 
+	DefSample	"SUBURBIA\WAVs\sub_lorry_horn01.WAV"				0 1 11025 16		// 
+	DefSample	"SUBURBIA\WAVs\sub_lorry_horn02.WAV"				0 1 11025 16		// 
+	DefSample	"SUBURBIA\WAVs\sub_mower.WAV"						0 1 11025 16		// 120
+	DefSample	"SUBURBIA\WAVs\sub_peddle_boat.WAV"					0 1 11025 16		// 
+	DefSample	"SUBURBIA\WAVs\sub_swan_call.WAV"					0 1 11025 16		// 
+	DefSample	"SUBURBIA\WAVs\sub_swan_flapping.WAV"				0 1 11025 16		// 
+	DefSample	"SUBURBIA\WAVs\sub_turtle_splash.WAV"				0 1 11025 16		// 
+	DefSample	"SUBURBIA\WAVs\sub_frog_turtle_thud.WAV"			0 1 11025 16		// 125
+
+	// Dummy entry	(volcano)
+	DefSample	"DESERT\WAVs\des_lizard.WAV"						0 1 11025 16		// 126
+
+	// Options
+	DefSample	"GENERIC\WAVs\gen_frog drown.WAV"					0 1 11025 16		// 127
+	DefSample	"GENERIC\WAVs\gen_frog_croak.WAV"					0 1 11025 16		// 
+	DefSample	"GENERIC\WAVs\gen_frog_fly_gulp.WAV"				0 1 11025 16		// 
+	DefSample	"GENERIC\WAVs\gen_frog_hop.WAV"						0 1 11025 16		// 130
+	DefSample	"GENERIC\WAVs\gen_frog drown.WAV"					0 1 11025 16		// 
+	DefSample	"GENERIC\WAVs\gen_frog_croak.WAV"					0 1 11025 16		// 
+	DefSample	"GENERIC\WAVs\gen_frog_fly_gulp.WAV"				0 1 11025 16		// 
+	DefSample	"GENERIC\WAVs\gen_frog_hop.WAV"						0 1 11025 16		// 134
+
+EndHeader
+
+// Insert samples into generic bank
+StartBank       "generic"
+	InsertSample	0
+	InsertSample	1
+	InsertSample	2
+	InsertSample	3
+	InsertSample	4
+	InsertSample	5
+	InsertSample	6
+	InsertSample	7
+	InsertSample    8              // this should repeat
+EndBank
+
+// Insert samples into caves bank
+StartBank       "caves"
+	InsertSample	9
+	InsertSample	10
+	InsertSample	11
+	InsertSample	12
+	InsertSample	13
+	InsertSample	14
+	InsertSample	15
+	InsertSample	16
+	InsertSample	17
+	InsertSample	18
+	InsertSample	19
+	InsertSample	20
+EndBank
+
+// Insert samples into desert bank
+StartBank       "desert"
+	InsertSample	21
+	InsertSample	22
+	InsertSample	23
+	InsertSample	24
+	InsertSample	25
+	InsertSample	26
+	InsertSample	27
+	InsertSample	28
+	InsertSample	29
+	InsertSample	30
+	InsertSample	31
+	InsertSample	32
+	InsertSample	33
+	InsertSample	34		// this should repeat
+EndBank
+
+// Insert samples into forest bank
+StartBank       "forest"
+	InsertSample	35
+EndBank
+
+// Insert samples into jungle bank
+StartBank       "jungle"
+	InsertSample	36
+EndBank
+
+// Insert samples into original bank
+StartBank       "original"
+	InsertSample	37
+	InsertSample	38
+	InsertSample	39
+	InsertSample	40
+	InsertSample	41
+	InsertSample	42
+	InsertSample	43
+	InsertSample	44
+	InsertSample	45
+	InsertSample	46
+	InsertSample	47
+	InsertSample	48
+	InsertSample	49
+	InsertSample	50
+	InsertSample	51
+	InsertSample	52
+	InsertSample	53
+	InsertSample	54
+	InsertSample	55
+	InsertSample	56
+	InsertSample	57
+EndBank
+
+// Insert samples into ruins bank
+StartBank       "ruins"
+	InsertSample	58
+EndBank
+
+// Insert samples into swamp bank
+StartBank       "swamp"
+	InsertSample	59
+	InsertSample	60
+	InsertSample	61
+	InsertSample	62
+	InsertSample	63
+	InsertSample	64
+	InsertSample	65
+	InsertSample	66
+	InsertSample	67
+	InsertSample	68
+	InsertSample	69
+	InsertSample	70
+	InsertSample	71
+	InsertSample	72
+	InsertSample	73
+	InsertSample	74
+	InsertSample	75
+	InsertSample	76
+	InsertSample	77
+EndBank
+
+// Insert samples into sky bank
+StartBank       "sky"
+	InsertSample	78
+	InsertSample	79
+	InsertSample	80
+	InsertSample	81
+	InsertSample	82
+	InsertSample	83
+	InsertSample	84
+	InsertSample	85
+	InsertSample	86
+	InsertSample	87
+	InsertSample	88
+	InsertSample	89
+	InsertSample	90
+	InsertSample	91
+	InsertSample	92
+	InsertSample	93		// no flocking2
+	InsertSample	94
+	InsertSample	95
+	InsertSample	96
+	InsertSample	97
+	InsertSample	98
+	InsertSample	99
+	InsertSample	100
+	InsertSample	101
+	InsertSample	102
+	InsertSample	103
+	InsertSample	104
+	InsertSample	105
+	InsertSample	106
+	InsertSample	107
+EndBank
+
+// Insert samples into suburbia bank
+StartBank       "suburbia"
+	InsertSample	108
+	InsertSample	109
+	InsertSample	110
+	InsertSample	111
+	InsertSample	112
+	InsertSample	113
+	InsertSample	114
+	InsertSample	115
+	InsertSample	116
+	InsertSample	117
+	InsertSample	118
+	InsertSample	119
+	InsertSample	120
+	InsertSample	121
+	InsertSample	122
+	InsertSample	123
+	InsertSample	124
+	InsertSample	125
+EndBank
+
+// Insert samples into volcano bank
+StartBank       "volcano"
+	InsertSample	126
+EndBank
+
+// Insert samples into options bank
+StartBank		"options"
+	InsertSample	127
+	InsertSample	128
+	InsertSample	129
+	InsertSample	130
+	InsertSample	131
+	InsertSample	132
+	InsertSample	133
+	InsertSample	134
+EndBank
+
+EndScript

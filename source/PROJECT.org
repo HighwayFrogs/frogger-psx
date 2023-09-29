@@ -1,0 +1,121 @@
+/******************************************************************************
+*%%%% project.h
+*------------------------------------------------------------------------------
+*
+*	Project specific things that the API needs..
+*
+*	CHANGED		PROGRAMMER		REASON
+* 	-------  	----------  	------
+*	11.04.97	Dean Ashton		Created
+*
+*%%%**************************************************************************/
+
+#ifndef		__PROJECT_H
+#define		__PROJECT_H
+
+#include	"mr_all.h"
+#include	"binaries.h"
+#include	"..\merge\frogpsx.h"
+
+
+//-----------------------------------------------------------------------------
+//	Defines
+//-----------------------------------------------------------------------------
+
+// Internal control defines
+#ifdef PSX
+
+#define	FRR_LEFT				(1<<0)
+#define	FRR_RIGHT				(1<<1)
+#define	FRR_UP					(1<<2)
+#define	FRR_DOWN				(1<<3)		
+#define	FRR_BLUE				(1<<4)		
+#define	FRR_START				(1<<5)		
+#define	FRR_SELECT				(1<<6)		
+#define	FRR_PINK				(1<<7)	
+#define	FRR_RED					(1<<8)		
+#define	FRR_GREEN				(1<<9)		
+#define	FRR_LEFT_1				(1<<10)		
+#define	FRR_LEFT_2				(1<<11)		
+#define	FRR_RIGHT_1				(1<<12)		
+#define	FRR_RIGHT_2				(1<<13)
+#define	FRR_UNUSED_14			(1<<14)		
+#define	FRR_UNUSED_15			(1<<15)		
+#else
+#define FRR_LEFT				(1<<0)
+#define	FRR_RIGHT				(1<<1)
+#define	FRR_UP					(1<<2)
+#define	FRR_DOWN				(1<<3)
+#define	FRR_BLUE				(1<<4)
+#define	FRR_PINK				(1<<5)
+#define	FRR_RED					(1<<6)
+#define	FRR_GREEN				(1<<7)
+#define	FRR_LEFT_2				(1<<8)
+#define	FRR_RIGHT_2				(1<<9)
+#define	FRR_LEFT_1				(1<<10)
+#define	FRR_RIGHT_1				(1<<11)
+#define	FRR_START				(1<<12)
+#define	FRR_SELECT				(1<<13)
+#define	FRR_UNUSED_14			(1<<14)
+#define	FRR_UNUSED_15			(1<<15)
+#endif
+
+#define	FRR_SQUARE				(FRR_PINK)
+#define	FRR_CROSS				(FRR_BLUE)
+#define	FRR_CIRCLE				(FRR_RED)
+#define	FRR_TRIANGLE			(FRR_GREEN)
+					  
+#define	FR_ANY_BUTTON			(0xffff)
+
+// Game-type control defines
+#define	FR_LEFT					FRR_LEFT
+#define	FR_RIGHT				FRR_RIGHT
+#define	FR_UP					FRR_UP
+#define	FR_DOWN					FRR_DOWN
+#define	FR_REPEAT				FRR_BLUE
+#define	FR_START				FRR_START
+#define	FR_SELECT				FRR_SELECT
+#define	FR_SUPERJUMP			FRR_PINK
+#define	FR_TONGUE				FRR_RED
+#define	FR_CROAK				FRR_GREEN
+#define	FR_CAMERA_CLOCKWISE		FRR_LEFT_1
+#define	FR_CAMERA_ANTICLOCKWISE	FRR_RIGHT_1
+#define FR_DEBUG_COLLIDE_TOGGLE	FRR_LEFT_2
+#define FR_DEBUG_GAME_OVER		FRR_RIGHT_2
+
+// File loading stuff
+#define	PROJECT_MAX_THEME_MOFS	128
+#define	PROJECT_MAX_GEN_MOFS	64
+
+
+//-----------------------------------------------------------------------------
+//	Structures
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//	Macros
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//	Externs
+//-----------------------------------------------------------------------------
+
+extern	MR_USHORT		FRInput_default_map[];		// Default joypad configuration
+extern	MR_MOF*			Map_mof_ptrs[];
+extern	MR_ULONG		Map_mof_index;
+
+#ifdef WIN95
+extern	MR_USHORT		FRInput_default_key_map[];
+#endif
+
+//-----------------------------------------------------------------------------
+//	Prototypes
+//-----------------------------------------------------------------------------
+
+extern	MR_BOOL			FRFileProcess_VLO(MR_ULONG*, MR_ULONG);
+extern	MR_BOOL			FRFileProcess_MOF(MR_ULONG*, MR_ULONG);
+extern	MR_BOOL			FRFileProcess_MAPMOF(MR_ULONG*, MR_ULONG);
+
+
+#endif		//__PROJECT_H
+

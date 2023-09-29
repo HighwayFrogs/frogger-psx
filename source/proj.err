@@ -1,0 +1,30 @@
+	ccpsx -comments-c++ -c -Wunused -Wmissing-prototypes -g library.c
+	dmpsx library.obj -b
+-----
+	chdir API.SRC
+	NMAKE /CL             CFLAGS="-comments-c++ -c -Wunused -Wmissing-prototypes -g" AFLAGS="/z /zd /l /g /q /o s+ /o l. /o c+" CC="ccpsx" AS="asmpsx /j C:\PSX\INCLUDE.37"
+
+//
+//      Millennium API (PlayStation Version 1.11a)
+// 
+
+	chdir ..
+-----
+
+PSYLINK version 2.42
+
+
+Linking completed.
+0 error(s) in 4.1 seconds
+Sony Playstation DTL-H2000 RESET utility 1.06
+ Copyright (c) 1994-1996 S N Systems Ltd.
+
+Done
+RUN.EXE Executable/Binary file downloader version 2.33
+ Copyright (c) 1992 to 1995 S N Systems Ltd.
+
+ Target 0 is R3000 - SONY_PSX7.04 
+
+Loading file MAIN.CPE
+Starting target 0
+OK

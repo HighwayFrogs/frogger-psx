@@ -1,0 +1,94 @@
+/******************************************************************************
+*%%%% CreateSplashes
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID CreateSplashes(	
+*										)
+*
+*	FUNCTION	This function creates splash effects at the points denoted by
+*				highlights of the correct type
+*
+*	INPUTS		????????			-	???????
+*
+*	RESULT		????????
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	06.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_BOOL CreateSplashes(MR_VOID)
+{
+
+	// Locals
+
+	// Are there any highlights ?
+		// Yes ... loop once for each highlight
+			// Create a 3D sprite for this highlight
+			// Apply orientation to this sprite
+			// Add position
+
+}
+
+/******************************************************************************
+*%%%% UpdateSplashes
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID UpdateSplashes(	
+*										)
+*
+*	FUNCTION	This function updates the splash effects
+*
+*	INPUTS		????????			-	???????
+*
+*	RESULT		????????
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	06.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_BOOL UpdateSplashes(MR_VOID)
+{
+
+	// Locals
+
+	// Are there any 3D sprites for this entity ?
+		// Yes ... loop once for each 3D sprite
+			// Apply orientation to this sprite
+			// Add position
+
+}
+
+/******************************************************************************
+*%%%% KillSplashes
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID KillSplashes(	
+*										)
+*
+*	FUNCTION	This function kills the splash effects
+*
+*	INPUTS		????????			-	???????
+*
+*	RESULT		????????
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	06.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_BOOL KillSplashes(MR_VOID)
+{
+
+	// Locals
+
+	// Are there any 3D sprites for this entity ?
+		// Yes ... loop once for each 3D sprite
+			// Kill sprite
+
+}
+

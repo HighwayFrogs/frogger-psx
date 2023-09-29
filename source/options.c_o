@@ -1,0 +1,231 @@
+/******************************************************************************
+*%%%% options.c
+*------------------------------------------------------------------------------
+*
+*	Options Processing
+*
+*	CHANGED		PROGRAMMER		REASON
+* 	-------  	----------  	------
+*	14.04.97	Dean Ashton		Created
+*
+*%%%**************************************************************************/
+
+#include "options.h"
+#include "levelsel.h"
+#include "sprdata.h"
+#include "project.h"
+#include "tempopt.h"
+#include "select.h"
+#include "gamesys.h"
+
+
+OPTION_PAGE		Option_page_info[] =
+				{
+				{NULL,								NULL,								NULL },
+				{AntiPiracyStartup,					AntiPiracyUpdate,					AntiPiracyShutdown},
+				{HasbroLogoStartup,					HasbroLogoUpdate,					HasbroLogoShutdown},
+				{MillenniumLogoStartup,				MillenniumLogoUpdate,				MillenniumLogoShutdown},
+				{OptionsScreenStartup,				OptionsScreenUpdate,				OptionsScreenShutdown},
+				{IntroStartup,						IntroUpdate,						IntroShutdown},
+				{MainOptionsStartup,				MainOptionsUpdate,					MainOptionsShutdown},
+				{OptionsStartup,					OptionsUpdate,						OptionsShutdown},
+				{SessionOptionsStartup,				SessionOptionsUpdate,				SessionOptionsShutdown},
+				{FrogSelectionStartup,				FrogSelectionUpdate,				FrogSelectionShutdown},
+				{OptionPage_MAIN_STARTUP,			OptionPage_MAIN_UPDATE,				OptionPage_MAIN_SHUTDOWN},
+				{SelectLevelStartup,				SelectLevelUpdate,					SelectLevelShutdown},
+				{ContinueStartup,					ContinueUpdate,						ContinueShutdown},
+				{GameOverStartup,					GameOverUpdate,						GameOverShutdown},
+				{OutroStartup,						OutroUpdate,						OutroShutdown},
+				{StdCreditsStartup,					StdCreditsUpdate,					StdCreditsShutdown},
+				{HighScoreInputStartup,				HighScoreInputUpdate,				HighScoreInputShutdown},
+				{HighScoreViewStartup,				HighScoreViewUpdate,				HighScoreViewShutdown},
+				{MusicVolumeStartup,				MusicVolumeUpdate,					MusicVolumeShutdown},
+				{SoundVolumeStartup,				SoundVolumeUpdate,					SoundVolumeShutdown},
+				{SaveStartup,						SaveUpdate,							SaveShutdown},
+				{LoadStartup,						LoadUpdate,							LoadShutdown},
+#ifdef PSX		// PSX Specific code ----------------------------------------
+				{RedefinePSXButtonsStartup,			RedefinePSXButtonsUpdate,			RedefinePSXButtonsShutdown},
+#else			// WIN95 Specific code --------------------------------------
+				{ChooseWINControllerStartup,		ChooseWINControllerUpdate,			ChooseWINControllerShutdown},
+#endif			// PSX
+				{WillsLevelSelectStartup,			WillsLevelSelectUpdate,				WillsLevelSelectShutdown},
+				{DemoLevelSelectStartup,			DemoLevelSelectUpdate,				DemoLevelSelectShutdown},
+				{ExtCreditsStartup,					ExtCreditsUpdate,					ExtCreditsShutdown},
+				};
+
+MR_LONG			Option_page_current;
+MR_LONG			Option_page_request;
+
+MR_VIEWPORT*	Option_viewport_ptr;
+MR_FRAME*		Option_camera_ptr;
+
+MR_LONG			Option_level_number = OPTION_MIN_LEVEL;
+
+
+/******************************************************************************
+*%%%% OptionStart
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OptionStart(MR_VOID)
+*
+*	FUNCTION	Main entry point for Frogger options screens. After creation
+*				of the required viewports, this routine passes control to
+*				a page-based system of callbacks (controlling options page
+*				initialisation, main loop functionality, and shutdown).
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	14.04.97	Dean Ashton		Created
+*
+*%%%**************************************************************************/
+
+MR_BOOL	OptionStart(MR_VOID)
+{
+
+	// Locals
+	MR_VEC		camera_pos;
+	MR_OBJECT*	Light_object_ptr;	
+
+	Option_viewport_ptr = MRCreateViewport(NULL, NULL, MR_VP_SIZE_4096, 1);
+	MRSetViewportViewDistance(Option_viewport_ptr, MR_VP_VIEWDIST_32768);
+
+	// $wb - Create camera for options to stop windows from crashing
+	camera_pos.vx = -0;
+	camera_pos.vy = -0;
+	camera_pos.vz = -2144;
+	Option_camera_ptr = MRCreateFrame(&camera_pos,&MRNull_svec,0);
+	camera_pos.vx = 0;
+	camera_pos.vy = 4096;
+	camera_pos.vz = 0;
+	MRPointMatrixAtVector(&Option_camera_ptr->fr_matrix,&MRNull_vec,&camera_pos);
+
+	MRSetViewportCamera(Option_viewport_ptr,Option_camera_ptr);
+
+	// $wb - Add a dummy light in an attempt to get Frogs to appear
+	Light_object_ptr = MRCreateLight(MR_LIGHT_TYPE_AMBIENT, 0xFFFFFF, NULL, MR_OBJ_STATIC);
+	MRAddObjectToViewport(Light_object_ptr, Option_viewport_ptr, NULL);
+
+	Option_page_request = NULL;
+
+	do 	{
+
+		// Process page startup callback
+		if (Option_page_info[Option_page_current].op_callback_startup)
+			(Option_page_info[Option_page_current].op_callback_startup)();
+
+		while (Option_page_request == NULL)
+			{
+#ifdef WIN95	//-win95 specific---------------------------------------------
+			MRClearAllViewportOTs();
+#else			//-psx specific-----------------------------------------------
+			DrawSync(0);
+			VSync(2);			// $wb - Was 0, now 2 to match main game loop
+			MRSwapDisplay();
+#endif			//-end of specific code---------------------------------------
+
+			MRReadInput();
+
+			// $wb - Start the gatso
+			MRStartGatso();
+
+			// Process page update callback
+			if (Option_page_info[Option_page_current].op_callback_update)
+				(Option_page_info[Option_page_current].op_callback_update)();
+
+			MRUpdateFrames();
+			MRUpdateObjects();
+			MRAnimUpdateEnvironments();
+			MRUpdateViewportRenderMatrices();
+
+			MRRenderViewport(Option_viewport_ptr);
+
+			if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CIRCLE))
+				goto return_false;
+
+			// $wb - Stop the gatso
+			MRStopGatso();
+
+#ifdef WIN95	//-win95 specific---------------------------------------------
+			MRSwapDisplay();
+			MRProcessWindowsMessages(NULL);				// addition for PC
+#else			//-psx specific-----------------------------------------------
+//			ProgressMonitor();
+#endif			//-end of specific code---------------------------------------
+			}
+
+		// Process page shutdown callback
+		if (Option_page_info[Option_page_current].op_callback_shutdown)
+			(Option_page_info[Option_page_current].op_callback_shutdown)();
+
+		Option_page_current = Option_page_request;
+		Option_page_request = NULL;
+
+		} while (Option_page_current != OPTIONS_PAGE_EXIT);
+
+	MRKillViewport(Option_viewport_ptr);
+
+	// Play a level here?
+	printf("Hello! I want to play a level\n");
+	return TRUE;
+
+return_false:
+	MRKillViewport(Option_viewport_ptr);
+	return FALSE;
+}
+
+// --- Globals for main menu options - TEMPORARY ---
+
+MR_STRPTR	Option_main_text_title[]	=	{"%jcFROGGER", NULL};
+MR_STRPTR	Option_main_choose_level[]	=	{"%jcLEVEL %w", (MR_STRPTR)&Option_level_number, (MR_STRPTR)1, NULL};
+MR_STRPTR	Option_main_play_game[]		=	{"%jcPRESS X TO PLAY!", NULL};
+MR_STRPTR	Option_main_play_game_off[]	=	{"", NULL};
+
+MR_TEXT_AREA*	Option_main_text_area_0;
+MR_TEXT_AREA*	Option_main_text_area_1;
+MR_TEXT_AREA*	Option_main_text_area_2;
+
+MR_VOID	OptionPage_MAIN_STARTUP(MR_VOID)
+{
+	Option_main_text_area_0 = MRAllocateTextArea(NULL, NULL, Option_viewport_ptr, 100, 0, 32, 320, 16);
+	Option_main_text_area_1 = MRAllocateTextArea(NULL, NULL, Option_viewport_ptr, 100, 0, 96, 320, 16);
+	Option_main_text_area_2 = MRAllocateTextArea(NULL, NULL, Option_viewport_ptr, 100, 0, 192, 320, 16);
+
+	MRBuildText(Option_main_text_area_0, Option_main_text_title,	MR_FONT_COLOUR_YELLOW);
+	MRBuildText(Option_main_text_area_1, Option_main_choose_level,	MR_FONT_COLOUR_CADMIUM);
+	MRBuildText(Option_main_text_area_2, Option_main_play_game,		MR_FONT_COLOUR_WHITE);
+}
+
+MR_VOID	OptionPage_MAIN_UPDATE(MR_VOID)
+{
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, MRIP_LEFT) && (Option_level_number > OPTION_MIN_LEVEL))
+		{
+		Option_level_number--;
+		MRBuildText(Option_main_text_area_1, Option_main_choose_level, MR_FONT_COLOUR_CADMIUM);
+		}
+	else
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, MRIP_RIGHT) && (Option_level_number < OPTION_MAX_LEVEL))
+		{
+		Option_level_number++;
+		MRBuildText(Option_main_text_area_1, Option_main_choose_level, MR_FONT_COLOUR_CADMIUM);
+		}
+	else
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+		{
+		Option_page_request = OPTIONS_PAGE_EXIT;
+		MRBuildText(Option_main_text_area_2, Option_main_play_game,		MR_FONT_COLOUR_WHITE);
+		}
+	else
+	if ((MRFrame_number & 0x10) == 0)
+		MRBuildText(Option_main_text_area_2, Option_main_play_game_off,	MR_FONT_COLOUR_WHITE);
+	else
+		MRBuildText(Option_main_text_area_2, Option_main_play_game,		MR_FONT_COLOUR_WHITE);
+
+}
+
+MR_VOID	OptionPage_MAIN_SHUTDOWN(MR_VOID)
+{
+	MRFreeTextArea(Option_main_text_area_2);
+	MRFreeTextArea(Option_main_text_area_1);
+	MRFreeTextArea(Option_main_text_area_0);
+}
+

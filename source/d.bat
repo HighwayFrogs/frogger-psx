@@ -1,0 +1,2 @@
+dbugpsx main.sym
+

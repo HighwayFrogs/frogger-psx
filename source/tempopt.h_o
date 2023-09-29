@@ -1,0 +1,307 @@
+/******************************************************************************
+*%%%% tempopt.h
+*------------------------------------------------------------------------------
+*
+*	Header file for temp options routines
+*
+*	CHANGED		PROGRAMMER		REASON
+* 	-------  	----------  	------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+#ifndef	__TEMPOPT_H
+#define	__TEMPOPT_H
+
+#include "mr_all.h"
+
+//-----------------------------------------------------------------------------
+//	Defines
+//-----------------------------------------------------------------------------
+
+#define NUM_OPTION_TICKS					31						// Number of ticks or frames per unit
+
+#define NUM_MAIN_OPTIONS_OPTIONS			3						// Number of "main options" options
+#define NUM_OPTIONS_OPTIONS					9						// Number of "option" options
+
+#define	NUM_CONTINUE_UNITS					10						// Number of units until continue over
+#define	NUM_CONTINUE_TICKS					NUM_OPTION_TICKS		// Number of ticks or frames per unit
+
+#define	NUM_GAME_OVER_UNITS					5						// Number of units until game over over
+#define	NUM_GAME_OVER_TICKS					NUM_OPTION_TICKS		// Number of ticks or frames per unit
+
+#define	NUM_DEMO_LEVELS						7						// Number of levels in demo level select
+
+#define	MAX_NUM_HIGH_SCORE_INITIALS			3						// Maximum number of initials the player can enter
+#define	MAX_NUM_HIGH_SCORE_CHARACTERS		29						// Maximum number of letters the player can choose from ( A..Z / SPACE / RUB / ENTER )
+#define	HIGH_SCORE_SPACE					26						// Position of RUB in letter selection
+#define	HIGH_SCORE_RUB						27						// Position of RUB in letter selection
+#define	HIGH_SCORE_END						28						// Position of END in letter selection
+
+#define	NUM_HIGH_SCORE_ENTRIES_PER_TABLE	10						// Number of names per table
+#define	NUM_HIGH_SCORE_TABLES				5						// Total number of high score tables
+
+#define	SINGLE_PLAYER_HIGH_SCORE_STACK		0						// Number of single player high score stack
+#define	MULTI_PLAYER_HIGH_SCORE_STACK		1						// Number of multi player high score stack
+
+#define	MAX_HIGH_SCORE_TABLES				50						// Total number of high score tables ( one for each level )
+
+#define	MAX_NUM_DEMO_LEVELS					5						// Define the number of demo levels
+
+#define	FROG_SELECTION_PLAYER1_MASTER			(1<<0)				// Warning - These four flags must be consecutive
+#define	FROG_SELECTION_PLAYER2_MASTER			(1<<1)
+#define	FROG_SELECTION_PLAYER3_MASTER			(1<<2)
+#define	FROG_SELECTION_PLAYER4_MASTER			(1<<3)
+
+#define	FROG_SELECTION_PLAYER1_JOINED			(1<<4)				// Warning - These four flags must be consecutive
+#define	FROG_SELECTION_PLAYER2_JOINED			(1<<5)
+#define	FROG_SELECTION_PLAYER3_JOINED			(1<<6)
+#define	FROG_SELECTION_PLAYER4_JOINED			(1<<7)
+
+#define	FROG_SELECTION_PLAYER1_FROG_SELECTED	(1<<8)				// Warning - These four flags must be consecutive
+#define	FROG_SELECTION_PLAYER2_FROG_SELECTED	(1<<9)
+#define	FROG_SELECTION_PLAYER3_FROG_SELECTED	(1<<10)
+#define	FROG_SELECTION_PLAYER4_FROG_SELECTED	(1<<11)
+
+#define	FROG_SELECTION_PLAYER1_COWERING			(1<<12)				// Warning - These four flags must be consecutive
+#define	FROG_SELECTION_PLAYER2_COWERING			(1<<13)
+#define	FROG_SELECTION_PLAYER3_COWERING			(1<<14)
+#define	FROG_SELECTION_PLAYER4_COWERING			(1<<15)
+
+#define	FROG_SELECTION_PLAYER1_GROWLING			(1<<16)				// Warning - These four flags must be consecutive
+#define	FROG_SELECTION_PLAYER2_GROWLING			(1<<17)
+#define	FROG_SELECTION_PLAYER3_GROWLING			(1<<18)
+#define	FROG_SELECTION_PLAYER4_GROWLING			(1<<19)
+
+#define	FROG_SELECTION_MASTER_WANTED			(1<<20)
+#define	FROG_SELECTION_NO_MASTER				(1<<21)
+
+#define	FROG_SELECTION_ALL_MASTERS				( FROG_SELECTION_PLAYER1_MASTER | FROG_SELECTION_PLAYER2_MASTER | FROG_SELECTION_PLAYER3_MASTER | FROG_SELECTION_PLAYER4_MASTER )
+
+#define	NUM_FRAMES_COWERING_ANIMATION			30*10
+#define	NUM_FRAMES_GROWLING_ANIMATION			30*10
+
+enum
+	{
+	LOAD_STATUS_LOAD,
+	LOAD_STATUS_CHOOSE_GAME_INIT,
+	LOAD_STATUS_CHOOSE_GAME_MAIN,
+	LOAD_STATUS_CHOOSE_GAME_END,
+	LOAD_STATUS_REPORT,
+	LOAD_STATUS_WAIT,
+	};
+
+enum
+	{
+	SAVE_STATUS_INIT,
+	SAVE_STATUS_NO_CARDS,
+	SAVE_STATUS_CHOOSE_GAME_INIT,
+	SAVE_STATUS_CHOOSE_GAME_MAIN,
+	SAVE_STATUS_CHOOSE_GAME_END,
+	SAVE_STATUS_SAVE_0,
+	SAVE_STATUS_SAVE_1,
+	SAVE_STATUS_FINISH,
+	};
+
+enum
+	{
+	READ_STATUS_INIT,
+	READ_STATUS_CHOOSE_GAME_INIT,
+	READ_STATUS_CHOOSE_GAME_MAIN,
+	READ_STATUS_CHOOSE_GAME_END,
+	READ_STATUS_LOAD_0,
+	READ_STATUS_LOAD_1,
+	READ_STATUS_FINISH,
+	};
+
+enum
+	{
+	MAIN_OPTIONS_STATUS_DEMO_INIT,
+	MAIN_OPTIONS_STATUS_DEMO_MAIN,
+	MAIN_OPTIONS_STATUS_DEMO_FINISH,
+	MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_INIT,
+	MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_MAIN,
+	MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_FINISH,
+	};
+
+//-----------------------------------------------------------------------------
+//	Structures
+//-----------------------------------------------------------------------------
+
+typedef struct __option_demo_level		OPTION_DEMO_LEVEL;
+typedef struct __high_score_entry		HIGH_SCORE_ENTRY;
+typedef struct __control_options		CONTROL_OPTIONS;
+
+struct __option_demo_level
+	{
+	MR_LONG			dl_world_number;
+	MR_LONG			dl_level_number;
+
+	};	// OPTION_DEMO_LEVEL
+
+struct __high_score_entry
+	{
+	MR_UBYTE			he_initals[4];		// Player's initials
+	MR_ULONG			he_score;			// Score
+	MR_ULONG			he_total_time;		// Total time
+	MR_ULONG			he_records_broken;	// Records broken
+	MR_ULONG			he_zones_completed;	// Zones completed
+
+	};	// HIGH_SCORE_ENTRY
+
+struct __control_options
+	{
+	MR_USHORT			co_music_volume;	// Current music volume setting
+	MR_USHORT			co_sound_volume;	// Current sound volume setting
+#ifdef WIN95	// Windows specific options ---------------------------------
+	MR_USHORT			co_device_id;		// Device of choice
+	MR_USHORT			co_hop_up;			// up hop
+	MR_USHORT			co_hop_down; 		// down hop
+	MR_USHORT			co_hop_left; 		// left hop
+	MR_USHORT			co_hop_right;		// right hop
+	MR_USHORT			co_croak;			// croak
+	MR_USHORT			co_super_tongue;	// super tongue
+	MR_USHORT			co_super_jump;		// super jump
+	MR_USHORT			co_rotate_left;		// rotate camera left 90 degrees
+	MR_USHORT			co_rotate_right;	// rotate camera right 90 degrees
+#else			// PSX specific options -------------------------------------
+	MR_USHORT			co_pad0_control_config;	// Control config for pad 0
+	MR_USHORT			co_pad1_control_config;	// Control config for pad 1
+	MR_USHORT			co_pad2_control_config;	// Control config for pad 2
+	MR_USHORT			co_pad3_control_config;	// Control config for pad 3
+#endif			// WIN95
+
+	};	// CONTROL_OPTIONS
+
+//-----------------------------------------------------------------------------
+//	Macros
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//	Externs
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//	Prototypes
+//-----------------------------------------------------------------------------
+
+#ifdef PSX		// PSX Specific code ----------------------------------------
+extern	MR_VOID		AntiPiracyStartup(MR_VOID);
+extern	MR_VOID		AntiPiracyUpdate(MR_VOID);
+extern	MR_VOID		AntiPiracyShutdown(MR_VOID);
+#endif	// PSX
+
+extern	MR_VOID		HasbroLogoStartup(MR_VOID);
+extern	MR_VOID		HasbroLogoUpdate(MR_VOID);
+extern	MR_VOID		HasbroLogoShutdown(MR_VOID);
+
+extern	MR_VOID		MillenniumLogoStartup(MR_VOID);
+extern	MR_VOID		MillenniumLogoUpdate(MR_VOID);
+extern	MR_VOID		MillenniumLogoShutdown(MR_VOID);
+
+#ifdef WIN95	// Windows specific code ------------------------------------
+extern	MR_VOID		OptionsGetRegistryStatus(MR_VOID);
+extern	MR_VOID		OptionsCloseRegistry(MR_VOID);
+#else			// PSX Specific code ----------------------------------------
+extern	MR_VOID		OptionsGetCardStatus(MR_VOID);
+#endif	// WIN95
+
+extern	MR_VOID		OptionsScreenStartup(MR_VOID);
+extern	MR_VOID		OptionsScreenUpdate(MR_VOID);
+extern	MR_VOID		OptionsScreenShutdown(MR_VOID);
+
+extern	MR_VOID		IntroStartup(MR_VOID);
+extern	MR_VOID		IntroUpdate(MR_VOID);
+extern	MR_VOID		IntroShutdown(MR_VOID);
+
+extern	MR_VOID		MainOptionsStartup(MR_VOID);
+extern	MR_VOID		MainOptionsUpdate(MR_VOID);
+extern	MR_VOID		MainOptionsShutdown(MR_VOID);
+
+extern	MR_VOID		OptionsStartup(MR_VOID);
+extern	MR_VOID		OptionsUpdate(MR_VOID);
+extern	MR_VOID		OptionsShutdown(MR_VOID);
+
+extern	MR_VOID		SessionOptionsStartup(MR_VOID);
+extern	MR_VOID		SessionOptionsUpdate(MR_VOID);
+extern	MR_VOID		SessionOptionsShutdown(MR_VOID);
+
+extern	MR_VOID		FrogSelectionStartup(MR_VOID);
+extern	MR_VOID		FrogSelectionUpdate(MR_VOID);
+extern	MR_VOID		FrogSelectionShutdown(MR_VOID);
+
+extern	MR_VOID		ContinueStartup(MR_VOID);
+extern	MR_VOID		ContinueUpdate(MR_VOID);
+extern	MR_VOID		ContinueShutdown(MR_VOID);
+
+extern	MR_VOID		GameOverStartup(MR_VOID);
+extern	MR_VOID		GameOverUpdate(MR_VOID);
+extern	MR_VOID		GameOverShutdown(MR_VOID);
+
+extern	MR_VOID		OutroStartup(MR_VOID);
+extern	MR_VOID		OutroUpdate(MR_VOID);
+extern	MR_VOID		OutroShutdown(MR_VOID);
+
+extern	MR_VOID		StdCreditsStartup(MR_VOID);
+extern	MR_VOID		StdCreditsUpdate(MR_VOID);
+extern	MR_VOID		StdCreditsShutdown(MR_VOID);
+
+extern	MR_VOID	       	ExtCreditsStartup(MR_VOID);
+extern	MR_VOID		ExtCreditsUpdate(MR_VOID);
+extern	MR_VOID		ExtCreditsShutdown(MR_VOID);
+
+extern	MR_VOID		HighScoreInputStartup(MR_VOID);
+extern	MR_VOID		HighScoreInputUpdate(MR_VOID);
+extern	MR_VOID		HighScoreInputShutdown(MR_VOID);
+
+extern	MR_VOID		HighScoreViewStartup(MR_VOID);
+extern	MR_VOID		HighScoreViewUpdate(MR_VOID);
+extern	MR_VOID		HighScoreViewShutdown(MR_VOID);
+
+extern	MR_VOID		MusicVolumeStartup(MR_VOID);
+extern	MR_VOID		MusicVolumeUpdate(MR_VOID);
+extern	MR_VOID		MusicVolumeShutdown(MR_VOID);
+
+extern	MR_VOID		SoundVolumeStartup(MR_VOID);
+extern	MR_VOID		SoundVolumeUpdate(MR_VOID);
+extern	MR_VOID		SoundVolumeShutdown(MR_VOID);
+
+#ifdef	WIN95	// Windows specific code ------------------------------------
+extern	MR_VOID		OptionsSaveSaveData(MR_VOID);
+#else			// PSX Specific code ----------------------------------------
+extern	MR_VOID		OptionsSaveSaveData(MR_ULONG);
+#endif			// WIN95
+
+extern	MR_VOID		SaveStartup(MR_VOID);
+extern	MR_VOID		SaveUpdate(MR_VOID);
+extern	MR_VOID		SaveShutdown(MR_VOID);
+
+#ifdef	WIN95	// Windows specific code ------------------------------------
+extern	MR_VOID		OptionsLoadSaveData(MR_VOID);
+#else			// PSX Specific code ----------------------------------------
+extern	MR_VOID		OptionsLoadSaveData(MR_ULONG);
+#endif			// WIN95
+
+extern	MR_VOID		LoadStartup(MR_VOID);
+extern	MR_VOID		LoadUpdate(MR_VOID);
+extern	MR_VOID		LoadShutdown(MR_VOID);
+
+#ifdef PSX		// PSX Specific code ----------------------------------------
+extern	MR_VOID		RedefinePSXButtonsStartup(MR_VOID);
+extern	MR_VOID		RedefinePSXButtonsUpdate(MR_VOID);
+extern	MR_VOID		RedefinePSXButtonsShutdown(MR_VOID);
+#else			// Windows Specific code ------------------------------------
+extern	MR_VOID		ChooseWINControllerStartup(MR_VOID);
+extern	MR_VOID		ChooseWINControllerUpdate(MR_VOID);
+extern	MR_VOID		ChooseWINControllerShutdown(MR_VOID);
+#endif			// PSX
+
+extern	MR_VOID		WillsLevelSelectStartup(MR_VOID);
+extern	MR_VOID		WillsLevelSelectUpdate(MR_VOID);
+extern	MR_VOID		WillsLevelSelectShutdown(MR_VOID);
+
+extern	MR_VOID		DemoLevelSelectStartup(MR_VOID);
+extern	MR_VOID		DemoLevelSelectUpdate(MR_VOID);
+extern	MR_VOID		DemoLevelSelectShutdown(MR_VOID);
+
+#endif	//__TEMPOPT_H

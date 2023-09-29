@@ -1,0 +1,198 @@
+;Codewright Project File (do not remove or modify this line)
+[ProjInit]
+ProjSetConfigFlags=0x00010140
+
+[Files]
+L:\Frogger\source\BINARIES.H
+L:\Frogger\source\CAMERA.C
+L:\Frogger\source\CAMERA.H
+L:\Frogger\source\COLLIDE.C
+L:\Frogger\source\COLLIDE.H
+L:\Frogger\source\ENTITY.C
+L:\Frogger\source\ENTITY.H
+L:\Frogger\source\FORM.C
+L:\Frogger\source\FORM.H
+L:\Frogger\source\FROG.C
+L:\Frogger\source\FROG.H
+L:\Frogger\source\GAMEFONT.C
+L:\Frogger\source\GAMEFONT.H
+L:\Frogger\source\GAMESYS.C
+L:\Frogger\source\GAMESYS.H
+L:\Frogger\source\GRID.C
+L:\Frogger\source\GRID.H
+L:\Frogger\source\HEADER.H
+L:\Frogger\source\HEADERF.H
+L:\Frogger\source\LIBRARY.C
+L:\Frogger\source\LIBRARY.H
+L:\Frogger\source\MAIN.C
+L:\Frogger\source\MAIN.H
+L:\Frogger\source\MAPDEBUG.C
+L:\Frogger\source\MAPDEBUG.H
+L:\Frogger\source\MAPDISP.C
+L:\Frogger\source\MAPDISP.H
+L:\Frogger\source\MAPLOAD.C
+L:\Frogger\source\MAPLOAD.H
+L:\Frogger\source\MAPVIEW.C
+L:\Frogger\source\MAPVIEW.H
+L:\Frogger\source\MISC.C
+L:\Frogger\source\MISC.H
+L:\Frogger\source\MR_ALL.H
+L:\Frogger\source\OPTIONS.C
+L:\Frogger\source\OPTIONS.H
+L:\Frogger\source\PATH.C
+L:\Frogger\source\PATH.H
+L:\Frogger\source\PROJECT.C
+L:\Frogger\source\PROJECT.H
+L:\Frogger\source\SPRDATA.C
+L:\Frogger\source\SPRDATA.H
+L:\Frogger\source\SYSTEM.H
+L:\Frogger\source\TEMPLATE.C
+L:\Frogger\source\TEMPLATE.H
+L:\Frogger\source\ZONE.C
+L:\Frogger\source\ZONE.H
+L:\Frogger\source\BUILDWAD.SCR
+L:\Frogger\source\MAKEFILE
+L:\Frogger\source\MAKEFILE.LNK
+L:\Frogger\source\BINARIES.S
+L:\Frogger\source\FASTRAM.S
+L:\Frogger\source\ENTLIB.C
+L:\Frogger\source\ENTLIB.H
+L:\frogger\source\suburbia.c
+L:\frogger\source\suburbia.h
+L:\frogger\source\sound.c
+L:\frogger\source\sound.h
+L:\frogger\source\xa.c
+L:\frogger\source\xa.h
+L:\frogger\source\stream.c
+L:\frogger\source\stream.h
+L:\frogger\source\frogcard.C
+L:\frogger\source\frogcard.H
+L:\frogger\source\MEMCARD.C
+L:\frogger\source\MEMCARD.H
+L:\frogger\source\swamp.c
+L:\frogger\source\swamp.h
+L:\frogger\source\ent_des.c
+L:\frogger\source\ent_des.h
+L:\frogger\source\ent_arn.c
+L:\frogger\source\ent_arn.h
+L:\frogger\source\ent_cav.c
+L:\frogger\source\ent_cav.h
+L:\frogger\source\ent_for.c
+L:\frogger\source\ent_for.h
+L:\frogger\source\ent_gen.c
+L:\frogger\source\ent_gen.h
+L:\frogger\source\ent_jun.c
+L:\frogger\source\ent_jun.h
+L:\frogger\source\ent_org.c
+L:\frogger\source\ent_org.h
+L:\frogger\source\ent_sky.c
+L:\frogger\source\ent_sky.h
+L:\frogger\source\ent_sub.c
+L:\frogger\source\ent_sub.h
+L:\frogger\source\ent_swp.c
+L:\frogger\source\ent_swp.h
+L:\frogger\source\ent_vol.c
+L:\frogger\source\ent_vol.h
+L:\frogger\source\formlib.C
+L:\frogger\source\formlib.H
+L:\frogger\source\LEVELSEL.C
+L:\frogger\source\LEVELSEL.H
+
+[State]
+SysSetCwd='L:\frogger\source'
+SrchSetFlags=0x041b600a
+FileSortMode=0x0
+StateWindowFrame=313,62,839,602,0x630977ca
+_StateWindow=108,108,800,391,0x00100010,'L:\Frogger\source\OPTIONS.H',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,1,16,'',20,0,48,0,10,214,220,220,213,220,220,57,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=189,189,800,391,0x00100000,'L:\Frogger\source\SYSTEM.H',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,18,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=135,135,753,391,0x00100000,'L:\Frogger\source\SPRDATA.H',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,1,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=0,0,800,391,0x00100000,'L:\Frogger\source\Buildwad.scr',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,25,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=108,108,753,391,0x00100000,'L:\Frogger\source\SPRDATA.C',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,19,42,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=162,162,800,391,0x00100000,'L:\Frogger\source\MAIN.C',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,26,65,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=81,81,800,391,0x00100000,'L:\Frogger\source\MAKEFILE.LNK',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,53,52,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=54,54,800,391,0x00100000,'L:\Frogger\source\MAKEFILE',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,311,50,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=27,27,800,391,0x00100000,'L:\Frogger\source\PROJECT.H',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,54,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=0,0,800,391,0x00100000,'L:\Frogger\source\PROJECT.C',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,52,5,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=108,108,800,391,0x00100000,'L:\frogger\source\sound.h',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,1,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=135,135,800,391,0x00100000,'L:\Frogger\source\API.SRC\MR_SOUND.C',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,107,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=81,81,800,391,0x00100000,'L:\frogger\source\sound.c',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,25,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=162,162,753,391,0x00100000,'L:\Frogger\source\MAPDISP.C',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,272,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=54,54,800,391,0x00100000,'L:\Frogger\source\GAMESYS.C',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,365,29,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=27,27,800,391,0x00100000,'L:\Frogger\source\gamesys.h',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,1,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=108,108,753,391,0x00100000,'L:\Frogger\source\Frog.c',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,19,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=4294967292,4294967268,950,612,0x00100000,'L:\Frogger\source\LIBRARY.C',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,102,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=189,189,800,391,0x00100000,'U:\DEV\PROG\CAMGR\PUBLIC\tim_data\ENTITY.C',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,270,55,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=189,189,753,391,0x00100000,'L:\Frogger\source\mapload.C',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,1,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=189,189,753,391,0x00100000,'L:\frogger\source\ent_des.c',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,425,23,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=54,54,753,391,0x00100000,'L:\Frogger\source\ENTLIB.H',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,21,42,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=27,27,753,391,0x00100000,'L:\frogger\source\formlib.C',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,103,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=0,0,753,391,0x00100000,'L:\Frogger\source\ENTLIB.C',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,59,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=81,81,753,391,0x00100000,'L:\Frogger\source\PATH.C',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,47,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=162,162,800,391,0x00100000,'L:\Frogger\source\Entity.c',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,216,69,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=0,330,989,330,0x00100000,'L:\Frogger\source\Entity.h',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,73,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateWindow=135,135,800,391,0x00100000,'L:\Frogger\source\OPTIONS.C',208,14,220,32,32,0,32,32,32,32,8,4294967295,4294967295,0,16,'',20,0,48,0,10,214,220,220,213,220,220,14,1,400,0,211,211,223,211,765,765,218,218,218,0,0
+_StateBuffer='L:\Frogger\source\OPTIONS.H',0x0400058e,57,1,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\SYSTEM.H',0x0400048e,18,1,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\SPRDATA.H',0x0000058e,1,1,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\Buildwad.scr',0x0400048e,25,1,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\SPRDATA.C',0x0c00058e,19,42,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\MAIN.C',0x0c00058e,26,65,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\MAKEFILE.LNK',0x0c00058e,53,52,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\MAKEFILE',0x0c00048e,311,50,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\PROJECT.H',0x0400058e,54,1,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\PROJECT.C',0x0400058e,52,5,25,'5 9','',0x0,''
+_StateBuffer='L:\frogger\source\sound.h',0x0400058e,1,1,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\API.SRC\MR_SOUND.C',0x0400048e,107,1,25,'5 9','',0x0,''
+_StateBuffer='L:\frogger\source\sound.c',0x0400058e,25,1,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\MAPDISP.C',0x0400058e,272,1,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\GAMESYS.C',0x0400058e,365,29,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\gamesys.h',0x0400058e,1,1,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\Frog.c',0x0400058e,19,1,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\LIBRARY.C',0x0400058e,102,1,25,'5 9','',0x0,''
+_StateBuffer='U:\DEV\PROG\CAMGR\PUBLIC\tim_data\ENTITY.C',0x0400048e,270,55,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\mapload.C',0x0400058e,1,1,25,'5 9','',0x0,''
+_StateBuffer='L:\frogger\source\ent_des.c',0x0c00048e,425,23,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\ENTLIB.H',0x0c00058e,21,42,25,'5 9','',0x0,''
+_StateBuffer='L:\frogger\source\formlib.C',0x0400058e,103,1,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\ENTLIB.C',0x0400058e,59,1,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\PATH.C',0x0400058e,47,1,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\Entity.c',0x0c00058e,216,69,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\Entity.h',0x0400058e,73,1,25,'5 9','',0x0,''
+_StateBuffer='L:\Frogger\source\OPTIONS.C',0x0400058e,14,1,25,'5 9','',0x0,''
+_StateHistory=SEARCH,'FR_','FROG_','FROG01','MRSND_vab_info_ptr','MRSNDUP','MRSNDUp','ENTITY_GET','suburbia\jun_stat_tree.','model','RES_DES_VRAM'
+_StateHistory=REPLACE,'le_api_item0','MR_ANIM_ENV','MR_VOID','LIVE_ENTITY*','generic\gen_triggerpoint1.','models','RES_SUB_VRAM'
+_StateHistory=FILELIST,'L:\Frogger\source\Frog.c','L:\Frogger\gfx\models\generic\list.txt','L:\Frogger\gfx\models\suburbia\list.txt','L:\frogger\gen_list.txt','L:\frogger\sub_list.txt','L:\Frogger\source\SPRDATA.C','L:\Frogger\source\SPRDATA.H','L:\Frogger\source\LIBRARY.C','L:\frogger\source\ent_des.c'
+_StateHistory=EDITFILE,'L:\Frogger\source\list','U:\DEV\PROG\CAMGR\PUBLIC\tim_data\Main','U:\DEV\PROG\CAMGR\PUBLIC\tim_data\Library','U:\DEV\PROG\CAMGR\PUBLIC\tim_data\Mapload','U:\DEV\PROG\CAMGR\PUBLIC\tim_data\Collide','U:\DEV\PROG\CAMGR\PUBLIC\tim_data\Gamesys','U:\DEV\PROG\CAMGR\PUBLIC\tim_data\Entity','L:\Frogger\source\API.SRC\Mr_sound','L:\Frogger\gfx\models\generic\list','L:\Frogger\gfx\models\suburbia\list'
+
+[Editor]
+ClipboardSetTermStr='\r\n',0
+ClipboardEnableTermStr=1
+ClipboardSetSepStr='\r\n',0
+ClipboardEnableSepStr=1
+ScrapSetCount=1
+VCSProject='"$/Frogger/source", ZERAAAAA'
+VCSProjectPath='C:\VSS,'
+VCSProjectLocalPath='L:\Frogger\source'
+_RestoreSysFlags=0x630977ca, 0xfffffffc, 0
+_RestoreSysFlags=0x00000001, 0xffffffff, 1
+
+[Compiler]
+TagSetCmd='${HOME}${WTAGS} -oc -d -t${TAGFILE}.tag -p${TAGFILE}.ptg',0x8000060
+BrowseSetFile='L:\frogger\source\frogger.ptg'
+TagSetFile='L:\frogger\source\frogger.tag'
+CompilerAddCmd='Microsoft C Debug (NT-i386)','${FTEE} cl -DSTRICT -c -W3 -G3 -D_X86_=1 -DWIN32 -Zi -Od %r%e',1073741936,'${FTEE} cl -DSTRICT -c -W3 -G3 -D_X86_=1 -DWIN32 -Zi -Od %r%e',112,'',144,'',144,'',0,'',0,'_MicrosoftErrorInfo','','','',''
+CompilerAddResponse='Microsoft C Debug (NT-i386)',
+CompilerAddCmd='Default Compiler Settings','',1073741840,'',16,'',16,'',16,'',0,'',0,'','','','',''
+CompilerAddResponse='Default Compiler Settings',
+CompilerAddCmd='$_cw_proj_hash_$','',1073741904,'',80,'${FTEE} nmake',176,'${FTEE} nmake',176,'',0,'',0,'_ErrorInfoDefault','','','proj.err','%x'
+CompilerAddResponse='$_cw_proj_hash_$',
+CompilerAddCmd='Microsoft C(NT-i386)','${FTEE} cl -DSTRICT -c -W3 -G3 -D_X86_=1 -DWIN32 %r%e',1073741936,'${FTEE} cl -DSTRICT -c -W3 -G3 -D_X86_=1 -DWIN32 %r%e',112,'',144,'',144,'',0,'',0,'_MicrosoftErrorInfo','','','',''
+CompilerAddResponse='Microsoft C(NT-i386)',
+CompilerAssign='Default Compiler Settings','.scr'
+CompilerAssign='Default Compiler Settings','.lnk'
+CompilerAssign='Default Compiler Settings','.c'
+CompilerAssign='Default Compiler Settings','.h'
+CompilerAssign='Microsoft C(NT-i386)','.cpp'
+CompilerAssign='Default Compiler Settings','.*'
+CompilerAssign='Microsoft C(NT-i386)','.cxx'
+CompilerAssign='Microsoft C(NT-i386)','.hpp'

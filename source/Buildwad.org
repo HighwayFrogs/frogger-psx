@@ -1,0 +1,2256 @@
+//-------------------------------------------------
+// buildwad.scr - WAD generation script for Frogger
+//-------------------------------------------------
+
+// Define types of file (for application use)
+DefineFType		FR_FTYPE_STD		
+DefineFType		FR_FTYPE_VLO		
+DefineFType		FR_FTYPE_SPU		
+DefineFType		FR_FTYPE_MOF 
+DefineFType		FR_FTYPE_MAPMOF
+DefineFType		FR_FTYPE_MAPANIMMOF
+DefineFType		FR_FTYPE_DEMODATA
+
+
+// THIS MUST BE ADDED WHEN PRODUCING A DISK. (TO SAVE MEMORY)
+//ForceMerge		ON
+//OutputNames		OFF		
+
+// Set base directory
+SetDirectory		"L:\FROGGER\"
+
+// Setup directories for packing VLO.
+SetPackDirectory	"PACKED"
+SetPackMode			PACKMODE_BEST
+
+// Define game SuperWAD (outputs FROGPSX.MWD, FROGPSX.MWI, FROGPSX.H)
+StartMerged			"MERGE\FROGPSX"
+
+	InsertFile	"VLO\FIXE_VRAM.VLO"								FR_FTYPE_VLO	
+	InsertFile	"VLO\FIXF_VRAM.VLO"								FR_FTYPE_VLO	
+	InsertFile	"VLO\FIXG_VRAM.VLO"								FR_FTYPE_VLO	
+	InsertFile	"VLO\FIXI_VRAM.VLO"								FR_FTYPE_VLO	
+	InsertFile	"VLO\FIXS_VRAM.VLO"								FR_FTYPE_VLO	
+
+	StartGroup		"WADS\FIXMODEL.WAD"
+	EndGroup
+
+	InsertFile	"binaries\des1demo.dat"                         FR_FTYPE_DEMODATA
+	InsertFile	"binaries\des2demo.dat"                         FR_FTYPE_DEMODATA
+	InsertFile	"binaries\org5demo.dat"                         FR_FTYPE_DEMODATA
+	InsertFile	"binaries\swp1demo.dat"                         FR_FTYPE_DEMODATA
+	InsertFile	"binaries\swp2demo.dat"                         FR_FTYPE_DEMODATA
+	InsertFile	"binaries\swp5demo.dat"                         FR_FTYPE_DEMODATA
+	InsertFile	"binaries\sky1demo.dat"                         FR_FTYPE_DEMODATA
+	InsertFile	"binaries\sky2demo.dat"                         FR_FTYPE_DEMODATA
+	InsertFile	"binaries\sub1demo.dat"                         FR_FTYPE_DEMODATA
+	InsertFile	"binaries\sub3demo.dat"                         FR_FTYPE_DEMODATA
+	InsertFile	"binaries\cav2demo.dat"                         FR_FTYPE_DEMODATA
+
+	StartGroup		"WADS\OPTIONS.WAD"
+		InsertFile	"gfx\models\options\opt_stat_bullrush.xmr"		FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\opt_stat_lilly.xmr"			FR_FTYPE_MOF
+//		InsertFile	"gfx\models\options\opt_island.xmr"				FR_FTYPE_MOF
+//		InsertFile	"gfx\models\options\opt_stat_daisy.xmr"			FR_FTYPE_MOF
+
+		InsertFile	"gfx\models\options\hi_log.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\opt_music.xmu"				FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\opt_sfx.xmu"				FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\opt_memory.xmr"				FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\opt_turtle.xmr"				FR_FTYPE_MOF
+//		InsertFile	"gfx\models\options\opt_fish.xmr"				FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\opt_lillypad_blank.xmu"		FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\opt_lillypad_tri.xmr"		FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_a.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_b.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_c.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_d.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_e.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_f.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_g.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_h.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_i.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_j.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_k.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_l.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_m.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_n.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_o.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_p.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_q.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_r.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_s.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_t.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_u.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_v.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_w.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_x.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_y.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_z.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_dot.xmr"					FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_back.xmr"				FR_FTYPE_MOF
+		InsertFile	"gfx\models\options\hi_end.xmr"					FR_FTYPE_MOF
+
+		InsertFile	"VLO\LS_CAV.VLO"								FR_FTYPE_STD	DEPACK_MANUAL
+		InsertFile	"VLO\LS_DES.VLO"								FR_FTYPE_STD	DEPACK_MANUAL
+		InsertFile	"VLO\LS_FOR.VLO"								FR_FTYPE_STD	DEPACK_MANUAL
+		InsertFile	"VLO\LS_JUN.VLO"								FR_FTYPE_STD	DEPACK_MANUAL
+		InsertFile	"VLO\LS_ORG.VLO"								FR_FTYPE_STD	DEPACK_MANUAL
+		InsertFile	"VLO\LS_ARN.VLO"								FR_FTYPE_STD	DEPACK_MANUAL
+		InsertFile	"VLO\LS_SWP.VLO"								FR_FTYPE_STD	DEPACK_MANUAL
+		InsertFile	"VLO\LS_SKY.VLO"								FR_FTYPE_STD	DEPACK_MANUAL
+		InsertFile	"VLO\LS_SUB.VLO"								FR_FTYPE_STD	DEPACK_MANUAL
+		InsertFile	"VLO\LS_VOL.VLO"								FR_FTYPE_STD	DEPACK_MANUAL
+	EndGroup
+
+	// WARNING - These VLOs should be STD file types, so that we can process them manually
+//	StartGroup		"WADS\LSELECT.WAD"
+//	EndGroup
+
+	// --- THEME: GEN
+	StartGroup		"WADS\THEME_GEN.WAD"
+		InsertFile	"VLO\GEN_VRAM.VLO"								FR_FTYPE_VLO	
+		InsertFile	"gfx\models\generic\gen_checkpoint_1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_checkpoint_2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_checkpoint_3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_checkpoint_4.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_checkpoint_5.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_bonus_score.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_bonus_time.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_bonus_life.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_multipoint_1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_multipoint_2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_multipoint_3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_multipoint_4.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_multipoint_5.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_stat_col_block.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_stat_death_block.xmr"   FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\gen_gold_frog.xmr"			FR_FTYPE_MAPMOF
+		InsertFile 	"GFX\MODELS\GENERIC\GEN_FROG.XAR"				FR_FTYPE_MOF
+		InsertFile 	"GFX\MODELS\GENERIC\GEN_FROG2.XMR"				FR_FTYPE_MOF
+		InsertFile 	"GFX\MODELS\GENERIC\GEN_FROG3.XMR"				FR_FTYPE_MOF
+		InsertFile 	"GFX\MODELS\GENERIC\GEN_FROG4.XMR"				FR_FTYPE_MOF
+	EndGroup
+
+	// --- THEME: GENM - MULTI-PLAYER
+	StartGroup		"WADS\THEME_GENM.WAD"
+		InsertFile	"VLO\GENM_RAM.VLO"								FR_FTYPE_VLO	
+		InsertFile	"gfx\models\generic\genm_checkpoint_1.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_checkpoint_2.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_checkpoint_3.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_checkpoint_4.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_checkpoint_5.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_bonus_score.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_bonus_time.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_bonus_life.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_multipoint_1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_multipoint_2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_multipoint_3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_multipoint_4.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_multipoint_5.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_stat_col_block.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_stat_death_block.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\generic\genm_gold_frog.xmr"			FR_FTYPE_MAPMOF
+		InsertFile 	"GFX\MODELS\GENERIC\GENM_FROG.XMR"			FR_FTYPE_MOF
+		InsertFile 	"GFX\MODELS\GENERIC\GENM_FROG2.XMR"			FR_FTYPE_MOF
+		InsertFile 	"GFX\MODELS\GENERIC\GENM_FROG3.XMR"			FR_FTYPE_MOF
+		InsertFile 	"GFX\MODELS\GENERIC\GENM_FROG4.XMR"			FR_FTYPE_MOF
+	EndGroup
+
+	// --- THEME: CAV full
+	StartGroup		"WADS\THEME_CAV.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\caves\caves.scr gfx\models\caves\ cav
+		InsertFile	"gfx\models\caves\cav_spider.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_bat.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_rockfallfloor.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_rockblock.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_ropebridge.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_stat_cobweb.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_vamp_bat.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_stat_stonebridge.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_stat_crystals.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_bat_flock.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_snail.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_slime.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_rockblock2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_stat_webwall.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_racesnail.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: CAV1 (of 4)
+	StartGroup		"WADS\THEME_CAV1.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\caves\cav1.scr gfx\models\caves\ cav
+		InsertFile	"gfx\models\caves\cav_spider.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: CAV3 (of 4)
+	StartGroup		"WADS\THEME_CAV3.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\caves\cav3.scr gfx\models\caves\ cav
+		InsertFile	"gfx\models\caves\cav_spider.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_vamp_bat.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_snail.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: CAV4 (of 4)
+	StartGroup		"WADS\THEME_CAV4.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\caves\cav4.scr gfx\models\caves\ cav
+		InsertFile	"gfx\models\caves\cav_spider.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\cav_vamp_bat.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\caves\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: DES
+	StartGroup		"WADS\THEME_DES.WAD"
+		// These have to go here for ordering.
+		InsertFile	"gfx\models\desert\des_fall_rockroll.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_falling_rock.xmr"		FR_FTYPE_MAPMOF
+		// ------------------------------------------------------------------------
+// EASEWAD INCLUDE l:\frogger\maps\desert\desert.scr gfx\models\desert\ des
+		InsertFile	"gfx\models\desert\des_vulture.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_lizard.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_ballcactus.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_cactus.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_snake.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_tumbleweed.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_fall_rockroll.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_hole1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_hole2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_crack.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_beetle.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_bison.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_thermal.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_rockform.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_arch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_rocks.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_rocks2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_bisoncloud.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_salamander.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_cliffbranch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_cowskull.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_ballcactus2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_cactus2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_cliffbranch2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_bones.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_falling_rock.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_bird1.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_bird2.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_cactus3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_ballcactus3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_ballcactus4.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_cactus4.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_butterfly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_crochead.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: DES1 (of 5)
+	StartGroup		"WADS\THEME_DES1.WAD"
+		// These have to go here for ordering.
+		InsertFile	"gfx\models\desert\des_fall_rockroll.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_falling_rock.xmr"		FR_FTYPE_MAPMOF
+		// ------------------------------------------------------------------------
+// EASEWAD INCLUDE l:\frogger\maps\desert\des1.scr gfx\models\desert\ des
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_lizard.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_snake.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_fall_rockroll.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_beetle.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_bison.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_bird1.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: DES2 (of 5)
+	StartGroup		"WADS\THEME_DES2.WAD"
+		// These have to go here for ordering.
+		InsertFile	"gfx\models\desert\des_fall_rockroll.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_falling_rock.xmr"		FR_FTYPE_MAPMOF
+		// ------------------------------------------------------------------------
+// EASEWAD INCLUDE l:\frogger\maps\desert\des2.scr gfx\models\desert\ des
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_ballcactus.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_cactus.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_fall_rockroll.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_beetle.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_ballcactus2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_cactus2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_bird1.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: DES3 (of 5)
+	StartGroup		"WADS\THEME_DES3.WAD"
+		// These have to go here for ordering.
+		InsertFile	"gfx\models\desert\des_fall_rockroll.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_falling_rock.xmr"		FR_FTYPE_MAPMOF
+		// ------------------------------------------------------------------------
+// EASEWAD INCLUDE l:\frogger\maps\desert\des3.scr gfx\models\desert\ des
+		InsertFile	"gfx\models\desert\des_vulture.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_tumbleweed.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_fall_rockroll.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_crack.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_beetle.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: DES4 (of 5)
+	StartGroup		"WADS\THEME_DES4.WAD"
+		// These have to go here for ordering.
+		InsertFile	"gfx\models\desert\des_fall_rockroll.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_falling_rock.xmr"		FR_FTYPE_MAPMOF
+		// ------------------------------------------------------------------------
+// EASEWAD INCLUDE l:\frogger\maps\desert\des4.scr gfx\models\desert\ des
+		InsertFile	"gfx\models\desert\des_vulture.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_lizard.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_snake.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_fall_rockroll.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_beetle.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_bison.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_bird1.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: DES5 (of 5)
+	StartGroup		"WADS\THEME_DES5.WAD"
+		// These have to go here for ordering.
+		InsertFile	"gfx\models\desert\des_fall_rockroll.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_falling_rock.xmr"		FR_FTYPE_MAPMOF
+		// ------------------------------------------------------------------------
+// EASEWAD INCLUDE l:\frogger\maps\desert\des5.scr gfx\models\desert\ des
+		InsertFile	"gfx\models\desert\des_vulture.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_lizard.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_cactus.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_tumbleweed.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_fall_rockroll.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_beetle.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_ballcactus2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_stat_cactus2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_bird1.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\des_crochead.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\desert\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: FOR full
+	StartGroup		"WADS\THEME_FOR.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\forest\forest.scr gfx\models\forest\ for
+		InsertFile	"gfx\models\forest\for_woodpecker.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_jay.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_fallingleaves.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_swayingbranch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_squirrel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_owl.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_swarm.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_hive.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_brachtfungi.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_treestump.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_bigtree.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_breakingbranch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_safebranch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_treestump2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_treestump3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_breakingbranch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_bush.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_smalltree.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_safebranch2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_toadstool.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_mushroom.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_deadbranch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_fallentree.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_smalltree2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_smalltree3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_swayingbranch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_treetop.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_brachtfungi2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_brachtfungi3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_brachtfungi4.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_hedgehog.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_swan.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_orchid.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_daisy.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_treestump1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: FOR1 (of 2)
+	StartGroup		"WADS\THEME_FOR1.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\forest\for1.scr gfx\models\forest\ for
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_jay.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_hive.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_stat_treestump.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: FOR2 (of 2)
+	StartGroup		"WADS\THEME_FOR2.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\forest\for2.scr gfx\models\forest\ for
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_jay.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_squirrel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_owl.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_breakingbranch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\for_hedgehog.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: FORM - (MULTI-PLAYER)
+	StartGroup		"WADS\THEME_FORM.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\forest\form.scr gfx\models\forest\ form
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\form_hive.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\form_stat_treestump.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\form_swan.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\forest\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: JUN full
+	StartGroup		"WADS\THEME_JUN.WAD"
+		// These MUST BE first for ordering in formlib.
+		InsertFile	"gfx/models/jungle/jun_plinth2.xmr"					FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth3.xmr"					FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth4.xmr"					FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth5.xmr"					FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth6.xmr"					FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth7.xmr"					FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth8.xmr"					FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth9.xmr"					FR_FTYPE_MAPMOF
+		// ---------------------------------------------------------------------------
+// EASEWAD INCLUDE l:\frogger\maps\jungle\jungle.scr gfx\models\jungle\ jun
+		InsertFile	"gfx\models\jungle\jun_scorpion.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_dog.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_dog2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_frog.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_bird.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_bird1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_bird2.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_boar.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_butterfly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_dragonfly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_eel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_flamingo.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_humbird.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_monkey.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_parrot.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_parrot2.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_parrot3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_pocupine.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_plant.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_piranha.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_rhino.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_treecoc2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_tree2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_treecoc.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_sunflower.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_tree.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_treefat2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_treefat.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_tree4.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_tree3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_flower.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_flower2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_flower3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_flower4.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_orchid.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_toucan.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_turtle.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_log.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_ropebridge.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_crocodile.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_hippo.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_crack.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_bananatree.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_pineapplebush.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_overhang.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_floating_trees.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_ropebridge2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_palm.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_bouncy_mush.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stone_door.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_plinth1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stone_frog.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup															
+
+	// --- THEME: JUN1 (of 2)
+	StartGroup		"WADS\THEME_JUN1.WAD"
+		// These must be first for ordering in formlib.
+		InsertFile	"gfx/models/jungle/jun_plinth2.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth3.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth4.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth5.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth6.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth7.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth8.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth9.xmr"				FR_FTYPE_MAPMOF
+// EASEWAD INCLUDE l:\frogger\maps\jungle\jun1.scr gfx\models\jungle\ jun
+		InsertFile	"gfx\models\jungle\jun_scorpion.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_monkey.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_pocupine.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_plant.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_piranha.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_rhino.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_treefat.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_tree3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_log.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_ropebridge.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_crocodile.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_hippo.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_bouncy_mush.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stone_door.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_plinth1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stone_frog.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup															
+	// --- THEME: JUN2 (of 2)
+	StartGroup		"WADS\THEME_JUN2.WAD"
+		// These must be first for ordering in formlib.
+		InsertFile	"gfx/models/jungle/jun_plinth2.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth3.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth4.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth5.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth6.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth7.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth8.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth9.xmr"				FR_FTYPE_MAPMOF
+		// ------------------------------------------------------------------------
+// EASEWAD INCLUDE l:\frogger\maps\jungle\jun2.scr gfx\models\jungle\ jun
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_treefat.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stat_tree3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_hippo.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_bouncy_mush.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stone_door.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_plinth1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\jun_stone_frog.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup															
+
+	// --- THEME: JUNM -  MULTI-PLAYER
+	StartGroup		"WADS\THEME_JUNM.WAD"
+		// These must be first for ordering in formlib.
+		InsertFile	"gfx/models/jungle/jun_plinth2.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth3.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth4.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth5.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth6.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth7.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth8.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx/models/jungle/jun_plinth9.xmr"				FR_FTYPE_MAPMOF
+		// ------------------------------------------------------------------------
+// EASEWAD INCLUDE l:\frogger\maps\jungle\junm.scr gfx\models\jungle\ junm
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\junm_log.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\junm_hippo.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\jungle\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup															
+
+	// --- THEME: ORG full
+	StartGroup		"WADS\THEME_ORG.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\original\original.scr gfx\models\original\ org
+		InsertFile	"gfx\models\original\org_bull_dozer.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_car_blue.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_car_purple.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_small.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_medium.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_large.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_snake.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_lorry.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_truck_green.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_truck_red.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_crocodile.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_fly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_beaver.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_baby_frog.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_crochead.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_turtle.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_turtle2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_turtle3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_stat_nettles.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_car_orange.xmr"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: ORG1 (of 5)
+	StartGroup		"WADS\THEME_ORG1.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\original\org1.scr gfx\models\original\ org
+		InsertFile	"gfx\models\original\org_bull_dozer.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_car_blue.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_car_purple.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_small.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_medium.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_large.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_lorry.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_truck_red.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_fly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_baby_frog.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_turtle2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_turtle3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: ORG2 (of 5)
+	StartGroup		"WADS\THEME_ORG2.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\original\org2.scr gfx\models\original\ org
+		InsertFile	"gfx\models\original\org_bull_dozer.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_car_blue.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_car_purple.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_small.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_medium.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_large.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_lorry.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_truck_red.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_crocodile.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_fly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_baby_frog.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_crochead.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_turtle2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_turtle3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: ORG3 (of 5)
+	StartGroup		"WADS\THEME_ORG3.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\original\org3.scr gfx\models\original\ org
+		InsertFile	"gfx\models\original\org_bull_dozer.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_car_blue.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_car_purple.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_small.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_medium.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_large.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_snake.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_lorry.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_truck_red.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_crocodile.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_fly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_beaver.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_baby_frog.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_crochead.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_turtle2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_turtle3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: ORG4 (of 5)
+	StartGroup		"WADS\THEME_ORG4.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\original\org4.scr gfx\models\original\ org
+		InsertFile	"gfx\models\original\org_bull_dozer.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_car_blue.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_car_purple.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_small.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_medium.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_large.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_snake.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_lorry.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_truck_red.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_crocodile.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_fly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_beaver.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_baby_frog.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_crochead.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_turtle2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_turtle3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: ORG5 (of 5)
+	StartGroup		"WADS\THEME_ORG5.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\original\org5.scr gfx\models\original\ org
+		InsertFile	"gfx\models\original\org_bull_dozer.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_car_blue.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_car_purple.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_small.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_log_large.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_snake.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_lorry.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_truck_red.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_crocodile.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_fly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_beaver.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_crochead.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_turtle2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\org_turtle3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: ORGM - MULTI-PLAYER
+	StartGroup		"WADS\THEME_ORGM.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\original\orgm.scr gfx\models\original\ orgm
+		InsertFile	"gfx\models\original\orgm_bull_dozer.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\orgm_car_blue.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\orgm_car_purple.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\orgm_log_small.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\orgm_log_medium.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\orgm_log_large.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\orgm_lorry.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\orgm_truck_red.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\orgm_crocodile.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\orgm_fly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\orgm_baby_frog.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\orgm_crochead.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\orgm_turtle2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\orgm_turtle3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\original\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+//	// --- THEME: ARN (of 0)
+//	StartGroup		"WADS\THEME_ARN.WAD"
+//	EndGroup
+//
+//	// --- THEME: ARNM - MULTI-PLAYER
+//	StartGroup		"WADS\THEME_ARNM.WAD"
+//	EndGroup
+
+	// --- THEME: SWP full
+	StartGroup		"WADS\THEME_SWP.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\swamp\swamp.scr gfx\models\swamp\ swp
+		InsertFile	"gfx\models\swamp\swp_oil_drum.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_box.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_rat.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_sunkcar.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_newspaper.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_newspaper_torn.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_pipe.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_raccoon.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_deadtree.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_deadtree1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_log.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_litter.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_litter2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_pallet.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_oil.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_waste_barrel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_nuclear_barrel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_pipe_straight.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_st_pipe_big_str.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_pipe_hole.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_marsh.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_crusher.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_weir.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_squirt.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_pipe_curved.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_st_pipe_big_curve.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_pipe_small_str.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_pipe_small_cur.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_slug.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_mutant_fish.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_pipe_mesh.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_fridge.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_tyre.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_chemical_barrel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_crusher2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_press.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_bird1.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: SWP1 (of 5)
+	StartGroup		"WADS\THEME_SWP1.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\swamp\swp1.scr gfx\models\swamp\ swp
+		InsertFile	"gfx\models\swamp\swp_oil_drum.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_newspaper.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_waste_barrel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_nuclear_barrel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_slug.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_mutant_fish.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: SWP2 (of 5)
+	StartGroup		"WADS\THEME_SWP2.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\swamp\swp2.scr gfx\models\swamp\ swp
+		InsertFile	"gfx\models\swamp\swp_oil_drum.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_newspaper.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_waste_barrel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_nuclear_barrel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_slug.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_mutant_fish.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: SWP3 (of 5)
+	StartGroup		"WADS\THEME_SWP3.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\swamp\swp3.scr gfx\models\swamp\ swp
+		InsertFile	"gfx\models\swamp\swp_oil_drum.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_newspaper.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_crusher.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_crusher2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_press.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: SWP4 (of 5)
+	StartGroup		"WADS\THEME_SWP4.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\swamp\swp4.scr gfx\models\swamp\ swp
+		InsertFile	"gfx\models\swamp\swp_oil_drum.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_rat.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_newspaper.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_nuclear_barrel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_squirt.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_slug.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_mutant_fish.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_bird1.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: SWP5 (of 5)
+	StartGroup		"WADS\THEME_SWP5.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\swamp\swp5.scr gfx\models\swamp\ swp
+		InsertFile	"gfx\models\swamp\swp_oil_drum.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_newspaper.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_raccoon.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_nuclear_barrel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_crusher.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_stat_weir.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\swp_slug.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\swamp\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: SKY full
+	StartGroup		"WADS\THEME_SKY.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\sky\sky.scr gfx\models\sky\ sky
+		InsertFile	"gfx\models\sky\sky_jet1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_jet3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_biplane1.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_biplane2.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_helicopter.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_bird1.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_bird2.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_bird3.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_bird4.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_little_bird.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_popping_bird.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_rubber_balloon1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_rubber_balloon2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_helium_balloon3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_biplane_banner1.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_cloud1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_cloud2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_cloud3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_hawk.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_birdhawk.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_flocking_bird.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_bird_small.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_cldpatch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_squadron.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_froggers_magical_popping_balloon.xmr"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: SKY1 (of 4)
+	StartGroup		"WADS\THEME_SKY1.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\sky\sky1.scr gfx\models\sky\ sky
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_bird1.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_bird3.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_bird4.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_little_bird.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_rubber_balloon1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_rubber_balloon2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_helium_balloon3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_flocking_bird.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_cldpatch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: SKY2 (of 4)
+	StartGroup		"WADS\THEME_SKY2.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\sky\sky2.scr gfx\models\sky\ sky
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_jet3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_biplane1.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_helicopter.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_rubber_balloon1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_rubber_balloon2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_helium_balloon3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_hawk.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_cldpatch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: SKY3 (of 4) 
+		StartGroup		"WADS\THEME_SKY3.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\sky\sky3.scr gfx\models\sky\ sky
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_bird2.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_rubber_balloon1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_rubber_balloon2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_cloud1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_squadron.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_froggers_magical_popping_balloon.xmr"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: SKY4 (of 4)
+	StartGroup		"WADS\THEME_SKY4.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\sky\sky4.scr gfx\models\sky\ sky
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_bird1.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_bird3.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_bird4.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_little_bird.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_rubber_balloon1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_rubber_balloon2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_helium_balloon3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_flocking_bird.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\sky_cldpatch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\sky\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+		EndGroup
+
+
+	// --- THEME: SUB full
+	StartGroup		"WADS\THEME_SUB.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\suburbia\suburbia.scr gfx\models\suburbia\ sub
+		InsertFile	"gfx\models\suburbia\sub_log.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_turtle.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_big_fence.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_small_fence.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_small_flowers.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_big_flowers.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_small_jetty.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_dog_kennel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_tunnel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_lilly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_lillypad.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_hedgehog.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_fence_post.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_truck.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_car.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_lorry.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_peddleboat.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_swan.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_lawn_mower.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_dog.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_dandylion.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_stone.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_rocks.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_stopsign.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_bullrush.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_tlight.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_grass.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_fish.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_fish3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_butterfly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_butterfly2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_butterfly3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_bullrush2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_daisy.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_weed.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_weed2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_weed3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_treefat.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_treefat2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_orchid.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_tree.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_tree2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_tree3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_tree4.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_shed.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_bird4.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_snake.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_crocodile.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_bird_small.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_log3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_cloudplatform.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_car_orange.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_car_purple.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_car_blue.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: SUB1 (of 5)
+	StartGroup		"WADS\THEME_SUB1.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\suburbia\sub1.scr gfx\models\suburbia\ sub
+		InsertFile	"gfx\models\suburbia\sub_log.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_turtle.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_dog_kennel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_lilly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_lillypad.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_dog.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_bullrush.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_fish3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_butterfly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_bird4.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_car_orange.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_car_purple.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_car_blue.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: SUB2 (of 5)
+	StartGroup		"WADS\THEME_SUB2.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\suburbia\sub2.scr gfx\models\suburbia\ sub
+		InsertFile	"gfx\models\suburbia\sub_log.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_turtle.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_dog_kennel.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_truck.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_swan.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_lawn_mower.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_dog.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_bullrush.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_bird4.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_cloudplatform.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_car_orange.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_car_purple.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: SUB3 (of 5)
+	StartGroup		"WADS\THEME_SUB3.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\suburbia\sub3.scr gfx\models\suburbia\ sub
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_lawn_mower.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_butterfly.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_butterfly2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_butterfly3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_shed.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: SUB4 (of 5)
+	StartGroup		"WADS\THEME_SUB4.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\suburbia\sub4.scr gfx\models\suburbia\ sub
+		InsertFile	"gfx\models\suburbia\sub_log.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_turtle.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_lillypad.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_swan.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_lawn_mower.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_dog.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_bullrush.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_fish3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_stat_tree4.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_bird4.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_car_orange.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_car_purple.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_car_blue.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+	// --- THEME: SUB5 (of 5)
+	StartGroup		"WADS\THEME_SUB5.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\suburbia\sub5.scr gfx\models\suburbia\ sub
+		InsertFile	"gfx\models\suburbia\sub_log.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_turtle.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_truck.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_swan.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_lawn_mower.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_dog.xar"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_cloudplatform.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_car_orange.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\sub_car_purple.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: SUBM - MULTI-PLAYER
+	StartGroup		"WADS\THEME_SUBM.WAD"
+// EASEWAD INCLUDE l:\frogger\maps\suburbia\subm.scr gfx\models\suburbia\ subm
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\subm_truck.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\subm_car.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\subm_lorry.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\suburbia\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: VOL full
+	StartGroup		"WADS\THEME_VOL.WAD"
+		// These have to appear here for order.
+		InsertFile	"gfx\models\volcano\vol_switch_blue.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_cyan.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_green.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_orange.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_pink.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_purple.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_red.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_white.xmr"			FR_FTYPE_MAPMOF
+		// ----------------------------------------------------------------------------
+// EASEWAD INCLUDE l:\frogger\maps\volcano\volcano.scr gfx\models\volcano\ vol
+		InsertFile	"gfx\models\volcano\vol_stat_treestump.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_stat_rocks.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_stat_rocks2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_platform1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_platform2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_falling_platform.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_mechanism.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_lava_spray.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_spinner.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_fireball.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_platform3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: VOL1 (of 3)
+	StartGroup		"WADS\THEME_VOL1.WAD"
+		// These have to appear here for order.
+		InsertFile	"gfx\models\volcano\vol_switch_blue.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_cyan.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_green.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_orange.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_pink.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_purple.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_red.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_white.xmr"			FR_FTYPE_MAPMOF
+		// ----------------------------------------------------------------------------
+// EASEWAD INCLUDE l:\frogger\maps\volcano\vol1.scr gfx\models\volcano\ vol
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_platform1.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_platform2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: VOL2 (of 3)
+	StartGroup		"WADS\THEME_VOL2.WAD"
+		// These have to appear here for order.
+		InsertFile	"gfx\models\volcano\vol_switch_blue.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_cyan.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_green.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_orange.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_pink.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_purple.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_red.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_white.xmr"			FR_FTYPE_MAPMOF
+		// ----------------------------------------------------------------------------
+// EASEWAD INCLUDE l:\frogger\maps\volcano\vol2.scr gfx\models\volcano\ vol
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_platform2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_falling_platform.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_mechanism.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_lava_spray.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: VOL3 (of 3)
+	StartGroup		"WADS\THEME_VOL3.WAD"
+		// These have to appear here for order.
+		InsertFile	"gfx\models\volcano\vol_switch_blue.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_cyan.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_green.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_orange.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_pink.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_purple.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_red.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_white.xmr"			FR_FTYPE_MAPMOF
+		// ----------------------------------------------------------------------------
+// EASEWAD INCLUDE l:\frogger\maps\volcano\vol3.scr gfx\models\volcano\ vol
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_platform2.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_falling_platform.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_spinner.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- THEME: VOLM -  MULTI_PLAYER
+	StartGroup		"WADS\THEME_VOLM.WAD"
+		// These have to appear here for order.
+		InsertFile	"gfx\models\volcano\vol_switch_blue.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_cyan.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_green.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_orange.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_pink.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_purple.xmr"			FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_red.xmr"				FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\vol_switch_white.xmr"			FR_FTYPE_MAPMOF
+		// ----------------------------------------------------------------------------
+// EASEWAD INCLUDE l:\frogger\maps\volcano\volm.scr gfx\models\volcano\ volm
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\volm_switch.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\volm_falling_platform.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\volm_spinner.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\volm_platform3.xmr"		FR_FTYPE_MAPMOF
+		InsertFile	"gfx\models\volcano\..\NULL"		FR_FTYPE_MAPMOF
+// EASEWAD END
+	EndGroup
+
+	// --- VLO
+	InsertFile		"VLO\CAV_VRAM.VLO"							FR_FTYPE_VLO
+	InsertFile		"VLO\DES_VRAM.VLO"							FR_FTYPE_VLO
+	InsertFile		"VLO\FOR_VRAM.VLO"							FR_FTYPE_VLO
+	InsertFile		"VLO\JUN_VRAM.VLO"							FR_FTYPE_VLO
+	InsertFile		"VLO\ORG_VRAM.VLO"							FR_FTYPE_VLO
+	InsertFile		"VLO\ARN_VRAM.VLO"							FR_FTYPE_VLO
+	InsertFile		"VLO\SWP_VRAM.VLO"							FR_FTYPE_VLO
+	InsertFile		"VLO\SKY_VRAM.VLO"							FR_FTYPE_VLO
+	InsertFile		"VLO\SUB_VRAM.VLO"							FR_FTYPE_VLO
+	InsertFile		"VLO\VOL_VRAM.VLO"							FR_FTYPE_VLO
+
+	InsertFile      "VLO\OPT_VRAM.VLO"							FR_FTYPE_VLO
+	InsertFile      "VLO\OPTE_RAM.VLO"							FR_FTYPE_VLO
+	InsertFile      "VLO\OPTF_RAM.VLO"							FR_FTYPE_VLO
+	InsertFile      "VLO\OPTG_RAM.VLO"							FR_FTYPE_VLO
+	InsertFile      "VLO\OPTI_RAM.VLO"							FR_FTYPE_VLO
+	InsertFile      "VLO\OPTS_RAM.VLO"							FR_FTYPE_VLO
+	//InsertFile      "VLO\OPTJ_RAM.VLO"							FR_FTYPE_VLO
+
+	InsertFile		"VLO\START_VRAM.VLO"						FR_FTYPE_VLO
+
+	// --- VLO (MULTI-PLAYER)
+	InsertFile		"VLO\FORM_RAM.VLO"							FR_FTYPE_VLO
+	InsertFile		"VLO\JUNM_RAM.VLO"							FR_FTYPE_VLO
+	InsertFile		"VLO\ORGM_RAM.VLO"							FR_FTYPE_VLO
+	InsertFile		"VLO\SUBM_RAM.VLO"							FR_FTYPE_VLO
+	InsertFile		"VLO\VOLM_RAM.VLO"							FR_FTYPE_VLO
+
+	// --- MAPS
+	InsertFile		"MAPS\CAVES\CAV1.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\CAVES\CAV3.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\CAVES\CAV4.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\DESERT\DES1.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\DESERT\DES2.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\DESERT\DES3.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\DESERT\DES4.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\DESERT\DES5.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\FOREST\FOR1.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\FOREST\FOR2.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\JUNGLE\JUN1.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\JUNGLE\JUN2.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\ORIGINAL\ORG1.MAP"					FR_FTYPE_STD
+	InsertFile		"MAPS\ORIGINAL\ORG2.MAP"					FR_FTYPE_STD
+	InsertFile		"MAPS\ORIGINAL\ORG3.MAP"					FR_FTYPE_STD
+	InsertFile		"MAPS\ORIGINAL\ORG4.MAP"					FR_FTYPE_STD
+	InsertFile		"MAPS\ORIGINAL\ORG5.MAP"					FR_FTYPE_STD
+	InsertFile		"MAPS\SWAMP\SWP1.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\SWAMP\SWP2.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\SWAMP\SWP3.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\SWAMP\SWP4.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\SWAMP\SWP5.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\SKY\SKY1.MAP"							FR_FTYPE_STD
+	InsertFile		"MAPS\SKY\SKY2.MAP"							FR_FTYPE_STD
+	InsertFile		"MAPS\SKY\SKY3.MAP"							FR_FTYPE_STD
+	InsertFile		"MAPS\SKY\SKY4.MAP"							FR_FTYPE_STD
+	InsertFile		"MAPS\SKY\SKY_LAND.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\SUBURBIA\SUB1.MAP"					FR_FTYPE_STD
+	InsertFile		"MAPS\SUBURBIA\SUB2.MAP"					FR_FTYPE_STD
+	InsertFile		"MAPS\SUBURBIA\SUB3.MAP"					FR_FTYPE_STD
+	InsertFile		"MAPS\SUBURBIA\SUB4.MAP"					FR_FTYPE_STD
+	InsertFile		"MAPS\SUBURBIA\SUB5.MAP"					FR_FTYPE_STD
+	InsertFile		"MAPS\VOLCANO\VOL1.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\VOLCANO\VOL2.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\VOLCANO\VOL3.MAP"						FR_FTYPE_STD
+
+	// --- MAPS FOR MULTI-PLAYER
+	InsertFile		"MAPS\FOREST\FORM.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\JUNGLE\JUNM.MAP"						FR_FTYPE_STD
+	InsertFile		"MAPS\ORIGINAL\ORGM.MAP"					FR_FTYPE_STD
+	InsertFile		"MAPS\SUBURBIA\SUBM.MAP"					FR_FTYPE_STD
+	InsertFile		"MAPS\VOLCANO\VOLM.MAP"						FR_FTYPE_STD
+
+	// --- Test maps for Tim.
+	InsertFile		"MAPS\test\island.map"						FR_FTYPE_STD
+	InsertFile		"MAPS\test\qb.map"							FR_FTYPE_STD
+
+	// --- SOUND 
+	InsertFile		"VAB\GENERIC.VB"							FR_FTYPE_SPU
+	InsertFile		"VAB\GENERIC.VH"							FR_FTYPE_SPU
+	InsertFile		"VAB\CAVES.VB"								FR_FTYPE_SPU
+	InsertFile		"VAB\CAVES.VH"								FR_FTYPE_SPU
+	InsertFile		"VAB\DESERT.VB"								FR_FTYPE_SPU
+	InsertFile		"VAB\DESERT.VH"								FR_FTYPE_SPU
+	InsertFile		"VAB\FOREST.VB"								FR_FTYPE_SPU
+	InsertFile		"VAB\FOREST.VH"								FR_FTYPE_SPU
+	InsertFile		"VAB\JUNGLE.VB"								FR_FTYPE_SPU
+	InsertFile		"VAB\JUNGLE.VH"								FR_FTYPE_SPU
+	InsertFile		"VAB\ORIGINAL.VB"							FR_FTYPE_SPU
+	InsertFile		"VAB\ORIGINAL.VH"							FR_FTYPE_SPU
+	InsertFile		"VAB\SWAMP.VB"								FR_FTYPE_SPU
+	InsertFile		"VAB\SWAMP.VH"								FR_FTYPE_SPU
+	InsertFile		"VAB\SKY.VB"								FR_FTYPE_SPU
+	InsertFile		"VAB\SKY.VH"								FR_FTYPE_SPU
+	InsertFile		"VAB\SUBURBIA.VB"							FR_FTYPE_SPU
+	InsertFile		"VAB\SUBURBIA.VH"							FR_FTYPE_SPU
+	InsertFile		"VAB\INDUST.VB"								FR_FTYPE_SPU
+	InsertFile		"VAB\INDUST.VH"								FR_FTYPE_SPU
+	InsertFile		"VAB\SELECT.VB"								FR_FTYPE_SPU
+	InsertFile		"VAB\SELECT.VH"								FR_FTYPE_SPU
+  
+EndMerged
+
+
+
+
+
+
+
+
+
+ 

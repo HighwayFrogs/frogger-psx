@@ -1,0 +1,157 @@
+#//
+#// Makefile for HeadRush (PlayStation Version)
+#// -------------------------------------------
+#//
+#// Contains dependency lists for all object modules. Forces builds
+#// of changed API components
+#// the project 'SOURCE' directory)
+#//
+#// Changed	Programmer	Reason
+#// ------- 	----------	------
+#//
+#// 13/05/96	Dean Ashton	Creation of new makefile strategy
+#//
+
+.SUFFIXES: .c .s					 								#// Enabled inferred rules
+
+#//-------------------------------------------------------------------------------------------
+#// Compiler options and flags
+
+ASM_INCLUDE		=	C:\PSX\INCLUDE.40
+
+CC				=	ccpsx											#// Compiler name
+AS				=	asmpsx /j $(ASM_INCLUDE)						#// Assembler name
+		
+C_STD_WARNINGS	=	-Wunused -Wmissing-prototypes					#// Warnings for Debug build
+C_OPT_WARNINGS	=	-Wunused -Wmissing-prototypes -Wuninitialized	#// Warnings for Release build
+
+!IFDEF	BUG
+CFLAGS			=	-comments-c++ -c $(C_STD_WARNINGS) -g			#// Debug build (C)
+AFLAGS			=	/z /zd /l /g /q /o s+ /o l. /o c+				#// Debug build (MIPS)
+!ELSE
+CFLAGS			=	-comments-c++ -c $(C_OPT_WARNINGS) -O3			#// Release build (C)
+AFLAGS			=	/z /zd /l /g /q /o s+ /o l. /o c+				#// Release build (MIPS)
+!ENDIF
+
+!IFNDEF	RUN	
+PS_RUN_OPTION	=	/h												#// Don't run on download
+!ENDIF
+
+PS_KERNEL_PATCH	=	C:\PSX\BIN\SNPATCH.CPE							#// Kernel patch utility
+PS_RESET_DELAY	=	/w8												#// Time to wait for kernel patch
+
+
+#//-------------------------------------------------------------------------------------------
+#// Object modules (project specific) - Keep them spaced to 8.3 lengths for clarity, please.
+
+PROJ_OBJ_C_LIST	=	main.obj     project.obj  sprdata.obj  gamefont.obj \
+					mapload.obj  mapdisp.obj  gamesys.obj  library.obj 	particle.obj	\
+					mapview.obj  camera.obj	  entity.obj   form.obj     options.obj 	\
+					frog.obj     grid.obj     path.obj     zone.obj     collide.obj 	\
+                    misc.obj     mapdebug.obj entlib.obj   froguser.obj	scripts.obj		\
+					sound.obj    stream.obj   memcard.obj	ent_des.obj		\
+					ent_vol.obj	 ent_swp.obj  ent_sub.obj  ent_sky.obj	ent_org.obj		\
+					ent_jun.obj	 ent_gen.obj  ent_for.obj  ent_arn.obj  ent_cav.obj		\
+					formlib.obj	 hud.obj      score.obj    scripter.obj	loadsave.obj	\
+					playxa.obj   tempopt.obj  effects.obj  xalist.obj   select.obj		\
+					model.obj	 hsview.obj	  froganim.obj hsinput.obj	credits.obj		\
+					water.obj	 pause.obj
+		   
+PROJ_OBJ_S_LIST	=	fastram.obj  binaries.obj mapasm.obj
+											
+PROJ_MWI_FILE	=	..\merge\frogpsx.mwi
+
+PROJ_DEP_SRC	=	$(PROJ_OBJ_C_LIST:.obj=.c)
+
+
+#//-------------------------------------------------------------------------------------------
+#// Add our rule for dependency building, and include makefile dependencies
+
+phoney:
+
+#//deps: $(PROJ_DEP_SRC)
+#//	makedeps -xsystem.h;sprdata.h -l @<< >makefile.dep
+#//$(**)
+#//<<
+#//
+#//!if !exist(makefile.dep)
+#//!if [echo. >makefile.dep]
+#//!endif
+#//!if [$(MAKE) deps]
+#//!endif
+#//!endif
+#//
+#//!if exist(makefile.dep)
+#//!include "makefile.dep"
+#//!endif
+
+#//-------------------------------------------------------------------------------------------
+#// Standard inference rules for 'C' and assembler files
+
+.c.obj:
+        $(CC) $(CFLAGS) $<
+        dmpsx $@ -b
+        @echo -----
+.s.obj:
+		$(AS) $(AFLAGS) $<,$@
+		dmpsx $@ -b
+		@echo -----
+
+
+#//-------------------------------------------------------------------------------------------
+#// Automatic resource file generation - touches 'binaries.s' to force re-inclusion of .MWI
+
+..\merge\frogpsx.mwi: buildwad.scr
+	@echo -----
+	easewad buildwad.scr
+	buildwad buildwad.scr /verbose
+	touch binaries.s
+
+#//-------------------------------------------------------------------------------------------
+#// Makefile interface routines (build all, run project, debug project)
+
+all: $(PROJ_MWI_FILE) $(PROJ_OBJ_C_LIST) $(PROJ_OBJ_S_LIST)
+	chdir API.SRC
+	$(MAKE) /$(MAKEFLAGS) CFLAGS="$(CFLAGS)" AFLAGS="$(AFLAGS)" CC="$(CC)" AS="$(AS)"
+	chdir ..
+	
+	@echo -----
+	psylink /n512 /c /m @makefile.lnk,main.cpe,main.sym,main.map
+
+!INCLUDE makefile.inc
+
+runit:
+	resetps 1
+	run $(PS_RESET_DELAY) $(PS_KERNEL_PATCH)
+	delay 50
+	run $(PS_RESET_DELAY) $(PS_RUN_OPTION) main.cpe
+
+debug:  
+	dbugpsx main.sym
+
+clean:
+	del		*.dep
+	del		*.obj
+	del 	*.cpe
+	del 	*.map
+	del 	*.sym
+	del 	api.src\*.obj
+	del 	api.src\*.lib
+	del 	..\merge\*.mwi
+
+prep:
+	attrib -r binaries.s
+	attrib -r sprdata.c
+	attrib -r buildwad.scr
+	touch	binaries.s
+	touch	sprdata.c
+	touch	buildwad.scr
+
+buildwad:
+	buildwad.exe buildwad.scr
+	touch binaries.s
+
+#// End of makefile
+#//-------------------------------------------------------------------------------------------
+
+

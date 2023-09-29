@@ -1,0 +1,191 @@
+;
+; Standard Linker Command File.
+; 
+
+	org	$80010000			; Base PSX Program Address
+
+text 	group				; Group containing program code
+data 	group				; Group containing initialised data
+bss		group bss			; Group containing uninitialised data
+
+	section	.rdata,data		; Sections created by C compiler
+	section	.text,text		; specifying them here is not strictly necessary
+	section	.data,data		; but does ensure that they appear in the correct
+	section	.sdata,data		; order in the linked output file
+
+	section	.sbss,bss		; BSS sections
+	section	.bss,bss
+
+; 
+; Include your modules here 
+;
+
+	include	"main.obj"
+	include	"fastram.obj"
+	include	"sprdata.obj"
+	include	"project.obj"
+	include	"gamefont.obj"
+	include	"binaries.obj"
+	include	"stream.obj"
+	include	"formlib.obj"
+
+	include	"gamesys.obj"
+	include	"mapload.obj"
+	include	"mapdisp.obj"
+	include	"library.obj"
+	include	"mapview.obj"
+	include	"camera.obj"
+	include	"entity.obj"
+	include	"form.obj"
+	include	"options.obj"
+	include	"frog.obj"
+	include	"grid.obj"
+	include	"path.obj"
+	include	"zone.obj"
+	include	"collide.obj"
+	include	"misc.obj"
+	include	"mapdebug.obj"
+	include	"entlib.obj"
+	include "scripts.obj"
+	include	"scripter.obj"
+	include	"playxa.obj"
+	include "sound.obj"
+	include	"frogcard.obj"
+	include	"memcard.obj"
+	include	"ent_des.obj"
+	include "ent_swp.obj"
+	include "ent_sub.obj"
+	include "ent_sky.obj"
+	include "ent_org.obj"
+	include "ent_jun.obj"
+	include "ent_gen.obj"
+	include "ent_for.obj"
+	include "ent_cav.obj"
+	include "ent_arn.obj"
+	include "ent_vol.obj"
+	include	"hud.obj"
+	include	"score.obj"
+	include	"froguser.obj"
+	include "tempopt.obj"
+	include	"effects.obj"
+	include "xalist.obj"
+	include "select.obj"
+	include "model.obj"
+	include "hsview.obj"
+	include "froganim.obj"
+	include "hsinput.obj"
+	include "credits.obj"
+	      
+	inclib	"api.src\mr_mof.lib"
+	inclib	"api.src\mr_misc.lib"
+	inclib	"api.src\mr_frame.lib"
+	inclib	"api.src\mr_anim.lib"
+	inclib	"api.src\mr_anim2.lib"
+	inclib	"api.src\mr_anim3.lib"
+	inclib	"api.src\mr_obj.lib"
+	inclib	"api.src\mr_coll.lib"
+	inclib	"api.src\mr_disp.lib"
+	inclib	"api.src\mr_view.lib"
+	inclib	"api.src\mr_mesh.lib"
+	inclib	"api.src\mr_sprt.lib"
+	inclib	"api.src\mr_light.lib"
+	inclib	"api.src\mr_mem.lib"
+	inclib	"api.src\mr_file.lib"
+	inclib	"api.src\mr_debug.lib"
+	inclib	"api.src\mr_input.lib"
+	inclib	"api.src\mr_font.lib"
+	inclib	"api.src\mr_quat.lib"
+	inclib	"api.src\mr_fx.lib"
+	inclib	"api.src\mr_pres.lib"
+	inclib	"api.src\mr_part.lib"
+	inclib	"api.src\mr_bin.lib"
+	inclib	"api.src\mr_vram.lib"
+	inclib	"api.src\mr_ot.lib"
+	inclib	"api.src\mr_splin.lib"
+	inclib	"api.src\mr_stat.lib"
+	inclib	"api.src\mr_math.lib"
+	inclib	"api.src\mr_sound.lib"
+	inclib	"api.src\mr_over.lib"
+
+	inclib	"api.src\mr_m_qua.lib"		; // MIPS Quaternion Functions
+	inclib	"api.src\mr_m_pak.lib"		; // MIPS Decompression code
+
+	inclib	"api.src\mr_phlf3.lib"
+	inclib	"api.src\mr_phlf4.lib"
+
+;//	inclib	"api.src\mr_p_f3.lib"		; // C Rendering Modules (for debugging)
+;//	inclib	"api.src\mr_p_f4.lib"
+;//	inclib	"api.src\mr_p_ft3.lib"
+;//	inclib	"api.src\mr_p_ft4.lib"
+;//	inclib	"api.src\mr_p_g3.lib"
+;//	inclib	"api.src\mr_p_g4.lib"
+;//	inclib	"api.src\mr_p_gt3.lib"
+;//	inclib	"api.src\mr_p_gt4.lib"
+;//	inclib	"api.src\mr_p_e3.lib"
+;//	inclib	"api.src\mr_p_e4.lib"
+;//	inclib	"api.src\mr_p_ge3.lib"
+;//	inclib	"api.src\mr_p_ge4.lib"
+ 
+	inclib	"api.src\mr_m_f3.lib" 		; // MIPS Rendering Modules
+	inclib	"api.src\mr_m_f4.lib"
+ 	inclib	"api.src\mr_m_ft3.lib"
+	inclib	"api.src\mr_m_ft4.lib"
+	inclib	"api.src\mr_m_g3.lib"
+	inclib	"api.src\mr_m_g4.lib"
+	inclib	"api.src\mr_m_gt3.lib"
+	inclib	"api.src\mr_m_gt4.lib"
+	inclib	"api.src\mr_m_e3.lib"
+	inclib	"api.src\mr_m_e4.lib"
+	inclib	"api.src\mr_m_ge3.lib"
+	inclib	"api.src\mr_m_ge4.lib"
+
+	inclib	"api.src\mr_s_f3.lib"		; // Special Rendering Modules
+	inclib	"api.src\mr_s_f4.lib"
+	inclib	"api.src\mr_s_ft3.lib"
+	inclib	"api.src\mr_s_ft4.lib"
+	inclib	"api.src\mr_s_g3.lib"
+	inclib	"api.src\mr_s_g4.lib"
+	inclib	"api.src\mr_s_gt3.lib"
+	inclib	"api.src\mr_s_gt4.lib"
+	inclib	"api.src\mr_s_e3.lib"
+	inclib	"api.src\mr_s_e4.lib"
+	inclib	"api.src\mr_s_ge3.lib"
+	inclib	"api.src\mr_s_ge4.lib"
+
+	 
+; Include exception handler
+
+	inclib	"crash.lib"
+
+;	Un-comment if you want text messages.
+;	include	"c:\psx\lib.40\putchar.obj"
+
+; 
+; Specify your link libraries here 
+;
+;	inclib	"c:\psx\lib.40\libgs.lib"	; We need to link with the standard	
+	inclib	"c:\psx\lib.40\libgte.lib"	; SONY link libraries
+	inclib	"c:\psx\lib.40\libgpu.lib"
+	inclib	"c:\psx\lib.40\libetc.lib"
+	inclib	"c:\psx\lib.40\libapi.lib"
+	inclib	"c:\psx\lib.40\libsn.lib"
+	inclib	"c:\psx\lib.40\libc2.lib"
+	inclib	"c:\psx\lib.40\libspu.lib"
+	inclib	"c:\psx\lib.40\libsnd.lib"
+	inclib	"c:\psx\lib.40\libpress.lib"
+	inclib	"c:\psx\lib.40\libcd.lib"
+	inclib	"c:\psx\lib.40\libds.lib"
+	inclib	"c:\psx\lib.40\libcard.lib"
+	inclib	"c:\psx\lib.40\libmcrd.lib"
+	inclib	"c:\psx\lib.40\libtap.lib"	; For the Multi-tap.
+
+; This initialises the program counter register so
+; that the downloader sets the entry point before
+; the program is executed
+;
+; SN_ENTRY_POINT is defined in a module in libsn.lib and
+; clears the bss, sets up the heap, etc. before calling main()
+
+	regs	pc=__SN_ENTRY_POINT
+
+

@@ -1,0 +1,111 @@
+/******************************************************************************
+*%%%% options.h
+*------------------------------------------------------------------------------
+*
+*	Options Processing
+*
+*	CHANGED		PROGRAMMER		REASON
+* 	-------  	----------  	------
+*	14.04.97	Dean Ashton		Created
+*
+*%%%**************************************************************************/
+
+#ifndef		__OPTIONS_H
+#define		__OPTIONS_H
+
+#include	"mr_all.h"
+#include	"sprdata.h"
+#include	"project.h"
+#include	"levelsel.h"
+#include	"tempopt.h"
+
+
+//-----------------------------------------------------------------------------
+//	Defines
+//-----------------------------------------------------------------------------
+
+#define	FROG_OPTIONS
+
+#define	OPTION_MIN_LEVEL 	(0)
+#define	OPTION_MAX_LEVEL 	(8)
+
+enum	{
+		OPTIONS_PAGE_EXIT = -1,
+		OPTIONS_PAGE_NULL,
+		OPTIONS_PAGE_ANTI_PIRACY,
+		OPTIONS_PAGE_HASBRO_LOGO,
+		OPTIONS_PAGE_MILLENNIUM_LOGO,
+		OPTIONS_PAGE_OPTIONS_SCREEN,
+		OPTIONS_PAGE_INTRO,
+		OPTIONS_PAGE_MAIN_OPTIONS,
+		OPTIONS_PAGE_OPTIONS,
+		OPTIONS_PAGE_SESSION_OPTIONS,
+		OPTIONS_PAGE_FROG_SELECTION,
+		OPTIONS_PAGE_MAIN,
+		OPTIONS_PAGE_LEVEL_SELECT,
+		OPTIONS_PAGE_CONTINUE,
+		OPTIONS_PAGE_GAME_OVER,
+		OPTIONS_PAGE_OUTRO,
+		OPTIONS_PAGE_STD_CREDITS,
+		OPTIONS_PAGE_HIGH_SCORE_INPUT,
+		OPTIONS_PAGE_HIGH_SCORE_VIEW,
+		OPTIONS_PAGE_MUSIC_VOLUME,
+		OPTIONS_PAGE_SOUND_VOLUME,
+		OPTIONS_PAGE_SAVE,
+		OPTIONS_PAGE_LOAD,
+#ifdef PSX		// PSX Specific code
+		OPTIONS_PAGE_REDEFINE_PSX_BUTTONS,
+#else			// WIN95 Specific code
+		OPTIONS_PAGE_CHOOSE_WIN_CONTROLLER,
+#endif			// PSX
+		OPTIONS_PAGE_WILLS_LEVEL_SELECT,
+		OPTIONS_PAGE_DEMO_LEVEL_SELECT,
+		OPTIONS_PAGE_EXT_CREDITS,
+		};
+
+
+//-----------------------------------------------------------------------------
+//	Structures
+//-----------------------------------------------------------------------------
+
+typedef	struct	__option_page	OPTION_PAGE;
+
+struct	__option_page
+		{
+		MR_VOID		(*op_callback_startup)(MR_VOID);
+		MR_VOID		(*op_callback_update)(MR_VOID);
+		MR_VOID		(*op_callback_shutdown)(MR_VOID);
+
+		};	// OPTION_PAGE
+
+
+//-----------------------------------------------------------------------------
+//	Macros
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//	Externs
+//-----------------------------------------------------------------------------
+
+extern	MR_LONG			Option_page_request;
+extern	MR_VIEWPORT*	Option_viewport_ptr;
+extern	MR_LONG			Option_level_number;
+extern	MR_LONG			Option_page_current;
+
+
+//-----------------------------------------------------------------------------
+//	Prototypes
+//-----------------------------------------------------------------------------
+
+extern	MR_BOOL		OptionStart(MR_VOID);
+
+extern	MR_VOID		OptionPage_MAIN_STARTUP(MR_VOID);
+extern	MR_VOID		OptionPage_MAIN_UPDATE(MR_VOID);
+extern	MR_VOID		OptionPage_MAIN_SHUTDOWN(MR_VOID);
+
+extern	MR_VOID		OptionPage_LEVEL_SELECT_STARTUP(MR_VOID);
+extern	MR_VOID		OptionPage_LEVEL_SELECT_UPDATE(MR_VOID);
+extern	MR_VOID		OptionPage_LEVEL_SELECT_SHUTDOWN(MR_VOID);
+
+#endif		//__OPTIONS_H
+

@@ -1,0 +1,3 @@
+resetps
+run main.cpe
+

@@ -1,0 +1,732 @@
+//
+// PlayStation API Revision History
+// --------------------------------
+//
+// 	Ver.	Released	Filename		Information
+// 	----	--------	--------		-----------
+//
+//	0.90	Unknown						Interim release
+//
+//	0.91	Unknown						Extra 2D sprite functionality
+//
+//	0.92	Unknown						Added API fastram abstraction	
+//
+//	0.93	01.06.96					Fixed bugs in mr_file.h macros
+//
+//	0.94	14.06.96					New functionality in mr_quat.c
+//										Locking mechanism added to mr_file.c
+//										MRProcessResource() now passes a file size to callbacks. This will
+//										require changes to routines in 'project.c' 
+//										Abstracted fog setting in mr_view.c to maintain portability
+//										New MR_FRACx/MR_UFRACx types, and a couple of macros to mr_sys.c
+//										Assert corrections in mr_disp.c
+//										pollhost() control routines in mr_disp.c
+//										New MRShowMemSummary() in mr_mem.c
+//										Ability to have an object automatically kill its frame added to mr_obj.c
+//										New release (Version 1.0) of BuildWad.EXE			
+//										Miscellaneous changes to mr_big.h related to above modifications
+//
+//	0.95B	20.08.96					Collision types changed to start at zero.
+//										MRCreateViewport() can now take 'NULL' as first parameter, which
+//										will create a display sized viewport.
+//										Screen mode names changed, MR_MODE_PAL/MR_MODE_NTSC define is required
+//										within 'system.h' (or equivalent). 
+//										Added rotation and offset processing for 2D sprites.
+//										Added extra validation in mr_disp.c. 
+//										Added screen position adjustment capability within mr_disp.c (used to
+//										stop clipping on user display device)
+//										Improved locking mechanism in mr_file.c (for asynchronous access)
+//										Handy macros added to mr_big.h for MR_TEXTURE utilitisation.
+//										**IMPORTANT** Models now have to be in MOF2 format (model/cel system)
+//										for them to work. *** OLD MODELS ARE INVALIDATED IN THIS RELEASE!! ***
+//										New release (Version 1.03) of BuildWad.EXE
+//										Changed the position of next/prev links for 2D sprites (moved out of
+//										MR_SP_CORE, and into MR_2DSPRITE)... 
+//										Changed all references to 'PSEUDOSPOT' to 'POINT LIGHT'.
+//										Added MRResolveMOFTextures/MRUnresolveMOFTextures for application of
+//										texture offsets (recommend calling after MRResolveMOF).
+//										Miscellaneous changes to mr_big.h, related to above changes.
+//	  		                            Split static model code into separate file. Now consistent with
+//										animation code format. Added prototypes where missing.
+//
+//										--- INTERIM BETA RELEASE (really just for BeastWars team) ---
+//
+//										MR_MEM is no more. MR_ULONG* reigns supreme!! Muhahahahaaaaaa!
+//						mr_misc.c	-	Created MRGenerateMatrixFromZAxisAndZYPlane()
+//
+//						mr_frame.c	-	MRPointMatrixAtVector now takes y param, and calls
+//										MRGenerateMatrixFromZAxisAndZYPlane()
+//										MRAnimResolveMOFTextures()/MRAnimUnresolveMOFTextures() completed
+//
+//                		mr_stat.c	-	Bug fixed in MRStatResolve/UnresolveMOFTextures()
+//
+//	0.96B	10.09.96					Interim release. Still no completed animation code.
+//
+//	0.97B	11.09.96					Added MRCalculateMOFDimensions at request of BeastWars Team
+//
+//	0.98B								Added support for absolute filenames within .MWI file (but only for
+//										single instance InsertFile commands).
+//										Object OT support added.
+//										First implementation of MIPS rendering code. You need to make 
+//										modifications to your main makefile, and a new ASMPSX (2.25+) in
+//										order to use this release.
+//										Frame movement callbacks removed, and hence the parameters for 
+//										MRCreateFrame() have changed (no more callback parameter).
+//										MR_VIEWPORT now supports independently controllable near and far
+//										fog distances (as in PC API)
+//
+//			07.10.96					MRStaticDisplayMeshInstance(): fixed bug in model changing loop, and
+//										allowed specification of z distance beyond which nothing is displayed
+//										Added MRKillAllOTs()
+//
+//			09.10.96	mr_debug	-	Functions and data added for debug display, enclosed by
+//										#ifdef MR_DEBUG_DISPLAY
+//										MRScaleMOF() now handles animated MOFs
+//										MRCheckBoundingBoxOnScreen() added.  MRStaticDisplayMeshInstance and
+//										MRAnimDisplayMeshInstance now call this
+//						mr_coll.c	-	Most functions changed to accept new frame inputs, bugs fixed
+//										Functions added for collision with MR_BOUNDING_BOX
+//
+//			11.10.96	mr_anim.c	-	Basic environment framework started.  MRAnimDisplayMeshInstance now
+//										checks bounding boxes on screen before displaying
+//		
+//			17.10.96					Added viewport distance control functions, fixed bugs in mr_mem.c and mr_font.c
+//
+//	1.00	18.10.96					First 'proper' release of PlayStation API. Everything but multiple anim file support
+//
+//	1.01	21.10.96					Bug removed from local ordering table code in mr_anim.c and mr_stat.c.. ooops!
+//										Added MRAnimSetAction(), MRAnimSetCel(), total_cels field in environments
+//										Bugs fixed in GT4/G4 rendering code. New MRSetActiveViewport() function to help
+//										custom code and API integration. Major OT problems should now be a thing of the 
+//										past (minor problems.. well, who knows..).
+//
+//	1.03	23.10.96					Added new line prims types and associated stuff:
+//										struct	__mr_mprim_lf2	MR_MPRIM_LF2;
+//										struct	__mr_mprim_lf3	MR_MPRIM_LF3;
+//										struct	__mr_mprim_hlf3	MR_MPRIM_HLF3;
+//										struct	__mr_mprim_hlf4	MR_MPRIM_HLF4;
+//										MR_MPRIMID_LF2
+//										MR_MPRIMID_LF3
+//										MR_MPRIMID_HLF3
+//										MR_MPRIMID_HLF4
+//										New file: mr_phlf3.c contains MRDisplayMeshPolys_HLF3()
+//										New file: mr_phlf4.c contains MRDisplayMeshPolys_HLF4()
+//
+//										MR_ANIM_MODEL->am_static_model is now an index into
+//										MR_ANIM_HEADER->ah_static_files.  This is BODGED in MRAnimResolveMOF() at present, so
+//										assumes single model files only.  REQUIRES CONVERTER CHANGE.
+//
+//						mr_spline.c -	Optimised MRCalculateSplineHermiteMatrix() and MRCalculateSplineBezierMatrix()
+//						mr_mof.c    -	Added MRCalculateMOFVertexExtremes()
+//						mr_ot.c	    -	Added MRCalculateOTInfoFromMOF()
+//						mr_big.h    -	MR_OT has new ot_frame_offset field
+//						mr_anim.c   -	MRAnimDisplayMeshInstance accepts loca OT ot_frame_offset field
+//						mr_stat.c   -	MRStaticDisplayMeshInstance accepts loca OT ot_frame_offset field
+//
+//	1.04	29.10.96					New screen mode support (384 pixel wide modes)
+//										Bugs fixed in pseudo-wireframe support code
+//										New debug font and associated gamefont.c/h released (not API really, but useful)
+//
+//			31.10.96					MRStaticDisplayMeshInstance() and MRAnimDisplayMeshInstance() now set
+//										MR_MESH_INST_DISPLAYED_LAST_FRAME only if mesh rendered (on screen and in OT).
+//										Added MRAnimAddEnvToViewport(), and MR_ANIM_ENV_INST structure
+//
+//			01.11.96					Added:
+//											MRCalculateSplineHermitePointDirectly()
+//											MRCalculateSplineBezierPointDirectly()
+//											MRCalculateBsplinePointDirectly()
+//											MR_SPLINE_T2_SHIFT define (overridable)
+//
+//			04.11.96					Changed MRSprtCodeKILL to kill by instance
+//										MRCreate3DSprite() now correctly sets pointer in MR_3DSPRITE back to owning object
+//										MRDisplay3DSpriteInstance() - fixed bug with sc_otz_offset
+//										MRRenderPres() now takes viewport input
+//										MRInputPres() now takes controller id input
+//
+//			08.11.96					MRCreateMesh() - model change distances now set up to defaults
+//			
+//
+//			20.11.96	mr_anim.c	-	All functions changed
+//						mr_anim.h 	- 	MR_ANIM_MODEL structure altered
+//						mr_splin.c	- 	Overflow bug fixed in tangent functions
+//						mr_obj.c	- 	MRKillObject now decreases frame fr_count, and kills frame only if
+//						  				MR_OBJ_KILL_FRAME_WITH_OBJECT is set AND fr_count == 0
+//
+//	1.05	25.11.96					Removed mr_big.h. It was shite, but now it's gone.. so I don't really care anymore.
+//										But please remember that the only supported way of including api functions is through
+//										the inclusion of mr_all.h.
+//
+//			04.12.96					MRReflectVectorInCollPrim now accepts reflection normal ptr.  Returned reflection normal and
+//	 									reflected vector now both point AWAY from the prim.
+//										New sprite flags MR_SPF_HORIZONTAL_FLIP	and MR_SPF_VERTICAL_FLIP, supported by 2D sprites only.		(1<<15)		// flip image v coords
+//										Changed MRDisplay2DSprite() accordingly.  Note that textures which are to be flipped must be
+//										stored with duplicated pixels in Vorg.
+//
+//			10.12.96					MRAnimCreateEnvSingle/Multiple and MRAnimLoadEnvSingle altered subtly
+//
+//			11.12.96					Added MRSetTextTransparency and MRSetTextColour
+//
+//			17.12.96					Fixed double add object bug in MRAnimAddEnvToViewport()
+//
+//			06.01.97					MRUpdateFrames() 		- fixed bug in LW calculation
+//										MRUpdateFrameLWTransform() 	- fixed bug in calculation of LW translation
+//
+//			10.01.97					MRAnimCreateEnvSingle/MultipleEntirely changed to MRAnimCreateWholeEnvSingle/Multiple
+//										Added:
+//											MRAnimEnvUpdateLWTransforms()
+//											MRAnimEnvSetFlag()
+//											MRAnimEnvClearFlag()
+//											MRAnimEnvGetFlag()
+//											MRAnimEnvSetSpecialFlag()
+//											MRAnimEnvClearSpecialFlag()
+//											MRAnimEnvGetSpecialFlag()
+//
+//			14.01.97					Fixed bug in MRCheckBoundingBoxWithWorldPoint()
+//										Added:
+//											MRAnimEnvSingleSetPartFlags()
+//											MRAnimEnvSingleClearPartFlags()
+//											MRAnimEnvSingleGetPartFlags()
+//											MRAnimEnvMultipleSetPartFlags()
+//											MRAnimEnvMultipleClearPartFlags()
+//											MRAnimEnvMultipleGetPartFlags()
+//											MRAnimEnvSingleSetImportedTransform()
+//											MRAnimEnvSingleClearImportedTransform()
+//											MRAnimEnvMultipleSetImportedTransform()
+//											MRAnimEnvMultipleClearImportedTransform()
+//											MRAnimRemoveEnvInstanceFromViewport()
+//											MRAnimEnvDestroyByDisplay()
+//										Added support for type '1' files (byte transforms) and MR_MAT34B structure
+//										MRAnimKillEnv() no longer touches associated meshes
+//
+//										MRCreateViewport() and MRRenderViewport() altered to cope with new linked list of
+//										environment instances hanging off MR_VIEWPORT (which has also changed)
+//
+//			15.01.97					Added:
+//											MRAnimEnvSingleGetImportedTransform()
+//											MRAnimEnvMultipleGetImportedTransform()
+//											MRAnimEnvSingleSetAction()
+//											MRAnimEnvSingleSetCel()
+//											MRAnimEnvMultipleSetAction()
+//											MRAnimEnvMultipleSetCel()
+//											MRAnimEnvMultipleSetActionAll()
+//											MRAnimEnvMultipleSetCelAll()
+//										Removed:
+//											MRAnimSetAction()
+//											MRAnimSetCel()
+//											MRAnimKillEnvInst()
+//
+//			17.01.97					Renamed and added so much animation stuff I can't be bothered to detail it
+//										Renamed ob_count entry in MR_OBJECT to ob_vp_inst_count for compatibility with MR_ANIM_ENV
+//
+//			20.01.97					Added all animation events functions
+//
+//			21.01.97					Added MRChangeFrameParent()
+//
+//			21.01.97	mr_debug.c	- 	all functions now use MRVp_ptr as the viewport ptr.  Also, exceeding the defined
+//								     	line or tile buffer will now cause an assertion rather than a carthorse
+//					 					MRDebugPlotCollPrim() - fixed bug if cp_matrix exists
+//
+//			22.01.97	mr_anim.c	-	Added support for MR_ANIM_ENV_NOT_ACTIVE and MR_ANIM_ENV_ONE_SHOT_AND_KILL
+//										Added MRAnimRemoveEnvInstanceFromViewportPhysically()
+//						mr_view.c	-   MRKillViewport() now removes environment instances
+//
+//			23.01.97					Remove MR<thing>UnresolveMOFTexture() functions...
+//		
+//			27.01.97					Modified MRRenderViewport() to respect MR_OBJ_NO_DISPLAY for particle generators
+//
+//	1.06	27.01.97					RELEASE
+//
+//			28.01.97	mr_debug.c	- 	MRDebugPlotCollPrim() 		- swapped inputs
+//										MRDebugPlotBoundingBox() 	- added colour input
+//										Added:
+//											MRDebugPlotHiliteVertices()
+//											MRDebugPlotHilitePrims()
+//
+//						mr_mof.c	-	MRPartGetPrim()
+//										MRPartGetPrimOffset()
+//										MRGetNumberOfHilites()
+//										MRGetFirstHilite()
+//										MRFillHiliteSVECArray()
+//										MRFillHiliteSVECPointerArray()
+//
+//						mr_stat.c	-   MRStaticResolveMOF() 		- resolves MR_HILITEs
+//										MRStaticDisplayMeshInstance() 	- displays debug hilites
+//
+//			31.01.97	mr_splin.c	- 	Changed MRCreateBSpline() to accept flags
+//										Changed MRCalculateBsplinePoint() to accept flags
+//										Added:
+//											MRCreateSplineBezierArray()
+//											MRCalculateEntireSplineBezierArray()
+//											MRCalculateSplineBezierArrayPoint()
+//
+//						mr_debug.c	- 	Added:
+//											MRDebugPlot2DWorldBspline()
+//											MRDebugPlot2DWorldSplineBezierArray()
+//											MRDebugPlot2DWorldBsplineControlPoints()
+//											MRDebugPlot2DWorldBezierControlPoints()
+//											MRDebugPlot2DWorldSplineBezierArrayControlPoints()
+//
+//			05.02.97	mr_debug.c	- 	MRDebugPlotCollPrim() now does not use MRViewtrans or MRViewtrans_ptr,
+//										and fixed cp_offset bug
+//
+//						mr_stat.c	-   MRStaticDisplayMeshInstance() now restores rotation matrix if displaying debug collprims
+//			
+//						mr_coll.c	-   Fixed TransposeMatrix bug in MRCheckCollPrim(s)WithWorldPoint()
+//										Fixed reflection direction bug in MRReflectVectorInCollPrim()
+//
+//			06.02.97	mr_stat.c	-	Changed to use simplified lighting calls
+//				
+//						mr_anim.c	-	As above
+//
+//						mr_sprt.c	-	As above
+//
+//						mr_misc.c	-	Moved out new lighting code
+//
+//						mr_light.c	-	Added new simplified lighting code (common to sprites, meshes, etc)
+//
+//						mr_mem.c	-	Added:
+//											MRInitMemfixed()
+//											MRAllocMemfixed()
+//											MRFreeMemfixed()
+//											MRInitMemfixedWithInsts3DSprite()
+//											MRInitMemfixedWithInstsPgen()
+//					
+//						mr_mem.h	-	Added MR_MEMFIXED structure
+//					
+//						mr_obj.c	-	Added new globals:
+//											#ifdef MR_MEMFIXED_3DSPRITE
+//											MR_MEMFIXED*	MRMemfixed_3dsprite;
+//											#endif
+//											#ifdef MR_MEMFIXED_PGEN
+//											MR_MEMFIXED*	MRMemfixed_pgen;
+//											#endif
+//											#ifdef MR_MEMFIXED_STATIC_MESH
+//											MR_MEMFIXED*	MRMemfixed_static_mesh;
+//											#endif
+//					
+//										MRCreate/KillObject() now handle MR_OBJ_MEMFIXED
+//
+//						mr_obj.c	-	Added	#define	MR_OBJ_MEMFIXED			(1<<10)
+//										#define	MR_OBJ_MEMFIXED_WITH_INSTS	(1<<11)
+//										Externs of new globals
+//					
+//						mr_sprt.c	-	Added MRCreateMemfixedWithInsts3DSprite()
+//					
+//						mr_view.c	-	MRRenderViewport() deletion stuff now handles MR_OBJ_MEMFIXED
+//										MRRemove3DSpriteInstanceFromViewportPhysically() does also
+//										MRRemovePgenInstanceFromViewportPhysically() does also
+//				
+//						mr_part.c	-	Added MRCreateMemfixedWithInstsPgen()
+//					
+//						mr_frame.c	-	Added new global:
+//											#ifdef MR_MEMFIXED_FRAME
+//											MR_MEMFIXED*	MRMemfixed_frame;
+//										#endif
+//					
+//										MRCreate/KillFrame() now handle MR_FRAME_MEMFIXED
+//					
+//						mr_frame.h	-	Added #define MR_FRAME_MEMFIXED
+//					
+//						mr_misc.c	-	MRInitialise() now sets up #ifdef MR_MEMFIXED.. globals
+//
+//			10.02.97	mr_anim.c	-	MRAnimEnvGetPartTransform() now handles compressed and byte transforms
+//										Fixed transform increment bug in MRAnimDisplayMeshInstance()
+//										and MRAnimEnvUpdateLWTransforms()
+//										Added MRAnimEnvUpdateModelLWTransforms()
+//
+//	1.07	10.02.97					Interim release for Medievil Team.
+//
+//			12.02.97	mr_anim.c	-	Altered debug display calls in MRAnimDisplayMeshInstance()
+//										MRAnimEnvUpdateLWTransforms() now rebuilds if MR_FRAME_REBUILT_LAST_FRAME set
+//										for the environment's MR_FRAME
+//
+//						mr_debug.c	-	MRDebugPlotCollPrim() now takes matrix and offset, not frame, inputs
+//										MRDebugPlotBoundingBox() takes MR_BBOX* input, not MR_SVEC*
+//
+//						mr_frame.c	-	MRUpdateFrames() now handles MR_FRAME_REBUILT_LAST_FRAME
+//
+//						mr_coll.c	-	MRCheckCollPrimWithWorldPoint() REWRITTEN
+//										MRCheckBoundingBoxWithWorldPoint() REWRITTEN
+//										Added MRCollisionCheck()
+//
+//						mr_disp.c	-	New gatso functionality
+//
+//						mr_mem.c	-	New memory code (suffers less from fragmentation), MRGetMemoryStats()					
+//
+//			13.02.97	mr_view.c	-	MRRenderViewport() handles lights with MR_OBJ_DESTROY_BY_DISPLAY, and
+//										correctly handles updating light/colour matrices.
+//
+//						mr_obj.c	-	MRKillObject() now works for lights
+//
+//						mr_light.h	-	Changed MR_LIGTYPE_<xxx> to MR_LIGHT_TYPE_<xxx> and added change flags
+//
+//						mr_light.c	-	Changed to use new types (as above)
+//
+//						mr_anim.c	-	MRAnimRemoveEnvInstanceFromViewportPhysically() now kills component meshes
+//										and mesh instances.
+//										MRAnimKillEnv() no longer flags component meshes as MR_OBJ_DESTROY_BY_DISPLAY
+//
+//						mr_coll.c	- 	MRCheckCollPrimWithWorldPoint() - fixed return(TRUE) bug
+//
+//			14.02.97	mr_sprt.c	-	Changed MR_SPIF_TRANSPARENT to MR_SPIF_TRANSLUCENT.
+//
+//						mr_sprt.h	-	Changed MR_SPIF_TRANSPARENT to MR_SPIF_TRANSLUCENT.
+//
+//						mr_font.c	-	Changed MR_FINFO_TRANSPARENT to MR_FINFO_TRANSLUCENT, and also
+//										renamed MRSetTextTransparency() to MRSetTextTranslucency().
+//
+//						mr_font.h	-	Changed MR_FINFO_TRANSPARENT to MR_FINFO_TRANSLUCENT
+//										Updated prototypes to reflect changes to mr_font.c
+//
+//						mr_obj.c	-	MRCreateObject() now handles MR_PF_NO_GEOMETRY
+//
+//						mr_sys.h	-	Supports MR_BIG_ENDIAN
+//
+//						mr_view.c	-	Added	MRRemoveAllLightInstancesFromViewportPhysically()
+//
+//			17.02.97	mr_anim.?	- 	Added support for MR_ANIM_PART_REDUNDANT
+//
+//						mr_view.c	- 	MRAddObjectToViewport() - added support for MR_ANIM_PART_REDUNDANT
+//
+//	1.08	17.02.97					New release.
+//
+//			18.02.97	mr_part.c	- 	MRCreatePgen() - fixed bug when MR_PF_NO_GEOMETRY was set
+//
+//						mr_obj.c	-    MRKillObject() - fixed bug which was ignoring MR_OBJTYPE_ANIM_MESHes
+//
+//						mr_mof.c	-    MR(Static)CreateWireframeMOF() now handle MR_MOF_WIREFRAME_MONOCHROME
+//
+//			19.02.97	mr_obj.?	-	Added MRAttachFrameToObject() and MRDetachFrameFromObject() functions
+//
+//	1.09	19.02.97				-	New release (minor functionality and fixes) to go with PC API
+//
+//			20.02.97	mr_part.c	-	MRCreatePgen() - NULL frame now permitted
+//
+//			26.02.97	mr_view.c	- 	Mesh instances now have prims in one allocation:
+//											MRRenderViewport()
+//											MRAddObjectToViewport()
+//											MRRemoveMeshInstanceFromViewportPhysically()
+//
+//						mr_mof.c	-  	MRStaticCreateWireframeMOF() now supports the full new MR_PART structure!
+//
+//			04.03.97	mr_view.c	- 	MRRenderViewport() - MR_PGEN display now supports MR_OBJ_NO_DISPLAY
+//
+//						mr_sprt.c	-	MRCreate3DSprite() - NULL frame now permitted
+//
+//			11.03.97	mr_coll.c	-	Added support for MR_COLLCHECK_C_POINT
+//										MRCollisionCheck() now writes out mc_c_item_a/b
+//										Removed:
+//											MRCheckCollPrimsWithWorldPoint()
+//											MRReflectVectorInCollPrim()
+//											MRPointToFrustrumCollision()
+//											MRPointToFrustrumCollisionNoXY()
+//											MRReflectVectorInBoundingBox()
+//
+//			12.03.97	mr_coll.h	-	Added collision face flags
+//
+//			13.03.97	mr_coll.c	- 	Functions now respect collision face flags
+//
+//						mr_anim.c	-	MRAnimDisplayMeshInstance() - fixed collprim display bug
+//
+//			14.03.97	mr_coll.c	-	References to MRApplyRotMatrix(VEC) now MUST have set up the rotation matrix
+//										explicitly with gte_SetRotMatrix()
+//
+//			17.03.97	mr_frame.c	-	Changed MRApplyMatrixVEC to MRApplyMatrix in
+//										MRUpdateFrameLWTransform() and MRChangeFrameParent()
+//
+//						mr_coll.c	-	Changed MRApplyMatrixVEC to MRApplyMatrix in
+//										MRCheckCollPrimWithWorldPoint() and MRCheckBoundingBoxWithWorldPoint()
+//
+//						mr_anim.c	-	Changed MRApplyMatrixVEC to MRApplyMatrix in MRAnimCalculatePartTransform()
+//
+//						mr_quat.h	-	Added MR_QUATB structure
+//
+//						mr_quat.c	- 	Removed MRMulQuaternionByEulers..() functions
+//										Added MRQuaternionBToMatrix() and MRMatrixToQuaternionB()
+//
+//						mr_disp.?	-	Added new MRSetGatsoDisplayStatus() to show/hide gatso display
+//
+//						mr_sound.?	-	New (preliminary) Sound API. Needs more testing though...
+//
+//						mr_sys.h	-	Added new MR_ACOS and MR_ACOS_RAW for 'official' access to MRAcos_table
+//
+//			18.03.97	mr_anim.c	-	Anim file transforms now MUST be indexed (else code will assert).
+//										Added support for MR_QUATB_TRANS transforms
+//
+//			19.03.97	mr_anim.c	-	Created MR_ANIM_CPT_PARAMS structure for passing parameters into
+//										MRAnimCalculatePartTransform().
+//										Altered:
+//											MRAnimEnvUpdateLWTransforms()
+//											MRAnimEnvUpdateModelLWTransforms()
+//											MRAnimCalculatePartTransform()
+//											MRAnimDisplayMeshInstance()
+//
+//						mr_quat.c	-	Added MRInterpolateQuaternionsBToMatrix()
+//
+//			20.03.97	mr_coll.c	-	MRCheckCollPrimWithWorldPoint() now sets MR_COLLCHECK_C_NO_OUTPUT if both ends of
+//										line are inside volume (or relative motion is 0)
+//
+//			21.03.97	mr_quat.c	-	Added override for certain CPU-hungry functions so they use new MIPS/GTE 
+//										versions.
+//				
+//						mr_m_qua.?	-	New GTE/MIPS optimised versions of some important quaternion functions
+//
+//						mr_sound.?	- 	New Sound API (currently PlayStation only)
+//
+//						mr_disp.c	-	Added MRSetGatsoDisplayStatus() function to hide/show Gatso
+//
+//						mr_input.?	- 	Added new bit defines and code to allow access to non-remapped buttons in an 
+//										API friendly manner.
+//
+//						mr_pres.c	-	Changed to use new API joypad bit definitions (and appropriate data sizes)
+//
+//			24.03.97	mr_anim.c	-	MRAnimEnvGetPartTransform() updated to use MRAnimCalculatePartTransform()
+//										*** NEW FILE*** - removed all Multiple specific functions to mr_anim2.?
+//
+//			01.04.97	mr_anim.c	-	Changed to allow special rendering flag processing for a mesh instance
+//		
+//						mr_stat.c	-	Changed to allow special rendering flag processing for a mesh instance
+//										Added MOF Information output from MRStaticResolveMOF()
+//	
+//						mr_s_*.c	-	New 'special' rendering modules, allowing normal clip overrides and translucency
+//				
+//						mr_mesh.h	-	New bits defined for mesh instance, used by special rendering code
+//			
+//						mr_input.h	-	Fixed bit definitions for non-remapped buttons (MRIP_L1/L2/R1/R2)
+//
+//						mr_file.?	-	Added MRGetResourceIDFromAddress() function..
+//
+//	1.11	04.04.97	mr_file.?	-	Put support for dynamic safety margin handling
+//
+//						mr_anim.c	-	Fixed bug in MRAnimDisplayMeshInstance() where lw_transform wasn't set correctly
+//
+//						mr_math.c	-	Moved matrix functions from mr_misc.? to mr_math.?
+//
+//						mr_pres.?	-	Corrected callback prototypes
+//
+//			07.04.97	mr_stat.c	-	MRStaticDisplayMeshInstance() now respects MR_MESH_IGNORE_BBOX and
+//										MR_MESH_CHECK_BBOX_USING_EDGES
+//
+//						mr_anim.c	-	MRAnimDisplayMeshInstance() now respects MR_MESH_IGNORE_BBOX and
+//										MR_MESH_CHECK_BBOX_USING_EDGES
+//
+//	1.11a	09.04.97	All files	-	Tabs changed over to 4... by hand..!
+//
+//			11.04.97	mr_part.?	-	Added facility for PGEN initialisers to allocate
+//								    	a specific amount of memory for transient user data, and automatically
+//										release that memory on destruction of the generator.
+//
+//						mr_coll.c	-	Fixed hilites in multiple parts bug in MRCollisionCheck()
+//
+//			16.04.97	mr_anim.c	-	Fixed bug where matrix was being copied from MRTemp_matrix, not
+//										'transform' (breaking when using normal-format matrices).
+//
+//						mr_debug.?	-	Tim added a function to plot debug POLY_F4's (MRDebugPlotWorldPolyF4)
+//				
+//			17.04.97	mr_font.?	-	Modified for in-line colour changing.
+//	
+//			18.04.97	mr_debug.?	-	Added MRDebugPlot2DWorldPolyF4()
+//	
+//			22.04.97	mr_sound.?	-	Minor modifications to align with PC Sound API
+//					
+//			22.04.97	mr_view.?	-	Changes to write vp_disp_inf.w/h when changing VP rectangles
+//	
+//			23.04.97	mr_view.?	-	MRChangeViewport() - Fixed bug to clear MR_VP_NO_ASPECT
+//
+//			22.05.97	mr_m_pak.s	-	Potentially fatal bug fixed (MIPS version)
+//						mr_c_pak.c	-	Potentially fatal bug fixed (C version)
+//
+//						mr_mem.?	-	Added debug code to prevent multiple MRFreeMem() calls on an allocation
+//
+//						mr_vram.c	-	Fixed bug relating to 256 wide pixel textures (as discovered by Will)
+//
+//			25.05.97	mr_view.c	-	Fixed potential illegal memory access in MRUpdateViewportRenderMatrices()
+//
+//						mr_over.c	-	Initial implementation of API overlay handling code
+//			
+//	1.20	30.05.97	mr_sound.c	-	Attempt to fix moving sound bug within MRSNDUpdateSound()
+//										
+//										*** Interim release for BeastWars team ***
+//
+//	1.21	02.06.97	mr_anim.c	-	Implemented local ordering table support for animations without frames
+//										Fixed bug where colour matrix was being modified, and not restored.
+//
+//						mr_stat.c	-	Implemented local ordering table support for static meshes without frames
+//
+//			04.06.97	mr_anim.c	-	Removal of anim env instance from viewport now requests removal of all
+//										appropriate mesh instances too.	
+//
+//						mr_sound.?	-	Added owner pointer in moving sound structures, to allow for automatic
+//										clearing of a user pointer to the moving sound on kill.
+//
+//			06.06.97	mr_view.c	-	Fixed bug in MRRenderViewport, where removal of anim environment instance
+//										would prematurely trigger removal of mesh instances.
+//
+//			06.06.97	mr_stat.c	-	Added support for animated polys in
+//										MRStaticResolveMOF()
+//										MRStaticResolveMOFTextures()
+//
+//						mr_mof.?	-	Added support for animated polys.  New functions:
+//										MRPartGetPrimOffsetFromPointer()
+//										MRCalculateMOFAnimatedPolys()
+//										New structures:
+//										MR_PART_POLY_ANIM
+//										MR_PART_POLY_ANIMLIST_ENTRY
+//										New flags:
+//										MR_MOF_ANIMATED_POLYS
+//										MRWritePartPrimCodes() sets semiTrans bit if texture is semiTrans
+//	
+//						mr_obj.?	-	Added support for animated polys.  MRCreateObject() - last input changed to MR_VOID*
+//	
+//						mr_mesh.?	-	Added stuff for animated polys.  New functions:
+//										MRCreateMeshAnimatedPolys()
+//										MRUpdateMeshAnimatedPolys()
+//										MRUpdateMeshesAnimatedPolys()
+//										MRUpdateViewportMeshInstancesAnimatedPolys()
+//										MRMeshAnimatedPolyPause()
+//										MRMeshAnimatedPolySetCel()
+//										MRMeshAnimatedPolysSetCels()
+//										Altered and extended MR_MESH structure
+//										Added MR_MESH_ANIMATED_POLY structure
+//										Add new flags:
+//										MR_MESH_ANIMATED_POLYS
+//										MR_MESH_PAUSE_ANIMATED_POLYS
+//										MR_MESH_ANIMATED_POLY_PAUSED
+//
+//			10.06.97	mr_coll.?	-	Added support and definition of MR_COLL_DISABLED flag.
+//
+//			11.06.97	mr_anim.c	-	Fixed bug in MRAnimEnvSingleSetImportedTransform()
+//										where matrix_pptr was incorrectly used after being
+//										incremented.
+//
+//						mr_anim2.c	-	Fixed bug in MRAnimEnvMultipleSetImportedTransform()
+//										where matrix_pptr was incorrectly used after being
+//										incremented.
+//
+//			12.06.97 	mr_anim.c	- 	MRAnimEnvSingleSetImportedTransform() - fixed bug
+//										MRAnimCalculatePartTransform():
+//										MR_ANIM_FILE_ID_NORMAL				(16bit matrix)
+//										MR_ANIM_FILE_ID_BYTE_TRANSFORMS		(8bit matrix)
+//										MR_ANIM_FILE_ID_QUATB_TRANSFORMS	(8bit quaternion)	
+//										MR_ANIM_FILE_ID_QUAT_TRANSFORMS		(16bit quaternion)
+//										For quaternion transforms, MR_ANIM_CELS flag 
+//										MR_ANIM_CELS_VIRTUAL_INTERPOLATION indicates virtual cel list is
+//										interpreted as (prev actual cel index, next actual cel index, interpolation param)
+//
+//						mr_anim2.c	- 	MRAnimEnvMultipleSetImportedTransform() - fixed bug
+//	
+//						mr_quat.c	-	MRInterpolateQuaternions() no longer assumes MR_QUAT is long-aligned
+//										(due to existence of MR_QUAT_TRANS structure)
+//
+//						mr_m_qua.s	-	MRInterpolateQuaternionsASM() no longer assumes MR_QUAT is long-aligned
+//										(due to existence of MR_QUAT_TRANS structure)
+//
+//			13.06.97	mr_mof.?	-	Support for gouraud shaded env mapped primitive types
+//						mr_stat.c		(MR_MPRIM_GE3/MR_MPRIM_GE4)
+//						mr_anim.c
+//
+//			13.06.97 	mr_anim.?	- 	Added new transform structures and stuff for new transform file types:
+//										MR_ANIM_FILE_ID_QUATB_SCALE_TRANSFORMS
+//										MR_ANIM_FILE_ID_QUAT_SCALE_TRANSFORMS
+//
+//						mr_sys.h	-	Added MR_SCALE_MATRIX macro
+//
+//			14.06.97	mr_m_ge3.s	-	New files for gouraud environment mapped primitive rendering					
+//						mr_m_ge4.s		
+//						mr_p_ge3.s
+//						mr_p_ge4.s
+//						mr_s_ge3.s
+//						mr_s_ge4.s
+//
+//			16.06.97	mr_disp.?	-	Added support for 24-bit displays (for video playback purposes)
+//
+//			17.06.97	mr_view.c	-	Modified MRCreateViewport() to not allow viewport creation when
+//										utilising a 24-bit display due to GPU rendering restrictions.
+//
+//			18.06.97	mr_mof.?	-	Added MRPatchMOFTranslucency to modify MR_MPRIMs to respect 
+//						mr_stat.?		MR_TEXTURE translucency flags. Added MRAnimPatchMOFTranslucency
+//						mr_anim.?		and MRStaticPatchMOFTranslucency support routines.
+//
+//						mr_view.c	-	Removed processing of 2D sprite animations in MRRenderViewport()
+//										and moved into a separately callable routine MRUpdateViewport2DSpriteAnims();
+//
+//			18.06.97 	mr_anim.c	-	Added support for MR_ANIM_ENV_FLIPBOOK
+//	
+//						mr_mof.h	-	Added support for MR_ANIM_ENV_FLIPBOOK
+//	
+//						mr_stat.c	-	Added support for MR_ANIM_ENV_FLIPBOOK
+//
+//	1.30	19.06.97				-	API passed to PC for re-integration/release
+//
+//			01.07.97	mr_sound.c	-	More moving sound bugs fixed
+//
+//						mr_coll.c	-	Support for MR_ANIM_ENV_FLIPBOOK
+//
+//						mr_stat.c	-	Fixed bug in MR_ANIM_ENV_FLIPBOOK
+//
+//			02.07.97	mr_view.c	-	Aspect matrix changed to respect PAL/NTSC sizes
+//
+//			02.07.97	mr_mesh.c	-	Changed MRUpdateMeshesAnimatedPolys() to not
+//										update objects that are dying..
+//
+//			04.07.97	mr_anim.c	-	Fixed bug with env mapping in MRAnimDisplayMeshInstance() where
+//										MRWorldtrans_ptr wasn't setup correctly.
+//
+//	1.31	07.07.97				-	Major release for all projects...
+//
+//			08.07.97	mr_vram.c	-	MRFreeResourceTextureBlock() now handles not having an initialised
+//										root pointer
+//	
+//						mr_m_qua.s	-	Retro-fitted Tim's fix in MRInterpolateQuaternionsASM()
+//
+//						mr_anim.h	-	Corrected definition of MR_QUAT_SCALE_TRANS_USE_SCALING to (1<<0)
+//
+//			09.07.97	mr_stat.c	-	Added OT biasing with ot_global_ot_offset
+//						mr_anim.c	-	OT biasing as above
+//						mr_ot.?		-	Added OT biasing support..
+//
+//			14.07.97	mr_font.c	-	Added '%<' and '%>' exclusion zone handling																				
+//										and project font colour table override.
+//	
+//			15.07.97	mr_vram.c	-	Correctly handles multiple dynamic allocations of textures for the
+//										same resource id (ie it bails out at the correct time!).
+//										Fixed another dynamic texture block bug to do with
+//										multiple texture loads.
+//			
+//			16.07.97	mr_anim.c	-	Changed MRAnimDisplayMeshInstance, MRAnimEnvUpdateLWTransforms, and
+//										MRAnimCalculatePartTransform to handle new model formats with frame
+//										numbers starting at zero (instead of 1).
+//
+//			21.07.97	mr_view.c	-	Fixed aspect matrix bugs in MRCreate/ChangeViewport, 
+//										and let MRChangeViewport() accept a NULL parameter to use
+//										display defaults.
+//
+//						mr_disp.c	-	Added MRChangeDisplay() to dynamically change display resolutions.
+//
+//			23.07.97	mr_anim.c	-	Applied Tim's bugfix to MRAnimUpdateEnvironments() where update period
+//										greater than 1 broke code when action was changed.
+//
+//						mr_mesh.c	-	Animating polygon fixes for dying objects
+//
+//			30.07.97	mr_anim.c	-	Fixed bug where tsize wasn't being correctly setup for
+//										non-interpolated quaternion animations in MRAnimCalculatePartTransform()
+//
+//	1.32	01.08.97				-	Minor bug-fix release to all projects
+//
+//			10.08.97	mr_crash.c	-	Added API implementation of exception handler.
+//
+//						mr_anim.c	-	Changed MRAnimUpdateEnvironments() to not access MOF for flipbook 
+//										animations that are being destroyed.
+//
+//			14.08.97	mr_over.c	-	MRLoadOverlay now performs FlushCache() while in a critical section.
+//
+//			19.08.97	mr_sys.h	-	New macros for rsin/rcos/srand/rand/setDefDispEnv/setDefDrawEnv
+//										routines.  
+//
+//						mr_m_qua.s	-	Now uses internal rcossin_tbl, for speedier interpolation.						
+//						
+//			20.08.97	mr_stat.c	-	Added support for MR_OT_FORCE_BACK flag
+//						mr_anim.c	
+//						mr_ot.h		
+//
+//	1.40	20.08.98				-	Release for all projects

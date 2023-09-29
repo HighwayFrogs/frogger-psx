@@ -1,0 +1,171 @@
+/******************************************************************************
+*%%%% mr_s_f3.c
+*------------------------------------------------------------------------------
+*
+*	Polygon rendering routines (mesh based), for flat shaded triangles
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------  	----------  	------
+*	26.03.97	Dean Ashton		Created
+*
+*%%%**************************************************************************/
+
+
+#include	"mr_all.h"
+
+
+/******************************************************************************
+*%%%% MRSpecialDisplayMeshPolys_F3
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	MRSpecialDisplayMeshPolys_F3(
+*						MR_SVEC*		vert_ptr,
+*						MR_SVEC*		norm_ptr,
+*						MR_ULONG*		prim_ptr,
+*						MR_ULONG*		mem_ptr,
+*						MR_MESH_PARAM*	param_ptr,
+*						MR_BOOL			light_dpq
+*						MR_ULONG		flags);
+*
+*	FUNCTION	Performs high-speed geometry calculations for a block of
+*				MR_MPRIM_F3 (flat shaded triangle) primitives, with special
+*				rendering capabilities (see mr_mesh.h for explanation of 
+*				new MR_MESH_INST flags, used by this routine
+*
+*	INPUTS		vert_ptr	-	Pointer to vertex block
+*				norm_ptr	-	Pointer to normal block
+*				prim_ptr	-	Pointer to MR_MPRIM_F3 block
+*				mem_ptr		-	Pointer to primitive buffer memory
+*				param_ptr	-	Pointer to mesh parameter block
+*				light_dpq	-	TRUE 	:	Lighting with depth queuing
+*								FALSE	:	Lighting without depth queuing
+*				flags		-	Special rendering override flags
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	27.03.97	Dean Ashton		Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	MRSpecialDisplayMeshPolys_F3(	MR_SVEC* 		vert_ptr,
+									 	MR_SVEC* 		norm_ptr,
+									 	MR_ULONG*		prim_ptr,
+									 	MR_ULONG*		mem_ptr,
+									 	MR_MESH_PARAM* 	param_ptr,
+										MR_BOOL 		light_dpq,
+										MR_ULONG		flags)
+{
+	register	MR_ULONG*	work_ot		= param_ptr->p_work_ot;
+	register	MR_LONG		otz_shift	= param_ptr->p_otz_shift;
+	register	MR_LONG		ot_size		= param_ptr->p_ot_size;
+	register	MR_LONG		ot_clip		= param_ptr->p_ot_clip;
+	register	MR_LONG		prim_count;
+	MR_CVEC					work_cvec;
+	MR_SVEC					work_svec;
+
+	// Fetch number of primitives in this block
+	prim_count = ((MR_MPRIM_HEADER*)(prim_ptr - 1))->mm_count;
+
+	// Pre-fetch the first set of vertex pointers
+	param_ptr->p_v0 = vert_ptr + ((MR_MPRIM_F3*)prim_ptr)->mp_p0;
+	param_ptr->p_v1 = vert_ptr + ((MR_MPRIM_F3*)prim_ptr)->mp_p1;
+	param_ptr->p_v2 = vert_ptr + ((MR_MPRIM_F3*)prim_ptr)->mp_p2;
+
+	// Process every polygon in turn
+	while (prim_count--)
+		{
+
+		// Load first 3 vertices into the GTE 
+		gte_ldv3(param_ptr->p_v0, param_ptr->p_v1, param_ptr->p_v2);
+
+		// Rotate the first three points
+		gte_rtpt();
+		param_ptr->p_v0 = vert_ptr + ((MR_MPRIM_F3*)prim_ptr+1)->mp_p0;	// Fetch next vertices
+		param_ptr->p_v1 = vert_ptr + ((MR_MPRIM_F3*)prim_ptr+1)->mp_p1;	// while in gte_rtpt()
+		param_ptr->p_v2 = vert_ptr + ((MR_MPRIM_F3*)prim_ptr+1)->mp_p2;	// delay slot
+		
+		// Normal clip first three points
+		gte_nclip();
+		MR_COPY32(work_cvec, ((MR_MPRIM_F3*)prim_ptr)->mp_cvec);
+		if (flags & MR_MESH_INST_FORCE_TRANSLUCENT)								
+			work_cvec.cd = work_cvec.cd | 0x02;										// This could be an absolute write?
+		gte_ldrgb(&work_cvec);															// Load RGB in delay slot
+		gte_stopz(&(param_ptr->p_nclip_result));
+		
+		// Normal clip if required
+		if ((!(flags & MR_MESH_INST_IGNORE_NCLIP)) && (param_ptr->p_nclip_result <= 0))
+			goto next_poly;															
+
+	//---------------
+		gte_avsz3();
+		gte_stotz(&param_ptr->p_poly_otz);
+
+		param_ptr->p_poly_otz = (param_ptr->p_poly_otz >> otz_shift) + param_ptr->p_ot_otz_delta;
+
+		if (
+			(param_ptr->p_poly_otz >= ot_clip) &&
+			(param_ptr->p_poly_otz < ot_size)
+			)
+			{
+			gte_stsxy3_f3((POLY_F3*)mem_ptr);
+
+			if (!(flags & MR_MESH_INST_NO_LIGHTING))								// We want lighting?
+				{			
+				if ((flags & MR_MESH_INST_IGNORE_NCLIP) && (flags & MR_MESH_INST_FIX_NCLIP_NORMALS) && (param_ptr->p_nclip_result <= 0))
+					{
+					work_svec.vx = -(norm_ptr + ((MR_MPRIM_F3*)prim_ptr)->mp_n0)->vx;					
+					work_svec.vy = -(norm_ptr + ((MR_MPRIM_F3*)prim_ptr)->mp_n0)->vy;					
+					work_svec.vz = -(norm_ptr + ((MR_MPRIM_F3*)prim_ptr)->mp_n0)->vz;					
+					gte_ldv0(&work_svec);
+					}
+				else
+					{
+					gte_ldv0(norm_ptr + ((MR_MPRIM_F3*)prim_ptr)->mp_n0);
+					}
+	
+				if (light_dpq)
+					{
+					gte_ncds();
+					}
+				else
+					{
+					gte_nccs();
+					}
+				gte_strgb((MR_CVEC*)&(((POLY_F3*)mem_ptr)->r0));
+				}
+			else
+				{
+				MR_COPY32(((POLY_F3*)mem_ptr)->r0, work_cvec);
+				}				
+			addPrim(work_ot + param_ptr->p_poly_otz, mem_ptr);
+			}
+
+	//---------------
+	next_poly:
+			((POLY_F3*)mem_ptr)++;
+			((MR_MPRIM_F3*)prim_ptr)++;
+			param_ptr->p_prims--;
+		}
+	
+	// Place register based address arguments into param block for retrieval/setting by caller
+	param_ptr->p_mem_ptr	= mem_ptr;
+	param_ptr->p_prim_ptr	= prim_ptr;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

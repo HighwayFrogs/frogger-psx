@@ -1,0 +1,114 @@
+#version
+ 4.109
+#readram0
+ 00000000  007FFFFF
+ 1F800000  1F8003FF
+ 80000000  807FFFFF
+ A0000000  A07FFFFF
+#writeram0
+ 00000000  007FFFFF 
+ 1F800000  1F8003FF 
+ 80000000  807FFFFF 
+#update
+ 00 0008
+#video
+ 55 84 3C
+#label level
+ 02 00 00
+#colour attributes
+ 17 20 60 40 1F 2F 6F 4F 3E B0 4F 5E 0C 70 C0 87 8E 8E F0 90 4F 87 7C 0E 0A 70
+#mono attributes
+ 07 07 07 07 0F 0F 0F 0F 70 70 07 70 0F 70 01 07 0F 0F 70 0F 07 07 70 07 07 70
+#default tabs
+ 68K 0F 17 28 30 00 00 00 00
+ 658 0F 17 28 30 00 00 00 00
+ Z80 0F 17 28 30 00 00 00 00
+ C   04 00 00 00 00 00 00 00
+#expression C/ASM flags
+ 00 FF 00 00 00
+#window
+ 01 00 00 00
+ 00 01 83 0D 16 03
+ 00000000
+#window
+ 05 00 40 00
+ 00 0D 83 1E 08 1B
+ 00000A95
+#file
+L:\FROGGER\SOURCE\FROG.C
+#tabs
+ 04 00 00 00 00 00 00 00
+
+#window
+ 84 02 00 00
+ 00 1E 5E 3A 0A 1F
+ 00000000
+#watches
+ 80 00 08
+ saved_stack
+ 80 00 08
+ saved_sp
+ 80 00 08
+ frog->fr_count
+ 80 00 08
+ live_entity->le_lwtrans
+
+#window
+ 06 02 00 00
+ 5E 1E 83 29 68 28
+ 00000000
+#window
+ 03 01 00 00
+ 5E 29 83 3A 68 2C
+ 8015F464
+#history
+ 02 pause.c
+ 02 pause.c
+ 02 pause.c
+ 02 pause.c
+ 02 pause.c
+ 02 pause.c
+ 02 pause.c
+ 02 pause.c
+ 07 #140
+ 07 140
+ 07 f0000
+ 07 f0000
+ 07 f0000
+ 07 f0000
+ 07 f0000
+ 07 f0000
+ 0A FrogModeMovementHitCheckpoint
+ 0A GameEnd
+ 0A InitialiseVab
+ 0A InitialiseVab
+ 0A InitialiseVab
+ 0A InitialiseVab
+ 0A InitialiseMap
+ 0A GameStart
+ 0B 8015f484
+ 0B c0
+ 12 live_entity->le_lwtrans
+ 12 frog->fr_count
+ 12 saved_sp
+ 12 saved_stack
+ 12 (MAP_FT4*)0x8015f474
+ 12 ofs
+ 12 ofs
+ 12 (MAP_ANIM*)0x8018d38c
+ 14 801b7e10
+ 14 801b7d94
+ 14 80133818
+ 14 801057a4
+ 14 801057a4
+ 14 80105d40
+ 14 800f7b90
+ 14 800f7890
+ 15 fffffffc
+ 15 fffffffc
+ 15 fffffffc
+ 15 fffffffc
+ 15 fffffffc
+ 15 fffffffc
+ 15 fffffffc
+ 15 fffffffc

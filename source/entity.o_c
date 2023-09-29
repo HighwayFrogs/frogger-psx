@@ -1,0 +1,503 @@
+/******************************************************************************
+*%%%% entity.c
+*------------------------------------------------------------------------------
+*
+*	General entity handling
+*
+*	CHANGED		PROGRAMMER		REASON
+* 	-------  	----------  	------
+*	16.04.97	Tim Closs		Created
+*	24.04.97	Martin Kift		Added animated mof support to standard entities
+*								
+*%%%**************************************************************************/
+
+#include "entity.h"
+#include "gamesys.h"
+#include "project.h"
+#include "library.h"
+#include "form.h"
+#include "mapload.h"
+#include "misc.h"
+#include "entlib.h"
+
+
+LIVE_ENTITY		Live_entity_root;
+LIVE_ENTITY*	Live_entity_root_ptr;
+
+#ifdef DEBUG
+MR_ULONG		Total_live_entities;
+MR_ULONG		Total_live_entity_polys;
+#endif
+
+
+/******************************************************************************
+*%%%% InitialiseLiveEntities
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	InitialiseLiveEntities(MR_VOID)
+*
+*	FUNCTION	Initialise the live entities list
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	16.04.97	Tim Closs		Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	InitialiseLiveEntities(MR_VOID)
+{
+	Live_entity_root_ptr = &Live_entity_root;
+
+	Live_entity_root_ptr->le_next = NULL;
+	Live_entity_root_ptr->le_prev = NULL;
+}
+
+
+/******************************************************************************
+*%%%% CreateLiveEntity
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	LIVE_ENTITY* live_entity =	CreateLiveEntity(
+*											ENTITY*	entity)
+*
+*	FUNCTION	Create a LIVE_ENTITY from an ENTITY
+*
+*	INPUTS		entity			-	from which to create
+*
+*	RESULT		live_entity		-	created
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	16.04.97	Tim Closs		Created
+*
+*%%%**************************************************************************/
+
+LIVE_ENTITY*	CreateLiveEntity(ENTITY*	entity)
+{
+	LIVE_ENTITY*	live_entity;
+	ENTITY_BOOK*	entity_book;
+
+
+	MR_ASSERT(entity);
+
+	// Create structure
+	live_entity 			= MRAllocMem(sizeof(LIVE_ENTITY), "LIVE ENTITY");
+	entity->en_live_entity 	= live_entity;
+	entity_book 			= &Entity_library[Map_form_ptrs[entity->en_form_id]->fo_entity_type];
+
+	// Link new structure into list
+	if (live_entity->le_next = Live_entity_root_ptr->le_next)
+		Live_entity_root_ptr->le_next->le_prev = live_entity;
+	Live_entity_root_ptr->le_next = live_entity;
+	live_entity->le_prev = Live_entity_root_ptr;
+
+	// Initialise structure
+	live_entity->le_entity	= entity;
+	live_entity->le_flags 	= NULL;
+	live_entity->le_lwtrans	= &live_entity->le_matrix;
+	live_entity->le_object	= NULL;
+
+	// Call specific ENTITY_BOOK creation callback
+	//
+	// Note: entity create callbacks must not tamper with the LIVE_ENTITY linked list
+	if (entity_book->eb_callback_create)
+	 	(entity_book->eb_callback_create)(live_entity);
+	
+#ifdef DEBUG
+	Total_live_entities++;
+#endif
+
+	return(live_entity);
+}
+
+
+/******************************************************************************
+*%%%% KillLiveEntity
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	KillLiveEntity(
+*				   		LIVE_ENTITY*	live_entity)
+*
+*	FUNCTION	Kill a LIVE_ENTITY
+*
+*	INPUTS		live_entity	-	to kill
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	16.04.97	Tim Closs		Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	KillLiveEntity(LIVE_ENTITY*	live_entity)
+{
+	ENTITY_BOOK*	entity_book;
+
+
+	MR_ASSERT(live_entity);
+	MR_ASSERT(live_entity->le_entity);
+		
+	entity_book	= &Entity_library[Map_form_ptrs[live_entity->le_entity->en_form_id]->fo_entity_type];
+
+	// Remove structure from linked list
+	live_entity->le_prev->le_next = live_entity->le_next;
+	if	(live_entity->le_next)
+		live_entity->le_next->le_prev = live_entity->le_prev;
+
+	// Call specific ENTITY_BOOK kill callback
+	//
+	// Note: entity kill callbacks must not tamper with the LIVE_ENTITY linked list
+	if (entity_book->eb_callback_kill)		
+	 	(entity_book->eb_callback_kill)(live_entity);
+
+	// Set owning ENTITY ptr to NULL
+	live_entity->le_entity->en_live_entity = NULL;
+
+	// Free structure memory
+	MRFreeMem(live_entity);
+
+#ifdef DEBUG
+	Total_live_entities--;
+#endif
+}
+
+
+/******************************************************************************
+*%%%% KillAllLiveEntities
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	KillAllLiveEntities(MR_VOID)
+*
+*	FUNCTION	Kill all LIVE_ENTITYs
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	16.04.97	Tim Closs		Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	KillAllLiveEntities(MR_VOID)
+{
+	while(Live_entity_root_ptr->le_next)
+		KillLiveEntity(Live_entity_root_ptr->le_next);
+}
+
+
+/******************************************************************************
+*%%%% UpdateLiveEntities
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	UpdateLiveEntities(MR_VOID)
+*
+*	FUNCTION	Update all LIVE_ENTITYs
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	16.04.97	Tim Closs		Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	UpdateLiveEntities(MR_VOID)
+{
+	LIVE_ENTITY*	live_entity;
+	ENTITY_BOOK*	entity_book;
+
+
+	live_entity = Live_entity_root_ptr;
+	while(live_entity = live_entity->le_next)
+		{
+		// Should we destroy this LIVE_ENTITY?
+		if (live_entity->le_flags & LIVE_ENTITY_DESTROY)
+			{
+			live_entity = live_entity->le_prev;
+			KillLiveEntity(live_entity->le_next);
+			}
+		else
+			{
+			entity_book	= &Entity_library[Map_form_ptrs[live_entity->le_entity->en_form_id]->fo_entity_type];
+
+			// Note: entity update must not tamper with the LIVE_ENTITY linked list
+			if	(entity_book->eb_callback_update)
+			 	(entity_book->eb_callback_update)(live_entity);
+
+			// Set the flag to destroy this LIVE_ENTITY.  This will be cleared by CreateMapGroups if entity is in range
+			live_entity->le_flags |= LIVE_ENTITY_DESTROY;
+			}
+		}
+}
+
+
+/******************************************************************************
+*%%%% ENTSTRCreateStationaryMOF
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ENTSTRCreateStationaryMOF(
+*						LIVE_ENTITY*	live_entity)
+*
+*	FUNCTION	Create a stationary MOF (static or animated)
+*
+*	INPUTS		live_entity	-	to create
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	16.04.97	Tim Closs		Created
+*	24.04.97	Martin Kift		Renamed
+*	24.04.97	Martin Kift		Moved all model creation to a separate function
+*
+*%%%**************************************************************************/
+
+MR_VOID	ENTSTRCreateStationaryMOF(LIVE_ENTITY*	live_entity)
+{
+	ENTSTR_STATIC*	entity_type;
+	ENTITY*			entity;
+	FORM*  			form;
+
+	entity 					= live_entity->le_entity;
+	form					= Map_form_ptrs[entity->en_form_id];
+	entity_type				= (ENTSTR_STATIC*)(entity + 1);
+	live_entity->le_lwtrans	= &entity_type->et_matrix;
+
+	// call generic function to create our MOF (be it static or animated model)
+	ENTSTRCreateMOF(live_entity, form);
+}
+
+
+/******************************************************************************
+*%%%% ENTSTRKillStationaryMOF
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ENTSTRKillStationaryMOF(
+*						LIVE_ENTITY*	live_entity)
+*
+*	FUNCTION	Kill a stationary MOF (static or animated)
+*
+*	INPUTS		live_entity	-	to kill
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	16.04.97	Tim Closs		Created
+*	24.04.97	Martin Kift		Renamed
+*	24.04.97	Martin Kift		Recoded to cope with animated and static mofs
+*
+*%%%**************************************************************************/
+
+MR_VOID	ENTSTRKillStationaryMOF(LIVE_ENTITY*	live_entity)
+{
+	// Is this entity a static or animated one?
+	if (live_entity->le_flags & LIVE_ENTITY_ISANIMATED)
+		{
+		// Animated entity, need to kill it
+		MRAnimEnvDestroyByDisplay((MR_ANIM_ENV*)live_entity->le_object);
+
+#ifdef DEBUG
+		// TOBEDONE
+#endif
+		}
+	else
+		{
+		// Static entity
+		((MR_OBJECT*)live_entity->le_object)->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY;
+
+#ifdef DEBUG
+		Total_live_entity_polys -= ((MR_PART*)(((MR_STATIC_MESH*)((MR_MESH*)((MR_OBJECT*)live_entity->le_object)->ob_extra)->me_extra)->sm_mof_ptr + 1))->mp_prims;
+#endif
+		}
+}
+
+
+/******************************************************************************
+*%%%% ENTSTRCreateMovingMOF
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ENTSTRCreateMovingMOF(
+*						LIVE_ENTITY*	live_entity)
+*
+*	FUNCTION	Create a moving MOF
+*
+*	INPUTS		live_entity	-	to create
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	19.04.97	Tim Closs		Created
+*	24.04.97	Martin Kift		Renamed
+*	24.04.97	Martin Kift		Moved all model creation to a separate function
+*
+*%%%**************************************************************************/
+
+MR_VOID	ENTSTRCreateMovingMOF(LIVE_ENTITY*	live_entity)
+{
+	ENTSTR_STATIC*	entity_type;
+	ENTITY*			entity;
+	FORM*  			form;
+	MR_VEC			vec_x;
+	MR_VEC			vec_z;
+
+	entity 		= live_entity->le_entity;
+	form		= Map_form_ptrs[entity->en_form_id];
+	entity_type	= (ENTSTR_STATIC*)(entity + 1);
+
+	// We assume the entity already has a PATH_RUNNER
+	MR_ASSERT(entity->en_path_runner);
+
+	// Set up live entity position and rotation from PATH_RUNNER
+	live_entity->le_lwtrans	= &live_entity->le_matrix;
+	MR_INIT_MAT(live_entity->le_lwtrans);
+	MR_VEC_EQUALS_SVEC((MR_VEC*)live_entity->le_lwtrans->t, &entity->en_path_runner->pr_position);
+	MR_VEC_EQUALS_SVEC(&vec_z, &entity->en_path_runner->pr_tangent);
+	MROuterProduct12(&Game_y_axis_pos, &vec_z, &vec_x);
+	WriteAxesAsMatrix(live_entity->le_lwtrans, &vec_x, &Game_y_axis_pos, &vec_z);
+
+	// call generic function to create our MOF (be it static or animated model)
+	ENTSTRCreateMOF(live_entity, form);
+}
+
+
+/******************************************************************************
+*%%%% ENTSTRKillMovingMOF
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ENTSTRKillMovingMOF(
+*						LIVE_ENTITY*	live_entity)
+*
+*	FUNCTION	Kill a moving MOF
+*
+*	INPUTS		live_entity	-	to kill
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	19.04.97	Tim Closs		Created
+*	24.04.97	Martin Kift		Renamed
+*	24.04.97	Martin Kift		Recoded to cope with animated and static mofs
+*
+*%%%**************************************************************************/
+
+MR_VOID	ENTSTRKillMovingMOF(LIVE_ENTITY*	live_entity)
+{
+	// Is this entity a static or animated one?
+	if (live_entity->le_flags & LIVE_ENTITY_ISANIMATED)
+		{
+		// Animated entity, need to kill it
+		MRAnimEnvDestroyByDisplay((MR_ANIM_ENV*)live_entity->le_object);
+
+#ifdef DEBUG
+		// TOBEDONE
+#endif
+		}
+	else
+		{
+		// Static entity
+		((MR_OBJECT*)live_entity->le_object)->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY;
+
+#ifdef DEBUG
+		Total_live_entity_polys -= ((MR_PART*)(((MR_STATIC_MESH*)((MR_MESH*)((MR_OBJECT*)live_entity->le_object)->ob_extra)->me_extra)->sm_mof_ptr + 1))->mp_prims;
+#endif
+		}
+}
+
+
+/******************************************************************************
+*%%%% ENTSTRUpdateMovingMOF
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ENTSTRUpdateMovingMOF(
+*						LIVE_ENTITY*	live_entity)
+*
+*	FUNCTION	Update a moving MOF
+*
+*	INPUTS		live_entity	-	to update
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	19.04.97	Tim Closs		Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	ENTSTRUpdateMovingMOF(LIVE_ENTITY*	live_entity)
+{
+	ENTITY*		entity;
+	MR_VEC		vec_x;
+	MR_VEC		vec_z;
+
+
+	entity	= live_entity->le_entity;
+
+	// We assume the entity already has a PATH_RUNNER
+	MR_ASSERT(entity->en_path_runner);
+
+//	if (entity->en_unique_id == 1)
+		UpdatePathRunner(entity->en_path_runner);
+
+	// Set up live entity position and rotation from PATH_RUNNER
+	MR_VEC_EQUALS_SVEC((MR_VEC*)live_entity->le_lwtrans->t, &entity->en_path_runner->pr_position);
+	MR_VEC_EQUALS_SVEC(&vec_z, &entity->en_path_runner->pr_tangent);
+	MROuterProduct12(&Game_y_axis_pos, &vec_z, &vec_x);
+	WriteAxesAsMatrix(live_entity->le_lwtrans, &vec_x, &Game_y_axis_pos, &vec_z);
+}
+
+
+/******************************************************************************
+*%%%% ENTSTRCreateMOF
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ENTSTRCreateMOF(
+*						LIVE_ENTITY*	live_entity)
+*
+*	FUNCTION	Creates the model (be is static mesh or animated environment)
+*				for the live entity
+*
+*	INPUTS		live_entity	-	live entity to create
+*				form		-	form ptr (for this entity)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	24.04.97	Martin Kift		Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	ENTSTRCreateMOF(LIVE_ENTITY*	live_entity,
+						FORM*			form)
+{
+	MR_MOF*			mof;
+
+	// Examine whether the entity's mof is static or animated, and handle accordingly
+	mof = Map_mof_ptrs[form->fo_mof_id];
+	if (mof->mm_flags & MR_MOF_ANIMATED)
+		{
+		// Model is animated, so created a single environment for it!
+		live_entity->le_object = (MR_VOID*)MRAnimEnvSingleCreateWhole(	(MR_ANIM_HEADER*)mof, 
+																		0, 
+																		MR_OBJ_STATIC,
+																		(MR_FRAME*)live_entity->le_lwtrans);
+
+		// Set a default animation action of zero, default behaviour so to speak
+		MRAnimEnvSingleSetAction((MR_ANIM_ENV*)live_entity->le_object, 0);
+
+		// Add environment to viewport
+		MRAnimAddEnvToViewport((MR_ANIM_ENV*)live_entity->le_object, Game_viewport0, NULL);
+
+		// Finally, set the entity live flag (ISANIMATED) to allow us to keep a track of 
+		// the fact that the live entity VOID* ptr points to an animation environment and
+		// not a static mesh
+		live_entity->le_flags |= LIVE_ENTITY_ISANIMATED;
+
+#ifdef DEBUG
+		// to be done
+#endif
+		}
+	else
+		{
+		// Model is static, so create mesh!
+		live_entity->le_object 	= (MR_VOID*)MRCreateMesh(mof,
+														(MR_FRAME*)live_entity->le_lwtrans,	
+														MR_OBJ_STATIC,
+														NULL);
+
+		// Add mesh to viewport
+		MRAddObjectToViewport((MR_OBJECT*)live_entity->le_object, Game_viewport0, NULL);
+
+		live_entity->le_flags &= ~LIVE_ENTITY_ISANIMATED;
+
+#ifdef DEBUG
+		Total_live_entity_polys += ((MR_PART*)(((MR_STATIC_MESH*)((MR_MESH*)((MR_OBJECT*)live_entity->le_object)->ob_extra)->me_extra)->sm_mof_ptr + 1))->mp_prims;
+#endif
+		}	
+}

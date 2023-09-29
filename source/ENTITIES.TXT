@@ -1,0 +1,1558 @@
+#mappy entity type list v0.0
+
+enum INTERNAL_FIELDS
+{
+FORM_ID	    	0
+DIFFICULTY		1
+UNIQUE_ID		2
+MR_MATRIX		3
+PATH_ID	    	4
+SPLINE_ID		5
+SPLINE_POS		6
+ZONE_ID	    	7
+}
+
+entity STATIC
+{
+INTERNAL FORM_ID
+INTERNAL DIFFICULTY
+PAD MR_USHORT
+INTERNAL UNIQUE_ID
+INTERNAL MR_MATRIX
+}
+
+enum VERTEX_HILITE_TYPES
+{
+	collision	0
+}
+
+enum ReactionType
+{
+Nothing			0
+Safe			1
+Die                     2
+Jump			3
+Water			4
+HitLand			5
+EntityUnpause           6
+EntityTrigger           7
+BounceAndDie            8
+Sand			9
+Sinking			10
+Eject			11
+FreezeAndDie            12
+DisappearAndDie         13
+Slide			14
+HitTrigger		15
+Stop			16
+FrogHitFrog             17
+FroggerSwim             18
+Sticky                  19
+Org_hittrigger          20
+Bonus                   21
+SkyMapZone              22
+EntityPause             23
+FallingDeath            24
+}
+
+enum ZoneType
+{
+Landscape	0
+Planar		1
+Cosmetic	2
+Trigger		3
+LaunchPad	4
+LockZ		10
+LockX		11
+LockZX		12
+LockZ45		13
+LockX45		14
+LockZX45	15
+}
+
+enum ZoneColours
+{
+Landscape	0x00ff80ff
+Planar		0x80ff00ff
+Cosmetic	0x800080ff
+Trigger		0xff0040ff
+LockZ		0x8080ffff
+}
+
+enum CameraTypes
+{
+FollowFrog				0
+FollowSpline			1
+FollowFrogAndSpline		2
+}
+
+enum RotationDirection
+{
+AntiClockwise                   0
+Clockwise                       1
+}
+
+enum RotateDirection
+{
+Clockwise	1
+Anticlockwise	2
+}
+
+entity Zone
+{
+	INTERNAL DIFFICULTY
+	ENUM MR_USHORT "Zone type" ZoneType Landscape
+	ENUM MR_USHORT "Reaction type" ReactionType Nothing
+	NUMBER MR_USHORT "Reaction data0" 0 65535 0
+	NUMBER MR_USHORT "Reaction data1" 0 65535 0
+	NUMBER MR_USHORT "Reaction data2" 0 65535 0
+}
+
+entity LevelHeader
+{
+        ENUM MR_USHORT "Reaction type" ReactionType Nothing
+        NUMBER MR_USHORT "Reaction data0" 0 65535 0
+        NUMBER MR_USHORT "Reaction data1" 0 65535 0
+        NUMBER MR_USHORT "Reaction data2" 0 65535 0
+difficulty:
+        FLOAT MR_USHORT "Level timer" 0 65535 10 30
+}
+
+enum MotionType
+{
+Die	0
+Reverse	1
+Restart	2
+Reverse_Back 3
+}
+
+enum CameraType
+{
+Main    0
+Overlay 1
+}
+
+enum Corner
+{
+TopLeft         0
+TopRight        1
+BottomLeft      2
+BottomRight     3
+}
+
+enum FallDirection
+{
+Up              0
+UpUpRight       1
+UpRight         2
+UpRightRight    3
+Right           4
+DownRightRight  5
+DownRight       6
+DownDownRight   7
+Down            8
+DownDownLeft    9
+DownLeft        10
+DownLeftLeft    11
+Left            12
+UpLeftLeft      13
+UpLeft          14
+UpUpLeft        15
+}
+
+entity StdMovingEnt
+{
+        INTERNAL	FORM_ID
+        INTERNAL	DIFFICULTY
+        PAD			MR_USHORT
+        INTERNAL	UNIQUE_ID
+		INTERNAL	PATH_ID
+		INTERNAL	SPLINE_ID
+		INTERNAL	SPLINE_POS
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+		FLOAT MR_USHORT "Speed" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Spline delay" 0 100 0 30
+}
+
+entity sub_Turtle
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID
+		INTERNAL	SPLINE_ID
+		INTERNAL	SPLINE_POS
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+        FLOAT MR_SHORT "Dive delay" -1 32768 -1 30
+        FLOAT MR_SHORT "Rise delay" -1 32768 -1 30 
+		FLOAT MR_USHORT "Dive speed" 0 65535 2184.5 2184.5
+		FLOAT MR_USHORT "Rise speed" 0 65535 2184.5 2184.5
+		FLOAT MR_USHORT "Speed" 0 65535 2184.5 2184.5
+		FLOAT MR_USHORT "Spline delay" 0 100 0 30
+}
+
+entity sub_Hedgehog
+{
+        INTERNAL	FORM_ID
+        INTERNAL	DIFFICULTY
+        PAD			MR_USHORT
+        INTERNAL	UNIQUE_ID
+		INTERNAL	PATH_ID
+		INTERNAL	SPLINE_ID
+		INTERNAL	SPLINE_POS
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+		FLOAT MR_USHORT "Spline delay" 0 100 1 30
+		FLOAT MR_USHORT "Walk delay" 0 100 1 30
+		FLOAT MR_USHORT "Walk speed" 0 65535 2184.5 2184.5
+		FLOAT MR_USHORT "Roll speed" 0 65535 2184.5 2184.5
+		FLOAT MR_USHORT "Roll acceleration" 0 65535 2184.5 2184.5
+		PAD MR_USHORT
+}
+
+entity sub_Dog
+{
+        INTERNAL	FORM_ID
+        INTERNAL	DIFFICULTY
+        PAD			MR_USHORT
+        INTERNAL	UNIQUE_ID
+		INTERNAL	PATH_ID
+		INTERNAL	SPLINE_ID
+		INTERNAL	SPLINE_POS
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Reverse
+difficulty:
+		FLOAT MR_USHORT "Speed" 0 65535 2184.5 2184.5
+		FLOAT MR_USHORT "Spline delay" 0 100 1 30
+		FLOAT MR_USHORT "Head delay" 0 100 1 30
+        FLOAT MR_USHORT "Walk speed" 0 65535 2184.5  2184.5
+        FLOAT MR_USHORT "Run speed" 0 65535 4369 2184.5
+		PAD MR_USHORT
+}
+
+entity sub_LillyPad
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID
+		INTERNAL	SPLINE_ID
+		INTERNAL	SPLINE_POS
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+	FLOAT MR_USHORT "Speed" 0 65535 2184.5 2184.5
+	NUMBER MR_USHORT "Rotation" 0 100 10
+	ENUM MR_UBYTE "Direction" RotateDirection Clockwise
+	PAD MR_UBYTE
+}
+
+entity sub_Swan
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID
+		INTERNAL	SPLINE_ID
+		INTERNAL	SPLINE_POS
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+        FLOAT MR_USHORT "Speed" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Spline delay" 0 100 1 30
+        FLOAT MR_SHORT  "Swimming time" -1 100 1 30
+        FLOAT MR_SHORT  "Thinking time" 0 100 1 30
+        FLOAT MR_SHORT  "Flapping time" 0 100 1 30
+        PAD MR_SHORT
+}
+
+entity gen_TriggerPoint
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        NUMBER MR_USHORT "Pad1" 0 0 0
+       	NUMBER MR_USHORT "Pad2" 0 0 0 
+}
+
+entity MovingZone
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID
+		INTERNAL	SPLINE_ID
+		INTERNAL	SPLINE_POS
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+       	NUMBER MR_USHORT "Move Delay" 0 100 10
+       	NUMBER MR_UBYTE	 "Start Zone" 0 100 0
+       	NUMBER MR_UBYTE	 "Number of Zones" 0 100 0
+}
+
+entity org_BabyFrog
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD	MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        NUMBER	MR_SHORT  "Log unique id" 0 1000 0
+        NUMBER	MR_SHORT  "Points value" 0 1000 200
+}
+
+entity TriggerBonus
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD	MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        NUMBER MR_USHORT "Pad1" 0 0 0
+       	NUMBER MR_USHORT "Pad2" 0 0 0 
+}
+
+entity sky_Jet
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID
+		INTERNAL	SPLINE_ID
+		INTERNAL	SPLINE_POS
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+		NUMBER MR_USHORT	"Cloud Form 1"		0 1000 70
+		NUMBER MR_USHORT	"Cloud Form 2"		0 1000 70
+		NUMBER MR_USHORT	"Cloud Form 3"		0 1000 70
+		NUMBER MR_USHORT	"Cloud Form 4"		0 1000 70
+		NUMBER MR_USHORT	"Cloud Form 5"		0 1000 70
+		NUMBER MR_USHORT	"Cloud Form 6"		0 1000 70
+		NUMBER MR_USHORT	"Cloud Form 7"		0 1000 70
+		NUMBER MR_USHORT	"Cloud Form 8"		0 1000 70
+		FLOAT MR_USHORT	"Cloud Delay 1"		0 1000 10 30 
+		FLOAT MR_USHORT	"Cloud Delay 2"		0 1000 10 30
+		FLOAT MR_USHORT	"Cloud Delay 3"		0 1000 10 30
+		FLOAT MR_USHORT	"Cloud Delay 4"		0 1000 10 30
+		FLOAT MR_USHORT	"Cloud Delay 5"		0 1000 10 30
+		FLOAT MR_USHORT	"Cloud Delay 6"		0 1000 10 30
+		FLOAT MR_USHORT	"Cloud Delay 7"		0 1000 10 30
+		FLOAT MR_USHORT	"Cloud Delay 8"		0 1000 10 30
+		FLOAT MR_USHORT	"Cloud Duration"	0 1000 10 30
+		NUMBER MR_USHORT	"Number clouds"		0 10 0
+		FLOAT MR_USHORT	"Jet speed"    		0 65535 2184.5 2184.5
+		FLOAT MR_USHORT	"Spline delay"		0 1000 0 30
+}
+
+entity sky_Helicoper
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_SHORT "Follow speed" 0 32767 2184.5 2184.5
+        FLOAT MR_SHORT "Rise Delay" 0 100 1 30
+        FLOAT MR_SHORT "Rise Speed" 0 32767 2184.5 2184.5
+        PAD MR_SHORT
+}
+
+entity sky_Small_Bird
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID
+		INTERNAL	SPLINE_ID
+		INTERNAL	SPLINE_POS
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+        FLOAT MR_SHORT "Fall rate" 0 32767 2184.5 2184.5
+		FLOAT MR_SHORT "Speed" 0 32767 2184.5 2184.5
+		FLOAT MR_USHORT	"Spline Delay" 0 1000 30 30
+		PAD MR_SHORT
+}
+
+entity sky_Balloon_Rising
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		0
+		INTERNAL	SPLINE_ID	0
+		INTERNAL	SPLINE_POS	0
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type 0" MotionType Restart
+		INTERNAL	PATH_ID		1
+		INTERNAL	SPLINE_ID	1
+		INTERNAL	SPLINE_POS	1
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type 1" MotionType Restart
+difficulty:
+        FLOAT MR_SHORT "Rise Speed" 0 32767 2184.5 2184.5
+		FLOAT MR_SHORT "Speed" 0 32767 2184.5 2184.5
+		FLOAT MR_USHORT	"Spline Delay" 0 1000 30 30
+		PAD MR_SHORT
+}
+
+entity sky_Cloud
+{
+        INTERNAL	FORM_ID
+        INTERNAL	DIFFICULTY
+        PAD			MR_USHORT
+        INTERNAL	UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+        FLOAT MR_SHORT "Kill time" 0 100 1 30
+        PAD MR_SHORT
+}
+
+entity org_Fly
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD	MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+       	NUMBER MR_USHORT "Trigger point" 1 5 1 
+        NUMBER MR_USHORT "Pad1" 0 0 0
+difficulty:
+        NUMBER MR_USHORT "Value" 0 1000 200
+        NUMBER MR_USHORT "-blank-" 0 1000 200
+        FLOAT MR_USHORT "Show delay" 0 1000 10 30
+        FLOAT MR_USHORT "Show time" 0 1000 10 30
+}
+
+entity org_Crochead
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD	MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+		NUMBER MR_USHORT "Trigger point" 1 5 1
+		NUMBER MR_USHORT "Pad1" 0 0 0
+difficulty:
+        FLOAT MR_USHORT "Show delay" 0 1000 10 30
+        FLOAT MR_USHORT "Show time" 0 1000 10 30
+
+}
+
+entity org_beaver
+{
+        INTERNAL	FORM_ID
+        INTERNAL	DIFFICULTY
+        PAD			MR_USHORT
+        INTERNAL	UNIQUE_ID
+ 		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+        FLOAT	MR_USHORT  "Speed" 0 65535 2184.5 2184.5
+        FLOAT	MR_USHORT  "Delay before following" 0 1000 9 30
+}
+
+entity org_logsnake
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD	MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        NUMBER	MR_SHORT  "Log unique id" 0 1000 0
+		FLOAT	MR_USHORT "Speed" 0 65535 2184.5 2184.5
+}
+
+entity org_crocodile
+{
+        INTERNAL	FORM_ID
+        INTERNAL	DIFFICULTY
+        PAD			MR_USHORT
+        INTERNAL	UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+		FLOAT	MR_USHORT "Speed" 0 65535 2184.5 2184.5
+		PAD MR_USHORT
+        FLOAT	MR_SHORT  "Open mouth delay" 0 1000 1 30
+        FLOAT	MR_SHORT  "Close mouth delay" 0 1000 1 30
+}
+
+entity sky_Hawk
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_SHORT "Swoop Delay" 0 1000 150 30
+        FLOAT MR_SHORT "Swoop Time" 0 300 30 30
+}
+
+entity Sky_Tornado_Object
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+	FLOAT MR_LONG	"Max AV (x)" 0 178956960 8947848 8947848
+	FLOAT MR_LONG	"Max AV (y)" 0 178956960 8947848 8947848
+	FLOAT MR_LONG	"Max AV (z)" 0 178956960 8947848 8947848
+	FLOAT MR_USHORT	"Safe Start Time" 0 1000 150 30
+	FLOAT MR_USHORT	"Safe Time"  0 1000 150 30
+	FLOAT MR_USHORT "Speed" 0 65535 2184.5 2184.5
+	FLOAT MR_USHORT "Spline Delay" 0 1000 0 30
+}
+
+entity sky_Biplane_Banner1
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+		FLOAT MR_USHORT		"Twist Delay"		0 1000 500 30
+		NUMBER MR_USHORT	"Banner Length"		1 10 5
+		FLOAT MR_USHORT		"Biplane speed"		0 65535 2184.5 2184.5
+		FLOAT MR_USHORT		"Spline delay"		0 1000 0 30
+}
+
+entity sky_Balloon_Falling
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		0
+		INTERNAL	SPLINE_ID	0
+		INTERNAL	SPLINE_POS	0
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type 0" MotionType Restart
+		INTERNAL	PATH_ID		1
+		INTERNAL	SPLINE_ID	1
+		INTERNAL	SPLINE_POS	1
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type 1" MotionType Restart
+difficulty:
+        FLOAT MR_SHORT "Fall Speed" 0 32767 2184.5 2184.5
+		FLOAT MR_SHORT "Speed" 0 32767 2184.5 2184.5
+		FLOAT MR_USHORT	"Spline Delay" 0 1000 30 30
+		PAD MR_SHORT
+}
+
+
+entity for_hive
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_USHORT "Critical Distance" 0 32767 256 256
+        FLOAT MR_USHORT "Frog Delay" 0 300 60 30
+        FLOAT MR_USHORT "Swarm Speed" 0 32767 2184.5 2184.5
+        FLOAT MR_USHORT "Interest Time" 0 3000 150 30
+}
+
+entity swp_rat
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+		TARGET MR_SVEC "Target"
+		FLOAT MR_USHORT	"Rat Speed" 0 65535 2184.5 2184.5
+		FLOAT MR_USHORT	"Time to Target" 0 1000 30 30
+		FLOAT MR_USHORT	"Rat to Frog Distance" 0 65535 512 256
+		PAD MR_USHORT
+}
+
+entity for_fallingleaves
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+        FLOAT	MR_USHORT  "Speed" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Sway duration (secs)" 0 3000 90 30
+        NUMBER MR_USHORT "Sway angle (degrees)" 0 360 90
+        PAD MR_USHORT
+}
+
+entity for_swayingbranch
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        NUMBER MR_SHORT "Anim angle (degrees)" 0 360 90
+        FLOAT MR_USHORT "Sway duration (secs)" 0 3000 90 30
+}
+
+
+entity for_squirrel
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+        FLOAT MR_USHORT "Squirrel speed" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Turn duration (secs)" 0 3000 90 30
+}
+
+entity for_breakingbranch
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_USHORT "Breaking delay (secs)" 0 3000 150 30
+        FLOAT MR_USHORT "Falling speed (grid/sec)" 0 65535 2184.5 2184.5
+}
+
+entity dum_cam
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		0
+		INTERNAL	SPLINE_ID	0
+		INTERNAL	SPLINE_POS	0
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type 0" MotionType Restart
+		INTERNAL	PATH_ID		1
+		INTERNAL	SPLINE_ID	1
+		INTERNAL	SPLINE_POS	1
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type 1" MotionType Restart
+		INTERNAL	PATH_ID		2
+		INTERNAL	SPLINE_ID	2
+		INTERNAL	SPLINE_POS	2
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type 2" MotionType Restart
+		INTERNAL	PATH_ID		3
+		INTERNAL	SPLINE_ID	3
+		INTERNAL	SPLINE_POS	3
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type 3" MotionType Restart
+		INTERNAL	PATH_ID		4
+		INTERNAL	SPLINE_ID	4
+		INTERNAL	SPLINE_POS	4
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type 4" MotionType Restart
+		INTERNAL	PATH_ID		5
+		INTERNAL	SPLINE_ID	5
+		INTERNAL	SPLINE_POS	5
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type 5" MotionType Restart
+		INTERNAL	PATH_ID		6
+		INTERNAL	SPLINE_ID	6
+		INTERNAL	SPLINE_POS	6
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type 6" MotionType Restart
+		INTERNAL	PATH_ID		7
+		INTERNAL	SPLINE_ID	7
+		INTERNAL	SPLINE_POS	7
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type 7" MotionType Restart
+		INTERNAL	PATH_ID		8
+		INTERNAL	SPLINE_ID	8
+		INTERNAL	SPLINE_POS	8
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type 8" MotionType Restart
+		INTERNAL	PATH_ID		9
+		INTERNAL	SPLINE_ID	9
+		INTERNAL	SPLINE_POS	9
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type 9" MotionType Restart
+difficulty:
+        FLOAT MR_USHORT "Spline Speed" 0 65535 2184.5 2184.5
+        NUMBER MR_USHORT "Number of Splines" 0 9 3
+}
+
+entity des_snake
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+        FLOAT MR_USHORT "Spline Speed" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Distance (gs)" 0 65535 256 256
+}
+
+
+entity des_tumbleweed
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+		FLOAT MR_USHORT	"Spline Speed" 0 65535 2184.5 2184.5
+		FLOAT MR_USHORT	"Wind Start Delay (secs)" 0 65535 30 30
+		FLOAT MR_USHORT	"Wind Acceleration Time (secs)" 0 65555 300 30
+		FLOAT MR_USHORT	"Wind Acceleration (gs)" 0 65535 2184.5 2184.5
+}
+
+entity des_fallingrock
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT  MR_USHORT "Move Delay (secs)" 0 655535 150 30
+        TARGET MR_SVEC  "Position One"
+        FLOAT  MR_USHORT "Time to Position One (secs)" 0 65535 150 30
+        TARGET MR_SVEC  "Position Two"
+        FLOAT  MR_USHORT "Time to Position Two (secs)" 0 65535 90 30
+        TARGET MR_SVEC  "Position Three"
+        FLOAT  MR_USHORT "Time to Position Three (secs)" 0 65535 30 30
+        NUMBER MR_UBYTE "Number of bounces" 1 3 1
+        PAD    MR_UBYTE
+        PAD    MR_USHORT
+}
+
+enum TimeBits
+{
+Time		1
+Distance	2
+}
+
+entity des_earthquake
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+		BITMASK MR_SHORT "Unit Flag" TimeBits 1
+		NUMBER MR_USHORT "Ramp Up" 0 65535 100
+		NUMBER MR_USHORT "Max Extent"  0 65535 100
+		NUMBER MR_USHORT "Extent Speed" 0 4095 32
+		NUMBER MR_USHORT "Contant Run" 0 65535 200
+		NUMBER MR_USHORT "Ramp Down" 0 65535 100
+		NUMBER MR_USHORT "Entity 1" 0 65535 0 
+		NUMBER MR_USHORT "Entity 2" 0 65535 0 
+		NUMBER MR_USHORT "Entity 3" 0 65535 0 
+		NUMBER MR_USHORT "Entity 4" 0 65535 0 
+		NUMBER MR_USHORT "Entity 5" 0 65535 0 
+		NUMBER MR_USHORT "Entity 6" 0 65535 0 
+		NUMBER MR_USHORT "Entity 7" 0 65535 0 
+		NUMBER MR_USHORT "Entity 8" 0 65535 0 
+		NUMBER MR_USHORT "Entity 9" 0 65535 0 
+		NUMBER MR_USHORT "Entity 10" 0 65535 0 
+}
+
+
+entity des_bison
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+		FLOAT MR_USHORT "Speed" 0 65535 2184.5 2184.5
+		FLOAT MR_USHORT	"Cloud Gap (secs)" 0 65535 60 30
+		FLOAT MR_USHORT	"Cloud Duration (secs)" 0 65535 90 30
+		PAD MR_USHORT
+}
+
+entity dynamicentity
+{
+	INTERNAL FORM_ID
+    INTERNAL DIFFICULTY
+    PAD MR_USHORT
+    INTERNAL UNIQUE_ID
+}
+
+entity des_hole
+{	
+	INTERNAL	FORM_ID
+        INTERNAL        DIFFICULTY
+        PAD             MR_USHORT
+        INTERNAL        UNIQUE_ID
+        INTERNAL        MR_MATRIX
+	INTERNAL	ZONE_ID		0
+	INTERNAL	ZONE_ID		1
+	INTERNAL	ZONE_ID		2
+	INTERNAL	ZONE_ID		3
+	
+difficulty:
+        FLOAT   MR_USHORT "Trigger delay (secs)" 0 65535 60 30
+	PAD	MR_USHORT
+}
+
+entity swp_oildrum
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+		FLOAT MR_USHORT	"Spline Speed" 0 65535 2184.5 2184.5
+		PAD	  MR_USHORT	
+}
+
+entity swp_sinkingbox
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+		FLOAT MR_SHORT	"Sink Rate (gs)" 0 65535 2184.5 2184.5
+		FLOAT MR_USHORT	"Spline Speed" 0 65535 2184.5 2184.5	
+}
+
+entity swp_newspapertorn
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+		FLOAT MR_SHORT	"Rip Delay (secs)" 0 65535 90 30
+		FLOAT MR_USHORT	"Spline Speed" 0 65535 2184.5 2184.5	
+}
+
+
+entity Positional
+{
+        INTERNAL        FORM_ID
+        INTERNAL        DIFFICULTY
+        PAD             MR_USHORT
+        INTERNAL        UNIQUE_ID
+        INTERNAL        MR_MATRIX
+
+difficulty:
+        NUMBER  MR_USHORT       "Dummy" 0 0 0
+        PAD     MR_USHORT
+}
+
+entity PausePathEntity
+{
+        INTERNAL        FORM_ID
+        INTERNAL        DIFFICULTY
+        PAD             MR_USHORT
+        INTERNAL        UNIQUE_ID
+        INTERNAL        MR_MATRIX
+
+        INTERNAL        PATH_ID  0
+        INTERNAL        PATH_ID  1
+        INTERNAL        PATH_ID  2
+        INTERNAL        PATH_ID  3
+        INTERNAL        PATH_ID  4
+        INTERNAL        PATH_ID  5
+        INTERNAL        PATH_ID  6
+        INTERNAL        PATH_ID  7
+        INTERNAL        PATH_ID  8
+        INTERNAL        PATH_ID  9
+
+        NUMBER          MR_USHORT       "Number of paths used" 0 10 0
+        PAD             MR_USHORT
+}
+
+entity cav_froggerlight
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_USHORT "Die Speed" 0 65535 10 30
+        FLOAT MR_USHORT "Min Radius" 0 65535 256 256
+        FLOAT MR_USHORT "Max Radius" 0 65535 256 256
+        FLOAT MR_USHORT "Fall Off" 0 65535 256 256
+}
+
+entity swp_wastebarrel
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+		FLOAT MR_USHORT	"Spline Speed" 0 65535 2184.5 2184.5	
+		FLOAT MR_SHORT	"Float Time" -1 32767 10 30
+		FLOAT MR_SHORT	"Sunk Time" -1 32767 10 30 
+		PAD	MR_SHORT
+		FLOAT MR_LONG	"Spin Acceleration" -1 4473856 2184.5 2184.5
+		FLOAT MR_LONG	"Max Spin" 0 8947712 2184.5 2184.5
+}
+
+entity swp_stat_wastebarrel
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+		FLOAT MR_SHORT	"Float Time" -1 32767 10 30
+		FLOAT MR_SHORT	"Sunk Time" -1 32767 10 30 
+}
+
+entity swp_nuclearbarrel
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+		TARGET MR_SVEC  "Barrel Target"
+		FLOAT MR_USHORT	"Spline Speed" 0 65535 2184.5 2184.5	
+		PAD	  MR_USHORT
+}
+
+entity swp_weirrubbish
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+		FLOAT MR_USHORT	"Spline Speed" 0 65535 2184.5 2184.5	
+		FLOAT MR_SHORT	"Time Delay" 0 32767 30 30
+		FLOAT MR_LONG	"Acceleration" 0 1048560 2184.5 2184.5
+} 
+
+entity swp_squirt
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_SHORT "Time Delay" 0 32767 60 30
+        FLOAT MR_SHORT "Time to Target" 0 32767 30 30
+		TARGET MR_SVEC	"Target"
+}
+ 
+entity cav_glowworm
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+        FLOAT MR_USHORT "Speed" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Light Value" 0 65535 768 256
+}
+
+entity cav_firefly
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+        FLOAT MR_USHORT "Speed" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Light Value" 0 65535 768 256
+}
+
+entity cav_spider
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        NUMBER MR_USHORT "Speed" 0 65535 1
+        PAD MR_USHORT
+}
+
+entity cav_breakingfloor
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_USHORT "Time" 0 65535 300 30
+        PAD MR_USHORT
+}
+
+entity cav_rockfloor
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_USHORT "Time" 0 65535 300 30
+        PAD MR_USHORT
+}
+
+entity cav_rockblock
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        NUMBER MR_ULONG "OFF or ON" 0 1 0
+}
+
+entity cav_ropebridge
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        PAD MR_ULONG
+}
+
+entity cav_web
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        NUMBER MR_USHORT "Entity" 0 65535 0
+        PAD MR_USHORT
+}
+
+entity gen_waterentity
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+        INTERNAL ZONE_ID 0
+        PAD MR_USHORT
+difficulty:
+        PAD MR_ULONG
+}
+
+entity gen_bonus_time
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_ULONG "Time Given" 0 65535 30 30
+}
+
+entity gen_bonus_score
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        NUMBER MR_ULONG "Score Given" 0 65535 1000
+}
+
+entity gen_bonus_life
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+		NUMBER MR_ULONG "Lifes Given" 0 10 1
+}
+
+entity cav_slime
+{
+        INTERNAL	FORM_ID
+        INTERNAL	DIFFICULTY
+        PAD			MR_USHORT
+        INTERNAL	UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+        FLOAT MR_SHORT "Kill time" 0 100 1 30
+        PAD MR_SHORT
+}
+
+entity cav_snail
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+        FLOAT MR_USHORT "Speed" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Slime Delay" 0 65535 30 30
+        FLOAT MR_USHORT "Slime Decay" 0 65535 30 30
+        PAD MR_SHORT
+}
+
+entity cav_lava
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        PAD MR_ULONG
+}
+
+entity opt_levelsel
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+        ENUM MR_ULONG "Visible by camera" CameraType Main
+difficulty:
+        NUMBER MR_USHORT "Number of single player levels" 1 20 10
+        NUMBER MR_USHORT "Number of multiplayer levels" 1 10 4
+        NUMBER MR_ULONG "Main Options Camera" 0 65535 0
+}
+
+entity opt_main_camera
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        NUMBER MR_USHORT "Number of positions" 1 30 1
+        NUMBER MR_USHORT "Number of targets" 1 30 1
+        TARGET MR_SVEC "Position 1"
+        TARGET MR_SVEC "Position 2"
+        TARGET MR_SVEC "Position 3"
+        TARGET MR_SVEC "Position 4"
+        TARGET MR_SVEC "Position 5"
+        TARGET MR_SVEC "Position 6"
+        TARGET MR_SVEC "Position 7"
+        TARGET MR_SVEC "Position 8"
+        TARGET MR_SVEC "Position 9"
+        TARGET MR_SVEC "Position 10"
+        TARGET MR_SVEC "Position 11"
+        TARGET MR_SVEC "Position 12"
+        TARGET MR_SVEC "Position 13"
+        TARGET MR_SVEC "Position 14"
+        TARGET MR_SVEC "Position 15"
+        TARGET MR_SVEC "Position 16"
+        TARGET MR_SVEC "Position 17"
+        TARGET MR_SVEC "Position 18"
+        TARGET MR_SVEC "Position 19"
+        TARGET MR_SVEC "Position 20"
+        TARGET MR_SVEC "Position 21"
+        TARGET MR_SVEC "Position 22"
+        TARGET MR_SVEC "Position 23"
+        TARGET MR_SVEC "Position 24"
+        TARGET MR_SVEC "Position 25"
+        TARGET MR_SVEC "Position 26"
+        TARGET MR_SVEC "Position 27"
+        TARGET MR_SVEC "Position 28"
+        TARGET MR_SVEC "Position 29"
+        TARGET MR_SVEC "Position 30"
+        TARGET MR_SVEC "Target 1"
+        TARGET MR_SVEC "Target 2"
+        TARGET MR_SVEC "Target 3"
+        TARGET MR_SVEC "Target 4"
+        TARGET MR_SVEC "Target 5"
+        TARGET MR_SVEC "Target 6"
+        TARGET MR_SVEC "Target 7"
+        TARGET MR_SVEC "Target 8"
+        TARGET MR_SVEC "Target 9"
+        TARGET MR_SVEC "Target 10"
+        TARGET MR_SVEC "Target 11"
+        TARGET MR_SVEC "Target 12"
+        TARGET MR_SVEC "Target 13"
+        TARGET MR_SVEC "Target 14"
+        TARGET MR_SVEC "Target 15"
+        TARGET MR_SVEC "Target 16"
+        TARGET MR_SVEC "Target 17"
+        TARGET MR_SVEC "Target 18"
+        TARGET MR_SVEC "Target 19"
+        TARGET MR_SVEC "Target 20"
+        TARGET MR_SVEC "Target 21"
+        TARGET MR_SVEC "Target 22"
+        TARGET MR_SVEC "Target 23"
+        TARGET MR_SVEC "Target 24"
+        TARGET MR_SVEC "Target 25"
+        TARGET MR_SVEC "Target 26"
+        TARGET MR_SVEC "Target 27"
+        TARGET MR_SVEC "Target 28"
+        TARGET MR_SVEC "Target 29"
+        TARGET MR_SVEC "Target 30"
+}
+
+entity opt_overlay_camera
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        TARGET MR_SVEC "Position"
+        TARGET MR_SVEC "Target"
+}
+
+entity opt_text_entity
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        PAD MR_ULONG
+}
+
+entity vol_burninglog
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+		INTERNAL	PATH_ID		
+		INTERNAL	SPLINE_ID	
+		INTERNAL	SPLINE_POS	
+		PAD			MR_UBYTE
+        ENUM		MR_UBYTE "Motion type" MotionType Restart
+difficulty:
+        ENUM MR_USHORT "Rotation Direction" RotationDirection Clockwise
+        NUMBER MR_USHORT "Rotation Speed" 0 4095 0
+        NUMBER MR_USHORT "Left Fire Speed" 0 4095 0
+        NUMBER MR_USHORT "Right Fire Speed" 0 4095 0
+        FLOAT MR_USHORT "Spline Speed" 0 65535 2184.5 2184.5
+        PAD MR_USHORT
+}
+
+entity vol_treetops
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_USHORT "Time Till Catch Alight" 0 65535 2184.5 2184.5
+        ENUM MR_USHORT "Corner Fire Starts In" Corner TopLeft
+        NUMBER MR_USHORT "Fire Speed" 0 4095 0
+        PAD MR_USHORT
+}
+
+entity vol_spurtplatform
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_USHORT "Time In Lava" 0 65535 2184.5 2184.5
+        NUMBER MR_USHORT "Speed To Rise At" 0 4095 1
+        NUMBER MR_USHORT "Height To Reach" 0 4095 1
+        FLOAT MR_USHORT "Time In Air" 0 65535 2184.5 2184.5
+        NUMBER MR_USHORT "Speed To Fall At" 0 4095 1
+        PAD MR_USHORT
+}
+
+entity vol_blacklava
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_USHORT "Duration Before Frogger Dies" 0 65535 2184.5 2184.5
+        PAD MR_USHORT
+}
+
+entity vol_fireball
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        TARGET MR_SVEC "Target"
+        NUMBER MR_USHORT "Splash 1 OFF or ON" 0 1 0
+        NUMBER MR_USHORT "Splash 2 OFF or ON" 0 1 0
+        NUMBER MR_USHORT "Splash 3 OFF or ON" 0 1 0
+        PAD MR_USHORT
+}
+
+entity vol_splash
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        TARGET MR_SVEC "Target"
+        FLOAT MR_USHORT "Delay before death" 0 65535 2184.5 2184.5
+        PAD MR_USHORT
+}
+
+entity vol_ashgyser
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_USHORT "Delay before gush" 0 65535 2184.5 2184.5
+        NUMBER MR_USHORT "Inner radius" 0 65535 256
+        NUMBER MR_USHORT "Outer radius" 0 65535 512
+        FLOAT MR_USHORT "Life of gush" 0 65535 2184.5 2184.5
+}
+
+entity vol_crack
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        PAD MR_ULONG
+}
+
+entity vol_bubbleup
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_USHORT "Delay before begin" 0 65535 2184.5 2184.5
+        NUMBER MR_USHORT "Size to grow to" 0 65535 256
+        NUMBER MR_USHORT "Size to pop over" 0 65535 512
+        PAD MR_USHORT
+}
+
+entity vol_topexplosion
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        NUMBER MR_USHORT "Number of explosions" 1 10 1
+        FLOAT MR_USHORT "Delay before explosion 1" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Delay before explosion 2" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Delay before explosion 3" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Delay before explosion 4" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Delay before explosion 5" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Delay before explosion 6" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Delay before explosion 7" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Delay before explosion 8" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Delay before explosion 9" 0 65535 2184.5 2184.5
+        FLOAT MR_USHORT "Delay before explosion 10" 0 65535 2184.5 2184.5
+        NUMBER MR_USHORT "Range of explosion 1" 0 65535 256
+        NUMBER MR_USHORT "Range of explosion 2" 0 65535 256
+        NUMBER MR_USHORT "Range of explosion 3" 0 65535 256
+        NUMBER MR_USHORT "Range of explosion 4" 0 65535 256
+        NUMBER MR_USHORT "Range of explosion 5" 0 65535 256
+        NUMBER MR_USHORT "Range of explosion 6" 0 65535 256
+        NUMBER MR_USHORT "Range of explosion 7" 0 65535 256
+        NUMBER MR_USHORT "Range of explosion 8" 0 65535 256
+        NUMBER MR_USHORT "Range of explosion 9" 0 65535 256
+        NUMBER MR_USHORT "Range of explosion 10" 0 65535 256
+        NUMBER MR_USHORT "Debris 1" 0 65535 0
+        NUMBER MR_USHORT "Debris 2" 0 65535 0
+        NUMBER MR_USHORT "Debris 3" 0 65535 0
+        NUMBER MR_USHORT "Debris 4" 0 65535 0
+        NUMBER MR_USHORT "Debris 5" 0 65535 0
+        NUMBER MR_USHORT "Debris 6" 0 65535 0
+        NUMBER MR_USHORT "Debris 7" 0 65535 0
+        NUMBER MR_USHORT "Debris 8" 0 65535 0
+        NUMBER MR_USHORT "Debris 9" 0 65535 0
+        NUMBER MR_USHORT "Debris 10" 0 65535 0
+        PAD MR_USHORT
+}
+
+entity vol_treefallburn
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        FLOAT MR_USHORT "Delay until catch fire" 0 65535 2184.5 2184.5
+        NUMBER MR_USHORT "Speed at which to burn" 0 65535 0
+        ENUM MR_USHORT "Direction to fall" FallDirection Up
+        PAD MR_USHORT
+}
+
+entity gen_bonusfrog
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        NUMBER MR_USHORT "Value" 0 65535 1000
+        PAD MR_USHORT
+}
+
+entity org_noise
+{
+        INTERNAL FORM_ID
+        INTERNAL DIFFICULTY
+        PAD MR_USHORT
+        INTERNAL UNIQUE_ID
+        INTERNAL MR_MATRIX
+difficulty:
+        PAD    MR_USHORT
+        PAD    MR_USHORT
+}

@@ -1,0 +1,64 @@
+Things to do ...
+
+
+Language Selection
+	Add sound effects
+	Move language selection to after read memory card
+	Only do language selection if no memory card read occured
+
+Read Memory Card
+	Add sound effects
+	Add models
+	Add sprites ( multi-language )
+
+	Do auto read of first cards language
+	Print all screens in that language
+	Do auto read of options settings
+	Prompt for loading of high scores
+
+Main options
+	Add sound effects
+	Check demo modes work
+	Check memory requirements
+
+	Add fish
+	Make water surface ripple
+
+Options
+	Add sound effects
+	Put in correct "lillypad" models
+	Do load \ save
+	Do control configuration
+	Put in proper graphics for music and sound logs
+	Sort out symbol scales
+	Get correct camera and positioning from mappy
+
+Level Select Stack
+	Add sound effects
+	Do models in background
+	Fix lighting
+	Do correct logic for allowing next level / world etc.
+	Allow for dodgy numbers of levels in certain worlds
+	Allow progress to next level automatically
+
+	Single player - Jungle river and ruined city will be just one level
+
+	Multi player - 5 levels ( sub / orig / caves / forest / jungle + ruined )
+
+Main Game
+	Put back pause
+	Attachment system - buffalo clouds
+
+High score input
+	Add sound effects
+	Add ripple for landing on lilly
+	Get correct camera and positioning from mappy
+	
+
+
+Add sound to all screens
+
+
+Fix all bugs
+	Stop fish crashing front ends
+	All front ends are arse over tit!!!

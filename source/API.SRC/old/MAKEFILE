@@ -1,0 +1,141 @@
+#//
+#// Makefile for Millennium API (PlayStation Version)
+#// -------------------------------------------------
+#//
+#// Contains dependency lists for all API object modules. Compiler macros,
+#// such as 'CC' and 'CFLAGS' are passed in from the calling makefile (in
+#// the project 'SOURCE' directory)
+#//
+#// Changed		Programmer		Reason
+#// ------- 	----------		------
+#//
+#// 13/05/96	Dean Ashton		Creation of new makefile strategy
+#// 18/09/96	Dean Ashton		Added extra 'AS' and 'ASFLAGS' parameters
+#// 25/05/97	Dean Ashton		Changed makefile to output .lib files and
+#//								add DMPSX processing as default.
+#//
+
+.SUFFIXES: .c .s	#// Enabled inferred rules
+
+#// Display API Version
+!MESSAGE	
+!MESSAGE	//
+!MESSAGE	//      Millennium API (PlayStation Version 1.32)
+!MESSAGE	// 
+!MESSAGE
+
+DM		=	dmpsx
+DFLAGS	= 	-b
+
+#//PL		=	psylib2
+#//PFLAGS	= 	/u /q
+
+PL		=	psylib
+PFLAGS	= 	/u
+
+#//-----------------------------------------------------------------------
+#// API Object List
+
+API_OBJ	=	mr_anim.obj		\
+			mr_anim2.obj	\
+			mr_anim3.obj	\
+			mr_bin.obj		\
+			mr_coll.obj		\
+			mr_debug.obj	\
+			mr_disp.obj		\
+			mr_file.obj		\
+			mr_font.obj		\
+			mr_frame.obj	\
+			mr_fx.obj		\
+			mr_input.obj	\
+			mr_light.obj	\
+			mr_math.obj		\
+			mr_mem.obj		\
+			mr_mesh.obj		\
+			mr_misc.obj		\
+			mr_mof.obj		\
+			mr_obj.obj		\
+			mr_ot.obj		\
+			mr_over.obj		\
+			mr_part.obj		\
+			mr_pres.obj		\
+			mr_sound.obj	\
+			mr_splin.obj	\
+			mr_sprt.obj		\
+			mr_stat.obj		\
+			mr_view.obj		\
+			mr_vram.obj		\
+			mr_vram.obj		\
+							\
+	    	mr_m_f3.obj		\
+			mr_m_f4.obj		\
+			mr_m_ft3.obj	\
+			mr_m_ft4.obj 	\
+			mr_m_g3.obj		\
+			mr_m_g4.obj		\
+			mr_m_gt3.obj	\
+			mr_m_gt4.obj 	\
+			mr_m_e3.obj		\
+			mr_m_e4.obj		\
+			mr_m_ge3.obj	\
+			mr_m_ge4.obj	\
+							\
+			mr_p_f3.obj		\
+			mr_p_f4.obj		\
+			mr_p_g3.obj		\
+			mr_p_g4.obj  	\
+			mr_p_ft3.obj	\
+			mr_p_ft4.obj	\
+			mr_p_gt3.obj	\
+			mr_p_gt4.obj 	\
+			mr_p_e3.obj		\
+			mr_p_e4.obj		\
+			mr_p_ge3.obj	\
+			mr_p_ge4.obj	\
+			mr_phlf3.obj	\
+			mr_phlf4.obj	\
+							\
+	    	mr_s_f3.obj		\
+			mr_s_f4.obj		\
+			mr_s_ft3.obj	\
+			mr_s_ft4.obj	\
+			mr_s_g3.obj		\
+			mr_s_g4.obj		\
+			mr_s_gt3.obj	\
+			mr_s_gt4.obj	\
+			mr_s_e3.obj		\
+			mr_s_e4.obj 	\
+			mr_s_ge3.obj	\
+			mr_s_ge4.obj 	\
+							\
+			mr_quat.obj		\
+			mr_m_qua.obj	\
+							\
+			mr_c_pak.obj	\
+			mr_m_pak.obj
+
+
+#//-----------------------------------------------------------------------
+#// Standard inference rules for 'C' and assembler files
+
+.c.obj:
+	$(CC) $(CFLAGS) $<
+	$(DM) $@ $(DFLAGS)
+	$(PL) $(PFLAGS) $*.lib $@
+	@echo -----
+
+.s.obj:
+	$(AS) $(AFLAGS) $<,$@
+	$(DM) $@ $(DFLAGS)
+	$(PL) $(PFLAGS) $*.lib $@
+	@echo -----
+
+
+#//-----------------------------------------------------------------------
+#// Global dependency
+
+all:	$(API_OBJ)
+
+#// End
+#//-----------------------------------------------------------------------
+

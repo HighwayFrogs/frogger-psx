@@ -1,0 +1,41 @@
+;Codewright Project File (do not remove or modify this line)
+[ProjInit]
+ProjSetConfigFlags=0x00010140
+
+
+[State]
+SysSetCwd='L:\frogger\source'
+SrchSetFlags=0x041b600a
+FileSortMode=0x0
+StateWindowFrame=313,62,839,602,0x630977ca
+
+[Editor]
+ClipboardSetTermStr='\r\n',0
+ClipboardEnableTermStr=1
+ClipboardSetSepStr='\r\n',0
+ClipboardEnableSepStr=1
+ScrapSetCount=1
+VCSProject='"$/Frogger/source", ZERAAAAA'
+VCSProjectPath='C:\VSS,'
+VCSProjectLocalPath='L:\Frogger\source'
+_RestoreSysFlags=0x630977ca, 0xfffffffc, 0
+_RestoreSysFlags=0x00000001, 0xffffffff, 1
+
+[Compiler]
+TagSetFile=''
+BrowseSetFile=''
+CompilerAssign='Default Compiler Settings','.scr'
+CompilerAssign='Default Compiler Settings','.lnk'
+CompilerAssign='Default Compiler Settings','.c'
+CompilerAssign='Default Compiler Settings','.h'
+CompilerAssign='Microsoft C(NT-i386)','.cpp'
+CompilerAssign='Default Compiler Settings','.*'
+CompilerAssign='Microsoft C(NT-i386)','.cxx'
+CompilerAssign='Microsoft C(NT-i386)','.hpp'
+TagSetCmd='${HOME}${WTAGS} -oc -d -t${TAGFILE}.tag -p${TAGFILE}.ptg',0x8000060
+CompilerAddCmd='Microsoft C Debug (NT-i386)','${FTEE} cl -DSTRICT -c -W3 -G3 -D_X86_=1 -DWIN32 -Zi -Od %r%e',112,'${FTEE} cl -DSTRICT -c -W3 -G3 -D_X86_=1 -DWIN32 -Zi -Od %r%e',112,'',144,'',144,'',0,'',0,'_MicrosoftErrorInfo','','','',''
+CompilerAddResponse='Microsoft C Debug (NT-i386)',
+CompilerAddCmd='Default Compiler Settings','',16,'',16,'',16,'',16,'',0,'',0,'','','','',''
+CompilerAddResponse='Default Compiler Settings',
+CompilerAddCmd='Microsoft C(NT-i386)','${FTEE} cl -DSTRICT -c -W3 -G3 -D_X86_=1 -DWIN32 %r%e',112,'${FTEE} cl -DSTRICT -c -W3 -G3 -D_X86_=1 -DWIN32 %r%e',112,'',144,'',144,'',0,'',0,'_MicrosoftErrorInfo','','','',''
+CompilerAddResponse='Microsoft C(NT-i386)',

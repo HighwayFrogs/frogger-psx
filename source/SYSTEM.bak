@@ -1,0 +1,321 @@
+/******************************************************************************
+*%%%% system.h
+*------------------------------------------------------------------------------
+*
+*	Primary system include file. The build options are before the included
+*	file list just to make the current options clearer.
+*
+*	CHANGED		PROGRAMMER		REASON
+*  	------  	----------  	------
+*	24.5.96		Dean Ashton		Created
+*
+*%%%**************************************************************************/
+
+#ifndef		__SYSTEM_H					
+#define		__SYSTEM_H 
+
+#ifdef		__psx						// Supplied by the PlayStation Compiler.
+#define		PSX
+#else
+#define		WIN95
+#endif
+
+#ifdef		PSX
+
+// Build Options
+
+//#define		PSX_RELEASE
+//#define		PSX_MASTER
+
+#define		PSX_MODE_NTSC
+//#define		PSX_MODE_PAL
+
+#ifdef		PSX_RELEASE
+#define		PSX_CD_LOAD
+#define		PSX_ENABLE_XA
+#define		PSX_SOUND
+#define		PSX_CD_STREAMS
+//#define		PSX_CARD
+#else
+#define		DEBUG
+#define		PSX_CARD
+//#define		PSX_ENABLE_XA
+//#define		PSX_CD_LOAD
+//#define		PSX_CD_STREAMS
+#define		PSX_API_DEBUG
+#define		PSX_USE_ASSERT		
+//#define		PSX_SOUND
+#endif
+
+// Use multitap
+//#define		MR_INPUT_USE_MULTITAP
+
+// Use API sound?
+#ifdef		PSX_SOUND
+#define		MR_API_SOUND
+#endif
+
+// API Debugging options
+#ifdef		PSX_API_DEBUG
+#define		MR_DEBUG
+#define		MR_DEBUG_DISPLAY
+
+#define		MR_GATSO_SHOW_CALC
+#define		MR_GATSO_SHOW_DRAW
+#define		MR_GATSO_SHOW_USED
+#define		MR_GATSO_SHOW_FREE
+//#define		MR_GATSO_SHOW_MIN_FREE
+//#define		MR_GATSO_SHOW_MAX_FREE
+//#define		MR_GATSO_SHOW_MIN_MAX_FREE
+//#define		MR_GATSO_EXPECTED_FREE_RAM	(700)
+
+#define		MR_MEM_DEBUG
+//#define		MR_MEM_FULL_DEBUG
+//#define		MR_MEM_TORTURE
+#define		MR_USE_ASSERTS
+//#define		MR_SHOW_MOF_INFO
+#endif
+
+// Machine territory-related equates
+
+#ifdef		PSX_MODE_NTSC
+#define		FRAMES_PER_SECOND		(60)
+#define		MR_MODE_NTSC
+#else
+#define		FRAMES_PER_SECOND		(50)
+#define		MR_MODE_PAL
+#endif
+
+// Project specific 
+#define		MR_FILE_RAMDRIVE		"E:"
+
+//-----------------------------------------------------------------------------
+// Assert options (for project and API code generation)
+
+#ifdef		PSX_USE_ASSERTS	  			
+#define		PSX_ASSERT(f)			SYS_ASSERT(f)
+#define		PSX_ASSERTMSG(f,str)	SYS_ASSERTMSG(f,str)
+#else
+#define		PSX_ASSERT(f)	
+#define		PSX_ASSERTMSG(f,str)
+#endif
+
+#ifdef		MR_USE_ASSERTS	
+#define		MR_ASSERT(f)			SYS_ASSERT(f)
+#define		MR_ASSERTMSG(f,str)	SYS_ASSERTMSG(f,str)
+#else
+#define		MR_ASSERT(f)
+#define		MR_ASSERTMSG(f,str)
+#endif
+
+
+//-----------------------------------------------------------------------------
+// Include files 
+
+#include	<sys\types.h>
+#include 	<sys\file.h>
+#include 	<r3000.h>
+#include 	<asm.h>
+#include	<kernel.h>
+#include 	<libetc.h>
+#include 	<libgte.h>
+#include 	<libgpu.h>
+#include	<libpress.h>
+//#include 	<libgs.h>	
+#include 	<libsn.h>
+#include 	<libspu.h>
+#include	<libsnd.h>
+#include	<libcd.h>
+#include	<inline_c.h>
+#include	<gtemac.h>
+
+
+//----------------------------------------------------------------------------------------------------
+// Private assert definitions (these form the basis for the PSX_ASSERT(MSG) and MR_ASSERT(MSG) macros)
+
+#define	SYS_ASSERT(f) \
+			if (f) \
+				{} \
+			else \
+				{ \
+				sprintf(ex_user, "Assert: %s (%s, %u)", __FUNCTION__, __FILE__, __LINE__); \
+				ex_text_ptr = ex_user; \
+				if (ex_installed) \
+					{asm(".word 0x4e000000");} \
+				else \
+					{ \
+					printf("%s\n",ex_user); \
+					while(1) \
+						{ \
+						pollhost(); \
+						} \
+					} \
+				}
+
+#define	SYS_ASSERTMSG(f,str) \
+			if (f) \
+				{} \
+			else \
+				{ \
+				sprintf(ex_user, "Assert: %s (%s, %u) : %s", __FUNCTION__, __FILE__, __LINE__, str); \
+				ex_text_ptr = ex_user; \
+				if (ex_installed) \
+					{asm(".word 0x4e000000");} \
+				else \
+					{ \
+					printf("%s\n",ex_user); \
+					while(1) \
+						{ \
+						pollhost(); \
+						} \
+					} \
+				}
+
+//------------------------------------------------------------------------------------------------
+// Turn on CD subsystem initialisation if it's needed
+
+#ifdef	PSX_CD_LOAD				// If we're CD loading we need a CdInit();
+#ifndef	PSX_CD_INIT
+#define	PSX_CD_INIT
+#endif
+#endif
+
+#ifdef	PSX_ENABLE_XA			// If we're playing streams or XA audio, we need a CdInit();
+#ifndef	PSX_CD_INIT
+#define	PSX_CD_INIT
+#endif
+#endif
+
+#ifdef	PSX_CD_STREAMS			// If we're playing streams or XA audio, we need a CdInit();
+#ifndef	PSX_CD_INIT
+#define	PSX_CD_INIT
+#endif
+#endif
+
+//------------------------------------------------------------------------------------------------
+// Handy definitions 
+
+#define	PSX		 												//	Platform specifier... for plot code
+
+#define	TRUE					0xffffffff
+#define	FALSE					0x00000000
+#define	DLONG_ALIGNED			__attribute__ ((aligned(8)))
+#define	LONG_ALIGNED			__attribute__ ((aligned(4)))
+#define	WORD_ALIGNED			__attribute__ ((aligned(4)))
+#define	SHORT_ALIGNED			__attribute__ ((aligned(2)))
+
+
+//------------------------------------------------------------------------------------------------
+// Patch the incorrect definition of abs() declared in abs.h, so it works properly... 
+
+#undef	abs
+#define	abs(x)					(((x)<0) ? -(x) : (x))
+
+//------------------------------------------------------------------------------------------------
+// Type definitions
+
+typedef	void					VOID;
+typedef	unsigned	long*		MEM;
+typedef	unsigned	long		BOOL;
+typedef	unsigned	long		ULONG;
+typedef	signed		long		LONG;
+typedef	unsigned	char*		STRPTR;
+typedef	unsigned	char		UBYTE;
+typedef	unsigned	char		TEXT;
+typedef	signed		char		BYTE;
+typedef	signed		short		SHORT;
+typedef	unsigned	short		USHORT;
+typedef	signed		int			INT;
+typedef	unsigned	int	  		UINT;
+
+//------------------------------------------------------------------------------------------------
+//	Macros for common operations. 
+
+#ifndef	NULL					// Everyone needs a NULL
+#define	NULL	0
+#endif
+
+#ifndef	MIN						// Everyone needs a MIN
+#define	MIN(a,b) 				(((a)<(b))?(a):(b))
+#endif
+
+#ifndef	MAX						// Everyone needs a MAX too..
+#define	MAX(a,b) 				(((a)>(b))?(a):(b))
+#endif
+
+#ifndef	CLEAR						// And this is nice as well...
+#define	CLEAR(item)				memset(&item, 0, sizeof(item))
+#endif
+
+#ifndef	MAKE_ID
+#define	MAKE_ID(a,b,c,d) 		((a<<24)|(b<<16)|(c<<8)|(d<<0))
+#endif
+
+#define	COPYLONG(a,b)			(*(LONG*)(&a) = *(LONG*)(&b))
+#define	COPYSHORT(a,b)			(*(SHORT*)(&a) = *(SHORT*)(&b))
+#define	SETLONG(a,b)			(*(LONG*)(&a) = b)
+#define	SETSHORT(a,b)			(*(SHORT*)(&a) = b)
+
+#define	SQUARED_DIST(a,b)		((a[0]-b[0])>>2)*((a[0]-b[0])>>2)+((a[1]-b[1])>>2)*((a[1]-b[1])>>2)+((a[2]-b[2])>>2)*((a[2]-b[2])>>2)
+#define	SQUARED_XZ_DIST(a,b)	((a[0]-b[0])>>2)*((a[0]-b[0])>>2)+((a[2]-b[2])>>2)*((a[2]-b[2])>>2)
+#define	SQUARED_X_DIST(a,b) 	((a[0]-b[0])>>2)*((a[0]-b[0])>>2)
+#define	SQR(a)					((a)*(a))
+
+#define	COPYMATRIX(a,b)			*(LONG*)&((a).m[0][0]) = *(LONG*)&((b).m[0][0]), \
+								*(LONG*)&((a).m[0][2]) = *(LONG*)&((b).m[0][2]), \
+								*(LONG*)&((a).m[1][1]) = *(LONG*)&((b).m[1][1]), \
+								*(LONG*)&((a).m[2][0]) = *(LONG*)&((b).m[2][0]), \
+								(a).m[2][2] = (b).m[2][2]
+
+#define	RGBL(a,b,c)				(((a)<<16) + ((b)<<8) + (c))
+
+
+//------------------------------------------------------------------------------------------------
+// References, defines and macros to enable stack placement on PlayStation D-Cache
+ 
+extern	ULONG				saved_stack;
+extern	ULONG				stack_safety;
+ 
+#define	FASTSTACK			saved_stack=SetSp(0x1f8003ec)
+#define	SLOWSTACK			SetSp(saved_stack)
+
+
+//------------------------------------------------------------------------------------------------
+// References, defines and macros for use by PlayStation crash handler (crash.lib)
+
+
+extern	BOOL				ex_installed;
+extern	TEXT				ex_user[];
+extern	STRPTR				ex_text_ptr;		
+extern	VOID				Init_exception_handler(BOOL);
+extern	VOID				Show_exception(VOID);
+
+#define	FORCE_INSTALL		(TRUE)
+#define	AUTO_INSTALL		(FALSE)
+
+//------------------------------------------------------------------------------------------------
+//	DEBUG FUNCTION ADDRESS LIST HANDLER - For use in emergencies only!
+
+extern	LONG*				routine_list[];
+extern	LONG				routine_list_index;
+
+#ifdef	PSX_DEBUG
+#define	ROUTINE(function)	routine_list[routine_list_index] = (LONG *)(function), \
+						 	routine_list_index = (routine_list_index + 1)&0x07
+#else
+#define	ROUTINE
+#endif
+
+// Override API defines
+#define	MR_DEBUG_MAX_TILES				512
+#define	MR_GATSO_X_POS					296
+#define	MR_GATSO_Y_POS					060
+
+#endif
+#ifdef	WIN95
+#include "winsys.h"
+#endif
+
+
+#endif	//__SYSTEM_H
+

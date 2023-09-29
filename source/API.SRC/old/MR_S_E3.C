@@ -1,0 +1,196 @@
+/******************************************************************************
+*%%%% mr_s_e3.c
+*------------------------------------------------------------------------------
+*
+*	Polygon rendering routines (mesh based), for environment mapped triangles
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------  	----------  	------
+*	26.03.97	Dean Ashton		Created
+*
+*%%%**************************************************************************/
+
+
+#include	"mr_all.h"
+
+
+/******************************************************************************
+*%%%% MRSpecialDisplayMeshPolys_E3
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	MRSpecialDisplayMeshPolys_E3(
+*						MR_SVEC*		vert_ptr,
+*						MR_SVEC*		norm_ptr,
+*						MR_ULONG*		prim_ptr,
+*						MR_ULONG*		mem_ptrm
+*						MR_MESH_PARAM*	param_ptr,
+*						MR_BOOL			light_dpq,
+*						MR_ULONG		flags);
+*
+*	FUNCTION		Performs high-speed geometry calculations for a block of
+*					MR_MPRIM_E3 (environment mapped triangle) primitives.
+*
+*	INPUTS		vert_ptr	-	Pointer to vertex block
+*				norm_ptr	-	Pointer to normal block
+*				prim_ptr	-	Pointer to MR_MPRIM_E3 block
+*				mem_ptr		-	Pointer to primitive buffer memory
+*				param_ptr	-	Pointer to mesh parameter block
+*				light_dpq	-	TRUE 	:	Lighting with depth queuing
+*								FALSE	:	Lighting without depth queuing
+*				flags		-	Special rendering override flags
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	26.03.97	Dean Ashton		Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	MRSpecialDisplayMeshPolys_E3(	MR_SVEC*		vert_ptr,
+										MR_SVEC*		norm_ptr,
+										MR_ULONG*		prim_ptr,
+									 	MR_ULONG*		mem_ptr,
+									 	MR_MESH_PARAM*	param_ptr,
+									 	MR_BOOL			light_dpq,
+										MR_ULONG		flags)
+{
+	register	MR_ULONG*	work_ot		= param_ptr->p_work_ot;
+	register	MR_LONG		otz_shift	= param_ptr->p_otz_shift;
+	register	MR_LONG		ot_size		= param_ptr->p_ot_size;
+	register	MR_LONG		ot_clip		= param_ptr->p_ot_clip;
+	register	MR_LONG		disp_h		= MRVp_disp_h;
+	register	MR_LONG		prim_count;
+	MR_CVEC					work_cvec;
+	MR_SVEC					work_svec;
+	MR_VEC					work_vector;
+	MR_SHORT				uofs, vofs;
+
+	// We must have a defined environment map
+	MR_ASSERT(MREnv_strip);
+
+	// Fetch number of primitives in this block
+	prim_count = ((MR_MPRIM_HEADER*)(prim_ptr - 1))->mm_count;
+
+	// Precalculate uofs/vofs
+	uofs = 64 + MREnv_strip->te_u0;
+	vofs = 64 + MREnv_strip->te_v0;
+
+	// Pre-fetch the first set of vertex pointers
+	param_ptr->p_v0 = vert_ptr + ((MR_MPRIM_E3*)prim_ptr)->mp_p0;
+	param_ptr->p_v1 = vert_ptr + ((MR_MPRIM_E3*)prim_ptr)->mp_p1;
+	param_ptr->p_v2 = vert_ptr + ((MR_MPRIM_E3*)prim_ptr)->mp_p2;
+
+	// Process every polygon in turn
+	while (prim_count--)
+		{
+
+		// Load first 3 vertices into the GTE 
+		gte_ldv3(param_ptr->p_v0, param_ptr->p_v1, param_ptr->p_v2);
+
+		// Rotate the first three points
+		gte_rtpt();
+		param_ptr->p_v0 = vert_ptr + ((MR_MPRIM_E3*)prim_ptr+1)->mp_p0;	// Fetch next vertices
+		param_ptr->p_v1 = vert_ptr + ((MR_MPRIM_E3*)prim_ptr+1)->mp_p1;	// while in gte_rtpt()
+		param_ptr->p_v2 = vert_ptr + ((MR_MPRIM_E3*)prim_ptr+1)->mp_p2;	// delay slot
+		
+		// Normal clip first three points
+		gte_nclip();
+
+		MR_COPY32(work_cvec, ((MR_MPRIM_E3*)prim_ptr)->mp_cvec);
+		if (flags & MR_MESH_INST_TRANSLUCENT_MASK)								
+			work_cvec.cd = work_cvec.cd | 0x02;										// This could be an absolute write?
+		gte_ldrgb(&work_cvec);															// Load RGB in delay slot
+		gte_stopz(&(param_ptr->p_nclip_result));
+		
+		// Normal clip if required
+		if ((!(flags & MR_MESH_INST_IGNORE_NCLIP)) && (param_ptr->p_nclip_result <= 0))
+			goto next_poly;															
+
+	//---------------
+		gte_avsz3();
+		gte_stotz(&param_ptr->p_poly_otz);
+
+		param_ptr->p_poly_otz = (param_ptr->p_poly_otz >> otz_shift) + param_ptr->p_ot_otz_delta;
+
+		if (
+			(param_ptr->p_poly_otz >= ot_clip) &&
+			(param_ptr->p_poly_otz < ot_size)
+			)
+			{
+			gte_stsxy3_ft3((POLY_FT3*)mem_ptr);										// E3 == FT3 PlayStation Primitive
+
+			if (
+				(((((POLY_FT3*)mem_ptr)->y0 >= 0) ||
+				  (((POLY_FT3*)mem_ptr)->y1 >= 0) ||
+				  (((POLY_FT3*)mem_ptr)->y2 >= 0)) &&
+				 ((((POLY_FT3*)mem_ptr)->y0 < disp_h) ||
+				  (((POLY_FT3*)mem_ptr)->y1 < disp_h) ||
+				  (((POLY_FT3*)mem_ptr)->y2 < disp_h)))
+				)
+				{
+				gte_SetRotMatrix(MRWorldtrans_ptr);
+
+				param_ptr->p_n0 = norm_ptr + (((MR_MPRIM_E3*)prim_ptr)->mp_en0);		// Calc en0 address
+				gte_ldv0(param_ptr->p_n0);								   				// Load into V0(GTE)
+				gte_rtv0();												   				// Rotate it
+				param_ptr->p_n0 = norm_ptr + (((MR_MPRIM_E3*)prim_ptr)->mp_en1);		// Precalc en1 address (delay slot)
+				gte_stlvnl(&work_vector);								   				// Store output
+
+				gte_ldv0(param_ptr->p_n0);															
+				gte_rtv0();
+				MR_SET16(((POLY_FT3*)mem_ptr)->u0, (work_vector.vx >> 6) + uofs + (((-work_vector.vy >> 6) + vofs) << 8));
+				param_ptr->p_n0 = norm_ptr + (((MR_MPRIM_E3*)prim_ptr)->mp_en2);
+				gte_stlvnl(&work_vector);
+
+				gte_ldv0(param_ptr->p_n0);
+				gte_rtv0();
+				MR_SET16(((POLY_FT3*)mem_ptr)->u1, (work_vector.vx >> 6) + uofs + (((-work_vector.vy >> 6) + vofs) << 8));
+				gte_stlvnl(&work_vector);			
+				MR_SET16(((POLY_FT3*)mem_ptr)->u2, (work_vector.vx >> 6) + uofs + (((-work_vector.vy >> 6) + vofs) << 8));
+
+				gte_SetRotMatrix(MRViewtrans_ptr);
+
+				if (!(flags & MR_MESH_INST_NO_LIGHTING))								// We want lighting?
+					{			
+					if ((flags & MR_MESH_INST_IGNORE_NCLIP) && (flags & MR_MESH_INST_FIX_NCLIP_NORMALS) && (param_ptr->p_nclip_result <= 0))
+						{
+						work_svec.vx = -(norm_ptr + ((MR_MPRIM_E3*)prim_ptr)->mp_n0)->vx;					
+						work_svec.vy = -(norm_ptr + ((MR_MPRIM_E3*)prim_ptr)->mp_n0)->vy;					
+						work_svec.vz = -(norm_ptr + ((MR_MPRIM_E3*)prim_ptr)->mp_n0)->vz;					
+						gte_ldv0(&work_svec);
+						}
+					else
+						{
+						gte_ldv0(norm_ptr + ((MR_MPRIM_E3*)prim_ptr)->mp_n0);
+						}
+	
+					if (light_dpq)
+						{
+						gte_ncds();
+						}
+					else
+						{
+						gte_nccs();
+						}
+					gte_strgb((MR_CVEC*)&(((POLY_FT3*)mem_ptr)->r0));
+					}
+				else
+					{
+					MR_COPY32(((POLY_FT3*)mem_ptr)->r0, work_cvec);
+					}				
+				addPrim(work_ot + param_ptr->p_poly_otz, mem_ptr);
+				}
+			}
+
+	//---------------
+	next_poly:
+			((POLY_FT3*)mem_ptr)++;
+			((MR_MPRIM_E3*)prim_ptr)++;
+			param_ptr->p_prims--;
+		}
+	
+	// Place register based address arguments into param block for retrieval/setting by caller
+	param_ptr->p_mem_ptr	= mem_ptr;
+	param_ptr->p_prim_ptr	= prim_ptr;
+
+}
+

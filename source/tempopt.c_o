@@ -1,0 +1,4742 @@
+/******************************************************************************
+*%%%% tempopt.c
+*------------------------------------------------------------------------------
+*
+*	Routines for temp options screens.
+*	Generally, startup, update and shutdown.
+*
+*	CHANGED		PROGRAMMER		REASON
+* 	-------  	----------  	------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+#include "mr_all.h"
+#include "options.h"
+#include "tempopt.h"
+#include "gamefont.h"
+#include "gamesys.h"
+#include "main.h"
+#ifdef PSX
+#include "stream.h"
+#endif
+#include "memcard.h"
+#include "library.h"
+#include "mapdebug.h"
+#include "frog.h"
+#include "model.h"
+
+// Misc ---------------------------------------------------
+
+MR_UBYTE	Option_number;					// Number of option currently selected
+
+MR_ULONG	Options_count_down_ticks;		// Number of ticks remaining in count down
+MR_ULONG	Options_count_down_units;		// Number of units remaining in count down
+
+// Anti piracy ( PSX ONLY ) -------------------------------
+
+#ifdef PSX	// PSX Specific code --------------------------------------------
+
+MR_2DSPRITE*	Warning_ptr;				// Ptr to 2D sprite for the anti piracy
+
+#endif	// PSX
+
+// Read from memory card ----------------------------------
+
+MR_USHORT	Read_status;					// Status of operation for read memory card screen
+
+#ifdef WIN95	// Windows Specific code ------------------------------------
+
+HKEY			Save_key;				// Handle to open "save" registry key
+MR_BOOL			Save_data_flag;			// Flag to indicate whether save data is available
+
+#else			// PSX Specific code ----------------------------------------
+
+MR_BOOL			Card0_present;			// Flag to indicate whether card 0 available
+MR_BOOL			Card1_present;			// Flag to indicate whether card 1 available
+MR_BOOL			Game0_present;			// Flag to indicate whether game 0 available
+MR_BOOL			Game1_present;			// Flag to indicate whether game 1 available
+
+#endif			// WIN95
+
+MR_TEXT_AREA*	Option_read_text_area[3];
+
+MR_STRPTR	Option_read_text_0[]						=	{"%jcCARD 0",NULL};
+MR_STRPTR	Option_read_text_1[]						=	{"%jcCARD 1",NULL};
+MR_STRPTR	Option_read_text_title[]					=	{"%jcLOAD FROM WHICH CARD ?",NULL};
+
+// Main Options -------------------------------------------
+
+MR_USHORT	Main_options_status;			// Status of operation for main options screen
+
+MR_ULONG	Num_demo_levels_seen = 0;					// Number of demo levels viewed so far
+
+MR_TEXT_AREA*	Option_main_options_text_area[NUM_MAIN_OPTIONS_OPTIONS];
+
+MR_ULONG	Demo_level_table[MAX_NUM_DEMO_LEVELS]	=	// Table of demo levels to show
+	{
+	LEVEL_ORIGINAL1,
+	LEVEL_DESERT1,
+	LEVEL_CAVES1,
+	LEVEL_SWAMP1,
+	LEVEL_SUBURBIA1,
+
+	};
+
+MR_STRPTR	Option_main_options_text[NUM_MAIN_OPTIONS_OPTIONS][50] =
+{
+	{"%jcSTART", NULL},
+	{"%jcMULTIPLAYER", NULL},
+	{"%jcOPTIONS", NULL},
+};
+
+// Options ------------------------------------------------
+
+MR_BOOL		From_options;					// Flag to tell ( TRUE ) if we selected this from the options list
+
+MR_UBYTE	Music_volume;					// Volume for music
+MR_UBYTE	Sound_volume;					// Volume for sound effects
+
+MR_USHORT	Load_status;					// Status of operation for load screen
+MR_USHORT	Save_status;					// Status of operation for save screen
+
+CONTROL_OPTIONS	Load_data;					// Load data!!!
+CONTROL_OPTIONS	Save_data;					// Save data!!!
+
+MR_TEXT_AREA*	Option_options_text_area[NUM_OPTIONS_OPTIONS];
+MR_TEXT_AREA*	Option_music_volume_text_area[2];
+MR_TEXT_AREA*	Option_sound_volume_text_area[2];
+MR_TEXT_AREA*	Option_load_text_area[4];
+MR_TEXT_AREA*	Option_save_text_area[4];
+
+MR_STRPTR	Option_options_text[NUM_OPTIONS_OPTIONS][50] =
+{
+	{"%jcOPTIONS", NULL},
+	{"%jcVIEW CREDITS", NULL},
+	{"%jcVIEW HIGHSCORES", NULL},
+	{"%jcMUSIC VOLUME", NULL},
+	{"%jcSOUND VOLUME", NULL},
+	{"%jcSAVE", NULL},
+	{"%jcLOAD", NULL},
+#ifndef WIN95
+	{"%jcREDEFINE BUTTONS", NULL},
+#else
+	{"%jcCHOOSE CONTROLLER", NULL},
+#endif	// WIN95
+	{"%jcEXIT", NULL}
+};
+
+MR_STRPTR	Option_music_volume_text_title[]			=	{"%jcMUSIC VOLUME", NULL};
+MR_STRPTR	Option_music_volume_text_select[10][50]		=
+	{
+		{"MUSIC LEVEL 0",NULL},
+		{"MUSIC LEVEL 1",NULL},
+		{"MUSIC LEVEL 2",NULL},
+		{"MUSIC LEVEL 3",NULL},
+		{"MUSIC LEVEL 4",NULL},
+		{"MUSIC LEVEL 5",NULL},
+		{"MUSIC LEVEL 6",NULL},
+		{"MUSIC LEVEL 7",NULL},
+		{"MUSIC LEVEL 8",NULL},
+		{"MUSIC LEVEL 9",NULL},
+	};
+
+MR_STRPTR	Option_sound_volume_text_title[]			=	{"%jcSOUND VOLUME", NULL};
+MR_STRPTR	Option_sound_volume_text_select[10][50]		=
+	{
+		{"SOUND LEVEL 0",NULL},
+		{"SOUND LEVEL 1",NULL},
+		{"SOUND LEVEL 2",NULL},
+		{"SOUND LEVEL 3",NULL},
+		{"SOUND LEVEL 4",NULL},
+		{"SOUND LEVEL 5",NULL},
+		{"SOUND LEVEL 6",NULL},
+		{"SOUND LEVEL 7",NULL},
+		{"SOUND LEVEL 8",NULL},
+		{"SOUND LEVEL 9",NULL},
+	};
+
+MR_STRPTR	Option_load_text_0[]						=	{"%jcCARD 0",NULL};
+MR_STRPTR	Option_load_text_1[]						=	{"%jcCARD 1",NULL};
+MR_STRPTR	Option_load_text_title[]					=	{"%jcLOAD FROM WHICH CARD ?",NULL};
+MR_STRPTR	Option_load_text_complete[]					=	{"%jcLOAD SUCCESSFUL",NULL};
+
+MR_STRPTR	Option_save_text_no_card[]					=	{"%jcNO CARDS PRESENT",NULL};
+MR_STRPTR	Option_save_text_0[]						=	{"%jcCARD 0",NULL};
+MR_STRPTR	Option_save_text_1[]						=	{"%jcCARD 1",NULL};
+MR_STRPTR	Option_save_text_complete[]					=	{"%jcSAVE FINISHED",NULL};
+MR_STRPTR	Option_save_text_title[]					=	{"%jcSAVE", NULL};
+
+// Redefine Buttons ( PSX ONLY ) --------------------------
+
+#ifdef PSX
+
+MR_TEXT_AREA*	Option_redefine_psx_buttons_text_area;
+
+MR_STRPTR	Option_redefine_psx_buttons_text_title[]	=	{"%jcREDEFINE PSX BUTTONS", NULL};
+
+#endif
+
+// Choose Controller ( WIN95 ONLY ) -----------------------
+
+#ifdef WIN95
+
+MR_TEXT_AREA*	Option_choose_win_controller_text_area;
+
+MR_STRPTR	Option_choose_win_controller_text_title[]	=	{"%jcCHOOSE WIN CONTROLLER", NULL};
+
+#endif
+
+// Session Options ----------------------------------------
+
+MR_TEXT_AREA*	Option_session_options_text_area;
+
+MR_STRPTR	Option_session_options_text_title[]			=	{"%jcSESSION OPTIONS", NULL};
+
+// Frog Selection -----------------------------------------
+
+MR_FRAME*			Frog_anim_frames_ptr[4];		// Frame for each frog
+MR_ANIM_ENV*		Frog_anim_env_ptr[4];			// Anim env created
+MR_ANIM_ENV_INST*	Frog_anim_inst_ptr[4];			// Instance of anim env added to viewport
+MR_ANIM_HEADER*		Frog_anim_model_ptr;			// Pointer to .XAR in memory
+MR_VEC				Frog_anim_position[4]=			// Position of each Frog on screen
+	{
+	{-150,-50,0},
+	{150,-50,0},
+	{-150,200,0},
+	{150,200,0},
+	};
+
+MR_ULONG	Frog_selection_animation_count[4];		// Animation frame count ( 0 - when at end of animation )
+MR_ULONG	Frog_selection_master_flags;			// Frog selection flags
+
+MR_TEXT_AREA*	Option_frog_selection_text_area[8];
+
+MR_STRPTR	Option_frog_selection_text[10][50]	=	// Test text
+	{
+	{"%jcWAITING TO JOIN", NULL},
+	{"%jcSELECTING FROG", NULL},
+	{"%jcFROG SELECTED", NULL},
+	{"%jcMASTER", NULL},
+	{"%jcSLAVE", NULL},
+
+	};
+
+// Test level selects -------------------------------------
+
+MR_ULONG	Options_world_number;			// Number of world currently selected in level select
+MR_ULONG	Options_level_number;			// Number of level currently selected in level select
+
+MR_TEXT_AREA*	Option_demo_level_select_text_area[2];
+MR_TEXT_AREA*	Option_wills_level_select_text_area[3];
+
+MR_STRPTR	Option_demo_level_select_text_title[]		=	{"%jcDEMO LEVEL SELECT", NULL};
+
+MR_STRPTR	Option_wills_level_select_text[4][50]		=
+{
+	{"%jcWORLD    %w",(MR_STRPTR)&Options_world_number,(MR_STRPTR)1, NULL},
+	{"%jcLEVEL    %w",(MR_STRPTR)&Options_level_number,(MR_STRPTR)1, NULL},
+	{"%jcNOT ACCESSIBLE",NULL},
+	{"%jcACCESSIBLE",NULL},
+};
+
+MR_BOOL		Option_level_status[60] =
+{
+	MR_FAILURE,		// Caves
+	MR_SUCCESS,
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+
+	MR_SUCCESS,		// Desert
+	MR_SUCCESS,
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+
+	MR_FAILURE,		// Forest
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+
+	MR_FAILURE,		// Jungle
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+
+	MR_SUCCESS,		// Original
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+
+	MR_FAILURE,		// Ruins
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+
+	MR_SUCCESS,		// Swamp
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+
+	MR_FAILURE,		// Sky
+	MR_SUCCESS,
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+
+	MR_SUCCESS,		// Suburbia
+	MR_SUCCESS,
+	MR_SUCCESS,
+	MR_FAILURE,
+	MR_FAILURE,
+
+	MR_FAILURE,		// Volcano
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+
+	MR_FAILURE,		// Dummy!!!
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+
+	MR_FAILURE,		// Dummy!!!
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+	MR_FAILURE,
+
+};
+
+MR_STRPTR	Options_demo_level_theme_names[NUM_DEMO_LEVELS][50] =
+{
+	{"%jcDESERT 1",NULL},
+	{"%jcDESERT 2",NULL},
+	{"%jcSEWER 1",NULL},
+	{"%jcORIGINAL 1",NULL},
+	{"%jcSUBURBIA 1",NULL},
+	{"%jcSUBURBIA 2",NULL},
+	{"%jcSUBURBIA 3",NULL},
+};
+
+MR_STRPTR	Options_demo_level_level_names[NUM_DEMO_LEVELS][50] =
+{
+	{"%jcCACTI GORGE",NULL},
+	{"%jcMOUNTAIN PASS",NULL},
+	{"%jcTRIPLE BARREL RUN",NULL},
+	{"%jcORIGINAL",NULL},
+	{"%jcFROG LAKE",NULL},
+	{"%jcBIRD TRIPPER",NULL},
+	{"%jcMOWER MANIA",NULL},
+};
+
+OPTION_DEMO_LEVEL Options_demo_levels[NUM_DEMO_LEVELS] =
+{
+	{1,0},
+	{1,1},
+	{6,0},
+	{4,0},
+	{8,0},
+	{8,1},
+	{8,2},
+};
+
+// Continue -----------------------------------------------
+
+MR_UBYTE	Num_continues = 3;				// $wb - Temp variable for the number of continues
+
+MR_TEXT_AREA*	Option_continue_text_area[3];
+
+MR_STRPTR	Option_continue_text_yes[]					=	{"%jcYES", NULL};
+MR_STRPTR	Option_continue_text_no[]					=	{"%jcNO", NULL};
+MR_STRPTR	Option_continue_text_time[]					=	{"%jc%w", (MR_STRPTR)&Options_count_down_units, (MR_STRPTR)2, NULL};
+
+// Game Over ----------------------------------------------
+
+MR_TEXT_AREA*	Option_game_over_text_area;
+
+MR_STRPTR	Option_game_over_text_title[]				=	{"%jcGAME OVER", NULL};
+
+// Credits ------------------------------------------------
+
+MR_TEXT_AREA*	Option_credits_text_area;
+
+MR_STRPTR	Option_std_credits_text_title[]				=	{"%jcSTANDARD CREDITS", NULL};
+MR_STRPTR	Option_ext_credits_text_title[]				=	{"%jcEXTENDED CREDITS", NULL};
+
+// High Score Input ---------------------------------------
+
+MR_UBYTE	High_score_input_pos;			// Current letter selected in list
+MR_UBYTE	High_score_initial_pos;			// Current initial being entered
+
+MR_TEXT_AREA*	Option_high_score_input_text_area[3];
+
+MR_STRPTR	Option_high_score_input_text_title[]		=	{"%jcHIGH SCORE INPUT", NULL};
+
+MR_STRPTR	Option_high_score_input_text_selection[MAX_NUM_HIGH_SCORE_CHARACTERS][50]	=
+{
+	{"%jcA",NULL},
+	{"%jcB",NULL},
+	{"%jcC",NULL},
+	{"%jcD",NULL},
+	{"%jcE",NULL},
+	{"%jcF",NULL},
+	{"%jcG",NULL},
+	{"%jcH",NULL},
+	{"%jcI",NULL},
+	{"%jcJ",NULL},
+	{"%jcK",NULL},
+	{"%jcL",NULL},
+	{"%jcM",NULL},
+	{"%jcN",NULL},
+	{"%jcO",NULL},
+	{"%jcP",NULL},
+	{"%jcQ",NULL},
+	{"%jcR",NULL},
+	{"%jcS",NULL},
+	{"%jcT",NULL},
+	{"%jcU",NULL},
+	{"%jcV",NULL},
+	{"%jcW",NULL},
+	{"%jcX",NULL},
+	{"%jcY",NULL},
+	{"%jcZ",NULL},
+	{"%jcSPACE",NULL},
+	{"%jcRUB",NULL},
+	{"%jcEND",NULL},
+};
+
+MR_STRPTR	Option_high_score_input_text_initials[4][50]	=
+{
+	{"A",NULL},
+	{"B",NULL},
+	{"C",NULL},
+	{" ",NULL},
+};
+
+// High Score View ----------------------------------------
+
+MR_ULONG	High_score_stack;				// High score stack currently being viewed ( SINGLE PLAYER / MULTI PLAYER )
+MR_ULONG	High_score_table;				// Level for which high score is being viewed
+
+MR_TEXT_AREA*	Option_high_score_view_text_area[14];
+
+MR_STRPTR	Option_high_score_view_text_title[]			=	{"%jcHIGH SCORE VIEW", NULL};
+
+MR_STRPTR	Option_high_score_view_text_stack_name[2][50]	=
+{
+	{"%jcSINGLE PLAYER HIGH SCORES",NULL},
+	{"%jcMULTI PLAYER HIGH SCORES",NULL},
+};
+
+MR_STRPTR	Option_high_score_view_text_world_name[10][50]	=
+{
+	{"%jcCAVES WORLD",NULL},
+	{"%jcDESERT WORLD",NULL},
+	{"%jcFOREST WORLD",NULL},
+	{"%jcJUNGLE WORLD",NULL},
+	{"%jcORIGINAL WORLD",NULL},
+	{"%jcRUINS WORLD",NULL},
+	{"%jcSWAMP WORLD",NULL},
+	{"%jcSKY WORLD",NULL},
+	{"%jcSUBURBIA WORLD",NULL},
+	{"%jcVOLCANO WORLD",NULL},
+};
+
+MR_STRPTR	Option_high_score_view_text_level_number[5][50]	=
+{
+	{"%jcLEVEL 1",NULL},
+	{"%jcLEVEL 2",NULL},
+	{"%jcLEVEL 3",NULL},
+	{"%jcLEVEL 4",NULL},
+	{"%jcLEVEL 5",NULL},
+};
+
+MR_STRPTR	Option_high_score_view_text_entry[NUM_HIGH_SCORE_ENTRIES_PER_TABLE][50]=
+{
+	{"%jcA B C   10000   10:10:10   000   ????",NULL},
+	{"%jcA B C   10000   10:10:10   000   ????",NULL},
+	{"%jcA B C   10000   10:10:10   000   ????",NULL},
+	{"%jcA B C   10000   10:10:10   000   ????",NULL},
+	{"%jcA B C   10000   10:10:10   000   ????",NULL},
+	{"%jcA B C   10000   10:10:10   000   ????",NULL},
+	{"%jcA B C   10000   10:10:10   000   ????",NULL},
+	{"%jcA B C   10000   10:10:10   000   ????",NULL},
+	{"%jcA B C   10000   10:10:10   000   ????",NULL},
+	{"%jcA B C   10000   10:10:10   000   ????",NULL},
+};
+
+#ifdef PSX	// PSX specific code --------------------------------------------
+
+/******************************************************************************
+*%%%% AntiPiracyStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	AntiPiracyStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Anti Piracy screen.  Create the 2D
+*				sprite for the anti piracy logo.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	AntiPiracyStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Create sprite for piracy message
+	Warning_ptr = MRCreate2DSprite(56,25,Option_viewport_ptr,&im_sonywarn,NULL);
+
+}
+
+/******************************************************************************
+*%%%% AntiPiracyUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	AntiPiracyUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Anti Piracy screen.  Wait for fire to be pressed
+*				before continuing.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	AntiPiracyUpdate(MR_VOID)
+{
+
+	// Has fire button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+		{
+		// Yes ... skip to hasbro logo
+		Option_page_request = OPTIONS_PAGE_HASBRO_LOGO;
+		}
+
+}
+
+/******************************************************************************
+*%%%% AntiPiracyShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	AntiPiracyShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Anti Piracy screen.  Kill the 2D sprites.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	AntiPiracyShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Remove piracy sprite from display
+	MRKill2DSprite(Warning_ptr);
+
+}
+
+#endif	// PSX
+
+/******************************************************************************
+*%%%% HasbroLogoStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	HasbroLogoStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Hasbro Logo screen.  Currently does nothing.
+*				Maybe needed later.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	HasbroLogoStartup(MR_VOID)
+{
+
+	// Do nothing ... ( yet !!! )
+
+}
+
+/******************************************************************************
+*%%%% HasbroLogoUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	HasbroLogoUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Hasbro Logo screen.  Start playing the stream
+*				and go on to the next page when this has finished.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	HasbroLogoUpdate(MR_VOID)
+{
+
+	// Locals
+	MR_BOOL			fmv_skipped;
+
+	// Initialise
+	fmv_skipped = FALSE;
+
+#ifdef	PSX_CD_STREAMS
+
+	// Play HASBRO logo video stream
+	fmv_skipped = Play_stream(STR_HASBRO_LOGO);
+
+#endif	// PSX_CD_STREAMS
+
+	// Was logo skipped ?
+	if ( fmv_skipped == TRUE )
+		{
+		// Yes ... go on to memory card read
+		Option_page_request = OPTIONS_PAGE_OPTIONS_SCREEN;
+		}
+	else
+		{
+		// No ... go on to millennium logo
+		Option_page_request = OPTIONS_PAGE_MILLENNIUM_LOGO;
+		}
+
+}
+
+/******************************************************************************
+*%%%% HasbroLogoShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	HasbroLogoShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Hasbro Logo screen.  Currently does nothing.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	HasbroLogoShutdown(MR_VOID)
+{
+
+	// Do nothing ... ( yet!!! )
+
+}
+
+/******************************************************************************
+*%%%% MillenniumLogoStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	MillenniumLogoStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Millennium Logo screen.  Currently does
+*				nothing.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	MillenniumLogoStartup(MR_VOID)
+{
+
+	// Do nothing ... ( yet!!! )
+
+}
+
+/******************************************************************************
+*%%%% MillenniumLogoUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	MillenniumLogoUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Millennium Logo screen.  Start playing the Millennium
+*				logo stream and then go on to the options screen when this returns.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	MillenniumLogoUpdate(MR_VOID)
+{
+
+#ifdef	PSX_CD_STREAMS
+
+	// Play MILLENNIUM logo video stream
+	Play_stream(STR_MILLENNIUM_LOGO);
+
+#endif	// PSX_CD_STREAMS
+
+	// Go on to memory card read
+	Option_page_request = OPTIONS_PAGE_OPTIONS_SCREEN;
+
+}
+
+/******************************************************************************
+*%%%% MillenniumLogoShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	MillenniumLogoShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Millennium Logo screen.  Currently does nothing.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	MillenniumLogoShutdown(MR_VOID)
+{
+
+	// Do nothing ... ( yet!!! )
+
+}
+
+#ifdef WIN95	// Windows specific code ------------------------------------
+
+/******************************************************************************
+*%%%% OptionsGetRegistryStatus
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OptionsGetRegistryStatus(MR_VOID)
+*
+*	FUNCTION	Gets the status of the registry and game saves for the options
+*				screens.  Also opens the registry if the information is present.
+*
+*	NOTES		This function is for windows only, hence the ifdef above.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	21.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID OptionsGetRegistryStatus(MR_VOID)
+{
+
+	// Locals
+	MR_LONG		reg_result;			// Result of call to registry
+
+	// Flag key as not available
+	Save_data_flag = FALSE;
+
+	// Open key for control options
+	reg_result = RegOpenKeyEx(HKEY_CURRENT_USER,"Software\\Millennium Interactive\\Frogger\\Save",0,KEY_ALL_ACCESS,&Save_key);
+
+	// Error ?
+	if ( reg_result == ERROR_SUCCESS )
+		// No ... flag options save data as present
+		Save_data_flag = TRUE;
+
+}
+
+/******************************************************************************
+*%%%% OptionsCloseRegistry
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OptionsCloseRegistry(MR_VOID)
+*
+*	FUNCTION	Closes the registry key that was opened by a call to
+*				OptionsGetRegistryStatus.
+*
+*	NOTES		This function is for windows only, hence the ifdef above.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	21.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID OptionsCloseRegistry(MR_VOID)
+{
+
+	// Was save data present ?
+	if ( Save_data_flag == TRUE )
+		// Yes ... close key
+		RegCloseKey(Save_key);
+
+}
+
+#else	// PSX Specific code ------------------------------------------------
+
+/******************************************************************************
+*%%%% OptionsGetCardStatus
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OptionsGetCardStatus(MR_VOID)
+*
+*	FUNCTION	Gets the status of the memory cards and game saves for the options
+*				screens.
+*
+*	NOTES		This function is for the playstation only, hence the ifdef above.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	21.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID OptionsGetCardStatus(MR_VOID)
+{
+
+	// Locals
+	MR_ULONG		card_status;
+
+	// Flag cards and games as not present
+	Card0_present = FALSE;
+	Card1_present = FALSE;
+	Game0_present = FALSE;
+	Game1_present = FALSE;
+
+	// Get status of memory cards
+#ifdef	PSX_CARD
+	MRDisablePollhost();
+	card_status = Card_test_cards();
+	MREnablePollhost();
+#endif	// PSX_CARD
+
+	// Card available in port 0 ?
+	if ( card_status & TC_FOUND_CARD_0 )
+		{
+		// Yes ... flag card as available
+		Card0_present = TRUE;
+		// Was there a save available on port 0 ?
+		if ( card_status & TC_FOUND_GAME_0 )
+			{
+			// Yes ... flag save as available
+			Game0_present = TRUE;
+			}
+		}
+
+	// Card available in port 1 ?
+	if ( card_status & TC_FOUND_CARD_1 )
+		{
+		// Yes ... flag card as available
+		Card1_present = TRUE;
+		// Was there a save available on port 1 ?
+		if ( card_status & TC_FOUND_GAME_1 )
+			{
+			// Yes ... flag save as available
+			Game1_present = TRUE;
+			}
+		}
+
+}
+
+#endif	// WIN95
+
+/******************************************************************************
+*%%%% OptionsScreenStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OptionsScreenStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Options Screen screen.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	OptionsScreenStartup(MR_VOID)
+{
+
+#ifdef WIN95	// Windows Specific code ------------------------------------
+
+	// Get status of registry and saves for options and high scores
+	OptionsGetRegistryStatus();
+
+#else	// PSX Specific code ------------------------------------------------
+
+	// Get status of cards and saves for options and high scores
+	OptionsGetCardStatus();
+
+#endif	// WIN95
+
+	// Initialise mode
+	Read_status = READ_STATUS_INIT;
+
+}
+
+/******************************************************************************
+*%%%% OptionsScreenUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OptionsScreenUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Options Screen screen
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	OptionsScreenUpdate(MR_VOID)
+{
+
+	// Locals
+#ifdef PSX	// PSX Specific code
+	static	MR_UBYTE			read_save;			// Save to read from
+#endif
+
+	// Depending on mode do ...
+	switch ( Read_status )
+		{
+
+		// Initialise ( under windows, read / under PSX, go on depending on state of memory cards )
+		case READ_STATUS_INIT:
+
+// $wb - Do different things on both systems!!!
+//			WINDOWS read from registry!!!
+//			PSX read from memory cards!!!
+#ifdef WIN95	// Windows Specific code ------------------------------------
+
+			// Was there any save data in the registry ?
+			if ( Save_data_flag == TRUE )
+				{
+				// Yes ... load up save data from registry
+				OptionsLoadSaveData();
+				}
+
+			// Go on to finish
+			Read_status = READ_STATUS_FINISH;
+
+#else	// PSX specific code ------------------------------------------------
+
+//$wb - I'm not sure if we should check the status every frame, but just in case this code is here!!!
+#if 0
+
+			// Get current card status
+			OptionsGetCardStatus();
+
+#endif	//0
+
+			// Are there any memory cards present ?
+			if ( ( Card0_present == TRUE ) || ( Card1_present == TRUE ) )
+				{
+
+				// Yes ... are there any game saves on any cards ?
+				if ( ( Game0_present == TRUE ) || ( Game1_present == TRUE ) )
+					{
+					// Yes ... are they on both ?
+					if ( ( Game0_present == TRUE ) && ( Game1_present == TRUE ) )
+						{
+						// Yes ... go on to ask user which game they want
+						Read_status = READ_STATUS_CHOOSE_GAME_INIT;
+						}
+					else
+						{
+						// No ... is it on card zero ?
+						if ( Game0_present == TRUE )
+							{
+							// Yes ... go on to load game from card 0
+							Read_status = READ_STATUS_LOAD_0;
+							}
+						else
+							{
+							// No ... go on to load game from card 1
+							Read_status = READ_STATUS_LOAD_1;
+							}
+						}
+					}
+				else
+					{
+					// No ... go on to finish
+					Read_status = READ_STATUS_FINISH;
+					}
+				}
+			else
+				{
+				// No ... go on to finish
+				Read_status = READ_STATUS_FINISH;
+				}
+
+#endif	// WIN95
+
+			break;
+
+#ifdef PSX	// PSX Specific code
+
+		// Ask user which game they wish to load ...
+		case READ_STATUS_CHOOSE_GAME_INIT:
+
+			// Initialise text
+			Option_read_text_area[0] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 160, 16);
+			Option_read_text_area[1] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 160, 100, 160, 16);
+			Option_read_text_area[2] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 90, 320, 16);
+
+			MRBuildText(Option_read_text_area[0], Option_read_text_0,		MR_FONT_COLOUR_CADMIUM);
+			MRBuildText(Option_read_text_area[1], Option_read_text_1,		MR_FONT_COLOUR_YELLOW);
+			MRBuildText(Option_read_text_area[2], Option_read_text_title,	MR_FONT_COLOUR_YELLOW);
+
+			// Initialise number of read to load
+			read_save = 0;
+
+			// Go on to main
+			Read_status = READ_STATUS_CHOOSE_GAME_MAIN;
+
+			break;
+
+		// Ask user which game they wish to load ...
+		case READ_STATUS_CHOOSE_GAME_MAIN:
+
+			// Did player push right ?
+			if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_RIGHT) )
+				{
+				// Yes ... are we on save 0 ?
+				if ( read_save == 0 )
+					{
+					// Yes ... go on to save 1
+					read_save = 1;
+					}
+				}
+
+			// Did player push left ?
+			if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_LEFT) )
+				{
+				// Yes ... are we on save 1 ?
+				if ( read_save == 1 )
+					{
+					// Yes ... go on to save 0
+					read_save = 0;
+					}
+				}
+
+			// Did player press fire ?
+			if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS) )
+				{
+				// Yes ... go on to end
+				Read_status = READ_STATUS_CHOOSE_GAME_END;
+				}
+
+			// Is card 0 selected ?
+			if ( read_save == 0 )
+				{
+				// Yes ... reprint display with card 0 highlighted
+				MRBuildText(Option_read_text_area[0], Option_read_text_0,		MR_FONT_COLOUR_CADMIUM);
+				MRBuildText(Option_read_text_area[1], Option_read_text_1,		MR_FONT_COLOUR_YELLOW);
+				}
+			else
+				{
+				// No ... reprint display with card 1 highlighted
+				MRBuildText(Option_read_text_area[0], Option_read_text_0,		MR_FONT_COLOUR_YELLOW);
+				MRBuildText(Option_read_text_area[1], Option_read_text_1,		MR_FONT_COLOUR_CADMIUM);
+				}
+
+			break;
+
+		// Ask user which game they wish to load ...
+		case READ_STATUS_CHOOSE_GAME_END:
+
+			// Free allocated text areas
+			MRFreeTextArea(Option_read_text_area[2]);
+			MRFreeTextArea(Option_read_text_area[1]);
+			MRFreeTextArea(Option_read_text_area[0]);
+
+			// Did player select to load game 0 ?
+			if ( read_save == 0 )
+				{
+				// Yes ... load save 0
+				Read_status = READ_STATUS_LOAD_0;
+				}
+			else
+				{
+				// No ... load save 1
+				Read_status = READ_STATUS_LOAD_1;
+				}
+
+			break;
+
+		// Load game 0 ,,,
+		case READ_STATUS_LOAD_0:
+
+			// Load game in slot 0
+			OptionsLoadSaveData(0);
+
+			// Go on to finish
+			Read_status = READ_STATUS_FINISH;
+
+			break;
+
+		// Load game 1 ...
+		case READ_STATUS_LOAD_1:
+
+			// Load game in slot 1
+			OptionsLoadSaveData(1);
+
+			// Go on to finish
+			Read_status = READ_STATUS_FINISH;
+
+			break;
+
+#endif		// PSX
+
+		// Exit ...
+		case READ_STATUS_FINISH:
+
+			// Go on to intro
+			Option_page_request = OPTIONS_PAGE_INTRO;
+
+			break;
+
+		}
+
+}
+
+/******************************************************************************
+*%%%% OptionsScreenShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OptionsScreenShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Options Screen screen.  Close windows registry
+*				keys.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	OptionsScreenShutdown(MR_VOID)
+{
+
+#ifdef WIN95	// Windows specific code ------------------------------------
+
+	// Close registry
+	OptionsCloseRegistry();
+
+#endif	// WIN95
+
+}
+
+/******************************************************************************
+*%%%% IntroStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	IntroStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Intro screen.  Does nothing at the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	IntroStartup(MR_VOID)
+{
+
+	// Do nothing ... ( yet!!! )
+
+}
+
+/******************************************************************************
+*%%%% IntroUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	IntroUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Intro screen.  Start the FMV stream and go on
+*				to the next screen when this has finished.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	IntroUpdate(MR_VOID)
+{
+
+#ifdef	PSX_CD_STREAMS
+
+	// Play MILLENNIUM logo video stream
+	Play_stream(STR_MILLENNIUM_LOGO);
+
+#endif	// PSX_CD_STREAMS
+
+	// Skip to main options
+	Option_page_request = OPTIONS_PAGE_MAIN_OPTIONS;
+
+}
+
+/******************************************************************************
+*%%%% IntroShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	IntroShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Intro screen.  Does nothing at the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	IntroShutdown(MR_VOID)
+{
+
+	// Do nothing ... ( yet!!! )
+
+}
+
+/******************************************************************************
+*%%%% MainOptionsStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	MainOptionsStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Main Options screen.  Currently just
+*				builds text area for the three choices.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	MainOptionsStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_main_options_text_area[0] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 200, 320, 16);
+	Option_main_options_text_area[1] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 210, 320, 16);
+	Option_main_options_text_area[2] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 220, 320, 16);
+
+	MRBuildText(Option_main_options_text_area[0], Option_main_options_text[0],	MR_FONT_COLOUR_YELLOW);
+	MRBuildText(Option_main_options_text_area[1], Option_main_options_text[0],	MR_FONT_COLOUR_YELLOW);
+	MRBuildText(Option_main_options_text_area[2], Option_main_options_text[0],	MR_FONT_COLOUR_YELLOW);
+
+	// Initialise option number variable
+	Option_number = 0;
+	Main_options_status = MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_INIT;
+
+}
+
+/******************************************************************************
+*%%%% MainOptionsUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	MainOptionsUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Main Options screen.  Currently just reads input,
+*				moves selection and allows the user to exit with there current
+*				selection.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	MainOptionsUpdate(MR_VOID)
+{
+
+	// Locals
+	MR_UBYTE			loop_counter;
+	static	MR_ULONG	demo_time;
+	static	MR_ULONG	score_time;
+	MR_ULONG			i;
+
+	// Depending on mode of operation do ...
+	switch ( Main_options_status )
+		{
+
+		// Initialise a demo level ...
+		case MAIN_OPTIONS_STATUS_DEMO_INIT:
+
+			// Initialise selected demo level
+			Game_map = Demo_level_table[Num_demo_levels_seen];
+			GameStart();
+
+			// Set time to run demo for
+			demo_time = 30*10;
+
+			// Go on to main update
+			Main_options_status = MAIN_OPTIONS_STATUS_DEMO_MAIN;
+
+			break;
+
+		// Run demo level ...
+		case MAIN_OPTIONS_STATUS_DEMO_MAIN:
+
+			// Update demo level
+
+#ifdef PSX	//-psx specific code-----------------------------------------------------------
+			MRDebugStartDisplay();
+			FASTSTACK;
+#else		//-windows specific code-------------------------------------------------------
+			MRClearAllViewportOTs();
+			MRDebugStartDisplay();
+#endif		//-end of specific code--------------------------------------------------------
+
+			MRSetActiveViewport(Game_viewport0);
+			StartHUD();
+
+			MRSNDUpdateSound();
+
+#ifdef WIN95	//-windows specific code-------------------------------------------------------
+				
+			// On the pc we need to lock the frame rate, so here goes a nastyish piece
+			// of code. Note that this code goes around the logic part of this main game loop
+			// and not the render part, which is allowed to go at whatever speed it can manage!
+
+			// Copy frame rate to local version
+			counter = frame_count;
+
+			// Are there any logic frames to do ?
+			if (0 == counter)
+				{
+				// Wait until its time to process the next logic loop
+				// (This locks the frame rate to no more than the timer rate - if this line
+				// is removed the game will run at a zillion fps on high spec machines. However
+				// if the timer goes wrong it could lock up here)
+				while (0 == frame_count);
+				counter = frame_count;
+				}
+				
+			// Reset master frame count
+			frame_count = 0;
+
+			// If we're going really slowly, slow the game down rather than making it hugely jerky
+			if (counter > MAX_LOGIC_LOOPS_PER_RENDER)
+				counter = MAX_LOGIC_LOOPS_PER_RENDER;
+
+			do 	{
+#endif			//-end of specific code--------------------------------------------------------
+				UnlinkEntities();
+				UpdatePathRunners();
+				UpdateLiveEntities();
+				LinkEntities();
+
+				UpdateFrogs();
+				UpdateCameras();
+				MRUpdateObjects();
+				MRUpdateFrames();
+				MRAnimUpdateEnvironments();			// Run the anims.
+				MRUpdateViewportRenderMatrices();
+				UpdateHUD();
+				UpdateScoreSprites();
+				UpdateEffects();
+#ifdef PSX
+				XAUpdate();							// Call Update functions for XA.
+#endif		
+				for (i = 0; i < Game_total_viewports; i++)
+					CreateMapViewList(i);
+				for (i = 0; i < Game_total_viewports; i++)
+					CreateMapGroups(i);
+
+#ifdef WIN95	//-windows specific code-------------------------------------------------------
+				if (MR_CHECK_PAD_PRESSED(1, MRIPD_SELECT))
+					return;
+				SetCaps();
+				MRProcessWindowsMessages(NULL);				
+				} while (0);//--counter);
+#endif			//-end of specific code--------------------------------------------------------
+
+			for (i = 0; i < Game_total_viewports; i++)
+				MRRenderViewport(Game_viewports[i]);
+			for (i = 0; i < Game_total_viewports; i++)
+				{
+				MRSetActiveViewport(Game_viewports[i]);
+				RenderMap(i);
+				}
+
+			MRRenderViewport(Game_viewporth);
+			RenderEffects();
+#ifdef DEBUG
+			// This remains the default viewport for all debug display code
+			MRSetActiveViewport(Game_viewport0);
+#endif
+			Game_timer++;
+
+			if 	(
+				(!(Game_timer % 30)) &&
+				(Game_map_timer)
+				)
+				Game_map_timer--;
+
+#ifdef PSX	//-psx specific code-----------------------------------------------------------
+			UpdateMapDebugDisplay();
+			SLOWSTACK;
+			ProgressMonitor();
+#else		//-windows specific code-------------------------------------------------------
+			UpdateMapDebugDisplay();
+			MRSwapDisplay();
+
+#endif		//-end of specific code--------------------------------------------------------
+ 
+			// Dec time to run demo for
+			demo_time--;
+
+			// End of demo level ?
+			if ( !demo_time )
+				// Yes ... go on to finish
+				Main_options_status = MAIN_OPTIONS_STATUS_DEMO_FINISH;
+
+			break;
+
+		// Finish demo level ...
+		case MAIN_OPTIONS_STATUS_DEMO_FINISH:
+
+			// Deinitialise selected demo level
+			GameEnd();
+
+			// Inc number of demo levels played
+			Num_demo_levels_seen++;
+
+			// Have all demo levels been seen ?
+			if ( Num_demo_levels_seen == MAX_NUM_DEMO_LEVELS )
+				// Yes ... reset to beginning of demo level list
+				Num_demo_levels_seen = 0;
+
+			// Go on to initialise high score mode
+			Main_options_status = MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_INIT;
+
+			break;
+
+		// Initialise high score table view ...
+		case MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_INIT:
+
+			// Initialise for display of high score
+
+			// Initialise time to show for
+			score_time = 30*10;
+
+			// Switch mode to main
+			Main_options_status = MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_MAIN;
+
+			break;
+
+		// Show high score table ...
+		case MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_MAIN:
+
+			// Show
+
+			// Dec time to show for
+			score_time--;
+
+			// End of time ?
+			if ( !score_time )
+				// Yes ... switch mode to finish
+				Main_options_status = MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_FINISH;
+
+			break;
+
+		// Finish high score table view ...
+		case MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_FINISH:
+
+			// Deinitialise display of high scores
+
+			// Choose which demo mode to show
+
+			// Switch mode to start demo
+			Main_options_status = MAIN_OPTIONS_STATUS_DEMO_INIT;
+//			Main_options_status = MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_INIT;
+
+			break;
+
+		}
+
+	// Has up been pressed ?
+	if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, MRIP_UP) )
+		{
+		// Yes ... not at top ?
+		if ( Option_number > 0 )
+			{
+			// Yes ... move option up
+			Option_number--;
+			}
+		else
+			{
+			// No ... reset option to bottom
+			Option_number = NUM_MAIN_OPTIONS_OPTIONS-1;
+			}
+		}
+
+	// Has down been pressed ?
+	if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, MRIP_DOWN) )
+		{
+		// Yes ... not at bottom ?
+		if ( Option_number < (NUM_MAIN_OPTIONS_OPTIONS-1) )
+			{
+			// Yes ... move option down
+			Option_number++;
+			}
+		else
+			{
+			// No ... reset option to top
+			Option_number = 0;
+			}
+		}
+
+	// Loop once for each option
+	for(loop_counter=0;loop_counter<NUM_MAIN_OPTIONS_OPTIONS;loop_counter++)
+		// Reprint option in normal colour
+		MRBuildText(Option_main_options_text_area[loop_counter], Option_main_options_text[loop_counter],	MR_FONT_COLOUR_YELLOW);
+
+	// Show currently selected option
+	MRBuildText(Option_main_options_text_area[Option_number], Option_main_options_text[Option_number],	MR_FONT_COLOUR_CADMIUM);
+
+	// Has fire button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+		{
+		// Yes ... according to option do ...
+		switch ( Option_number )
+			{
+			// Start ...
+			case 0:
+				// Go on to level selection
+//				Option_page_request = OPTIONS_PAGE_WILLS_LEVEL_SELECT;
+				Option_page_request = OPTIONS_PAGE_LEVEL_SELECT;
+				break;
+			// Multiplayer ...
+			case 1:
+#ifdef WIN95
+				// Go on to session options ( if WIN95 )
+				Option_page_request = OPTIONS_PAGE_SESSION_OPTIONS;
+#else
+				// Go on to frog selection ( if PSX )
+				Option_page_request = OPTIONS_PAGE_FROG_SELECTION;
+#endif	// WIN95
+				break;
+			// Options ...
+			case 2:
+				// Go on to main options screen
+				Option_page_request = OPTIONS_PAGE_OPTIONS;
+				break;
+			}
+		}
+}
+
+/******************************************************************************
+*%%%% MainOptionsShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	MainOptionsShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Main Options screen
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	MainOptionsShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text area
+	MRFreeTextArea(Option_main_options_text_area[2]);
+	MRFreeTextArea(Option_main_options_text_area[1]);
+	MRFreeTextArea(Option_main_options_text_area[0]);
+
+	// Were we in demo mode when we quit ?
+	if ( ( Main_options_status == MAIN_OPTIONS_STATUS_DEMO_MAIN ) || ( Main_options_status == MAIN_OPTIONS_STATUS_DEMO_FINISH ) )
+		{
+		// Yes ... shut down demo
+		GameEnd();
+		}
+
+}
+
+/******************************************************************************
+*%%%% SessionOptionsStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	SessionOptionsStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Session Options screen
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	SessionOptionsStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_session_options_text_area = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 320, 16);
+	MRBuildText(Option_session_options_text_area, Option_session_options_text_title,	MR_FONT_COLOUR_YELLOW);
+
+}
+
+/******************************************************************************
+*%%%% SessionOptionsUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	SessionOptionsUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Session Options screen
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	SessionOptionsUpdate(MR_VOID)
+{
+
+	// Has fire button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+		{
+		// Yes ... skip to frog selection
+		Option_page_request = OPTIONS_PAGE_FROG_SELECTION;
+		}
+
+}
+
+/******************************************************************************
+*%%%% SessionOptionsShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	SessionOptionsShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Session Options screen
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	SessionOptionsShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text area
+	MRFreeTextArea(Option_session_options_text_area);
+
+}
+
+/******************************************************************************
+*%%%% FrogSelectionStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	FrogSelectionStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Frog Selection screen
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	FrogSelectionStartup(MR_VOID)
+{
+
+	// Locals
+	MR_ULONG		loop_counter;
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_frog_selection_text_area[0] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 60, 192, 16);
+	Option_frog_selection_text_area[1] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 192, 60, 192, 16);
+	Option_frog_selection_text_area[2] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 180, 192, 16);
+	Option_frog_selection_text_area[3] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 192, 180, 192, 16);
+	Option_frog_selection_text_area[4] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 70, 192, 16);
+	Option_frog_selection_text_area[5] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 192, 70, 192, 16);
+	Option_frog_selection_text_area[6] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 190, 192, 16);
+	Option_frog_selection_text_area[7] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 192, 190, 192, 16);
+
+	// Display text about status of each player
+	MRBuildText(Option_frog_selection_text_area[0], Option_frog_selection_text[0],	MR_FONT_COLOUR_BLUE);
+	MRBuildText(Option_frog_selection_text_area[1], Option_frog_selection_text[0],	MR_FONT_COLOUR_BLUE);
+	MRBuildText(Option_frog_selection_text_area[2], Option_frog_selection_text[0],	MR_FONT_COLOUR_BLUE);
+	MRBuildText(Option_frog_selection_text_area[3], Option_frog_selection_text[0],	MR_FONT_COLOUR_BLUE);
+	MRBuildText(Option_frog_selection_text_area[4], Option_frog_selection_text[4],	MR_FONT_COLOUR_BLUE);
+	MRBuildText(Option_frog_selection_text_area[5], Option_frog_selection_text[4],	MR_FONT_COLOUR_BLUE);
+	MRBuildText(Option_frog_selection_text_area[6], Option_frog_selection_text[4],	MR_FONT_COLOUR_BLUE);
+	MRBuildText(Option_frog_selection_text_area[7], Option_frog_selection_text[4],	MR_FONT_COLOUR_BLUE);
+
+	// Get address of Frog model
+	Frog_anim_model_ptr = MR_GET_RESOURCE_ADDR(RES_GEN_FROG_XAR);
+	MR_ASSERT(Frog_anim_model_ptr!=NULL);
+
+	// Loop once for each player
+	for(loop_counter=0;loop_counter<4;loop_counter++)
+		{
+
+		// Create frame for Frog model
+		Frog_anim_frames_ptr[loop_counter] = MRCreateFrame(&Frog_anim_position[loop_counter],&MRNull_svec,0);
+
+		// Create frogs and add to viewport
+		Frog_anim_env_ptr[loop_counter] = MRAnimEnvSingleCreateWhole(Frog_anim_model_ptr,0,/*MR_OBJ_STATIC*/0,Frog_anim_frames_ptr[loop_counter]);
+
+		// Try and make the Frog anim a ONE SHOT.
+		Frog_anim_env_ptr[loop_counter]->ae_flags |= MR_ANIM_ENV_ONE_SHOT;
+
+		// Set a default animation action of zero, default behaviour so to speak
+		MRAnimEnvSingleSetAction(Frog_anim_env_ptr[loop_counter], 0);
+
+		// Attach to game viewports
+		Frog_anim_inst_ptr[loop_counter] = MRAnimAddEnvToViewport(Frog_anim_env_ptr[loop_counter],Option_viewport_ptr,0);
+
+		// Half base colour of player's Frog
+
+		// Clear animation count ( ready to start new animation )
+		Frog_selection_animation_count[loop_counter] = 0;
+
+		}
+
+	// Initialise master flags as MASTER not set
+	Frog_selection_master_flags = FROG_SELECTION_NO_MASTER;
+
+}
+
+/******************************************************************************
+*%%%% FrogSelectionOptionsUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	FrogSelectionUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Frog Selection screen
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	FrogSelectionUpdate(MR_VOID)
+{
+
+	// Locals
+	MR_ULONG			loop_counter;
+	MR_BOOL				all_frogs_selected_flag;
+	static MR_SVEC		rot;
+
+	// Flag all Players joined as having selected a Frog
+	all_frogs_selected_flag = TRUE;
+
+	// Initialise rotation
+	rot.vx = 0;
+	rot.vy += 100;
+	rot.vy &= 4095;
+	rot.vz = 0;
+
+	// Loop once for each active player
+	for(loop_counter=0;loop_counter<4;loop_counter++)
+		{
+
+		// Are we currently animating this Frog ?
+		if ( Frog_selection_animation_count[loop_counter] )
+			// Yes ... dec animation count
+			Frog_selection_animation_count[loop_counter]--;
+
+		// Rotate this Frog
+		MRRotMatrix(&rot,&Frog_anim_frames_ptr[loop_counter]->fr_matrix);
+
+		// Has this player joined the game ?
+		if ( !(Frog_selection_master_flags & (FROG_SELECTION_PLAYER1_JOINED<<loop_counter)) )
+			{
+
+			// No ... has player pressed fire ?
+			if ( MR_CHECK_PAD_PRESSED(Frog_input_ports[loop_counter], FRR_CROSS) )
+				{
+
+				// Yes ... flag player as joined
+				Frog_selection_master_flags |= (FROG_SELECTION_PLAYER1_JOINED<<loop_counter);
+
+				// Up base colour of player's Frog
+			
+				MRBuildText(Option_frog_selection_text_area[loop_counter], Option_frog_selection_text[1],	MR_FONT_COLOUR_YELLOW);
+
+				// Is this the first player to join ?
+				if ( Frog_selection_master_flags & FROG_SELECTION_NO_MASTER )
+					{
+					// Yes ... flag as master
+					Frog_selection_master_flags &= ~FROG_SELECTION_NO_MASTER;
+					Frog_selection_master_flags |= (FROG_SELECTION_PLAYER1_MASTER<<loop_counter);
+					}
+
+				}
+			}
+		else
+			{
+			// Yes ... are we currently cowering ?
+			if ( Frog_selection_master_flags & (FROG_SELECTION_PLAYER1_COWERING<<loop_counter) )
+				{
+				// Yes ... end of cowering ?
+				if ( !Frog_selection_animation_count[loop_counter] )
+					{
+					// Yes ... clear cowering flag
+					Frog_selection_master_flags &= ~(FROG_SELECTION_PLAYER1_COWERING<<loop_counter);
+
+					// Are we current master ?
+					if ( Frog_selection_master_flags & (FROG_SELECTION_PLAYER1_MASTER<<loop_counter) )
+						{
+						// Yes ... clear master up for grabs
+						Frog_selection_master_flags &= ~FROG_SELECTION_MASTER_WANTED;
+						}
+					}
+				}
+			else
+				{
+				// No ... are we currently growling ?
+				if ( Frog_selection_master_flags & (FROG_SELECTION_PLAYER1_GROWLING<<loop_counter) )
+					{
+					// Yes ...  end of growling ?
+					if ( !Frog_selection_animation_count[loop_counter] )
+						{
+						// Yes ... clear growling flag
+						Frog_selection_master_flags &= ~(FROG_SELECTION_PLAYER1_GROWLING<<loop_counter);
+						}
+					}
+				else
+					{
+					// No ... at end of current animation ?
+					if ( !Frog_selection_animation_count[loop_counter] )
+						{
+						// Yes ... time to trigger new animation
+						if ( rand()%50 == 1 )
+							{
+							// Yes ... set animation
+							MRAnimEnvSingleSetAction(Frog_anim_env_ptr[loop_counter], rand()%8);
+							// Set animation count
+							Frog_selection_animation_count[loop_counter] = 10;
+							}
+						}
+					}
+				}
+
+			// Did player push down ?
+			if ( MR_CHECK_PAD_PRESSED(Frog_input_ports[loop_counter], FRR_DOWN) )
+				{
+
+				// Yes ... flag Frog as cowering
+				Frog_selection_master_flags |= (FROG_SELECTION_PLAYER1_COWERING<<loop_counter);
+
+				// Set animation
+
+				// Set animation count
+				Frog_selection_animation_count[loop_counter] = NUM_FRAMES_COWERING_ANIMATION;
+
+				// Are we the master ?
+				if ( Frog_selection_master_flags & (FROG_SELECTION_PLAYER1_MASTER<<loop_counter) )
+					{
+					// Yes ... put master flag up for grabs
+					Frog_selection_master_flags |= FROG_SELECTION_MASTER_WANTED;
+					}
+
+				}
+
+			// Did player push up ?
+			if ( MR_CHECK_PAD_PRESSED(Frog_input_ports[loop_counter], FRR_UP) )
+				{
+				// Yes ... flag Frog as growling
+				Frog_selection_master_flags |= (FROG_SELECTION_PLAYER1_GROWLING<<loop_counter);
+
+				// Set animation
+
+				// Set animation count
+				Frog_selection_animation_count[loop_counter] = NUM_FRAMES_GROWLING_ANIMATION;
+
+				// Is the master flag up for grabs ?
+				if ( Frog_selection_master_flags & FROG_SELECTION_MASTER_WANTED )
+					{
+					// Yes ... clear current master
+					Frog_selection_master_flags &= ~FROG_SELECTION_ALL_MASTERS;
+					// Clear master for grabs
+					Frog_selection_master_flags &= ~FROG_SELECTION_MASTER_WANTED;
+					// Set this player as new master
+					Frog_selection_master_flags |= (FROG_SELECTION_PLAYER1_MASTER<<loop_counter);
+					}
+				}
+
+			// Has player already selected frog ?
+			if ( !(Frog_selection_master_flags & (FROG_SELECTION_PLAYER1_FROG_SELECTED<<loop_counter)) )
+				{
+
+				// No ... has player pushed right ?
+				if ( MR_CHECK_PAD_PRESSED(Frog_input_ports[loop_counter], FRR_RIGHT) )
+					{
+					// Yes ... inc frog number
+					}
+
+				// Has player pushed left ?
+				if ( MR_CHECK_PAD_PRESSED(Frog_input_ports[loop_counter], FRR_LEFT) )
+					{
+					// Yes ... dec frog number
+					}
+
+				// Did player push fire ?
+				if ( MR_CHECK_PAD_PRESSED(Frog_input_ports[loop_counter], FRR_CROSS) )
+					{
+					// Yes ... flag frog as selected
+					Frog_selection_master_flags |= (FROG_SELECTION_PLAYER1_FROG_SELECTED<<loop_counter);
+
+					MRBuildText(Option_frog_selection_text_area[loop_counter], Option_frog_selection_text[2],	MR_FONT_COLOUR_YELLOW);
+
+					}
+
+				}
+			}
+
+		// Has this frog joined game ?
+		if ( Frog_selection_master_flags & (FROG_SELECTION_PLAYER1_JOINED<<loop_counter) )
+			{
+			// Yes ... has it chosen a frog ?
+			if ( !(Frog_selection_master_flags & (FROG_SELECTION_PLAYER1_FROG_SELECTED<<loop_counter)) )
+				{
+				// No ... flag exit as not possible
+				all_frogs_selected_flag = FALSE;
+				}
+			}
+
+		}
+
+	// Has the master been selected ?
+	if ( !(Frog_selection_master_flags & FROG_SELECTION_NO_MASTER) )
+		{
+		// Yes ... do particle effects around master player
+
+		MRBuildText(Option_frog_selection_text_area[4], Option_frog_selection_text[4],	MR_FONT_COLOUR_BLUE);
+		MRBuildText(Option_frog_selection_text_area[5], Option_frog_selection_text[4],	MR_FONT_COLOUR_BLUE);
+		MRBuildText(Option_frog_selection_text_area[6], Option_frog_selection_text[4],	MR_FONT_COLOUR_BLUE);
+		MRBuildText(Option_frog_selection_text_area[7], Option_frog_selection_text[4],	MR_FONT_COLOUR_BLUE);
+
+		// Player 1 master ?
+		if ( Frog_selection_master_flags & FROG_SELECTION_PLAYER1_MASTER )
+			// Yes ... print master text
+			MRBuildText(Option_frog_selection_text_area[4], Option_frog_selection_text[3],	MR_FONT_COLOUR_CYAN);
+		// Player 2 master ?
+		if ( Frog_selection_master_flags & FROG_SELECTION_PLAYER2_MASTER )
+			// Yes ... print master text
+			MRBuildText(Option_frog_selection_text_area[5], Option_frog_selection_text[3],	MR_FONT_COLOUR_CYAN);
+		// Player 3 master ?
+		if ( Frog_selection_master_flags & FROG_SELECTION_PLAYER3_MASTER )
+			// Yes ... print master text
+			MRBuildText(Option_frog_selection_text_area[6], Option_frog_selection_text[3],	MR_FONT_COLOUR_CYAN);
+		// Player 4 master ?
+		if ( Frog_selection_master_flags & FROG_SELECTION_PLAYER4_MASTER )
+			// Yes ... print master text
+			MRBuildText(Option_frog_selection_text_area[7], Option_frog_selection_text[3],	MR_FONT_COLOUR_CYAN);
+
+		}
+
+	// Have all current player's selected there Frogs and there is a master Frog ?
+	if ( ( all_frogs_selected_flag == TRUE ) && (!(Frog_selection_master_flags & FROG_SELECTION_NO_MASTER)) )
+		{
+		// Yes ... loop once for each possible player
+		for(loop_counter=0;loop_counter<4;loop_counter++)
+			{
+			// Is this player the master ?
+			if ( Frog_selection_master_flags & (FROG_SELECTION_PLAYER1_MASTER<<loop_counter) )
+				{
+				// Yes ... have they pressed fire ?
+				if ( MR_CHECK_PAD_PRESSED(Frog_input_ports[loop_counter], FRR_START) )
+					{
+					// Yes ... go on to level select
+//					Option_page_request = OPTIONS_PAGE_WILLS_LEVEL_SELECT;
+					Option_page_request = OPTIONS_PAGE_LEVEL_SELECT;
+					}
+				}
+			}
+		}
+
+}
+
+/******************************************************************************
+*%%%% FrogSelectionShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	FrogSelectionShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Frog Selection screen
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	FrogSelectionShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text areas
+	MRFreeTextArea(Option_frog_selection_text_area[7]);
+	MRFreeTextArea(Option_frog_selection_text_area[6]);
+	MRFreeTextArea(Option_frog_selection_text_area[5]);
+	MRFreeTextArea(Option_frog_selection_text_area[4]);
+	MRFreeTextArea(Option_frog_selection_text_area[3]);
+	MRFreeTextArea(Option_frog_selection_text_area[2]);
+	MRFreeTextArea(Option_frog_selection_text_area[1]);
+	MRFreeTextArea(Option_frog_selection_text_area[0]);
+
+}
+
+/******************************************************************************
+*%%%% ContinueStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ContinueStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Continue screen.  Currently sets up
+*				text areas for continue code.  Also initialises the count down
+*				allowed to select continue choice in.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	ContinueStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_continue_text_area[0] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 160, 16);
+	Option_continue_text_area[1] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 160, 100, 160, 16);
+	Option_continue_text_area[2] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 90, 320, 16);
+
+	MRBuildText(Option_continue_text_area[0], Option_continue_text_yes,		MR_FONT_COLOUR_CADMIUM);
+	MRBuildText(Option_continue_text_area[1], Option_continue_text_no,		MR_FONT_COLOUR_YELLOW);
+	MRBuildText(Option_continue_text_area[2], Option_continue_text_time,	MR_FONT_COLOUR_YELLOW);
+
+	// Initialise count down
+	Options_count_down_ticks = NUM_CONTINUE_TICKS;
+	Options_count_down_units = NUM_CONTINUE_UNITS;
+
+	// Initialise current selection to yes
+	Option_number = 0;
+
+}
+
+/******************************************************************************
+*%%%% ContinueUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ContinueUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Continue screen.  Checks for game complete or game
+*				over before allowing continue to proceed.  Continue will then count
+*				down a timer whilst allowing the player to select yes or no.  If the
+*				time runs out or the player presses fire then the relevant page is
+*				selected.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	ContinueUpdate(MR_VOID)
+{
+
+	// Have they exited the level to go back to the level select ?
+	if ( 0 == 1 )
+		{
+		// Yes ... return to the level select
+//		Option_page_request = OPTIONS_PAGE_WILLS_LEVEL_SELECT;
+		Option_page_request = OPTIONS_PAGE_LEVEL_SELECT;
+		}
+
+	// Have we completed the game ?
+	if ( 0 == 1 )
+		{
+		// Yes ... go to outro
+		Option_page_request = OPTIONS_PAGE_OUTRO;
+		}
+
+	// Are there any continues left ?
+	if ( !Num_continues )
+		{
+		// No ... go to game over
+		Option_page_request = OPTIONS_PAGE_GAME_OVER;
+		}
+
+	// Dec ticks
+	Options_count_down_ticks--;
+
+	// Ticks zero ?
+	if ( !Options_count_down_ticks )
+		{
+		// Do we have any continue units left ?
+		if ( Options_count_down_units )
+			{
+			// Yes ... dec continue units
+			Options_count_down_units--;
+			// Reset ticks count
+			Options_count_down_ticks = NUM_CONTINUE_TICKS;
+			}
+		}
+
+	// Do we still have continue time left ?
+	if ( Options_count_down_units || Options_count_down_ticks )
+		{
+
+		// Yes ... did player push right ?
+		if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, MRIP_RIGHT) )
+			{
+			// Yes ... were we on yes ?
+			if ( Option_number == 0 )
+				{
+				// Yes ... go to no
+				Option_number = 1;
+				}
+			else
+				{
+				// No ... go to yes
+				Option_number = 0;
+				}
+			}
+
+		// Did player push left ?
+		if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, MRIP_LEFT) )
+			{
+			// Yes ... were we on no ?
+			if ( Option_number == 1 )
+				{
+				// Yes ... go to yes
+				Option_number = 0;
+				}
+			else
+				{
+				// No ... go to no
+				Option_number = 1;
+				}
+			}
+
+		// Did player push fire ?
+		if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS) )
+			{
+			// Yes ... were we on yes ?
+			if ( Option_number == 0 )
+				{
+				// Yes ... go back to level select
+//				Option_page_request = OPTIONS_PAGE_WILLS_LEVEL_SELECT;
+				Option_page_request = OPTIONS_PAGE_LEVEL_SELECT;
+				}
+			else
+				{
+				// No ... go to game over
+				Option_page_request = OPTIONS_PAGE_GAME_OVER;
+				}
+			}
+		}
+	else
+		{
+		// No ... were we on yes ?
+		if ( Option_number == 0 )
+			{
+			// Yes ... go back to game
+//			Option_page_request = OPTIONS_PAGE_WILLS_LEVEL_SELECT;
+			Option_page_request = OPTIONS_PAGE_LEVEL_SELECT;
+			}
+		else
+			{
+			// No ... go to game over
+			Option_page_request = OPTIONS_PAGE_GAME_OVER;
+			}
+		}
+
+	// Is yes selected ?
+	if ( Option_number == 0 )
+		{
+		// Yes ... display "YES" in selected colour
+		MRBuildText(Option_continue_text_area[0], Option_continue_text_yes,	MR_FONT_COLOUR_CADMIUM);
+		// Display "NO" in deselected colour
+		MRBuildText(Option_continue_text_area[1], Option_continue_text_no,	MR_FONT_COLOUR_YELLOW);
+		}
+	else
+		{
+		// No ... display "NO" in selected colour
+		MRBuildText(Option_continue_text_area[1], Option_continue_text_no,	MR_FONT_COLOUR_CADMIUM);
+		// Display "YES" in deselected colour
+		MRBuildText(Option_continue_text_area[0], Option_continue_text_yes,	MR_FONT_COLOUR_YELLOW);
+		}
+
+	// Update timer text
+	MRBuildText(Option_continue_text_area[2], Option_continue_text_time,	MR_FONT_COLOUR_YELLOW);
+
+}
+
+/******************************************************************************
+*%%%% ContinueShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ContinueShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Continue screen.  Currently just frees the
+*				allocated text areas.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	ContinueShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text area
+	MRFreeTextArea(Option_continue_text_area[2]);
+	MRFreeTextArea(Option_continue_text_area[1]);
+	MRFreeTextArea(Option_continue_text_area[0]);
+
+}
+
+/******************************************************************************
+*%%%% GameOverStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	GameOverStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Game Over screen.  Currently just initialises
+*				the text and time.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	GameOverStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_game_over_text_area = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 320, 16);
+	MRBuildText(Option_game_over_text_area, Option_game_over_text_title,	MR_FONT_COLOUR_YELLOW);
+
+	// Initialise count down
+	Options_count_down_ticks = NUM_GAME_OVER_TICKS;
+	Options_count_down_units = NUM_GAME_OVER_UNITS;
+
+}
+
+/******************************************************************************
+*%%%% GameOverUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	GameOverUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Game Over screen.  Waits for button press or time
+*				limit before going on to high score input.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	GameOverUpdate(MR_VOID)
+{
+
+	// Dec ticks
+	Options_count_down_ticks--;
+
+	// Ticks zero ?
+	if ( !Options_count_down_ticks )
+		{
+		// Yes ... do we have any units left ?
+		if ( Options_count_down_units )
+			{
+			// Yes ... dec units
+			Options_count_down_units--;
+			// Reset ticks count
+			Options_count_down_ticks = NUM_GAME_OVER_TICKS;
+			}
+		}
+
+	// Do we still have time left ?
+	if ( Options_count_down_units || Options_count_down_ticks )
+		{
+		// Yes ... has fire button been pressed ?
+		if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+			{
+			// Yes ... skip to high score input
+			Option_page_request = OPTIONS_PAGE_HIGH_SCORE_INPUT;
+			}
+		}
+	else
+		{
+		// No ... go to high score input any way!!!
+		Option_page_request = OPTIONS_PAGE_HIGH_SCORE_INPUT;
+		}
+
+}
+
+/******************************************************************************
+*%%%% GameOverShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	GameOverShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Game Over screen
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	GameOverShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text area
+	MRFreeTextArea(Option_game_over_text_area);
+
+}
+
+/******************************************************************************
+*%%%% OutroStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OutroStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Outro screen.  Currently does nothing.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	OutroStartup(MR_VOID)
+{
+
+	// Does nothing ... ( yet!!! )
+
+}
+
+/******************************************************************************
+*%%%% OutroUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OutroUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Outro screen.  Starts video stream and exits when
+*				button pressed or stream finished.  Then goes on
+*			to either standard or extended credits depending on type of
+*			outro shown.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	OutroUpdate(MR_VOID)
+{
+
+
+	// Did we complete just the first 8 levels ?
+	if ( 1 == 1 )
+		{
+
+		// Is this the first time we have completed first 8 levels ?
+		if ( 1 == 1 )
+			{
+
+#ifdef	PSX_CD_STREAMS
+
+			// Yes ... play Outro video stream for completing first 8 levels
+			Play_stream(STR_HASBRO_LOGO);
+
+#endif	// PSX_CD_STREAMS
+
+			// Go on to standard credits
+			Option_page_request = OPTIONS_PAGE_STD_CREDITS;
+
+			}
+		else
+			{
+
+			// No ... do something else instead
+			MRPrintf("\nCompleted first 8 levels, but already seen outro!!!\n");
+
+			// Go on to standard credits
+			Option_page_request = OPTIONS_PAGE_STD_CREDITS;
+
+			}
+
+		}
+	else
+		{
+
+#ifdef	PSX_CD_STREAMS
+
+		// Play Outro video stream for completing all 10 levels
+		Play_stream(STR_HASBRO_LOGO);
+
+#endif	// PSX_CD_STREAMS
+
+		// Go on to extended credits
+		Option_page_request = OPTIONS_PAGE_EXT_CREDITS;
+
+
+		}
+
+}
+
+/******************************************************************************
+*%%%% OutroShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OutroShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Outro screen.  Currently does nothing.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	OutroShutdown(MR_VOID)
+{
+
+	// Does nothing ... ( yet!!! )
+
+}
+
+/******************************************************************************
+*%%%% StdCreditsStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	StdCreditsStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for standard Credits screen, as seen from
+*			from options and eight level outro.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	StdCreditsStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_credits_text_area = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 320, 16);
+	MRBuildText(Option_credits_text_area, Option_std_credits_text_title,	MR_FONT_COLOUR_YELLOW);
+
+}
+
+/******************************************************************************
+*%%%% StdCreditsUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	StdCreditsUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for standard Credits screen.  Waits for fire button before
+*				either returning to options or going on to high score input.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	StdCreditsUpdate(MR_VOID)
+{
+
+
+	// Has fire button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+		{
+		// Were did we come from ?  Was it options ?
+		if ( From_options == TRUE )
+			{
+			// Yes ... return to options
+			Option_page_request = OPTIONS_PAGE_OPTIONS;
+			}
+		else
+			{
+			// No ... skip to high score input
+			Option_page_request = OPTIONS_PAGE_HIGH_SCORE_INPUT;
+			}
+		}
+
+}
+
+/******************************************************************************
+*%%%% StdCreditsShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	StdCreditsShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for standard Credits screen.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	StdCreditsShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text area
+	MRFreeTextArea(Option_credits_text_area);
+
+}
+
+/******************************************************************************
+*%%%% ExtCreditsStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ExtCreditsStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for extended Credits screen, as seen
+*			exclusively from ten level outro.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	ExtCreditsStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_credits_text_area = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 320, 16);
+	MRBuildText(Option_credits_text_area, Option_ext_credits_text_title,	MR_FONT_COLOUR_YELLOW);
+
+}
+
+/******************************************************************************
+*%%%% ExtCreditsUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ExtCreditsUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for extended Credits screen.  Waits for fire button before
+*			going on to high score input.
+*
+*	NOTES		As well as doing normal credits, this extended credits also
+*			introduces the characters that belong to the game.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	ExtCreditsUpdate(MR_VOID)
+{
+
+
+	// Has fire button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+		{
+			// Yes ... skip to high score input
+			Option_page_request = OPTIONS_PAGE_HIGH_SCORE_INPUT;
+		}
+
+}
+
+/******************************************************************************
+*%%%% ExtCreditsShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ExtCreditsShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for extended Credits screen.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	ExtCreditsShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text area
+	MRFreeTextArea(Option_credits_text_area);
+
+}
+
+/******************************************************************************
+*%%%% HighScoreInputStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	HighScoreInputStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for High Score Input screen.  Sets up text
+*				for displaying.  Initialise players initials.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	HighScoreInputStartup(MR_VOID)
+{
+
+	// Locals
+	MR_UBYTE		loop_counter;
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_high_score_input_text_area[0] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 320, 16);
+	Option_high_score_input_text_area[1] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 110, 320, 16);
+
+	Option_high_score_input_text_area[2] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 140, 120, 320, 16);
+	Option_high_score_input_text_area[3] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 156, 120, 320, 16);
+	Option_high_score_input_text_area[4] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 172, 120, 320, 16);
+
+	MRBuildText(Option_high_score_input_text_area[0], Option_high_score_input_text_title,			MR_FONT_COLOUR_YELLOW);
+	MRBuildText(Option_high_score_input_text_area[1], Option_high_score_input_text_selection[13],	MR_FONT_COLOUR_BLUE);
+
+	MRBuildText(Option_high_score_input_text_area[2], Option_high_score_input_text_initials[0],		MR_FONT_COLOUR_CYAN);
+	MRBuildText(Option_high_score_input_text_area[2], Option_high_score_input_text_initials[1],		MR_FONT_COLOUR_CYAN);
+	MRBuildText(Option_high_score_input_text_area[2], Option_high_score_input_text_initials[2],		MR_FONT_COLOUR_CYAN);
+
+	// Initialise
+	High_score_input_pos = 13;
+	High_score_initial_pos = 0;
+
+	for(loop_counter=0;loop_counter<MAX_NUM_HIGH_SCORE_INITIALS;loop_counter++)
+		*Option_high_score_input_text_initials[loop_counter][0] = 'A';
+
+}
+
+/******************************************************************************
+*%%%% HighScoreInputUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	HighScoreInputUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for High Score Input screen.  Automatically skips if
+*				the player does not have a new high score.  Pressing left or right
+*				cycles through the selections available.  Then fire will select
+*				the selection and place it in to the current initial.  Once all
+*				initials are full, END will be automatically selected.  As soon
+*				as END is selected this input will exit.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	HighScoreInputUpdate(MR_VOID)
+{
+
+	// Locals
+	MR_UBYTE		loop_counter;
+
+	// Did we get a new high score ?
+	if ( 1 == 0 )
+		{
+		// No ... skip to high score view
+		Option_page_request = OPTIONS_PAGE_HIGH_SCORE_VIEW;
+		}
+
+	// Did we push right ?
+	if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_RIGHT) )
+		{
+		// Yes ... are we at right edge ?
+		if ( High_score_input_pos < (MAX_NUM_HIGH_SCORE_CHARACTERS-1) )
+			{
+			// No ... move cursor right
+			High_score_input_pos++;
+			}
+		}
+
+	// Did we push left ?
+	if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_LEFT) )
+		{
+		// Yes ... are we at left edge ?
+		if ( High_score_input_pos )
+			{
+			// No ... move cursor left
+			High_score_input_pos--;
+			}
+		}
+
+	// Has fire button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+		{
+		// Yes ... are we on end ?
+		if ( High_score_input_pos == HIGH_SCORE_END )
+			{
+			// Yes ... skip to high score view
+			Option_page_request = OPTIONS_PAGE_HIGH_SCORE_VIEW;
+			}
+		// Are we on space ?
+		else if ( High_score_input_pos == HIGH_SCORE_SPACE )
+			{
+			// Yes ... are we at a valid position ?
+			if ( High_score_initial_pos < MAX_NUM_HIGH_SCORE_INITIALS )
+				{
+				// Yes ... store character
+				*Option_high_score_input_text_initials[High_score_initial_pos][0] = ' ';
+				// Inc initial position
+				High_score_initial_pos++;
+				}
+			}
+		// Are we on rub ?
+		else if ( High_score_input_pos == HIGH_SCORE_RUB )
+			{
+			// Yes ... blank current initial
+			*Option_high_score_input_text_initials[High_score_initial_pos][0] = ' ';
+
+			// Are we still on first character ?
+			if ( High_score_initial_pos )
+				{
+				// No ... move cursor back
+				High_score_initial_pos--;
+				}
+			}
+		// Enter letter
+		else
+			{
+			// Store character
+			*Option_high_score_input_text_initials[High_score_initial_pos][0] = High_score_input_pos + 65;
+
+			// Inc position ?
+			if ( High_score_initial_pos < (MAX_NUM_HIGH_SCORE_INITIALS-1) )
+				{
+				// Yes ... inc initial position
+				High_score_initial_pos++;
+				}
+			else
+				{
+				// No ... move selection automatically to END
+				High_score_input_pos = HIGH_SCORE_END;
+				}
+			}
+		}
+
+// Display screen
+	// Display currently selected letter
+	MRBuildText(Option_high_score_input_text_area[1], Option_high_score_input_text_selection[High_score_input_pos],	MR_FONT_COLOUR_BLUE);
+
+	// Display player's current letter
+	for(loop_counter=0;loop_counter<3;loop_counter++)
+		{
+		// Is this letter currently being edited ?
+		if ( High_score_initial_pos == loop_counter )
+			{
+			// Yes ... display ?
+			if ( MRFrame_number & 1 )
+				{
+				// Yes ... display text
+				MRBuildText(Option_high_score_input_text_area[2+loop_counter], Option_high_score_input_text_initials[loop_counter],						MR_FONT_COLOUR_CYAN);
+				}
+			else
+				{
+				// No ... blank text area
+				MRBuildText(Option_high_score_input_text_area[2+loop_counter], Option_high_score_input_text_initials[3],								MR_FONT_COLOUR_CYAN);
+				}
+			}
+		else
+			{
+			// No ... just display text
+			MRBuildText(Option_high_score_input_text_area[2+loop_counter], Option_high_score_input_text_initials[loop_counter],						MR_FONT_COLOUR_CYAN);
+			}
+		}
+
+}
+
+/******************************************************************************
+*%%%% HighScoreInputShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	HighScoreInputShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for High Score Input screen.  Just frees the text
+*				area.  Eventually this will store the player's name and score into
+*				the high score table.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	HighScoreInputShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text area
+	MRFreeTextArea(Option_high_score_input_text_area[0]);
+	MRFreeTextArea(Option_high_score_input_text_area[1]);
+	MRFreeTextArea(Option_high_score_input_text_area[2]);
+	MRFreeTextArea(Option_high_score_input_text_area[3]);
+	MRFreeTextArea(Option_high_score_input_text_area[4]);
+
+	// Store initials and score away in high score table
+
+}
+
+/******************************************************************************
+*%%%% HighScoreViewStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	HighScoreViewStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for High Score View screen.  Just allocates
+*				text areas and builds some text.  Also initialises the high score
+*				stack and table currently being viewed.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	HighScoreViewStartup(MR_VOID)
+{
+
+	// Locals
+	MR_ULONG		loop_counter;
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_high_score_view_text_area[0] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 30, 320, 16); 	// "HIGH SCORE VIEW"
+
+	Option_high_score_view_text_area[1] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 50, 320, 16); 	// "STACK NAME"
+	Option_high_score_view_text_area[2] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 60, 320, 16); 	// "WORLD NAME"
+	Option_high_score_view_text_area[3] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 70, 320, 16); 	// "LEVEL NUMBER"
+
+	// Loop once for each entry in high score table
+	for(loop_counter=0;loop_counter<NUM_HIGH_SCORE_ENTRIES_PER_TABLE;loop_counter++)
+		// Allocate text area
+		Option_high_score_view_text_area[4+loop_counter] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 110+(loop_counter*10), 320, 16); 	// High Score Entry ?
+
+	MRBuildText(Option_high_score_view_text_area[0], Option_high_score_view_text_title,	MR_FONT_COLOUR_YELLOW);
+
+	MRBuildText(Option_high_score_view_text_area[1], Option_high_score_view_text_stack_name[High_score_stack],		MR_FONT_COLOUR_YELLOW);
+	MRBuildText(Option_high_score_view_text_area[2], Option_high_score_view_text_world_name[High_score_table/5],	MR_FONT_COLOUR_YELLOW);
+	MRBuildText(Option_high_score_view_text_area[3], Option_high_score_view_text_level_number[High_score_table%5],	MR_FONT_COLOUR_YELLOW);
+
+	// Initialise high score table display entries
+/*	for(loop_counter=0;loop_counter<NUM_HIGH_SCORE_ENTRIES_PER_TABLE;loop_counter++)
+		{
+		Option_high_score_view_text_entry[0+loop_counter] = ;
+		}*/
+
+	// Loop once for each entry in table
+	for(loop_counter=0;loop_counter<NUM_HIGH_SCORE_ENTRIES_PER_TABLE;loop_counter++)
+		// Display entry
+		MRBuildText(Option_high_score_view_text_area[4+loop_counter], Option_high_score_view_text_entry[0+loop_counter],	MR_FONT_COLOUR_YELLOW);
+
+	// Initialise
+	High_score_stack = 0;
+	High_score_table = 0;
+
+}
+
+/******************************************************************************
+*%%%% HighScoreViewUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	HighScoreViewUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for High Score View screen.  Wait for fire button
+*				before return to options or going back to the intro.  It uses
+*				left or right to select single or multi player high scores.  And
+*				up and down to move through the levels for which high scores exsist.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	HighScoreViewUpdate(MR_VOID)
+{
+
+	// Locals
+	MR_UBYTE		loop_counter;
+
+	// Have you pressed left ?
+	if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_LEFT) )
+		{
+		// Yes ... is single player high scores already selected ?
+		if ( High_score_stack != SINGLE_PLAYER_HIGH_SCORE_STACK )
+			{
+			// No ... select single player high scores
+			High_score_stack = SINGLE_PLAYER_HIGH_SCORE_STACK;
+			}
+		}
+
+	// Have you pressed right ?
+	if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_RIGHT) )
+		{
+		// Yes ... is multi player high scores already selected ?
+		if ( High_score_stack != MULTI_PLAYER_HIGH_SCORE_STACK )
+			{
+			// No ... select multi player high scores
+			High_score_stack = MULTI_PLAYER_HIGH_SCORE_STACK;
+			}
+		}
+
+	// Have you pushed up ?
+	if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_UP) )
+		{
+		// Yes ... are you at the first level ?
+		if ( High_score_table != 0 )
+			{
+			// No ... move up a level
+			High_score_table--;
+			}
+		}
+
+	// Have you pushed down ?
+	if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_DOWN) )
+		{
+		// Yes ... are you at the last level ?
+		if ( High_score_table != (MAX_HIGH_SCORE_TABLES-1) )
+			{
+			// No ... move down a level
+			High_score_table++;
+			}
+		}
+
+// Update display
+	// Display stack name
+	MRBuildText(Option_high_score_view_text_area[1], Option_high_score_view_text_stack_name[High_score_stack],		MR_FONT_COLOUR_YELLOW);
+
+	// Display world and level number
+	MRBuildText(Option_high_score_view_text_area[2], Option_high_score_view_text_world_name[High_score_table/5],	MR_FONT_COLOUR_YELLOW);
+	MRBuildText(Option_high_score_view_text_area[3], Option_high_score_view_text_level_number[High_score_table%5],	MR_FONT_COLOUR_YELLOW);
+
+	// Loop once for each entry in table
+	for(loop_counter=0;loop_counter<NUM_HIGH_SCORE_ENTRIES_PER_TABLE;loop_counter++)
+		// Display entry
+		MRBuildText(Option_high_score_view_text_area[4+loop_counter], Option_high_score_view_text_entry[loop_counter],	MR_FONT_COLOUR_YELLOW);
+
+	// Has fire button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+		{
+		// Were did we come from ?  Was it options ?
+		if ( From_options == TRUE )
+			{
+			// Yes ... return to options
+			Option_page_request = OPTIONS_PAGE_OPTIONS;
+			}
+		else
+			{
+			// No ... skip back to intro
+			Option_page_request = OPTIONS_PAGE_INTRO;
+			}
+		}
+
+}
+
+/******************************************************************************
+*%%%% HighScoreViewShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	HighScoreViewShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for High Score View screen.  Just frees the text
+*				areas.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	HighScoreViewShutdown(MR_VOID)
+{
+
+	// Locals
+	MR_UBYTE		loop_counter;
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Loop once for each text area
+	for(loop_counter=0;loop_counter<4;loop_counter++)
+		// Free text area
+		MRFreeTextArea(Option_high_score_view_text_area[loop_counter]);
+
+	// Loop once for each entry
+	for(loop_counter=0;loop_counter<NUM_HIGH_SCORE_ENTRIES_PER_TABLE;loop_counter++)
+		// Free text area
+		MRFreeTextArea(Option_high_score_view_text_area[4+loop_counter]);
+
+}
+
+/******************************************************************************
+*%%%% OptionsStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OptionsStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Options screen
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	OptionsStartup(MR_VOID)
+{
+
+	// Locals
+	MR_USHORT		loop_counter;
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_options_text_area[0] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 20, 320, 16);
+	Option_options_text_area[1] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 60, 320, 16);
+	Option_options_text_area[2] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 70, 320, 16);
+	Option_options_text_area[3] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 80, 320, 16);
+	Option_options_text_area[4] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 90, 320, 16);
+	Option_options_text_area[5] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 320, 16);
+	Option_options_text_area[6] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 110, 320, 16);
+	Option_options_text_area[7] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 120, 320, 16);
+	Option_options_text_area[8] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 130, 320, 16);
+
+	// Loop once for each piece of text
+	for(loop_counter=0;loop_counter<NUM_OPTIONS_OPTIONS;loop_counter++)
+		// Display text
+		MRBuildText(Option_options_text_area[loop_counter], Option_options_text[loop_counter],	MR_FONT_COLOUR_YELLOW);
+
+	// Initialise option number
+	Option_number = 0;
+	From_options = FALSE;
+
+}
+
+/******************************************************************************
+*%%%% OptionsUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OptionsUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Options screen
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	OptionsUpdate(MR_VOID)
+{
+
+	// Locals
+	MR_USHORT			loop_counter;
+
+	// Was up pressed ?
+	if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, MRIP_UP) )
+		{
+		// Yes ... are we NOT at the top ?
+		if ( Option_number > 0 )
+			{
+			// No ... dec option pos
+			Option_number--;
+			}
+		else
+			{
+			// Yes ... reset to bottom of options
+			Option_number = NUM_OPTIONS_OPTIONS-2;
+			}
+		}
+
+	// Was down pressed ?
+	if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, MRIP_DOWN) )
+		{
+		// Yes ... are we NOT at the bottom ?
+		if ( Option_number < (NUM_OPTIONS_OPTIONS-2) )
+			{
+			// Yes ... inc option pos
+			Option_number++;
+			}
+		else
+			{
+			// No ... reset to top of options
+			Option_number = 0;
+			}
+		}
+
+	// Loop once for each selection
+	for(loop_counter=1;loop_counter<NUM_OPTIONS_OPTIONS;loop_counter++)
+		// Reprint option in original colour
+		MRBuildText(Option_options_text_area[loop_counter], Option_options_text[loop_counter],		MR_FONT_COLOUR_YELLOW);
+
+	// Print selected option in highlighted colour
+	MRBuildText(Option_options_text_area[Option_number+1], Option_options_text[Option_number+1],	MR_FONT_COLOUR_CADMIUM);
+
+	// Has fire button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+		{
+		// Depending on option do ...
+		switch ( Option_number )
+			{
+			// View credits ...
+			case 0:
+				Option_page_request = OPTIONS_PAGE_STD_CREDITS;
+				From_options = TRUE;
+				break;
+			// View high scores ...
+			case 1:
+				Option_page_request = OPTIONS_PAGE_HIGH_SCORE_VIEW;
+				From_options = TRUE;
+				break;
+			// Adjust music volume ...
+			case 2:
+				Option_page_request = OPTIONS_PAGE_MUSIC_VOLUME;
+				break;
+			// Adjust sound volume ...
+			case 3:
+				Option_page_request = OPTIONS_PAGE_SOUND_VOLUME;
+				break;
+			// Save ...
+			case 4:
+				Option_page_request = OPTIONS_PAGE_SAVE;
+				break;
+			// Load ...
+			case 5:
+				Option_page_request = OPTIONS_PAGE_LOAD;
+				break;
+#ifndef WIN95
+			// Define buttons ...
+			case 6:
+				Option_page_request = OPTIONS_PAGE_REDEFINE_PSX_BUTTONS;
+				break;
+#else
+			// Choose controller ...
+			case 6:
+				Option_page_request = OPTIONS_PAGE_CHOOSE_WIN_CONTROLLER;
+				break;
+#endif	// WIN95
+			// Exit ...
+			case 7:
+				// Skip back to main options
+				Option_page_request = OPTIONS_PAGE_MAIN_OPTIONS;
+				break;
+			}
+		}
+
+}
+
+/******************************************************************************
+*%%%% OptionsShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OptionsShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Options screen
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	OptionsShutdown(MR_VOID)
+{
+
+	// Locals
+	MR_USHORT		loop_counter;
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Loop once for each text area
+	for(loop_counter=0;loop_counter<NUM_OPTIONS_OPTIONS;loop_counter++)
+		// Free text area
+		MRFreeTextArea(Option_options_text_area[loop_counter]);
+
+}
+
+/******************************************************************************
+*%%%% MusicVolumeStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	MusicVolumeStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Music Volume screen.  Just initialises text
+*				area at the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	MusicVolumeStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_music_volume_text_area[0] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 320, 16);
+	Option_music_volume_text_area[1] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 110, 320, 16);
+
+	MRBuildText(Option_music_volume_text_area[0], Option_music_volume_text_title,			MR_FONT_COLOUR_YELLOW);
+	MRBuildText(Option_music_volume_text_area[1], Option_music_volume_text_select[Music_volume],	MR_FONT_COLOUR_YELLOW);
+
+}
+
+/******************************************************************************
+*%%%% MusicVolumeUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	MusicVolumeUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Music Volume screen.  Currently just waits for
+*				the fire button before continuing.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	MusicVolumeUpdate(MR_VOID)
+{
+
+	// Has right been pressed ?
+	if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_RIGHT) )
+		{
+		// Yes ... are we at max volume ?
+		if ( Music_volume < 9 )
+			{
+			// No ... inc volume
+			Music_volume++;
+			}
+		}
+
+	// Has left been pressed ?
+	if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_LEFT) )
+		{
+		// Yes ... are we at min volume ?
+		if ( Music_volume )
+			{
+			// No ... dec volume
+			Music_volume--;
+			}
+		}
+
+	// Reprint text
+	MRBuildText(Option_music_volume_text_area[1], Option_music_volume_text_select[Music_volume],	MR_FONT_COLOUR_YELLOW);
+
+	// Has fire button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+		{
+		// Yes ... skip back to options
+		Option_page_request = OPTIONS_PAGE_OPTIONS;
+		}
+
+}
+
+/******************************************************************************
+*%%%% MusicVolumeShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	MusicVolumeShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Music Volume screen.  Just frees text area at
+*				the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	MusicVolumeShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text area
+	MRFreeTextArea(Option_music_volume_text_area[1]);
+	MRFreeTextArea(Option_music_volume_text_area[0]);
+
+}
+
+/******************************************************************************
+*%%%% SoundVolumeStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	SoundVolumeStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Sound Volume screen.  Just initialises text
+*				area at the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	SoundVolumeStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_sound_volume_text_area[0] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 320, 16);
+	Option_sound_volume_text_area[1] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 110, 320, 16);
+
+	MRBuildText(Option_sound_volume_text_area[0], Option_sound_volume_text_title,			MR_FONT_COLOUR_YELLOW);
+	MRBuildText(Option_sound_volume_text_area[1], Option_sound_volume_text_select[Sound_volume],	MR_FONT_COLOUR_YELLOW);
+
+}
+
+/******************************************************************************
+*%%%% SoundVolumeUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	SoundVolumeUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Sound Volume screen.  Currently just waits for
+*				the fire button before continuing.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	SoundVolumeUpdate(MR_VOID)
+{
+
+	// Has right been pressed ?
+	if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_RIGHT) )
+		{
+		// Yes ... is volume at max ?
+		if ( Sound_volume < 9 )
+			{
+			// No ... inc volume
+			Sound_volume++;
+			}
+		}
+
+	// Has left been pressed ?
+	if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_LEFT) )
+		{
+		// Yes ... is volume at min ?
+		if ( Sound_volume )
+			{
+			// No ... dec volume
+			Sound_volume--;
+			}
+		}
+
+	// Reprint display
+	MRBuildText(Option_sound_volume_text_area[1], Option_sound_volume_text_select[Sound_volume],	MR_FONT_COLOUR_YELLOW);
+
+	// Has fire button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+		{
+		// Yes ... skip back to options
+		Option_page_request = OPTIONS_PAGE_OPTIONS;
+		}
+
+}
+
+/******************************************************************************
+*%%%% SoundVolumeShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	SoundVolumeShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Sound Volume screen.  Just frees text area at
+*				the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	SoundVolumeShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text area
+	MRFreeTextArea(Option_sound_volume_text_area[1]);
+	MRFreeTextArea(Option_sound_volume_text_area[0]);
+
+}
+
+#ifdef WIN95	// Windows specific code ------------------------------------
+
+/******************************************************************************
+*%%%% OptionsSaveSaveData
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OptionsSaveSaveData(MR_VOID)
+*
+*	FUNCTION	Saves game information to registry.  Completes save data structure.
+*				Opens exisiting registry key, if data already saved to registry or
+*				creates the key if first time save.  Sets registry values and closes
+*				key.
+*
+*	NOTES		This code is for windows only, hence the ifdef above.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	21.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID OptionsSaveSaveData(MR_VOID)
+{
+
+	// Locals
+	HKEY		save_key;			// Registry key opened for writing!!!
+
+	// Compile data
+	Save_data.co_music_volume = Music_volume;
+	Save_data.co_sound_volume = Sound_volume;
+	
+	// Open key ( creating if currently not present )
+	RegCreateKeyEx(HKEY_CURRENT_USER,"Software\\Millennium Interactive\\Frogger\\Save",0,NULL,REG_OPTION_NON_VOLATILE,KEY_ALL_ACCESS,NULL,&save_key,NULL);
+	
+	// Save to registry
+	RegSetValueEx(save_key,"Music Volume",0,REG_DWORD,(unsigned char *)&Save_data.co_music_volume,2);
+	RegSetValueEx(save_key,"Sound Volume",0,REG_DWORD,(unsigned char *)&Save_data.co_sound_volume,2);
+	RegSetValueEx(save_key,"Device ID",0,REG_DWORD,(unsigned char *)&Save_data.co_device_id,2);
+	RegSetValueEx(save_key,"Hop Up",0,REG_DWORD,(unsigned char *)&Save_data.co_hop_up,2);
+	RegSetValueEx(save_key,"Hop Down",0,REG_DWORD,(unsigned char *)&Save_data.co_hop_down,2);
+	RegSetValueEx(save_key,"Hop Left",0,REG_DWORD,(unsigned char *)&Save_data.co_hop_left,2);
+	RegSetValueEx(save_key,"Hop Right",0,REG_DWORD,(unsigned char *)&Save_data.co_hop_right,2);
+	RegSetValueEx(save_key,"Croak",0,REG_DWORD,(unsigned char *)&Save_data.co_croak,2);
+	RegSetValueEx(save_key,"Super Tongue",0,REG_DWORD,(unsigned char *)&Save_data.co_super_tongue,2);
+	RegSetValueEx(save_key,"Super Jump",0,REG_DWORD,(unsigned char *)&Save_data.co_super_jump,2);
+	RegSetValueEx(save_key,"Rotate Left",0,REG_DWORD,(unsigned char *)&Save_data.co_rotate_left,2);
+	RegSetValueEx(save_key,"Rotate Right",0,REG_DWORD,(unsigned char *)&Save_data.co_rotate_right,2);
+
+	// Close key
+	RegCloseKey(save_key);
+
+}
+
+#else			// PSX Specific code ----------------------------------------
+
+/******************************************************************************
+*%%%% OptionsSaveSaveData
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OptionsSaveSaveData(
+*									MR_ULONG sd_card_no	)
+*
+*	FUNCTION	Saves game information to memory card.
+*
+*	NOTES		This code is for PSX only, hence the ifdef above.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	21.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID OptionsSaveSaveData(MR_ULONG sd_card_no)
+{
+
+	// Compile data
+	Save_data.co_music_volume = Music_volume;
+	Save_data.co_sound_volume = Sound_volume;
+
+	// Save data
+#ifdef	PSX_CARD
+	MRDisablePollhost();
+	Card_save_file((MR_UBYTE*)&Save_data,sizeof(Save_data),sd_card_no);
+	MREnablePollhost();
+#endif	// PSX_CARD
+
+}
+
+#endif			// WIN95
+
+/******************************************************************************
+*%%%% SaveStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	SaveStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Save screen.  Just initialises text
+*				area at the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	SaveStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_save_text_area[3] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 320, 16);
+
+	// Initialise
+	Save_status = SAVE_STATUS_INIT;
+
+#ifdef PSX	// PSX Specific code --------------------------------------------
+
+	// Get status of memory cards
+	OptionsGetCardStatus();
+
+#endif	// PSX
+
+}
+
+/******************************************************************************
+*%%%% SaveUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	SaveUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Save screen.  Currently just waits for
+*				the fire button before continuing.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	SaveUpdate(MR_VOID)
+{
+
+	// Locals
+#ifdef PSX	// PSX Specific code --------------------------------------------
+	static MR_UBYTE		save_save;
+#endif
+
+	// Depending on save mode do ...
+	switch ( Save_status )
+		{
+
+		case SAVE_STATUS_INIT:
+
+// $wb - On different systems do different things
+//			WIN95	- Save to registry
+//			PSX		- Save to memory card
+#ifdef WIN95	// Windows specific code ------------------------------------
+
+			// Save data
+			OptionsSaveSaveData();
+
+			// Inform user save completed!!!
+			MRBuildText(Option_save_text_area[3], Option_save_text_complete,	MR_FONT_COLOUR_YELLOW);
+
+			// Go on to finish
+			Save_status = SAVE_STATUS_FINISH;
+
+#else			// PSX Specific code ----------------------------------------
+
+// $wb - Not sure if we should check the status every frame, but just in case!!!
+#if 0
+
+			// Get status of memory cards
+			OptionsGetCardStatus();
+
+#endif	// 0
+
+			// Are there any cards present ?
+			if ( ( Card0_present == FALSE ) && ( Card1_present == FALSE ) )
+				{
+				// No ... go on to "no_cards"
+				Save_status = SAVE_STATUS_NO_CARDS;
+				}
+			else
+				{
+				// Yes ... are there two cards ?
+				if ( ( Card0_present == TRUE ) && ( Card1_present == TRUE ) )
+					{
+					// Yes ... go on to "select_card"
+					Save_status = SAVE_STATUS_CHOOSE_GAME_INIT;
+					}
+				else
+					{
+					// No ... card 0 present ?
+					if ( Card0_present == TRUE )
+						{
+						// Yes ... save to card 0
+						Save_status = SAVE_STATUS_SAVE_0;
+						}
+					else
+						{
+						// No ... save to card 1
+						Save_status = SAVE_STATUS_SAVE_1;
+						}
+					}
+				}
+
+#endif			// WIN95
+
+			break;
+
+#ifdef PSX	// PSX Specific code --------------------------------------------
+
+		// No cards present ...
+		case SAVE_STATUS_NO_CARDS:
+
+			// Inform user no cards plugged in
+			MRBuildText(Option_save_text_area[3], Option_save_text_no_card,	MR_FONT_COLOUR_RED);
+
+			// Get status
+			OptionsGetCardStatus();
+
+			// Any cards ?
+			if ( ( Card0_present == TRUE ) || ( Card1_present == TRUE ) )
+				// Yes ... go back to init
+				Save_status = SAVE_STATUS_INIT;
+
+			// Did user press fire ?
+			if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS) )
+				// Yes ... exit
+				Save_status = SAVE_STATUS_FINISH;
+
+			break;
+
+		// Ask user which game they wish to save ...
+		case SAVE_STATUS_CHOOSE_GAME_INIT:
+
+			// Initialise text
+			Option_save_text_area[0] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 160, 16);
+			Option_save_text_area[1] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 160, 100, 160, 16);
+			Option_save_text_area[2] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 90, 320, 16);
+
+			MRBuildText(Option_save_text_area[0], Option_save_text_0,		MR_FONT_COLOUR_CADMIUM);
+			MRBuildText(Option_save_text_area[1], Option_save_text_1,		MR_FONT_COLOUR_YELLOW);
+			MRBuildText(Option_save_text_area[2], Option_save_text_title,	MR_FONT_COLOUR_YELLOW);
+
+			// Initialise number of save to save
+			save_save = 0;
+
+			// Go on to main
+			Save_status = SAVE_STATUS_CHOOSE_GAME_MAIN;
+
+			break;
+
+		// Ask user which game they wish to save ...
+		case SAVE_STATUS_CHOOSE_GAME_MAIN:
+
+			// Did player push right ?
+			if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_RIGHT) )
+				{
+				// Yes ... are we on save 0 ?
+				if ( save_save == 0 )
+					{
+					// Yes ... go on to save 1
+					save_save = 1;
+					}
+				}
+
+			// Did player push left ?
+			if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_LEFT) )
+				{
+				// Yes ... are we on save 1 ?
+				if ( save_save == 1 )
+					{
+					// Yes ... go on to save 0
+					save_save = 0;
+					}
+				}
+
+			// Did player press fire ?
+			if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS) )
+				{
+				// Yes ... go on to end
+				Save_status = SAVE_STATUS_CHOOSE_GAME_END;
+				}
+
+			// Is card 0 selected ?
+			if ( save_save == 0 )
+				{
+				// Yes ... reprint display with card 0 highlighted
+				MRBuildText(Option_save_text_area[0], Option_save_text_0,		MR_FONT_COLOUR_CADMIUM);
+				MRBuildText(Option_save_text_area[1], Option_save_text_1,		MR_FONT_COLOUR_YELLOW);
+				}
+			else
+				{
+				// No ... reprint display with card 1 highlighted
+				MRBuildText(Option_save_text_area[0], Option_save_text_0,		MR_FONT_COLOUR_YELLOW);
+				MRBuildText(Option_save_text_area[1], Option_save_text_1,		MR_FONT_COLOUR_CADMIUM);
+				}
+
+			break;
+
+		// Ask user which game they wish to save ...
+		case SAVE_STATUS_CHOOSE_GAME_END:
+
+			// Free allocated text areas
+			MRFreeTextArea(Option_save_text_area[2]);
+			MRFreeTextArea(Option_save_text_area[1]);
+			MRFreeTextArea(Option_save_text_area[0]);
+
+			// Did player select to save game 0 ?
+			if ( save_save == 0 )
+				{
+				// Yes ... save save 0
+				Save_status = SAVE_STATUS_SAVE_0;
+				}
+			else
+				{
+				// No ... save save 1
+				Save_status = SAVE_STATUS_SAVE_1;
+				}
+
+			break;
+
+
+		// Save to card 0 ...
+		case SAVE_STATUS_SAVE_0:
+
+			// Save to slot 0
+			OptionsSaveSaveData(0);
+
+			// Report save successful
+			MRBuildText(Option_save_text_area[3], Option_save_text_complete,	MR_FONT_COLOUR_YELLOW);
+
+			// Go on to finish
+			Save_status = SAVE_STATUS_FINISH;
+
+			break;
+
+		// Save to card 1 ...
+		case SAVE_STATUS_SAVE_1:
+
+			// Save to slot 1
+			OptionsSaveSaveData(1);
+
+			// Report save successful
+			MRBuildText(Option_save_text_area[3], Option_save_text_complete,	MR_FONT_COLOUR_YELLOW);
+
+			// Go on to finish
+			Save_status = SAVE_STATUS_FINISH;
+
+			break;
+	
+#endif	// PSX
+
+		// Finish ...
+		case SAVE_STATUS_FINISH:
+
+			// Has fire button been pressed ?
+			if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS) )
+				{
+				// Yes ... skip back to options
+				Option_page_request = OPTIONS_PAGE_OPTIONS;
+				}
+
+			break;
+
+		}
+
+}
+
+/******************************************************************************
+*%%%% SaveShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	SaveShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Save screen.  Just frees text area at
+*				the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	SaveShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text area
+	MRFreeTextArea(Option_save_text_area[3]);
+
+}
+
+#ifdef WIN95	// Windows specific code ------------------------------------
+
+/******************************************************************************
+*%%%% OptionsLoadSaveData
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OptionsLoadSaveData(MR_VOID)
+*
+*	FUNCTION	Loads save data from registry.
+*
+*	NOTES		This is for windows only, hence the ifdef above.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID OptionsLoadSaveData(MR_VOID)
+{
+
+	// Locals
+	MR_ULONG		entry_size;				// Size of registry entry in bytes
+	MR_LONG			entry_type;				// Type of value got from registry
+
+	// Set entry size
+	entry_size = 2;
+
+	// Load save data into Load_data structure!!!
+	RegQueryValueEx(Save_key,"Music Volume",(LPDWORD)NULL,(LPDWORD)&entry_type,(char *)&Load_data.co_music_volume,(LPDWORD)&entry_size);
+	RegQueryValueEx(Save_key,"Sound Volume",(LPDWORD)NULL,(LPDWORD)&entry_type,(char *)&Load_data.co_sound_volume,(LPDWORD)&entry_size);
+	RegQueryValueEx(Save_key,"Device ID",(LPDWORD)NULL,(LPDWORD)&entry_type,(char *)&Load_data.co_device_id,(LPDWORD)&entry_size);
+	RegQueryValueEx(Save_key,"Hop Up",(LPDWORD)NULL,(LPDWORD)&entry_type,(char *)&Load_data.co_hop_up,(LPDWORD)&entry_size);
+	RegQueryValueEx(Save_key,"Hop Down",(LPDWORD)NULL,(LPDWORD)&entry_type,(char *)&Load_data.co_hop_down,(LPDWORD)&entry_size);
+	RegQueryValueEx(Save_key,"Hop Left",(LPDWORD)NULL,(LPDWORD)&entry_type,(char *)&Load_data.co_hop_left,(LPDWORD)&entry_size);
+	RegQueryValueEx(Save_key,"Hop Right",(LPDWORD)NULL,(LPDWORD)&entry_type,(char *)&Load_data.co_hop_right,(LPDWORD)&entry_size);
+	RegQueryValueEx(Save_key,"Croak",(LPDWORD)NULL,(LPDWORD)&entry_type,(char *)&Load_data.co_croak,(LPDWORD)&entry_size);
+	RegQueryValueEx(Save_key,"Super Tongue",(LPDWORD)NULL,(LPDWORD)&entry_type,(char *)&Load_data.co_super_tongue,(LPDWORD)&entry_size);
+	RegQueryValueEx(Save_key,"Super Jump",(LPDWORD)NULL,(LPDWORD)&entry_type,(char *)&Load_data.co_super_jump,(LPDWORD)&entry_size);
+	RegQueryValueEx(Save_key,"Rotate Left",(LPDWORD)NULL,(LPDWORD)&entry_type,(char *)&Load_data.co_rotate_left,(LPDWORD)&entry_size);
+	RegQueryValueEx(Save_key,"Rotate Right",(LPDWORD)NULL,(LPDWORD)&entry_type,(char *)&Load_data.co_rotate_right,(LPDWORD)&entry_size);
+
+	// Decode save data
+	Music_volume = Load_data.co_music_volume;
+	Sound_volume = Load_data.co_sound_volume;
+
+}
+
+#else	// PSX Specific code ------------------------------------------------
+
+/******************************************************************************
+*%%%% OptionsLoadSaveData
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OptionsLoadSaveData(
+*									MR_ULONG ld_card_no			)
+*
+*	FUNCTION	Loads save data from memory card.
+*
+*	INPUTS		ld_card_no			- Number of card to load from.
+*
+*	NOTES		This is for PSX only, hence the ifdef above.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID OptionsLoadSaveData(MR_ULONG ld_card_no)
+{
+
+	// Load save data into Load_data structure!!!
+#ifdef	PSX_CARD
+	MRDisablePollhost();
+	Card_load_file((MR_UBYTE*)&Load_data,sizeof(Load_data),ld_card_no);
+	MREnablePollhost();
+#endif	// PSX_CARD
+
+	// Decode save data
+	Music_volume = Load_data.co_music_volume;
+	Sound_volume = Load_data.co_sound_volume;
+
+}
+
+#endif	// WIN95
+
+/******************************************************************************
+*%%%% LoadStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	LoadStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Load screen.  Just initialises text
+*				area at the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	LoadStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_load_text_area[3] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 320, 16);
+	//MRBuildText(Option_load_text_area, Option_load_text_title,	MR_FONT_COLOUR_YELLOW);
+
+#ifdef WIN95	// Windows specific code ------------------------------------
+
+	// Get status of registry
+	OptionsGetRegistryStatus();
+
+#else	// PSX Specific code ------------------------------------------------
+
+	// Get status of memory cards
+	OptionsGetCardStatus();
+
+#endif	// WIN95
+
+	// Initialise mode of operation for load
+	Load_status = LOAD_STATUS_LOAD;
+
+}
+
+/******************************************************************************
+*%%%% LoadUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	LoadUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Load screen.  First time in this attempts to load
+*				from either registry or memory card depending on system.  The next
+*				times it reports the status of the operation and then waits for the
+*				fire button before returning.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	LoadUpdate(MR_VOID)
+{
+
+	// Locals
+#ifdef PSX	// PSX Specific code --------------------------------------------
+	static	MR_UBYTE		load_save;
+#endif	// PSX
+
+	// Depending on mode do ...
+	switch ( Load_status )
+		{
+
+		// Loading ...
+		case LOAD_STATUS_LOAD:
+
+// $wb - On different systems do different things
+//			WIN95	- Load from registry
+//			PSX		- Load from memory card
+#ifdef WIN95	// Windows specific code ------------------------------------
+
+			// Save data present in registry ?
+			if ( Save_data_flag == TRUE )
+				// Yes ... load control options from registry
+				OptionsLoadSaveData();
+
+			// Go on to report status of load
+			Load_status = LOAD_STATUS_REPORT;
+
+#else	// PSX Specific code ------------------------------------------------
+
+//$wb - Not sure if the Sony guidelines require us to constantly check memory card status
+#if 0
+
+			// Re-get memory card status just in case it has changed
+			OptionsGetCardStatus();
+
+#endif	// 0
+
+			// Two games present ?
+			if ( Game0_present == TRUE && Game1_present == TRUE )
+				{
+				// Yes ... ask user what game they want
+				Load_status = LOAD_STATUS_CHOOSE_GAME_INIT;
+				}
+			else
+				{
+				// No ... game 0 present ?
+				if ( Game0_present == TRUE )
+					{
+					// Yes ... load game 0
+					OptionsLoadSaveData(0);
+					// Go on to report status of load
+					Load_status = LOAD_STATUS_REPORT;
+					}
+				// Game 1 present
+				else
+					{
+					// Load game 1
+					OptionsLoadSaveData(1);
+					// Go on to report status of load
+					Load_status = LOAD_STATUS_REPORT;
+					}
+				}
+
+#endif	// WIN95
+
+			break;
+
+#ifdef PSX	// PSX specific code --------------------------------------------
+
+		// Initialise choose game ...
+		case LOAD_STATUS_CHOOSE_GAME_INIT:
+
+			// Initialise text
+			Option_load_text_area[0] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 160, 16);
+			Option_load_text_area[1] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 160, 100, 160, 16);
+			Option_load_text_area[2] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 90, 320, 16);
+
+			MRBuildText(Option_load_text_area[0], Option_load_text_0,		MR_FONT_COLOUR_CADMIUM);
+			MRBuildText(Option_load_text_area[1], Option_load_text_1,		MR_FONT_COLOUR_YELLOW);
+			MRBuildText(Option_load_text_area[2], Option_load_text_title,	MR_FONT_COLOUR_YELLOW);
+
+			// Initialise number of save to load
+			load_save = 0;
+
+			// Go on to main
+			Load_status = LOAD_STATUS_CHOOSE_GAME_MAIN;
+
+			break;
+
+		// Wait for player to choose game
+		case LOAD_STATUS_CHOOSE_GAME_MAIN:
+
+			// Did player push right ?
+			if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_RIGHT) )
+				{
+				// Yes ... are we on save 0 ?
+				if ( load_save == 0 )
+					{
+					// Yes ... go on to save 1
+					load_save = 1;
+					}
+				}
+
+			// Did player push left ?
+			if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_LEFT) )
+				{
+				// Yes ... are we on save 1 ?
+				if ( load_save == 1 )
+					{
+					// Yes ... go on to save 0
+					load_save = 0;
+					}
+				}
+
+			// Did player press fire ?
+			if ( MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS) )
+				{
+				// Yes ... go on to end
+				Load_status = LOAD_STATUS_CHOOSE_GAME_END;
+				}
+
+			// Is card 0 selected ?
+			if ( load_save == 0 )
+				{
+				// Yes ... reprint display with card 0 highlighted
+				MRBuildText(Option_load_text_area[0], Option_load_text_0,		MR_FONT_COLOUR_CADMIUM);
+				MRBuildText(Option_load_text_area[1], Option_load_text_1,		MR_FONT_COLOUR_YELLOW);
+				}
+			else
+				{
+				// No ... reprint display with card 1 highlighted
+				MRBuildText(Option_load_text_area[0], Option_load_text_0,		MR_FONT_COLOUR_YELLOW);
+				MRBuildText(Option_load_text_area[1], Option_load_text_1,		MR_FONT_COLOUR_CADMIUM);
+				}
+
+			break;
+
+		// Finish choose game ...
+		case LOAD_STATUS_CHOOSE_GAME_END:
+
+			// Free allocated text areas
+			MRFreeTextArea(Option_load_text_area[2]);
+			MRFreeTextArea(Option_load_text_area[1]);
+			MRFreeTextArea(Option_load_text_area[0]);
+
+			// Did player select to load game 0 ?
+			if ( load_save == 0 )
+				{
+				// Yes ... load game 0
+				OptionsLoadSaveData(0);
+				}
+			else
+				{
+				// No ... load game 1
+				OptionsLoadSaveData(1);
+				}
+
+			// Go on to report load status
+			Load_status = LOAD_STATUS_REPORT;
+
+			break;
+
+#endif	// PSX
+
+		// Report status of load ...
+		case LOAD_STATUS_REPORT:
+
+			// Report status of load
+			MRBuildText(Option_load_text_area[3], Option_load_text_complete,	MR_FONT_COLOUR_YELLOW);
+
+			// Go on to waiting to exit
+			Load_status = LOAD_STATUS_WAIT;
+
+			break;
+
+		// Waiting to exit ...
+		case LOAD_STATUS_WAIT:
+
+			// Has fire button been pressed ?
+			if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+				{
+				// Yes ... skip back to options
+				Option_page_request = OPTIONS_PAGE_OPTIONS;
+				}
+
+			break;
+
+		}
+
+}
+
+/******************************************************************************
+*%%%% LoadShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	LoadShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Load screen.  Just frees text area at
+*				the moment.  Closes registry entries.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	LoadShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text area
+	MRFreeTextArea(Option_load_text_area[3]);
+
+#ifdef WIN95	// Windows specific code ------------------------------------
+
+	// Close registry
+	OptionsCloseRegistry();
+
+#endif			// WIN95
+
+}
+
+#ifdef PSX		// PSX Specific code ----------------------------------------
+
+/******************************************************************************
+*%%%% RedefinePSXButtonsStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	RedefinePSXButtonsStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Redefine PSX Buttons screen.  Just initialises text
+*				area at the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	RedefinePSXButtonsStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_redefine_psx_buttons_text_area = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 320, 16);
+	MRBuildText(Option_redefine_psx_buttons_text_area, Option_redefine_psx_buttons_text_title,	MR_FONT_COLOUR_YELLOW);
+
+}
+
+/******************************************************************************
+*%%%% RedefinePSXButtonsUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	RedefinePSXButtonsUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Redefine PSX Buttons screen.  Currently just waits for
+*				the fire button before continuing.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	RedefinePSXButtonsUpdate(MR_VOID)
+{
+
+	// Has fire button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+		{
+		// Yes ... skip back to options
+		Option_page_request = OPTIONS_PAGE_OPTIONS;
+		}
+
+}
+
+/******************************************************************************
+*%%%% RedefinePSXButtonsShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	RedefinePSXButtonsShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Redefine PSX Buttons screen.  Just frees text area at
+*				the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	RedefinePSXButtonsShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text area
+	MRFreeTextArea(Option_redefine_psx_buttons_text_area);
+
+}
+
+#else
+
+/******************************************************************************
+*%%%% ChooseWINControllerStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ChooseWINControllerStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Choose WIN Controller screen.  Just initialises text
+*				area at the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	ChooseWINControllerStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_choose_win_controller_text_area = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 320, 16);
+	MRBuildText(Option_choose_win_controller_text_area, Option_choose_win_controller_text_title,	MR_FONT_COLOUR_YELLOW);
+
+}
+
+/******************************************************************************
+*%%%% ChooseWINControllerUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ChooseWINControllerUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Choose WIN Controller screen.  Currently just waits for
+*				the fire button before continuing.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	ChooseWINControllerUpdate(MR_VOID)
+{
+
+	// Has fire button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+		{
+		// Yes ... skip back to options
+		Option_page_request = OPTIONS_PAGE_OPTIONS;
+		}
+
+}
+
+/******************************************************************************
+*%%%% ChooseWINControllerShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ChooseWINControllerShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Choose WIN Controller screen.  Just frees text area at
+*				the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	ChooseWINControllerShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text area
+	MRFreeTextArea(Option_choose_win_controller_text_area);
+
+}
+
+#endif	// PSX
+
+/******************************************************************************
+*%%%% WillsLevelSelectStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	WillsLevelSelectStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Wills Level Select screen.  Just initialises text
+*				area at the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	WillsLevelSelectStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Display test text
+	Option_wills_level_select_text_area[0] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 320, 16);
+	Option_wills_level_select_text_area[1] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 110, 320, 16);
+	Option_wills_level_select_text_area[2] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 120, 320, 16);
+
+	MRBuildText(Option_wills_level_select_text_area[0], Option_wills_level_select_text[0],	MR_FONT_COLOUR_YELLOW);
+	MRBuildText(Option_wills_level_select_text_area[1], Option_wills_level_select_text[1],	MR_FONT_COLOUR_YELLOW);
+	MRBuildText(Option_wills_level_select_text_area[2], Option_wills_level_select_text[2],	MR_FONT_COLOUR_BLUE);
+
+	// Initialise
+	Option_number = 0;
+	Options_world_number = 0;
+	Options_level_number = 0;
+
+}
+
+/******************************************************************************
+*%%%% WillsLevelSelectUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	WillsLevelSelectUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Wills Level Select screen.  Currently just waits for
+*				the fire button before continuing.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	WillsLevelSelectUpdate(MR_VOID)
+{
+
+	// Has up button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, MRIP_UP))
+		{
+		// Yes ... were we selecting world number ?
+		if ( Option_number == 0 )
+			{
+			// Yes ... start selecting level number
+			Option_number = 1;
+			}
+			else
+			{
+			// No ... start selecting world number
+			Option_number = 0;
+			}
+		}
+
+	// Has down button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, MRIP_DOWN))
+		{
+		// Yes ... were we selecting world number ?
+		if ( Option_number == 0 )
+			{
+			// Yes ... start selecting level number
+			Option_number = 1;
+			}
+			else
+			{
+			// No ... start selecting world number
+			Option_number = 0;
+			}
+		}
+
+	// Has right button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, MRIP_RIGHT))
+		{
+		// Yes ... are we currently selecting world ?
+		if ( Option_number == 0 )
+			{
+
+			// Yes ... up world number
+			Options_world_number++;
+
+			// World number out of range ?
+			if ( Options_world_number > 9 )
+				{
+				// Yes ... reset world number
+				Options_world_number = 0;
+				}
+
+			}
+		else
+			{
+
+			// No ... up level number
+			Options_level_number++;
+
+			// Level number out of range ?
+			if ( Options_level_number > 4 )
+				{
+				// Yes ... reset level number
+				Options_level_number = 0;
+				}
+
+			}
+		}
+
+	// Has left button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, MRIP_LEFT))
+		{
+
+		// Yes ... are we currently selecting world ?
+		if ( Option_number == 0 )
+			{
+			// Yes ... are we at the lowest world ?
+			if ( Options_world_number == 0 )
+				{
+				// Yes ... select last world
+				Options_world_number = 9;
+				}
+			else
+				{
+				// No ... dec world number
+				Options_world_number--;
+				}
+			}
+		else
+			{
+			// No ... are we at the lowest level ?
+			if ( Options_level_number == 0 )
+				{
+				// Yes ... select last level
+				Options_level_number = 4;
+				}
+			else
+				{
+				// No ... dec level number
+				Options_level_number--;
+				}
+			}
+
+		}
+
+	// Is world number currently selected
+	if ( Option_number == 0 )
+		{
+		// Yes ... print world number highlighted
+		MRBuildText(Option_wills_level_select_text_area[0], Option_wills_level_select_text[0],	MR_FONT_COLOUR_CADMIUM);
+		// Print level number unhighlighted
+		MRBuildText(Option_wills_level_select_text_area[1], Option_wills_level_select_text[1],	MR_FONT_COLOUR_YELLOW);
+		}
+	else
+		{
+		// No ... print world number unhighlighted
+		MRBuildText(Option_wills_level_select_text_area[0], Option_wills_level_select_text[0],	MR_FONT_COLOUR_YELLOW);
+		// Print level number highlighted
+		MRBuildText(Option_wills_level_select_text_area[1], Option_wills_level_select_text[1],	MR_FONT_COLOUR_CADMIUM);
+		}
+
+	// Calculate world number
+	Game_map = ( Options_world_number * 5 ) + Options_level_number;
+
+	// Is this world available ?
+	if ( Option_level_status[Game_map] == MR_SUCCESS )
+		{
+		// Yes ... print level available
+		MRBuildText(Option_wills_level_select_text_area[2], Option_wills_level_select_text[3],	MR_FONT_COLOUR_CYAN);
+		}
+	else
+		{
+		// No ... print level not available
+		MRBuildText(Option_wills_level_select_text_area[2], Option_wills_level_select_text[2],	MR_FONT_COLOUR_BLUE);
+		}
+
+	// Has fire button been pressed ?
+	if ( (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS)) && ( Option_level_status[Game_map] == MR_SUCCESS ) )
+		{
+		// Yes ... skip back to options
+		Option_page_request = OPTIONS_PAGE_EXIT;
+		}
+
+}
+
+/******************************************************************************
+*%%%% WillsLevelSelectShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	WillsLevelSelectShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Wills Level Select screen.  Just frees text area at
+*				the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	WillsLevelSelectShutdown(MR_VOID)
+{
+
+	// Locals
+	MR_UBYTE		loop_counter;
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Loop once for each text area
+	for(loop_counter=0;loop_counter<3;loop_counter++)
+		// Free text area
+		MRFreeTextArea(Option_wills_level_select_text_area[loop_counter]);
+
+}
+
+/******************************************************************************
+*%%%% DemoLevelSelectStartup
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	DemoLevelSelectStartup(MR_VOID)
+*
+*	FUNCTION	Initialisation code for Demo Level Select screen.  Just initialises text
+*				area at the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	DemoLevelSelectStartup(MR_VOID)
+{
+
+	// Set back ground colour
+	MRSetDisplayClearColour(0x00,0x40,0x80);
+
+	// Initialise level number
+	Options_level_number = 0;
+
+	// Display test text
+#ifdef WIN95
+	Option_demo_level_select_text_area[0] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, Main_display_data->dd_width, 16);
+	Option_demo_level_select_text_area[1] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 110, Main_display_data->dd_width, 16);
+#else
+	Option_demo_level_select_text_area[0] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 100, 320, 16);
+	Option_demo_level_select_text_area[1] = MRAllocateTextArea(NULL, &std_font, Option_viewport_ptr, 100, 0, 110, 320, 16);
+#endif
+
+	MRBuildText(Option_demo_level_select_text_area[0], Options_demo_level_theme_names[Options_level_number],	MR_FONT_COLOUR_YELLOW);
+	MRBuildText(Option_demo_level_select_text_area[1], Options_demo_level_level_names[Options_level_number],	MR_FONT_COLOUR_YELLOW);
+
+}
+
+/******************************************************************************
+*%%%% DemoLevelSelectUpdate
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	DemoLevelSelectUpdate(MR_VOID)
+*
+*	FUNCTION	Update code for Demo Level Select screen.  Currently just waits for
+*				the fire button before continuing.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	DemoLevelSelectUpdate(MR_VOID)
+{
+
+	// Has right button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, MRIP_RIGHT))
+		{
+		// Any more levels ?
+		if ( Options_level_number < (NUM_DEMO_LEVELS-1) )
+			{
+			// Yes ... inc level number
+			Options_level_number++;
+			}
+		else
+			{
+			// No ... reset level number
+			Options_level_number = 0;
+			}
+		}
+
+	// Has left button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, MRIP_LEFT))
+		{
+		// Any more levels ?
+		if ( Options_level_number > 0 )
+			{
+			// Yes ... dec level number
+			Options_level_number--;
+			}
+		else
+			{
+			// No ... reset level number
+			Options_level_number = NUM_DEMO_LEVELS-1;
+			}
+		}
+
+	// Display text
+	MRBuildText(Option_demo_level_select_text_area[0], Options_demo_level_theme_names[Options_level_number],	MR_FONT_COLOUR_YELLOW);
+	MRBuildText(Option_demo_level_select_text_area[1], Options_demo_level_level_names[Options_level_number],	MR_FONT_COLOUR_YELLOW);
+
+	// Has fire button been pressed ?
+	if (MR_CHECK_PAD_PRESSED(MR_INPUT_PORT_0, FRR_CROSS))
+		{
+
+		// Yes ... set level number
+		Game_map = ( Options_demo_levels[Options_level_number].dl_world_number * 5 ) + Options_demo_levels[Options_level_number].dl_level_number;
+
+		// Exit
+		Option_page_request = OPTIONS_PAGE_EXIT;
+
+		}
+
+}
+
+/******************************************************************************
+*%%%% DemoLevelSelectShutdown
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	DemoLevelSelectShutdown(MR_VOID)
+*
+*	FUNCTION	Shutdown code for Demo Level Select screen.  Just frees text area at
+*				the moment.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.05.97	William Bell	Created
+*
+*%%%**************************************************************************/
+
+MR_VOID	DemoLevelSelectShutdown(MR_VOID)
+{
+
+	// Reset background colour
+	MRSetDisplayClearColour(0x00,0x00,0x00);
+
+	// Free text area
+	MRFreeTextArea(Option_demo_level_select_text_area[1]);
+	MRFreeTextArea(Option_demo_level_select_text_area[0]);
+
+}

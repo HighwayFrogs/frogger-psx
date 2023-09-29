@@ -1,0 +1,203 @@
+main.obj: main.c main.h gamesys.h library.h mapview.h frog.h path.h sound.h\
+ options.h stream.h select.h gamefont.h model.h tempopt.h hsinput.h mr_all.h\
+ project.h frognet.h binaries.h ..\merge\frogpsx.h cdaudio.h netplay.h\
+ entity.h formlib.h form.h mapdisp.h grid.h zone.h hud.h effects.h mapload.h
+project.obj: project.c project.h mr_all.h binaries.h ..\merge\frogpsx.h
+sprdata.obj: sprdata.c ..\vlo\frogvram.c
+gamefont.obj: gamefont.c gamefont.h mr_all.h
+mapload.obj: mapload.c mapload.h mapdisp.h mapview.h gamesys.h project.h\
+ library.h main.h grid.h zone.h path.h entlib.h collide.h entity.h sound.h\
+ mr_all.h form.h formlib.h binaries.h ..\merge\frogpsx.h frognet.h cdaudio.h\
+ netplay.h frog.h hud.h effects.h
+mapdisp.obj: mapdisp.c mapdisp.h mapview.h mapload.h main.h gamesys.h frog.h\
+ mapdebug.h library.h camera.h water.h mr_all.h entity.h path.h form.h\
+ formlib.h zone.h project.h frognet.h binaries.h ..\merge\frogpsx.h cdaudio.h\
+ netplay.h grid.h hud.h effects.h gamefont.h
+gamesys.obj: gamesys.c gamesys.h mapdisp.h main.h project.h mapview.h camera.h\
+ grid.h frog.h froganim.h froguser.h mapdebug.h collide.h gamefont.h sound.h\
+ xalist.h effects.h ent_gen.h model.h options.h mapload.h tempopt.h score.h\
+ select.h playxa.h water.h ent_jun.h particle.h hud.h gen_gold.h pause.h\
+ hsview.h cdaudio.h mr_all.h entity.h path.h form.h formlib.h frognet.h\
+ netplay.h binaries.h ..\merge\frogpsx.h zone.h library.h
+library.obj: library.c library.h project.h entity.h formlib.h mapdisp.h\
+ mr_all.h binaries.h ..\merge\frogpsx.h path.h form.h
+particle.obj: particle.c particle.h project.h main.h gamesys.h frog.h\
+ effects.h ent_for.h misc.h mr_all.h binaries.h ..\merge\frogpsx.h frognet.h\
+ cdaudio.h netplay.h grid.h zone.h hud.h entity.h mapload.h library.h form.h\
+ mapdisp.h formlib.h path.h collide.h
+mapview.obj: mapview.c mapview.h mapdisp.h gamesys.h main.h camera.h mr_all.h\
+ entity.h path.h form.h formlib.h project.h frognet.h binaries.h\
+ ..\merge\frogpsx.h cdaudio.h netplay.h zone.h
+camera.obj: camera.c camera.h frog.h gamesys.h misc.h mr_all.h zone.h\
+ project.h main.h grid.h hud.h effects.h entity.h binaries.h\
+ ..\merge\frogpsx.h frognet.h cdaudio.h netplay.h mapload.h library.h form.h\
+ mapdisp.h formlib.h path.h
+entity.obj: entity.c entity.h gamesys.h project.h library.h form.h mapload.h\
+ misc.h entlib.h mapdebug.h frog.h scripter.h mapview.h collide.h particle.h\
+ sound.h ent_gen.h camera.h tempopt.h mr_all.h path.h binaries.h\
+ ..\merge\frogpsx.h formlib.h mapdisp.h zone.h gamefont.h grid.h main.h hud.h\
+ effects.h frognet.h cdaudio.h netplay.h
+form.obj: form.c form.h formlib.h mr_all.h
+options.obj: options.c options.h project.h tempopt.h select.h gamesys.h\
+ hsview.h hsinput.h credits.h loadsave.h main.h sound.h mr_all.h binaries.h\
+ ..\merge\frogpsx.h frog.h grid.h zone.h hud.h effects.h entity.h mapload.h\
+ library.h form.h mapdisp.h formlib.h path.h frognet.h cdaudio.h netplay.h
+frog.obj: frog.c frog.h gamesys.h collide.h camera.h entlib.h sound.h score.h\
+ froguser.h effects.h mapview.h ent_all.h model.h tempopt.h froganim.h\
+ project.h mapdebug.h hsview.h select.h misc.h gen_frog.h particle.h playxa.h\
+ xalist.h mr_all.h main.h grid.h zone.h hud.h entity.h frognet.h cdaudio.h\
+ netplay.h mapload.h library.h form.h mapdisp.h formlib.h path.h ent_gen.h\
+ ent_cav.h ent_des.h ent_for.h ent_jun.h ent_org.h ent_arn.h ent_swp.h\
+ ent_sky.h ent_sub.h ent_vol.h binaries.h ..\merge\frogpsx.h gamefont.h\
+ options.h
+grid.obj: grid.c grid.h frog.h mr_all.h mapload.h library.h entity.h form.h\
+ mapdisp.h zone.h formlib.h path.h project.h main.h hud.h effects.h binaries.h\
+ ..\merge\frogpsx.h frognet.h cdaudio.h netplay.h gamesys.h
+path.obj: path.c path.h entity.h entlib.h form.h mapload.h gamesys.h mr_all.h\
+ formlib.h library.h mapdisp.h zone.h
+zone.obj: zone.c zone.h mapload.h mr_all.h library.h entity.h form.h mapdisp.h\
+ formlib.h path.h
+collide.obj: collide.c collide.h mapview.h entity.h form.h camera.h entlib.h\
+ sound.h froguser.h ent_gen.h library.h froganim.h misc.h select.h particle.h\
+ mapdebug.h mr_all.h frog.h project.h main.h grid.h zone.h hud.h effects.h\
+ binaries.h ..\merge\frogpsx.h frognet.h cdaudio.h netplay.h mapload.h\
+ mapdisp.h gamesys.h path.h formlib.h gamefont.h
+misc.obj: misc.c misc.h gamesys.h mr_all.h
+mapdebug.obj: mapdebug.c mapdebug.h mapview.h grid.h main.h frog.h mr_all.h\
+ gamefont.h form.h mapdisp.h zone.h formlib.h entity.h path.h mapload.h\
+ library.h project.h frognet.h binaries.h ..\merge\frogpsx.h cdaudio.h\
+ netplay.h hud.h effects.h gamesys.h
+entlib.obj: entlib.c entlib.h entity.h ent_all.h scripts.h mr_all.h path.h\
+ form.h formlib.h ent_gen.h ent_cav.h ent_des.h ent_for.h ent_jun.h ent_org.h\
+ ent_arn.h ent_swp.h ent_sky.h ent_sub.h ent_vol.h frog.h project.h main.h\
+ grid.h zone.h hud.h effects.h binaries.h ..\merge\frogpsx.h frognet.h\
+ cdaudio.h netplay.h mapload.h library.h mapdisp.h gamesys.h collide.h
+froguser.obj: froguser.c froguser.h frog.h camera.h froganim.h particle.h\
+ sound.h ent_gen.h ent_cav.h mr_all.h project.h main.h grid.h zone.h hud.h\
+ effects.h entity.h binaries.h ..\merge\frogpsx.h frognet.h cdaudio.h\
+ netplay.h mapload.h library.h form.h mapdisp.h formlib.h gamesys.h path.h
+scripts.obj: scripts.c scripts.h scripter.h frog.h sound.h ent_all.h mr_all.h\
+ entity.h path.h form.h formlib.h project.h main.h grid.h zone.h hud.h\
+ effects.h binaries.h ..\merge\frogpsx.h frognet.h cdaudio.h netplay.h\
+ mapload.h library.h mapdisp.h gamesys.h ent_gen.h ent_cav.h ent_des.h\
+ ent_for.h ent_jun.h ent_org.h ent_arn.h ent_swp.h ent_sky.h ent_sub.h\
+ ent_vol.h collide.h
+sound.obj: sound.c mr_all.h ..\merge\frogpsx.h sound.h project.h gamesys.h\
+ frog.h froguser.h entity.h tempopt.h binaries.h main.h grid.h zone.h hud.h\
+ effects.h frognet.h cdaudio.h netplay.h mapload.h library.h form.h mapdisp.h\
+ formlib.h path.h
+stream.obj: stream.c mr_all.h stream.h project.h binaries.h ..\merge\frogpsx.h
+memcard.obj: memcard.c mr_all.h memcard.h project.h binaries.h\
+ ..\merge\frogpsx.h
+ent_des.obj: ent_des.c ent_des.h entlib.h form.h mapload.h gamesys.h project.h\
+ sound.h scripter.h scripts.h misc.h frog.h mr_all.h entity.h effects.h path.h\
+ grid.h formlib.h library.h mapdisp.h zone.h binaries.h ..\merge\frogpsx.h\
+ main.h hud.h frognet.h cdaudio.h netplay.h
+ent_vol.obj: ent_vol.c ent_vol.h scripter.h ent_des.h frog.h sound.h mr_all.h\
+ entity.h path.h form.h formlib.h effects.h gamesys.h grid.h mapload.h\
+ library.h mapdisp.h zone.h project.h main.h hud.h binaries.h\
+ ..\merge\frogpsx.h frognet.h cdaudio.h netplay.h
+ent_swp.obj: ent_swp.c ent_swp.h scripter.h scripts.h sound.h frog.h mr_all.h\
+ entity.h path.h form.h formlib.h project.h main.h grid.h zone.h hud.h\
+ effects.h binaries.h ..\merge\frogpsx.h frognet.h cdaudio.h netplay.h\
+ mapload.h library.h mapdisp.h gamesys.h
+ent_sub.obj: ent_sub.c ent_sub.h scripter.h scripts.h sound.h gamesys.h\
+ sub_snak.h sub_turt.h frog.h entlib.h mr_all.h entity.h path.h form.h\
+ formlib.h project.h main.h grid.h zone.h hud.h effects.h binaries.h\
+ ..\merge\frogpsx.h frognet.h cdaudio.h netplay.h mapload.h library.h\
+ mapdisp.h
+ent_sky.obj: ent_sky.c ent_sky.h scripter.h scripts.h sound.h mr_all.h\
+ entity.h path.h form.h formlib.h
+ent_org.obj: ent_org.c ent_org.h scripter.h scripts.h sound.h frog.h collide.h\
+ entlib.h org_baby.h ent_gen.h froganim.h score.h particle.h mr_all.h entity.h\
+ path.h form.h formlib.h project.h main.h grid.h zone.h hud.h effects.h\
+ binaries.h ..\merge\frogpsx.h frognet.h cdaudio.h netplay.h mapload.h\
+ library.h mapdisp.h gamesys.h
+ent_jun.obj: ent_jun.c ent_jun.h scripts.h scripter.h frog.h ent_sub.h\
+ ent_org.h sound.h gen_gold.h mr_all.h entity.h path.h form.h formlib.h\
+ project.h main.h grid.h zone.h hud.h effects.h binaries.h ..\merge\frogpsx.h\
+ frognet.h cdaudio.h netplay.h mapload.h library.h mapdisp.h gamesys.h
+ent_gen.obj: ent_gen.c ent_gen.h entlib.h form.h mapload.h gamesys.h project.h\
+ sound.h score.h select.h particle.h gen_gold.h camera.h mr_all.h entity.h\
+ frog.h path.h main.h grid.h zone.h hud.h effects.h frognet.h cdaudio.h\
+ netplay.h formlib.h library.h mapdisp.h binaries.h ..\merge\frogpsx.h
+ent_for.obj: ent_for.c ent_for.h frog.h collide.h sound.h scripter.h scripts.h\
+ particle.h mr_all.h entity.h path.h form.h formlib.h project.h main.h grid.h\
+ zone.h hud.h effects.h binaries.h ..\merge\frogpsx.h frognet.h cdaudio.h\
+ netplay.h mapload.h library.h mapdisp.h gamesys.h
+ent_arn.obj: ent_arn.c ent_arn.h mr_all.h
+ent_cav.obj: ent_cav.c ent_cav.h scripter.h scripts.h project.h mapdisp.h\
+ frog.h entlib.h sound.h froguser.h score.h ent_gen.h particle.h mr_all.h\
+ entity.h path.h form.h formlib.h binaries.h ..\merge\frogpsx.h main.h grid.h\
+ zone.h hud.h effects.h frognet.h cdaudio.h netplay.h mapload.h library.h\
+ gamesys.h
+formlib.obj: formlib.c formlib.h entity.h entlib.h project.h scripts.h\
+ ent_all.h collide.h mr_all.h path.h form.h binaries.h ..\merge\frogpsx.h\
+ ent_gen.h ent_cav.h ent_des.h ent_for.h ent_jun.h ent_org.h ent_arn.h\
+ ent_swp.h ent_sky.h ent_sub.h ent_vol.h frog.h main.h grid.h zone.h hud.h\
+ effects.h frognet.h cdaudio.h netplay.h mapload.h library.h mapdisp.h\
+ gamesys.h
+hud.obj: hud.c hud.h gamesys.h frog.h ent_all.h froganim.h score.h select.h\
+ sound.h tempopt.h mr_all.h project.h main.h grid.h zone.h effects.h entity.h\
+ binaries.h ..\merge\frogpsx.h frognet.h cdaudio.h netplay.h mapload.h\
+ library.h form.h mapdisp.h formlib.h path.h ent_gen.h ent_cav.h ent_des.h\
+ ent_for.h ent_jun.h ent_org.h ent_arn.h ent_swp.h ent_sky.h ent_sub.h\
+ ent_vol.h collide.h
+score.obj: score.c score.h gamesys.h ent_cav.h froguser.h camera.h select.h\
+ sound.h mr_all.h frog.h project.h main.h grid.h zone.h hud.h effects.h\
+ entity.h binaries.h ..\merge\frogpsx.h frognet.h cdaudio.h netplay.h\
+ mapload.h library.h form.h mapdisp.h formlib.h path.h
+scripter.obj: scripter.c scripter.h scripts.h frog.h entity.h entlib.h\
+ ent_gen.h camera.h froganim.h sound.h froguser.h mr_all.h project.h main.h\
+ grid.h zone.h hud.h effects.h binaries.h ..\merge\frogpsx.h frognet.h\
+ cdaudio.h netplay.h mapload.h library.h form.h mapdisp.h formlib.h gamesys.h\
+ path.h
+loadsave.obj: loadsave.c mr_all.h loadsave.h options.h memcard.h gamefont.h\
+ gamesys.h project.h sound.h tempopt.h ent_gen.h frog.h camera.h select.h\
+ hsview.h binaries.h ..\merge\frogpsx.h entity.h path.h form.h formlib.h\
+ main.h grid.h zone.h hud.h effects.h frognet.h cdaudio.h netplay.h mapload.h\
+ library.h mapdisp.h
+playxa.obj: playxa.c mr_all.h playxa.h project.h main.h binaries.h\
+ ..\merge\frogpsx.h frognet.h cdaudio.h netplay.h
+tempopt.obj: tempopt.c mr_all.h options.h tempopt.h gamefont.h gamesys.h\
+ main.h stream.h memcard.h library.h mapdebug.h gen_frog.h frog.h model.h\
+ sound.h xalist.h select.h hsview.h hsinput.h camera.h froganim.h score.h\
+ mapview.h ent_gen.h hud.h particle.h water.h pause.h playxa.h project.h\
+ frognet.h binaries.h ..\merge\frogpsx.h cdaudio.h netplay.h entity.h\
+ formlib.h path.h form.h mapdisp.h zone.h grid.h mapload.h effects.h
+effects.obj: effects.c effects.h main.h ent_gen.h sound.h score.h misc.h\
+ particle.h entlib.h mr_all.h gamesys.h grid.h entity.h mapload.h library.h\
+ form.h mapdisp.h zone.h formlib.h path.h project.h frognet.h binaries.h\
+ ..\merge\frogpsx.h cdaudio.h netplay.h frog.h hud.h
+xalist.obj: xalist.c xalist.h gamesys.h mr_all.h
+select.obj: select.c select.h gamefont.h project.h options.h main.h gamesys.h\
+ hsview.h library.h tempopt.h frog.h sound.h xalist.h ent_gen.h camera.h\
+ pause.h mr_all.h binaries.h ..\merge\frogpsx.h frognet.h cdaudio.h netplay.h\
+ entity.h formlib.h path.h form.h grid.h zone.h hud.h effects.h mapload.h\
+ mapdisp.h
+model.obj: model.c model.h project.h gamesys.h library.h mr_all.h effects.h\
+ grid.h entity.h mapload.h form.h mapdisp.h zone.h formlib.h path.h binaries.h\
+ ..\merge\frogpsx.h
+hsview.obj: hsview.c hsview.h select.h project.h options.h tempopt.h\
+ gamefont.h gamesys.h hsinput.h sound.h gen_frog.h frog.h camera.h main.h\
+ misc.h model.h library.h mr_all.h binaries.h ..\merge\frogpsx.h entity.h\
+ path.h form.h formlib.h grid.h zone.h hud.h effects.h mapload.h mapdisp.h\
+ frognet.h cdaudio.h netplay.h
+froganim.obj: froganim.c froganim.h gamesys.h ent_all.h frog.h gen_frog.h\
+ gnm_frog.h mr_all.h ent_gen.h ent_cav.h ent_des.h ent_for.h ent_jun.h\
+ ent_org.h ent_arn.h ent_swp.h ent_sky.h ent_sub.h ent_vol.h entity.h path.h\
+ form.h formlib.h effects.h grid.h mapload.h library.h mapdisp.h zone.h\
+ collide.h project.h main.h hud.h binaries.h ..\merge\frogpsx.h frognet.h\
+ cdaudio.h netplay.h
+hsinput.obj: hsinput.c hsinput.h project.h options.h tempopt.h gamefont.h\
+ gamesys.h hsview.h frog.h select.h sound.h model.h camera.h particle.h\
+ pause.h mr_all.h binaries.h ..\merge\frogpsx.h main.h grid.h zone.h hud.h\
+ effects.h entity.h frognet.h cdaudio.h netplay.h mapload.h library.h form.h\
+ mapdisp.h formlib.h path.h
+credits.obj: credits.c mr_all.h credits.h tempopt.h gamefont.h options.h\
+ gamesys.h project.h stream.h binaries.h ..\merge\frogpsx.h
+water.obj: water.c water.h mr_all.h
+pause.obj: pause.c pause.h frog.h tempopt.h entity.h options.h playxa.h\
+ sound.h select.h hsinput.h ent_gen.h mr_all.h project.h main.h grid.h zone.h\
+ hud.h effects.h binaries.h ..\merge\frogpsx.h frognet.h cdaudio.h netplay.h\
+ mapload.h library.h form.h mapdisp.h formlib.h gamesys.h path.h
