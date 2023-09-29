@@ -26,7 +26,7 @@
 
 // Build Options
 
-//#define		PSX_RELEASE
+#define		PSX_RELEASE
 //#define		PSX_MASTER
 
 #define		PSX_MODE_NTSC

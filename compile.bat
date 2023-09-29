@@ -16,14 +16,12 @@ goto country_select
 
 :country_ok
 
-REM Calling PSPATHS.BAT will replace your %PATH% with one which has access to the SDK executables for this session only.
-REM Unfortunately, we can't keep the existing path, we must delete it. This is because Borland make doesn't handle paths above a certain size, and will give the error "Command arguments too long".
+:: Calling PSPATHS.BAT will replace your %PATH% with one which has access to the SDK executables for this session only.
+:: Unfortunately, we can't keep the existing path, we must delete it. This is because Borland make doesn't handle paths above a certain size, and will give the error "Command arguments too long".
 CALL SDK\PSPATHS.BAT
 
-REM Setup temp directory with copied code.
+:: Setup build folder.
 if not exist build md build
-del build\burn\SLUS_005.06
-del build\burn\SLES_007.04
 
 :: Move to the source folder.
 cd source
@@ -45,7 +43,7 @@ if NOT EXIST main.cpe goto error
 cpe2exe main.cpe %COUNTRY_CODE% 0x801ffff0
 if NOT EXIST main.exe goto error
 
-:: Move output to burn folder.
+:: Move back to root folder.
 cd ..\
 
 :: Show SHA1 hash

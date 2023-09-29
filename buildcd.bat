@@ -16,7 +16,7 @@ goto country_select
 
 :country_ok
 
-REM Calling PSPATHS.BAT will replace your %PATH% with one which has access to the SDK executables for this session only.
+:: Calling PSPATHS.BAT will replace your %PATH% with one which has access to the SDK executables for this session only.
 CALL SDK\PSPATHS.BAT
 
 IF NOT EXIST "build\Files_%COUNTRY_CODE%" (
@@ -27,11 +27,13 @@ IF NOT EXIST "build\Files_%COUNTRY_CODE%" (
 	goto :error
 )
 
+:: Ensure game executable exists.
 IF NOT EXIST "source\main.exe" (
 	ECHO The game has not been compiled yet. Use "compile.bat" to compile the game.
 	goto :error
 )
 
+:: Move game executable.
 IF EXIST "build\Files_%COUNTRY_CODE%\SLUS_005.06" DEL "build\Files_%COUNTRY_CODE%\SLUS_005.06"
 IF EXIST "build\Files_%COUNTRY_CODE%\SLES_007.04" DEL "build\Files_%COUNTRY_CODE%\SLES_007.04"
 if "%COUNTRY_CODE%"=="A"  copy "source\main.exe" "build\Files_%COUNTRY_CODE%\SLUS_005.06"

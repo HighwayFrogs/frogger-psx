@@ -114,14 +114,14 @@ debug:
 	dbugpsx main.sym
 
 clean:
-	del		*.dep
+#	del		*.dep
 	del		*.obj
 	del 	*.cpe
 	del 	*.map
 	del 	*.sym
 	del 	api.src\*.obj
 	del 	api.src\*.lib
-	del 	..\merge\*.mwi
+#	del 	..\merge\*.mwi
 
 prep:
 	attrib -r binaries.s
