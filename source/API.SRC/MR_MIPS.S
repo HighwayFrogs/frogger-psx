@@ -12,7 +12,7 @@
 	
 		section	.text	
 	
-		include	"gtereg.h"
+		include	"..\..\include\gtereg.h"
 
 		xdef	MRQuaternionToMatrixASM
 	

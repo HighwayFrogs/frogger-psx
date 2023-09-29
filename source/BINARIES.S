@@ -17,9 +17,9 @@ data		group
 		SECTION	.data
 
 		cnop	0,4
-frogpsx_mwi	incbin	"L:\FROGGER\MERGE\FROGPSX.MWI"
+frogpsx_mwi	incbin	"..\MERGE\FROGPSX.MWI"
 		cnop	0,4
-card_image	incbin	"L:\FROGGER\BINARIES\FROGSAVE.TIM"
+card_image	incbin	"..\BINARIES\FROGSAVE.TIM"
 		end
 
 

@@ -1,0 +1,9 @@
+source/*.obj
+source/API.SRC/*.lib
+source/API.SRC/*.obj
+source/*.cpe
+source/*.exe
+source/*.sym
+source/*.map
+build/
+merge/frogpsx.mwi

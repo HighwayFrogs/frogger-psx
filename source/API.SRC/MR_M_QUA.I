@@ -10,7 +10,7 @@
 ;/*	
 ;/*%%%**************************************************************************/
 
-		include	"gtereg.h"
+		include	"..\..\include\gtereg.h"
 
 MR_QUAT_EPSILON		equ	1
 

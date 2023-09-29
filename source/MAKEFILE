@@ -17,7 +17,7 @@
 #//-------------------------------------------------------------------------------------------
 #// Compiler options and flags
 
-ASM_INCLUDE		=	C:\PSX\INCLUDE.40
+ASM_INCLUDE		=	..\include
 
 CC				=	ccpsx											#// Compiler name
 AS				=	asmpsx /j $(ASM_INCLUDE)						#// Assembler name
@@ -32,14 +32,6 @@ AFLAGS			=	/z /zd /l /g /q /o s+ /o l. /o c+				#// Debug build (MIPS)
 CFLAGS			=	-comments-c++ -c $(C_OPT_WARNINGS) -O3			#// Release build (C)
 AFLAGS			=	/z /zd /l /g /q /o s+ /o l. /o c+				#// Release build (MIPS)
 !ENDIF
-
-!IFNDEF	RUN	
-PS_RUN_OPTION	=	/h												#// Don't run on download
-!ENDIF
-
-PS_KERNEL_PATCH	=	C:\PSX\BIN\SNPATCH.CPE							#// Kernel patch utility
-PS_RESET_DELAY	=	/w8												#// Time to wait for kernel patch
-
 
 #//-------------------------------------------------------------------------------------------
 #// Object modules (project specific) - Keep them spaced to 8.3 lengths for clarity, please.
@@ -101,11 +93,11 @@ phoney:
 #//-------------------------------------------------------------------------------------------
 #// Automatic resource file generation - touches 'binaries.s' to force re-inclusion of .MWI
 
-..\merge\frogpsx.mwi: buildwad.scr
+..\merge\frogpsx.mwi:
 	@echo -----
-	easewad buildwad.scr
-	buildwad buildwad.scr /verbose
-	touch binaries.s
+#	easewad buildwad.scr
+#	buildwad buildwad.scr /verbose
+#	touch binaries.s
 
 #//-------------------------------------------------------------------------------------------
 #// Makefile interface routines (build all, run project, debug project)
@@ -117,14 +109,6 @@ all: $(PROJ_MWI_FILE) $(PROJ_OBJ_C_LIST) $(PROJ_OBJ_S_LIST)
 	
 	@echo -----
 	psylink /n512 /c /m @makefile.lnk,main.cpe,main.sym,main.map
-
-!INCLUDE makefile.inc
-
-runit:
-	resetps 1
-	run $(PS_RESET_DELAY) $(PS_KERNEL_PATCH)
-	delay 50
-	run $(PS_RESET_DELAY) $(PS_RUN_OPTION) main.cpe
 
 debug:  
 	dbugpsx main.sym

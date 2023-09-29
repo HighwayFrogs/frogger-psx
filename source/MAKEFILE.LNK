@@ -159,26 +159,26 @@ bss		group bss			; Group containing uninitialised data
 	 
 ; Include exception handler
 ;	Un-comment if you want text messages.
-	include	"c:\psx\lib.40\putchar.obj"
+	include	"..\sdk\lib\putchar.obj"
 
 ; 
 ; Specify your link libraries here 
 ;
-;	inclib	"c:\psx\lib.40\libgs.lib"	; We need to link with the standard	
-	inclib	"c:\psx\lib.40\libgte.lib"	; SONY link libraries
-	inclib	"c:\psx\lib.40\libgpu.lib"
-	inclib	"c:\psx\lib.40\libetc.lib"
-	inclib	"c:\psx\lib.40\libapi.lib"
-	inclib	"c:\psx\lib.40\libsn.lib"
-	inclib	"c:\psx\lib.40\libc2.lib"
-	inclib	"c:\psx\lib.40\libspu.lib"
-	inclib	"c:\psx\lib.40\libsnd.lib"
-	inclib	"c:\psx\lib.40\libpress.lib"
-	inclib	"c:\psx\lib.40\libcd.lib"
-	inclib	"c:\psx\lib.40\libds.lib"
-	inclib	"c:\psx\lib.40\libcard.lib"
-	inclib	"c:\psx\lib.40\libmcrd.lib"
-	inclib	"c:\psx\lib.40\libtap.lib"	; For the Multi-tap.
+;	inclib	"libgs.lib"	; We need to link with the standard	
+	inclib	"..\sdk\lib\libgte.lib"	; SONY link libraries
+	inclib	"..\sdk\lib\libgpu.lib"
+	inclib	"..\sdk\lib\libetc.lib"
+	inclib	"..\sdk\lib\libapi.lib"
+	inclib	"..\sdk\lib\libsn.lib"
+	inclib	"..\sdk\lib\libc2.lib"
+	inclib	"..\sdk\lib\libspu.lib"
+	inclib	"..\sdk\lib\libsnd.lib"
+	inclib	"..\sdk\lib\libpress.lib"
+	inclib	"..\sdk\lib\libcd.lib"
+	inclib	"..\sdk\lib\libds.lib"
+	inclib	"..\sdk\lib\libcard.lib"
+	inclib	"..\sdk\lib\libmcrd.lib"
+	inclib	"..\sdk\lib\libtap.lib"	; For the Multi-tap.
 
 ; This initialises the program counter register so
 ; that the downloader sets the entry point before
