@@ -22,7 +22,6 @@ CALL SDK\PSPATHS.BAT
 
 REM Setup temp directory with copied code.
 if not exist build md build
-if not exist "build\Files_%COUNTRY_CODE%" md "build\Files_%COUNTRY_CODE%"
 del build\burn\SLUS_005.06
 del build\burn\SLES_007.04
 
@@ -56,14 +55,13 @@ PAUSE
 
 :: Attempt to build the CD.
 CALL buildcd.bat %COUNTRY_CODE%
-if errorlevel 1 goto error
+if errorlevel 1 goto :EOF
 
 goto okay
 
 :error
 echo *** There Were Errors ***
 PAUSE
-SET ERRORLEVEL=1
 goto :EOF
 
 :okay
