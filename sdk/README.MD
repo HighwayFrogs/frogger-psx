@@ -28,8 +28,7 @@ Unfortunately, while Borland Make works great on 32-bit systems, trying to use i
 NMAKE:
 NMAKE.EXE (And the required DOSXNT.EXE to accompany it) came from Microsoft Visual C++ 4.0 at https://winworldpc.com/product/visual-c/4x
 It is used as the make program for compiling under DOSBox + with the 16 bit compilers.
-Originally I grabbed this from the Visual Studio '97 backup on the Frogger 2 tape at `\\BLITZONE\DATA\TeamSpirit\pcversion\DevStudio\VC\bin\NMAKE.EXE`.
-But, this doesn't cut it for DOSBox since it's 32 bit only.
+Originally I grabbed this from the Visual Studio '97 backup on the Frogger 2 tape at `\\BLITZONE\DATA\TeamSpirit\pcversion\DevStudio\VC\bin\NMAKE.EXE`, but that file was too new (32 bit only), so VC++ 4.0 it was.
 
 Misc:
 cpe2exe.exe: Converts .cpe PSX executables to .exe PSX executables. I modified the code to work with arbitrarily large .cpe files. Source code in `src\`.
