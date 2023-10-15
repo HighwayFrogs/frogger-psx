@@ -9,3 +9,16 @@ build/
 merge/frogpsx.mwi
 *.cue
 *.bin
+
+# These files are dependent on the version.
+SetMyDosBoxPath.bat
+sdk/bin/asmpsx.exe
+sdk/bin/aspsx.exe
+sdk/bin/ccpsx.exe
+sdk/bin/cc1psx.exe
+sdk/bin/cpppsx.exe
+sdk/bin/dmpsx.exe
+sdk/bin/psylib.exe
+sdk/bin/psylib2.exe
+sdk/bin/psylink.exe
+sdk/bin/INLINE.TBL

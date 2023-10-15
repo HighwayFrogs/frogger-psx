@@ -1,7 +1,6 @@
-#include "texture-macros.h"
-
 #ifndef __FROGVRAM_H
 #define __FROGVRAM_H
+#include "texmacro.h"
 
 extern MR_TEXTURE* bmp_pointers[];
 

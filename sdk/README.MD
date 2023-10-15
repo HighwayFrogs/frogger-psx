@@ -20,11 +20,18 @@ PsyQ 4.3 (Official Sony PlayStation SDK):
 DMPSX.EXE: I forget why this exe is needed. PsyQ 4.0 only includes a 16bit version of this program, so I went for 4.3 instead.
 PSYLIB2.EXE: This is a special linker which creates .lib (library) files from .obj compiler objects. PsyQ 4.0 only had PSYLIB.EXE, 4.3 was the first one I saw with PSYLIB2.EXE
 
-Not Sure:
-MAKE.EXE: I believe this is "Borland Make" dated 1993-12-02. I nabbed this from Frogger 2's PSX compilation setup before I figured out where to get nmake, which is what Frogger actually used. However, since this works, I didn't actually switch to nmake.
+Borland Make:
+Borland Make is compatible with both 16 bit and 32 bit systems, which makes it preferable to nmake, since we want to support both.
+MAKE.EXE: I believe this is "Borland Make" dated 1993-12-02. I nabbed this from Frogger 2's PSX compilation setup which I made earlier. I believe I got it from https://winworldpc.com/product/borland-c/40
+Unfortunately, while Borland Make works great on 32-bit systems, trying to use it with the original 16-bit compilers in DOSBox causes segfaults. So NMAKE is preferred in that case.
+
+NMAKE:
+NMAKE.EXE (And the required DOSXNT.EXE to accompany it) came from Microsoft Visual C++ 4.0 at https://winworldpc.com/product/visual-c/4x
+It is used as the make program for compiling under DOSBox + with the 16 bit compilers.
+Originally I grabbed this from the Visual Studio '97 backup on the Frogger 2 tape at `\\BLITZONE\DATA\TeamSpirit\pcversion\DevStudio\VC\bin\NMAKE.EXE`.
+But, this doesn't cut it for DOSBox since it's 32 bit only.
 
 Misc:
-NMAKE.EXE: I grabbed this from the Visual Studio '97 backup on the Frogger 2 tape at `\\BLITZONE\DATA\TeamSpirit\pcversion\DevStudio\VC\bin\NMAKE.EXE`. This is probably the make program Frogger should use buuut I got it working with the other one and stuck with it.
 cpe2exe.exe: Converts .cpe PSX executables to .exe PSX executables. I modified the code to work with arbitrarily large .cpe files. Source code in `src\`.
 
 ISO Tools:
