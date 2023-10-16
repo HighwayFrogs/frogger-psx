@@ -74,6 +74,8 @@ goto :AfterCompile
 
 
 :CompileDosBox
+SET COUNTRY_CODE=A
+
 IF EXIST SetMyDosBoxPath.bat CALL SetMyDosBoxPath.bat
 if not exist "%DOSBOX%" (
 	ECHO There is no file at the dosbox path "%DOSBOX%".
@@ -117,6 +119,7 @@ goto :AfterCompile
 :: Verify Frogger executable was made.
 if errorlevel 1 goto error
 if NOT EXIST main.cpe goto error
+if EXIST main.exe DEL main.exe
 
 :: Convert Frogger executable to PSX-EXE.
 cpe2exe main.cpe %COUNTRY_CODE% 0x801ffff0
