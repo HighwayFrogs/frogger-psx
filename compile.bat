@@ -98,8 +98,8 @@ COPY sdk\bin\SDK4.0\PSYLIB2.EXE sdk\bin\ /Y /B
 COPY sdk\bin\SDK4.0\DMPSX.EXE sdk\bin\ /Y /B
 
 :: Run the dos make script through DOSBox.
+del source\main.cpe
 "%DOSBOX%" "%~dp0dosmake.bat" -noautoexec -noconsole -exit
-if errorlevel 1 goto error
 
 :: Delete dosbox output.
 DEL stderr.txt

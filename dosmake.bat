@@ -28,8 +28,18 @@ IF NOT EXIST build\temp MD build\temp
 REM Move to the source folder.
 cd source
 
-REM Make Frogger executable.
+REM Make Frogger executable and handle errors.
 nmake all
+
+IF ERRORLEVEL 2 GOTO :ERROR
+IF ERRORLEVEL 1 GOTO :ERROR
 
 REM Move back to root folder.
 CD ..\
+GOTO :END
+
+:ERROR
+ECHO Compilation Failure
+PAUSE
+
+:END
