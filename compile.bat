@@ -1,4 +1,6 @@
 @echo OFF
+setlocal
+setlocal EnableDelayedExpansion
 
 :: This script can compile Frogger PSX both with the original compiler and later ones.
 
@@ -181,7 +183,6 @@ if errorlevel 1 goto :EOF
 goto done
 
 :MakeWSL
-setlocal
 SET FILE_NAME=%1
 SET DOS_PATH=source\%FILE_NAME%
 SET LINUX_PATH=source/%FILE_NAME%
@@ -191,8 +192,11 @@ IF "%2"=="TRUE" (
 	SET LINUX_PATH=source/API.SRC/%FILE_NAME%
 )
 
-:: Return if the obj already exists.
-IF EXIST "%DOS_PATH%.OBJ" EXIT /b 0
+:: Return if the obj already exists and was modified more recently than the source file.
+IF EXIST "%DOS_PATH%.OBJ" (
+	FOR /F %%i IN ('DIR /B /O:D "%DOS_PATH%.C" "%DOS_PATH%.OBJ"') DO SET NEWER_FILE=%%i
+	IF "!NEWER_FILE!"=="%FILE_NAME%.OBJ" EXIT /b 0
+)
 
 :: Step 1) Preprocess
 ECHO Preprocessing %FILE_NAME%.C
