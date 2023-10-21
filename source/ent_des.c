@@ -1201,7 +1201,9 @@ MR_VOID ENTSTRDesCreateCrack(LIVE_ENTITY*	live_entity)
 	rt_crack->cr_state		  	= DES_CRACK_WAITING_FOR_HITS;
 	rt_crack->cr_current_wait 	= 0;
 	rt_crack->cr_num_hits	  	= 0;
+#ifndef BUILD_49
 	rt_crack->cr_vel_y			= 0;
+#endif
 
 	// Probably need to set the animation in here somewhere as well.
 	MR_ASSERT (live_entity->le_flags & LIVE_ENTITY_FLIPBOOK);
@@ -1276,6 +1278,7 @@ MR_VOID	ENTSTRDesUpdateCrack(LIVE_ENTITY*	live_entity)
 				// Play SFX when hit. 
 				MRSNDPlaySound(SFX_DES_CRACK, NULL, 0, 0);
 
+
 				// We we arn't passed our limit.
 				if ( crack_rt_ptr->cr_num_hits >= crack_ptr->cr_hops_before )
 					{
@@ -1289,8 +1292,35 @@ MR_VOID	ENTSTRDesUpdateCrack(LIVE_ENTITY*	live_entity)
 			break;
 		// -------------------------------------------------------------------------
 		case DES_CRACK_WAITING_TO_FALL:
-			crack_rt_ptr->cr_current_wait--;
+#ifdef BUILD_49
+			if (!(crack_rt_ptr->cr_current_wait--))
+				{
+				// Turn on anims
+				crack_rt_ptr->cr_state = DES_CRACK_FALLING;
+				((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags |= (MR_ANIM_ENV_STEP|MR_ANIM_ENV_ONE_SHOT);
+				mesh->me_flags &= ~MR_MESH_PAUSE_ANIMATED_POLYS;
 
+				// Make SFX for falling .
+				PlaySoundDistance(live_entity, SFX_DES_HOLE01, 30);
+				
+				// turn off collision for this entity
+				live_entity->le_entity->en_flags |= ENTITY_NO_COLLISION;
+					
+				// turn off parent entity for frog, and make it FALL
+				frog		= Frogs;
+				frog_index	= 4;
+				while (frog_index--)
+					{
+					if (frog->fr_entity == live_entity->le_entity)
+						{
+						FROG_FALL(frog);
+						}
+					frog++;
+					}
+				}
+#else
+			crack_rt_ptr->cr_current_wait--;
+		
 			// Start fall sound/anim a little before we drop the frog
 			if (crack_rt_ptr->cr_current_wait <= 0x8)
 				{
@@ -1300,16 +1330,23 @@ MR_VOID	ENTSTRDesUpdateCrack(LIVE_ENTITY*	live_entity)
 
 				// Make SFX for falling .
 				PlaySoundDistance(live_entity, SFX_DES_HOLE01, 30);
-	
+				
 				// Start crack falling
 				crack_rt_ptr->cr_state 	= DES_CRACK_FALLING;
 				crack_rt_ptr->cr_y		= live_entity->le_lwtrans->t[1] << 16;
 				}
+#endif
 
 			break;
 		// -------------------------------------------------------------------------
 		// This really should be opening, but we don't have the animations for it yet.
 		case DES_CRACK_FALLING:
+#ifdef BUILD_49
+			if (live_entity->le_lwtrans->t[1] < 1024)
+				{
+				live_entity->le_lwtrans->t[1] 	+= SYSTEM_GRAVITY >> 16;
+				}
+#else
 			if (crack_rt_ptr->cr_current_wait > 0) 
 				{
 				if (!(--crack_rt_ptr->cr_current_wait))
@@ -1339,6 +1376,7 @@ MR_VOID	ENTSTRDesUpdateCrack(LIVE_ENTITY*	live_entity)
 					live_entity->le_lwtrans->t[1] 	= crack_rt_ptr->cr_y >> 16;
 					}
 				}
+#endif
 			break;
 		// -------------------------------------------------------------------------
 		}

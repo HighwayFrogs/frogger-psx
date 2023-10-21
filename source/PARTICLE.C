@@ -563,19 +563,24 @@ MR_VOID	Pickup_disp(MR_PGEN_INST* pgeninst, MR_VIEWPORT* viewport)
 	otz += PICKUP_OT_OFFSET;
 	
 	if ((otz > 0) && (otz < MRVp_ot_size))	
-		{					
+		{
+#ifndef BUILD_49
 		// Glow
-		gte_stsxy(&sxy);			
-
+		gte_stsxy(&sxy);
+		
 		// Only try to render if abs(y) < 768
 		if (abs(sxy.y) < 0x300)
 			{
+#endif
 			// If half size viewports, halve size of sprites
 			if (Game_total_viewports > 2)
 				shift = 9;
 			else
 				shift = 8;
-	
+#ifdef BUILD_49
+			// Glow
+			gte_stsxy(&sxy);
+#endif
 			glow_mag 	= (rsin(geom_ptr->pt_lifetime) + 0x3800) << 3;
 			xofs 		= ((glow_texture->te_w * glow_mag) / otz) >> shift;
 			yofs 		= ((glow_texture->te_h * glow_mag) / otz) >> shift;
@@ -605,7 +610,9 @@ MR_VOID	Pickup_disp(MR_PGEN_INST* pgeninst, MR_VIEWPORT* viewport)
 #endif
 			MR_COPY16(poly_ptr->u2, image_texture->te_u2);
 			MR_COPY16(poly_ptr->u3, image_texture->te_u3);
+#ifndef BUILD_49
 			}
+#endif
 		}
 }
 
@@ -2671,19 +2678,24 @@ MR_VOID	Gold_frog_glow_disp(MR_PGEN_INST* pgeninst, MR_VIEWPORT* viewport)
 	otz += (-0x30);
 	
 	if ((otz > 0) && (otz < MRVp_ot_size))	
-		{					
+		{
+#ifndef BUILD_49			
 		// Glow
 		gte_stsxy(&sxy);	
 
 		// Only try to render if abs(y) < 768
 		if (abs(sxy.y) < 0x300)
 			{
+#endif
 			// If half size viewports, halve size of sprites
 			if (Game_total_viewports > 2)
 				shift = 9;
 			else
 				shift = 8;
-		
+#ifdef BUILD_49
+			// Glow
+			gte_stsxy(&sxy);
+#endif
 			glow_mag 	= (rsin(geom_ptr->pt_lifetime) + 0x3800) << 4;
 			xofs 		= ((glow_texture->te_w * glow_mag) / otz) >> shift;
 			yofs 		= ((glow_texture->te_h * glow_mag) / otz) >> shift;
@@ -2696,7 +2708,9 @@ MR_VOID	Gold_frog_glow_disp(MR_PGEN_INST* pgeninst, MR_VIEWPORT* viewport)
 			poly_ptr->z0 = poly_ptr->z1 = poly_ptr->z2 = poly_ptr->z3 = otz;
 #endif
 			addPrim(MRVp_work_ot + otz, poly_ptr);
+#ifndef BUILD_49
 			}
+#endif
 		}
 }
 

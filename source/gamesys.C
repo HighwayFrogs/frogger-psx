@@ -1456,7 +1456,9 @@ MR_VOID	GameMainloop(MR_VOID)
 
 #ifdef PSX	
 //	MRStartGatso();
-//	FASTSTACK;
+#ifndef EXPERIMENTAL
+	FASTSTACK;
+#endif
 #endif		
 
 	MRSetActiveViewport(Game_viewport0);
@@ -1574,7 +1576,9 @@ MR_VOID	GameMainloop(MR_VOID)
 		}
 
 #ifdef PSX	
-//	SLOWSTACK;
+#ifndef EXPERIMENTAL
+	SLOWSTACK;
+#endif
 	MRGetMemoryStats();
 //	MRStopGatso();
 //	ProgressMonitor();

@@ -171,6 +171,9 @@ public class VramHeaderExporter extends GhidraScript {
 		
 		// Generates BSS names.
 		StringBuilder macroBuilder = new StringBuilder();
+		macroBuilder.append("#ifndef __TEX_MACROS_H\n");
+		macroBuilder.append("#define __TEX_MACROS_H\n\n");
+
 		if (GENERATE_BSS_NAMES) {
 			HashSumLookupTree tree = buildTree();
 			
@@ -265,6 +268,7 @@ public class VramHeaderExporter extends GhidraScript {
 			
 			macroBuilder.append("\n");
 		}
+		macroBuilder.append("\n#endif");
 		
 		// Prints the image table and remaps.
 		StringBuilder sb = new StringBuilder();
@@ -304,13 +308,21 @@ public class VramHeaderExporter extends GhidraScript {
 		}
 		
 		// Write to file.
-		writeStringToFile("export.C", sb.toString() + headerBuilder.toString());
-		writeStringToFile("texture-macros.h", macroBuilder.toString());
+		writeStringToFile("debug-export.c", sb.toString() + headerBuilder.toString());
+		writeStringToFile("texmacro.h", macroBuilder.toString());
 	}
 	
 	private void addMacrosForGroupSafely(HashSumLookupTree tree, StringBuilder builder, List<HashedSymbol> symbols, int minHash, int maxHash) {
-		if (maxHash < minHash)
-			throw new RuntimeException("Cannot generate macros for this group, the min hash (" + minHash + ") is greater than the max hash! (" + maxHash + ")");
+		if (maxHash < minHash) {
+			StringBuilder errorBuilder = new StringBuilder();
+			for (int i = 0; i < symbols.size(); i++) {
+				if (i > 0)
+					errorBuilder.append(", ");
+				errorBuilder.append(symbols.get(i).getDisplayName(false));
+			}
+			
+			throw new RuntimeException("Cannot generate macros for this group, the min hash (" + minHash + ") is greater than the max hash! (" + maxHash + "). Symbols: [" + errorBuilder + "]");
+		}
 
 		// Apply hashes if we can guarantee correctness.
 		if (minHash == maxHash)
@@ -723,7 +735,7 @@ public class VramHeaderExporter extends GhidraScript {
 	// Performs the hash function done in 'aspsx.exe' found in PsyQ 4.0. Function: 0x00401fa7
 	// Collisions are handled:
 	//   1) Symbols are defined in the order which they are seen / referenced. (Not necessarily their declaration order)
-	//      This ends up working out nicely for us, because this order is the textures, ordered by their ID.
+	//		This ends up working out nicely for us, because this order is the textures, ordered by their ID.
 	private int getFullAssemblerHash(String input) {
 		int hash = 0;
 		for (int i = 0; i < input.length(); i++)

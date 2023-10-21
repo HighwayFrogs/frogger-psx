@@ -14,6 +14,9 @@
 #ifndef		__SYSTEM_H					
 #define		__SYSTEM_H 
 
+// Added by Kneesnap, this define enables code modifications which are removed in later builds but are present in BUILD_49. This will be disabled in the future as we match final.
+#define BUILD_49
+
 #define MR_APPLICATION_REGISTRY_KEY "Hasbro\\Frogger"
 
 #ifdef		__psx						// Supplied by the PlayStation Compiler.

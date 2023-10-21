@@ -1566,7 +1566,11 @@ MR_BOOL	CheckFrogStackCollision(FROG*	frog_a,
 
 	// vec is vector from frog_b origin to frog_a origin in frog_b frame
 	if	(
+#ifdef BUILD_49
+		(vec.vy > -(FROG_STACK_COLLISION_HEIGHT)) &&
+#else
 		(vec.vy >= -(FROG_STACK_COLLISION_HEIGHT + 10)) &&
+#endif
 		(abs(vec.vx) < 0x40) &&
 		(abs(vec.vz) < 0x40)
 		)

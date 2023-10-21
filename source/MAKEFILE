@@ -115,6 +115,7 @@ debug:
 
 clean:
 #	del		*.dep
+	del		main.exe
 	del		*.obj
 	del 	*.cpe
 	del 	*.map

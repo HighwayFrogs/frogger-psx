@@ -54,7 +54,11 @@ MR_STRPTR			Version_text[4][25]=
 #ifdef PSX
 	{"%jcFROGGER",NULL},
 	{"%jcCOMPILED: 12:19",NULL},
+#ifdef BUILD_49
+	{"%jcBUILD: 49",NULL},
+#else
 	{"%jcBUILD: 50",NULL},
+#endif
 	{"%jc03/09/97",NULL},
 #else
 	{"%jcFROGGER WINDOWS",NULL},
@@ -123,12 +127,18 @@ MR_VOID	main(MR_VOID)
 	printf("Data: %ld Kb\n", (__datalen/1024));
   	printf(" Bss: %ld Kb\n", (__bsslen/1024));
 	printf("Heap: %ld Kb\n", (__heapsize/1024));
+#ifdef BUILD_49
+	printf("Version: 49\n");
+#else
 	printf("Version: 50\n");
+#endif
 	printf("----------------\n");
 #endif			//-end of specific code--------------------------------------------------------
 
 #ifdef PSX
+#ifdef EXPERIMENTAL
 	FASTSTACK;
+#endif
 #endif
 #ifdef MR_API_SOUND
 	MRSNDInit(&gVABInfo[0],&gGroupInfo[0],&gSampleInfo[0]);
@@ -193,10 +203,13 @@ MR_VOID	main(MR_VOID)
 #ifdef MR_API_SOUND
 	// Start/play/end game
 	//
+	
+#ifdef EXPERIMENTAL
 	// Load the GENERIC SFX (Theses stay loaded all the time,until the game is quit!!)
 	// Moved so that they load while the ANTI-PIRACY is on screen.
 	Game_map_theme = 0;
 	InitialiseVab();
+#endif
 
 	// Set sound and CD volumes from options variables
 	MRSNDSetVolumeLevel(MRSND_FX_VOLUME, (127 * Sound_volume) / OPTIONS_SOUND_STAGES);
@@ -208,8 +221,11 @@ MR_VOID	main(MR_VOID)
 	// On PSX begin with anti piracy logo!!!
 	MRSetDefaultFont(&std_font);
 
-//	Option_page_current = OPTIONS_PAGE_ANTI_PIRACY;
+#ifndef EXPERIMENTAL
+	Option_page_current = OPTIONS_PAGE_ANTI_PIRACY;
+#else
 	Option_page_current = OPTIONS_PAGE_MAIN_OPTIONS;
+#endif
 
 #ifdef DEBUG
 	// Hiscore view

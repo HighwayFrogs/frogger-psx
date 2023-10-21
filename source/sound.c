@@ -337,10 +337,12 @@ MR_VOID	TestSoundEffects(MR_VOID)
 MR_VOID	InitialiseVab(MR_VOID)
 {
 #ifdef PSX
+#ifdef EXPERIMENTAL
 	MR_ULONG	saved_sp;
 
 
 	saved_sp = SetSp(saved_stack);
+#endif
 #endif
 
 #ifdef MR_API_SOUND
@@ -355,7 +357,9 @@ MR_VOID	InitialiseVab(MR_VOID)
 #endif
 
 #ifdef PSX
+#ifdef EXPERIMENTAL
 	SetSp(saved_sp);
+#endif
 #endif
 }
 

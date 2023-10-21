@@ -27,11 +27,13 @@
 DM		=	dmpsx
 DFLAGS	= 	-b
 
+!IFDEF	WIN32
 PL		=	psylib2
 PFLAGS	= 	/u /q
-
-#//PL		=	psylib
-#//PFLAGS	= 	/u
+!ELSE
+PL		=	psylib
+PFLAGS	= 	/u
+!ENDIF
 
 #//-----------------------------------------------------------------------
 #// API Object List

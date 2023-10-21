@@ -2399,7 +2399,9 @@ MR_VOID HSInitialiseScrollyHighScore(MR_VOID)
 	MRUpdateFrames();
 	MRUpdateViewportRenderMatrices();
 
+#ifdef EXPERIMENTAL
 	MRDisableDisplayClear();
+#endif
 }
 
 
@@ -2446,7 +2448,9 @@ MR_VOID HSDeinitialiseScrollyHighScore(MR_VOID)
 	if (Frogs[0].fr_shadow)
 		Frogs[0].fr_shadow->ef_kill_timer = 2;
 
+#ifdef EXPERIMENTAL
 	MREnableDisplayClear();
+#endif
 }
 
 

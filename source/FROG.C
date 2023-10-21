@@ -575,7 +575,20 @@ MR_VOID ResetFrog(FROG* frog, MR_LONG gridStartX, MR_LONG gridStartZ, MR_ULONG g
         (&frog->fr_hud_script[HUD_ITEM_CHECKPOINTS])->hi_flags |= HUD_ITEM_REBUILD;
 
     // Reset frog color. (Remove drowning color, etc)
+    // We have a problem, the compiler really wants to inline this function.
+    // This version of GCC has no method of allowing for excluding a function from the inliner.
+#ifdef WIN95
     FrogInitCustomAmbient(frog);
+#else
+    asm volatile (
+        ".set\tnoreorder\n"
+        "jal FrogInitCustomAmbient\n"
+        "move $4, %0\n"
+        ".set\treorder\n" 
+        
+        :
+        : "r" (frog));
+#endif
 
     // Kill the particle effect if it should be killed upon reset.
     if ((frog->fr_particle_api_item != NULL) && (frog->fr_particle_flags & EFFECT_KILL_WHEN_FROG_RESET))
@@ -795,7 +808,7 @@ MR_VOID MoveFrog(FROG* frog) {
         UpdateFrogMatrix(frog);
     
     if (flags & FROG_MOVEMENT_CALLBACK_REACT_WITH_FLAGS)
-        ReactFrogWithGridFlags(frog, react_flags);
+        ReactFrogWithGridFlags(frog, (MR_USHORT)react_flags);
     
     if (flags & FROG_MOVEMENT_CALLBACK_UPDATE_OLD_POS)
         UpdateFrogOldPositionalInfo(frog);
@@ -1563,56 +1576,70 @@ MR_VOID FrogModeControlStationary(FROG* frog, MR_ULONG mode) {
             input = *Demo_data_input_ptr++;
 
         // Rotate the camera clockwise if the button is pressed.
-        if ((input & FROG_DIRECTION_CAMERA_CLOCKWISE) && ((camera->ca_zone == NULL) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_direction < 0) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_flags & ZONE_FLAG_SEMIFORCED))) {
-            if (frog->fr_mode == FROG_MODE_STATIONARY) 
-                frog->fr_mode = FROG_MODE_WAIT_FOR_CAMERA;
+#ifdef BUILD_49
+		if (frog->fr_mode == FROG_MODE_STATIONARY) {
+#endif
+			if ((input & FROG_DIRECTION_CAMERA_CLOCKWISE) && ((camera->ca_zone == NULL) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_direction < 0) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_flags & ZONE_FLAG_SEMIFORCED))) {
+#ifdef BUILD_49
+				frog->fr_mode = FROG_MODE_WAIT_FOR_CAMERA;
+#else
+				if (frog->fr_mode == FROG_MODE_STATIONARY) 
+					frog->fr_mode = FROG_MODE_WAIT_FOR_CAMERA;
+#endif
             
-            camera->ca_twist_counter = 1;
-            camera->ca_twist_quadrants = 1;
-            camera->ca_move_timer = CAMERA_TWIST_TIME;
-            if (frog->fr_cam_zone != NULL) {
-                if (frog->fr_entity != NULL) {
-                    ProjectMatrixOntoWorldXZ(frog->fr_entity->en_live_entity->le_lwtrans, &MRTemp_matrix);
-                    MRMulMatrixABC(&camera->ca_mod_matrix, &MRTemp_matrix, &matrix);
-                    i = (GetWorldYQuadrantFromMatrix(&matrix) + 1) & 3;
-                } else {
-                    i = (GetWorldYQuadrantFromMatrix(&camera->ca_mod_matrix) + 1) & 3;
-                }
+				camera->ca_twist_counter = 1;
+				camera->ca_twist_quadrants = 1;
+				camera->ca_move_timer = CAMERA_TWIST_TIME;
+				if (frog->fr_cam_zone != NULL) {
+					if (frog->fr_entity != NULL) {
+						ProjectMatrixOntoWorldXZ(frog->fr_entity->en_live_entity->le_lwtrans, &MRTemp_matrix);
+						MRMulMatrixABC(&camera->ca_mod_matrix, &MRTemp_matrix, &matrix);
+						i = (GetWorldYQuadrantFromMatrix(&matrix) + 1) & 3;
+					} else {
+						i = (GetWorldYQuadrantFromMatrix(&camera->ca_mod_matrix) + 1) & 3;
+					}
 
-                MR_COPY_SVEC(&camera->ca_next_source_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_source_ofs_n);
-                MR_COPY_SVEC(&camera->ca_next_target_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_target_ofs_n);
-            } else {
-                CAMERA_SET_DEFAULT_NEXT_SOURCE_OFS;
-                CAMERA_SET_DEFAULT_NEXT_TARGET_OFS;
-            }
-            return;
-        }
+					MR_COPY_SVEC(&camera->ca_next_source_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_source_ofs_n);
+					MR_COPY_SVEC(&camera->ca_next_target_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_target_ofs_n);
+				} else {
+					CAMERA_SET_DEFAULT_NEXT_SOURCE_OFS;
+					CAMERA_SET_DEFAULT_NEXT_TARGET_OFS;
+				}
+				return;
+			}
 
-        // Rotate the camera counter-clockwise if the button is pressed.
-        if ((input & FROG_DIRECTION_CAMERA_ANTICLOCKWISE) && ((camera->ca_zone == NULL) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_direction < 0) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_flags & ZONE_FLAG_SEMIFORCED))) {
-            if (frog->fr_mode == FROG_MODE_STATIONARY)
-                frog->fr_mode = FROG_MODE_WAIT_FOR_CAMERA;
+			// Rotate the camera counter-clockwise if the button is pressed.
+			if ((input & FROG_DIRECTION_CAMERA_ANTICLOCKWISE) && ((camera->ca_zone == NULL) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_direction < 0) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_flags & ZONE_FLAG_SEMIFORCED))) {
+#ifdef BUILD_49
+				frog->fr_mode = FROG_MODE_WAIT_FOR_CAMERA;
+#else
+				if (frog->fr_mode == FROG_MODE_STATIONARY) 
+					frog->fr_mode = FROG_MODE_WAIT_FOR_CAMERA;
+#endif
             
-            camera->ca_twist_counter = -1;
-            camera->ca_twist_quadrants = 1;
-            camera->ca_move_timer = CAMERA_TWIST_TIME;
-            if (frog->fr_cam_zone != NULL) {
-                if (frog->fr_entity != NULL) {
-                    ProjectMatrixOntoWorldXZ(frog->fr_entity->en_live_entity->le_lwtrans, &MRTemp_matrix);
-                    MRMulMatrixABC(&camera->ca_mod_matrix, &MRTemp_matrix, &matrix);
-                    i = (GetWorldYQuadrantFromMatrix(&matrix) - 1) & 3;
-                } else {
-                    i = (GetWorldYQuadrantFromMatrix(&camera->ca_mod_matrix) - 1) & 3;
-                }
+				camera->ca_twist_counter = -1;
+				camera->ca_twist_quadrants = 1;
+				camera->ca_move_timer = CAMERA_TWIST_TIME;
+				if (frog->fr_cam_zone != NULL) {
+					if (frog->fr_entity != NULL) {
+						ProjectMatrixOntoWorldXZ(frog->fr_entity->en_live_entity->le_lwtrans, &MRTemp_matrix);
+						MRMulMatrixABC(&camera->ca_mod_matrix, &MRTemp_matrix, &matrix);
+						i = (GetWorldYQuadrantFromMatrix(&matrix) - 1) & 3;
+					} else {
+						i = (GetWorldYQuadrantFromMatrix(&camera->ca_mod_matrix) - 1) & 3;
+					}
 
-                MR_COPY_SVEC(&camera->ca_next_source_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_source_ofs_n);
-                MR_COPY_SVEC(&camera->ca_next_target_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_target_ofs_n);
-            } else {
-                CAMERA_SET_DEFAULT_NEXT_SOURCE_OFS;
-                CAMERA_SET_DEFAULT_NEXT_TARGET_OFS;
-            }
-            return;
-        }
+					MR_COPY_SVEC(&camera->ca_next_source_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_source_ofs_n);
+					MR_COPY_SVEC(&camera->ca_next_target_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_target_ofs_n);
+				} else {
+					CAMERA_SET_DEFAULT_NEXT_SOURCE_OFS;
+					CAMERA_SET_DEFAULT_NEXT_TARGET_OFS;
+				}
+				return;
+			}
+#ifdef BUILD_49
+		}
+#endif
 
         // Activate the player's tongue if the button is pressed.
         if ((input & FROG_DIRECTION_TONGUE) && (frog->fr_tongue != NULL) && (frog->fr_tongue->ef_flags & (TONGUE_FLAG_MOVING_IN | TONGUE_FLAG_GRABBING))) {
@@ -2602,14 +2629,24 @@ MR_VOID FrogCollectCheckPoint(FROG* frog, ENTITY* checkpoint_entity) {
     MR_LONG entity_type;
     MR_LONG checkpoint_id;
     GEN_CHECKPOINT_DATA* checkpoint;
+	
+	entity_type = ENTITY_GET_FORM_BOOK(checkpoint_entity)->fb_entity_type;
+	
+#ifdef BUILD_49
+    XAControl(XACOM_PAUSE, 0);
+    Game_pausing_xa = TRUE;
+    LiveEntityChangeVolume(0, 0);
+#endif
 
-    entity_type = ENTITY_GET_FORM_BOOK(checkpoint_entity)->fb_entity_type;
+    
     if (entity_type == ENTITY_TYPE_GEN_GOLD_FROG) {
         FrogCollectGoldFrog(frog, checkpoint_entity);
     } else {
+#ifndef BUILD_49
         XAControl(XACOM_PAUSE, 0);
         Game_pausing_xa = TRUE;
         LiveEntityChangeVolume(0, 0);
+#endif
         checkpoint_id = checkpoint_entity->en_form_book_id & 0x7FFF;
         if (checkpoint_id >= GEN_MAX_CHECKPOINTS)
             checkpoint_id -= 11; // The offset in formlib to the multiplayer models.
@@ -2666,7 +2703,11 @@ MR_VOID FrogCollectCheckPoint(FROG* frog, ENTITY* checkpoint_entity) {
         FROG_KILL_PARTICLE_EFFECT(frog);
 
     // Setup checkpoint camera behavior.
+#ifdef BUILD_49
+    if (((camera = &Cameras[frog->fr_frog_id], (camera->ca_zone == NULL)) || !(((ZONE_CAMERA*) (camera->ca_zone + 1))->zc_flags & ZONE_FLAG_CHECKPOINT))) {
+#else
     if ((entity_type != ENTITY_TYPE_GEN_GOLD_FROG) && ((camera = &Cameras[frog->fr_frog_id], (camera->ca_zone == NULL)) || !(((ZONE_CAMERA*) (camera->ca_zone + 1))->zc_flags & ZONE_FLAG_CHECKPOINT))) {
+#endif
         camera = &Cameras[frog->fr_frog_id];
         camera->ca_next_source_ofs.vx = CAMERA_FROG_CHECKPOINT_SOURCE_OFS_X;
         camera->ca_next_source_ofs.vy = CAMERA_FROG_CHECKPOINT_SOURCE_OFS_Y;
@@ -2705,7 +2746,7 @@ MR_VOID FrogCollectGoldFrog(FROG* frog, ENTITY* checkpoint) {
     MRSNDPlaySound(SFX_MUSIC_GOLD_COMPLETE, NULL, 0, MusicPitchTable[Game_map][0] << 7);
     AddFrogScore(frog, SCORE_1000, NULL);
     Gold_frogs |= (1 << Game_map_theme);
-    Gold_frogs_zone |= (1 << Game_map_theme);
+    Gold_frogs_current |= (1 << Game_map_theme);
     Gold_frog_data.gf_frog_collected_id = Frogs[0].fr_frog_id;
     SelectLevelCollectGoldFrog();
 }
@@ -2967,7 +3008,11 @@ MR_VOID FrogKill(FROG* frog, MR_ULONG animation, MR_VEC* velocity) {
             }
 
             // Create smoke particle FX on death.
+#ifdef BUILD_49
+            if ((Game_map_theme == THEME_VOL) && (animation == FROG_ANIMATION_DROWN)) {
+#else
             if ((Game_map_theme == THEME_VOL) && ((animation == FROG_ANIMATION_DROWN) || (animation == FROG_ANIMATION_FLOP))) {
+#endif
                 if (frog->fr_particle_api_item == NULL) {
                     colour.vx = 0;
                     colour.vy = -80;
@@ -2976,7 +3021,11 @@ MR_VOID FrogKill(FROG* frog, MR_ULONG animation, MR_VEC* velocity) {
                 }
                 
                 SetFrogScaleColours(frog, 24, 0, 0);
+#ifdef BUILD_49
+                FrogRequestAnimation(frog, FROG_ANIMATION_FLOP, 0, 0);
+#else
                 FrogRequestAnimation(frog, FROG_ANIMATION_DROWN, 0, 0);
+#endif
             }
         }
     }

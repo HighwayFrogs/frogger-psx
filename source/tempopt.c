@@ -832,10 +832,19 @@ MR_VOID	AntiPiracyUpdate(MR_VOID)
 	// Are we the first time though this function?? (Wait for the screen to be drawn!)
 	if ( Anti_piracy_count == (ANTI_PIRACY_TIME - 5))
 		{
+#ifdef EXPERIMENTAL
 		// Load the GENERIC SFX (Theses stay loaded all the time,until the game is quit!!)
 		// Load these while the Anti-Piracy screen is up. (Hopefully they will be loaded in 5 secs)
 		Game_map_theme = 0;
 		InitialiseVab();
+#else
+		MRLoadResource(gVABInfo[THEME_GEN].va_vb_resource_id);
+		MRProcessResource(gVABInfo[THEME_GEN].va_vb_resource_id);
+		MRLoadResource(gVABInfo[THEME_GEN].va_vh_resource_id);
+		MRProcessResource(gVABInfo[THEME_GEN].va_vh_resource_id);
+		MRSNDOpenVab(THEME_GEN, TRUE);
+		MRUnloadResource(gVABInfo[THEME_GEN].va_vb_resource_id);
+#endif
 		}
 
 	// Has frame count reached zero ?
@@ -1602,6 +1611,7 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 				}
 
 			// End of time ?
+#ifdef EXPERIMENTAL
 			if (score_time)
 				{
 				score_time--;
@@ -1615,6 +1625,14 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 					Main_options_status = MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_FINISH;
 					}
 				}
+#else
+			if	((!score_time--))
+				{
+				// Yes ... switch mode to finish
+				Main_options_status = MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_FINISH;
+				}
+#endif
+
 			break;
 
 		// Finish high score table view ...
@@ -6091,10 +6109,12 @@ MR_VOID	LoadOptionsResources(MR_VOID)
 	MR_LONG	cos;
 	MR_LONG	sin;
 #ifdef PSX
+#ifdef EXPERIMENTAL
 	MR_ULONG	saved_sp;
 
 
 	saved_sp = SetSp(saved_stack);
+#endif
 #endif
 
 	// Load options VRAM, VAB and WAD if not already loaded
@@ -6139,10 +6159,26 @@ MR_VOID	LoadOptionsResources(MR_VOID)
 
 		// Set up current position of water camera
 		InitialiseOptionsCamera();
+
+#ifdef BUILD_49
+	if (Game_flags & GAME_FLAG_GEN_WAD_LOADED) {
+		MRUnloadResource(Theme_library[THEME_GEN].tb_full_model_wad_res_id);
+		DeinitialiseModels(0);
+		Game_flags &= ~GAME_FLAG_GEN_WAD_LOADED;
+    }
+    if (Game_flags & GAME_FLAG_GENM_WAD_LOADED) {
+		MRUnloadResource(Theme_library[THEME_GEN].tb_multi_model_wad_res_id);
+		DeinitialiseModels(1);
+		Game_flags &= ~GAME_FLAG_GENM_WAD_LOADED;
+	}
+#endif
+
 		}
 
 #ifdef PSX
+#ifdef EXPERIMENTAL
 	SetSp(saved_sp);
+#endif
 #endif
 }
 	

@@ -247,12 +247,14 @@ MR_VOID	InitialiseMap(MR_VOID)
 		map_group->mg_g4_list 			= (MAP_G4*)		(((MR_UBYTE*)map_group->mg_g4_list) 		+ ofs);
 		map_group->mg_gt3_list 			= (MAP_GT3*)	(((MR_UBYTE*)map_group->mg_gt3_list) 		+ ofs);
 		map_group->mg_gt4_list 			= (MAP_GT4*)	(((MR_UBYTE*)map_group->mg_gt4_list) 		+ ofs);
-												   	
-//		if (map_group->mg_static_indices)
-//			map_group->mg_static_indices = (MR_SHORT*)	(((MR_UBYTE*)map_group->mg_static_indices) 	+ ofs);
-//
-//		map_group->mg_num_g2			= NULL;
-//		map_group->mg_g2_list			= NULL;
+					
+#ifndef EXPERIMENTAL					
+		if (map_group->mg_static_indices)
+			map_group->mg_static_indices = (MR_SHORT*)	(((MR_UBYTE*)map_group->mg_static_indices) 	+ ofs);
+
+		map_group->mg_num_g2			= NULL;
+		map_group->mg_g2_list			= NULL;
+#endif
 
 		map_group->mg_poly_group[0]		= NULL;
 		map_group->mg_poly_group[1]		= NULL;
@@ -415,7 +417,9 @@ MR_VOID	ResolveMapPolys(MR_VOID)
 	MAP_G4*		map_g4;
 	MAP_GT3*	map_gt3;
 	MAP_GT4*	map_gt4;
-//	MAP_G2*		map_g2;
+#ifndef EXPERIMENTAL
+	MAP_G2*		map_g2;
+#endif
 	MR_LONG		i, ofs;
 	MR_TEXTURE*	texture;
 
@@ -461,16 +465,18 @@ MR_VOID	ResolveMapPolys(MR_VOID)
 			map_g4++;
 			}
 		}
-//	if (i = Map_graphical_header->gh_poly_header->ph_num_g2)
-//		{
-//		Map_graphical_header->gh_poly_header->ph_g2_list = (MAP_G2*)(((MR_UBYTE*)Map_graphical_header->gh_poly_header->ph_g2_list) + ofs);
-//		map_g2 = Map_graphical_header->gh_poly_header->ph_g2_list;
-//		while(i--)
-//			{
-//			map_g2->mp_rgb0.cd = Map_prim_type_codes[POLY_ID_G2];
-//			map_g2++;
-//			}
-//		}
+#ifndef EXPERIMENTAL
+	if (i = Map_graphical_header->gh_poly_header->ph_num_g2)
+		{
+		Map_graphical_header->gh_poly_header->ph_g2_list = (MAP_G2*)(((MR_UBYTE*)Map_graphical_header->gh_poly_header->ph_g2_list) + ofs);
+		map_g2 = Map_graphical_header->gh_poly_header->ph_g2_list;
+		while(i--)
+			{
+			map_g2->mp_rgb0.cd = Map_prim_type_codes[POLY_ID_G2];
+			map_g2++;
+			}
+		}
+#endif
 	if (i = Map_graphical_header->gh_poly_header->ph_num_ft3)
 		{
 		Map_graphical_header->gh_poly_header->ph_ft3_list = (MAP_FT3*)(((MR_UBYTE*)Map_graphical_header->gh_poly_header->ph_ft3_list) + ofs);
