@@ -13,7 +13,7 @@ Yes, but it's more complicated than that. If you want to perfectly match an exec
 ## What is texmacro.h?
 Notably, there's a file in here which we generated ourselves: `texmacro.h`.  
 Looking inside, its contents look pretty much like gibberish. It renames the names of variables such as `im_img463` to `im_img463_Fzwyid`.   
-Believe it or not, thjis black magic fixes our problem/orders our variables correctly.  
+Believe it or not, this black magic fixes our problem/orders our variables correctly.  
 To understand why, we must consider how memory is laid out in the executable.  
 For most things in the executable, like functions, the order they are written into the source code files is the same order they will be put in the compiled code / executable.  
 So for example, if you write code for `FunctionA()` before `FunctionB()`, `FunctionA()` will be placed before `FunctionB()` in the compiled code / executable.  
