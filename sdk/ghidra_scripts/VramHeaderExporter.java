@@ -553,6 +553,7 @@ public class VramHeaderExporter extends GhidraScript {
 		boolean isCurrentImage = (currSymbol instanceof ImageHeader);
 		boolean isLastImage = (lastSymbol instanceof ImageHeader);
 		
+		// Assumption: We know the real names of all non-image symbols, so if the a symbol wasn't an image, we can treat it as correct, and verify against it. (If it fails we know something is wrong with our labels)
 		if (!isLastImage) {
 			// Current is image, last is symbol, or both are symbol.
 			
