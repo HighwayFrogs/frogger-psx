@@ -51,7 +51,7 @@ The assembler wants to be able to work with symbols quickly. If you want to use 
 **How does it track symbols?**  
 A simple way to keep this in memory would be a list. (In this case a linked list)  
 If you want to find a symbol by it's name, here's what you'd do.
-In memory, you each symbol has its own data (name, size, etc), but the important thing is that you can have the ability to check each symbol.  
+In memory, each symbol has its own data (name, size, etc), but the important thing is that you can have the ability to check each symbol.  
 This way, you can check the first symbol and ask "Is the name of this symbol the same as the one I'm looking for?".  
 If it is, you've found your symbol. Otherwise, you can just move on to the next symbol and try again.
 Keep doing that and you'll either find the symbol you wanted, or reach the end (and there was no symbol named the one you were looking for.)  
