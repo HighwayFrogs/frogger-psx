@@ -1,30 +1,18 @@
 @echo OFF
-SET COUNTRY_CODE=%1%
 
-:country_select
-if "%COUNTRY_CODE%"=="E" goto country_ok
-if "%COUNTRY_CODE%"=="A" goto country_ok
+IF NOT EXIST "build\original" MD "build\original"
 
-echo Please choose which Frogger disc image you'd like to extract.
-echo.
-echo A) NTSC (USA)
-echo E) PAL (EUROPE)
-echo.
-
-set /p COUNTRY_CODE=
-goto country_select
-
-:country_ok
-
-IF NOT EXIST "Frogger%COUNTRY_CODE%.bin" (
-	ECHO Expected to find the file "Frogger%COUNTRY_CODE%.bin" in the root folder of the repository.
-	ECHO However, this file was not found.
-	goto :error
+:: Check that the Frogger.bin file is there.
+IF NOT EXIST "build\original\Frogger.bin" (
+	ECHO Expected to find the PSX disc image "Frogger.bin" at the file path "build\original\Frogger.bin".  
+	ECHO This is the CD image it will extract game files from, so it can build a CD image after compiling the game code.  
+	ECHO However, this file was not found, please put it there and try again.  
+	goto :error  
 )
 
 :: Dump PSX ISO
-IF NOT EXIST "build\Files_%COUNTRY_CODE%" MD "build\Files_%COUNTRY_CODE%"
-SDK\bin\dumpsxiso.exe -x "build\Files_%COUNTRY_CODE%" -s "build\Disc%COUNTRY_CODE%.xml" "Frogger%COUNTRY_CODE%.bin"
+IF NOT EXIST "build\files" MD "build\files"
+SDK\bin\dumpsxiso.exe -x "build\files" -s "build\Frogger.xml" "build\original\Frogger.bin"
 if errorlevel 1 goto :error
 
 goto okay

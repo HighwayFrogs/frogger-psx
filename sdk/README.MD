@@ -16,10 +16,12 @@ One notable exception which was not used from PsyQ 4.0 was the compiler.
 ## The Compiler
 Frogger was compiled using DOS (Likely Windows 95), using 16-bit applications.  
 In order to build a perfect match of the original game, the original compiler must be used. Or rather, if it doesn't it gets a bit more complicated.  
-The compiler used to build Frogger (`CC1PSX.EXE`) has been identified as `GCC 2.6.3` aka `GNU C 2.6.3.SN.2 [AL 1.1, MM 40] Sony Playstation compiled by GNU C`.  
+The compiler used to build Frogger (`CC1PSX.EXE`) has been identified as `GCC 2.6.3`, likely: `GNU C 2.6.3.SN.2 [AL 1.1, MM 40] Sony Playstation compiled by GNU C`.  
 Unfortunately, the floppy containing this compiler version is rare and has not been dumped online.  
-The workaround to this problem is to use `cc1-psx-263`, which is GCC 2.6.3 compiled for Linux from [here](https://github.com/decompals/old-gcc) by [sonicdcer](https://github.com/sonicdcer).  
-Naturally, [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) is required. I used `Ubuntu 22.04.2 LTS`, but pretty much anything should work.  
+The workaround was to recreate this compiler's changes from the GCC source code as best as possible.  
+`CC1PSX.EXE` is GCC 2.6.3 compiled by me (Kneesnap), with information and source code available in the `gcc-2.6.3` folder.  
+`cc1-psx-263` is GCC 2.6.3 compiled for Linux from [here](https://github.com/decompals/old-gcc) by [sonicdcer](https://github.com/sonicdcer).  
+Naturally, [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) is required for the Linux build. I used `Ubuntu 22.04.2 LTS`, but pretty much anything should work.  
 If the original compiler ever surfaces, we can switch to using it in the DOSBox setup and remove WSL from the mix.  
 
 ## Runtime Libraries  
@@ -38,17 +40,15 @@ The output of this binary is a Linux binary. It may be possible to build this fo
 Both build pipelines utilize [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) to run the `GCC 2.6.3 CC1 (cc1-psx-263)` C compiler.  
 Installing WSL is optional, compilers are provided (of the wrong version) for use if WSL is missing.  
 
-### Pipeline 1) Windows
-This pipeline builds on Windows 10/11, and likely most earlier 64-bit versions of Windows.  
-The first setup available to build the game is built to be straightforward, however it will not create an accurate byte-match to the official executable.  
-**TODO: The byte-match is actually untested since switching to 4.0 tools, it may be compatible after all. Update this section once testing has occurred.**   
+### Pipeline 1) Windows (Recommended)
+This pipeline builds on Windows 10/11, and likely most earlier versions of Windows too.  
+This pipeline is recommended because it is fast, works on Windows 10/11 with 32-bit executables, and is capable of building byte-matching builds.  
 
 **Programs:**  
 ```
 PsyQ 4.0 (Official PlayStation SDK):
  - ASMPSX.EXE: Assembler for hand-written assembly (.S -> .obj, 32-Bit)
  - ASPSX.EXE: Assembler for C Compiler (cc1psx -> aspsx -> .obj, 32-Bit)
- - CC1PSX.EXE GNU C Compiler 2.7.2 (.C -> aspsx -> .obj,  32-Bit)
  - CCPSX.EXE: Windows Version of GCC (Runs CC1PSX, ASPSX, and CPPPSX, 32-Bit)
  - CPPPSX.EXE: GNU C Preprocessor (Preprocesses .C, 32-Bit)
  - PSYLINK.EXE: PsyQ Linker (.obj -> .cpe, 32-Bit)
@@ -58,6 +58,8 @@ PsyQ 4.3 (Official PlayStation SDK):
  - PSYLIB2.EXE: PsyQ Library Maker (.obj -> .lib, 32-Bit)
  PsyQ 4.3 was the first known Programmer Tool CD to include a 32-bit version of these programs, so they were sourced from this CD.
 
+GCC 2.6.3 (Compiler):
+ - CC1PSX.EXE: GNU C Compiler 2.6.3 modified for PSX (.C -> aspsx -> .obj, 32-bit)
 
 Borland Make:
  - MAKE.EXE: I believe this is "Borland Make" dated 1993-12-02. https://winworldpc.com/product/borland-c/40
@@ -66,13 +68,15 @@ Borland Make:
  The program 'make', for those unfamiliar is what can read a "Makefile", which is like a recipe which usually describes how to compile code.
 ```
 
-
-### Pipeline 2) DOS
-This pipeline attempts to use the original toolchain as closely as possible.  
+### Pipeline 2) DOS (Not recommended)
+This pipeline attempts to use the original binaries as closely as possible to compile byte-matching builds.  
 Unfortunately, the original tools were 16-bit, so they can only be run in DOS, the precursor to Windows.  
 While Windows XP (and other versions) were supposed to have compatibility with 16-bit programs, they crash with memory errors.  
 While Windows 95/98 (built upon DOS) are capable of running these tools, the most convenient way to run them these days is with a DOS emulator, in our case [DOSBox](https://www.dosbox.com/).  
 If you use this pipeline, you will need to install [DOSBox](https://www.dosbox.com/).  
+This pipeline was primarily helpful for reverse engineering purposes, but fell out of favor once rhe other setup was finished.  
+It is kept here because there isn't much of a need to remove it, and perhaps one day when Windows is obscure maybe this one would be easier to emulate?  
+Either way don't use it for now.  
 
 **Programs:**  
 ```
@@ -119,7 +123,7 @@ Perhaps in the future a complete build pipeline could be finished.
 
 **Miscellaneous Potentially Useful Info:**  
 ```
-cc1-psx-263 combined with the mips gcc toolchain can be used to build Frogger.
+cc1-psx-263 combined with the mips gcc toolchain can be used to build Frogger, as seen in the DOSBox compilation setup.
 However, CR LF line endings (\r\n) used by Windows completely break GCC, since outside of Windows everyone uses LF line endings (Just \n).
 So, when you start encountering segfaults and/or syntax errors while trying to preprocess or compile this code in Linux, this is usually why.
 
