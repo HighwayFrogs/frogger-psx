@@ -24,11 +24,10 @@ If those libraries were reverse engineered (they have debug symbols), it would l
 Unfortunately, the PC version received two months of extra development after the PSX version was complete, likely to improve network multiplayer, compatibility, performance, and to add support for low poly mode.  
 None of that work is present in this backup, and not many details are know about PC version differences anyways.  
 
-## How to compile?
-TBD  
-
-## How to build a playable CD image?
-TBD
+## How to compile & run?
+After downloading / cloning this repository, double-click `compile.bat`.  
+It will tell you what to do, and you will need to run it again after doing what it asks.  
+If you follow the instructions, it will build an executable with the SHA1 hash shown above.  
 
 ## How is this repository organized?  
 As closely to the original organization used by the developers as possible.  
