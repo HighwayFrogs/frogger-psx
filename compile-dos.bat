@@ -18,13 +18,16 @@ if not exist "merge\FROGPSX.MWI" (
 	ECHO.
 	ECHO.
 	ECHO In order for the game to be able to read game assets ^(3D models, textures, etc^), it needs a file called FROGPSX.MWI.
-	ECHO Here are the steps for fixing this problem.
+	ECHO Here are the steps for getting this file.
 	ECHO.
-	ECHO 1^) Open FrogLord ^(Frogger Editor, Google it^)
-	ECHO 2^) Open SLUS_005.06 ^& FROGPSX.MWD in the build^\Files_A or build\Files_E folder. ^(Created by running extractdisc.bat^).
-	ECHO 3^) In FrogLord, there is a menu bar at the top. Do Edit ^> Generate Source Files.
-	ECHO 4^) Move FROGPSX.MWI from the build^\Files_^* folder to ^\merge^\FROGPSX.MWI
-	ECHO 5^) This warning will go away when you try to compile again if done correctly.
+	ECHO 1^) Run extractdisc.bat if you haven't already, and follow its instructions.
+	ECHO 2^) Open FrogLord ^(Frogger Editor, Google it^)
+	ECHO 2^) Open SLUS_005.06 ^& FROGPSX.MWD in the build^\files folder. ^(If you don't have it, go back to step 1^)
+	ECHO 3^) In FrogLord, there is a menu bar at the top. Click on "Edit ^> Generate Source Files".
+	ECHO 4^) Move FROGPSX.MWI from the build^\files folder into ^\merge^\.
+	ECHO 5^) This message will go away next time you run compile.bat if you did it.
+	ECHO.
+	ECHO If you need further help, join the Highway Frogs discord server.
 	ECHO.
 	PAUSE
 	goto :EOF
