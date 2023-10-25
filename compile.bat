@@ -45,6 +45,7 @@ COPY sdk\bin\gcc-2.6.3\CC1PSX.EXE sdk\bin\ /Y /B
 cd source
 
 :: Make Frogger executable.
+DEL main.cpe
 make -l -DWIN32 -N all
 
 :: Verify Frogger executable was made.
