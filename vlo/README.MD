@@ -113,7 +113,7 @@ The hash algorithm is very similar to before, except this time the length of the
 Also, the hash is now from 0 to 511 because the amount of lists was increased.  
 Once again, the following is Java code to calculate the linker hash of a string. Java is provided since complex Ghidra scripts such as the one written to generate Frogger's texmacro.h are written in Java.  
 ```java
-private static int getAssemblerHash(String input) {
+private static int getLinkerHash(String input) {
 	int hash = input.length();
 	for (int i = 0; i < input.length(); i++)
 		hash += input.charAt(i);
@@ -156,16 +156,16 @@ This checklist should make it a lot easier to debug / diagnose when something is
  - If previousLinkerHash > currentLinkerHash, the order is incorrect  
  - If previousLinkerHash < currentLinkerHash, the order is correct  
  - If previousLinkerHash == currentLinkerHash, continue to step 2  
-
-2) Compare the previous symbol's assembler hash with the current symbol's assembler hash:  
- - If previousAssemblerHash > currentAssemblerHash, the order is correct  
- - If previousAssemblerHash < currentAssemblerHash, the order is incorrect  
- - If previousAssemblerHash == currentAssemblerHash, continue to step 3  
  
-3) Compare the obj files each symbol comes from:  
+2) Compare the obj files each symbol comes from:  
  - If previousSymbolObjFile is linked before currentSymbolObjFile, the order is correct  
  - If previousSymbolObjFile is linked after currentSymbolObjFile, the order is incorrect  
- - If both symbols come from the same file, go to step 4  
+ - If both symbols come from the same file, go to step 3  
+
+3) Compare the previous symbol's assembler hash with the current symbol's assembler hash:  
+ - If previousAssemblerHash > currentAssemblerHash, the order is correct  
+ - If previousAssemblerHash < currentAssemblerHash, the order is incorrect  
+ - If previousAssemblerHash == currentAssemblerHash, continue to step 4  
 
 4) Which symbol was declared earlier in the source file?  
  - If previousSymbol was defined first, the order is incorrect (due to the linker reversing symbol order when reading a .obj file)
