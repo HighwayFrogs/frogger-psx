@@ -5,6 +5,7 @@ source/*.cpe
 source/*.exe
 source/*.sym
 source/*.map
+*/desktop.ini
 build/
 merge/frogpsx.mwi
 *.cue
@@ -23,3 +24,20 @@ sdk/bin/psylib.exe
 sdk/bin/psylib2.exe
 sdk/bin/psylink.exe
 sdk/bin/cc1-psx-263
+
+# Ignore certain Visual Studio files which don't belong in a git repository
+# Reference: https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
+sdk/bin/src/*/*.user
+sdk/bin/src/*/.vs/
+sdk/bin/src/*/[Rr]elease/
+sdk/bin/src/*/[Dd]ebug/
+sdk/bin/src/*/x64/
+sdk/bin/src/*/x86/
+sdk/bin/src/*/[Oo]bj/
+sdk/bin/src/*/[Ll]og/
+sdk/bin/src/*/[Ll]ogs/
+sdk/bin/src/*/[Ww]in32/
+sdk/bin/src/*/[Aa][Rr][Mm]/
+sdk/bin/src/*/[Aa][Rr][Mm]64/
+sdk/bin/src/*/bld/
+sdk/bin/src/*/[Bb]in/

@@ -1,5 +1,14 @@
+// This program converts .CPE PlayStation 1 executables to the .EXE format.
+// It replaces the original CPE2X.EXE program found in the PsyQ SDK.
+// The original program was only 16-bit compatible, meaning it could not be used on Windows x64 (64-bit computers).
+// 32-bit Windows was capable of running 16-bit programs, so this wasn't an issue until the late 2000s.
+
+// The history of this specific program is unclear, someone at some point probably reverse engineered the original CPE2X.EXE program, and made this source code.
+// The following is a list of known changes to this revision of the file:
 // Correction for modern compiler, + Addition for Auto exe fixup and header sign - by Orion_ [2013]
-// Updated by Kneesnap to fix crashing when there are too many sections in a CPE file. (2022)
+// Updated by Kneesnap to fix crashing when there are too many sections in a CPE file. (2022, for Frogger 2 Restoration Project)
+// Updated by Kneesnap to support specifying which region the executable should be. (2022, for Frogger 2 Restoration Project)
+// Updated by Kneesnap to remove annoying debug message, and to make the file-path length dynamically sized. (2023, for Frogger Restoration Project)
 
 
 #define _CRT_SECURE_NO_WARNINGS
@@ -28,10 +37,11 @@ typedef struct {
 	long SavedS0;	/* 0x48 */
 } e_header;
 
-typedef struct mylist {
+
+typedef struct __list_node {
 	long base, size;
 	long fofs;
-	mylist* next;
+	struct __list_node* next;
 } MYLIST;
 
 #define HEADER_SIZE 2048
@@ -54,7 +64,7 @@ int	main(int argc, char* argv[])
 	int count, index;
 	unsigned int nsize;
 	char psx[16];
-	char flname[256];	// ADDED
+	char* flname;	// ADDED
 
 	if (argc <= 1) {
 		printf("Usage: cpe2exe <file.cpe> [region: AEJ] [default_stack]\n");
@@ -149,8 +159,10 @@ int	main(int argc, char* argv[])
 			}
 			last = temp;
 
+#ifdef _DEBUG
 			printf("Entry #%04d Base Address = 0x%08x Size = 0x%08x(%d)\n",
 				count, base, size, size);
+#endif
 			fseek(filein, size, SEEK_CUR);
 			break;
 		default:
@@ -173,10 +185,12 @@ int	main(int argc, char* argv[])
 	while ((temp = temp->next) != NULL)
 		if (temp->base < least)
 			least = temp->base;
+
+	// Output file name.
+	flname = (char*) malloc(strlen(argv[1]) + 4);
 	strcpy(flname, argv[1]);	// ADDED
 	strcpy(strstr(flname, ".cpe"), ".exe");	// ADDED
 
-	//fileout = fopen(argv[2] , "wb");
 	fileout = fopen(flname, "wb");	// MODIFIED
 	if (fileout == NULL) {
 		perror("fopen(create)");
