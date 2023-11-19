@@ -158,6 +158,8 @@ This checklist should make it a lot easier to debug / diagnose when something is
  - If previousLinkerHash == currentLinkerHash, continue to step 2  
  
 2) Compare the obj files each symbol comes from:  
+ - **NOTE:** The file to compare is the first linked file to define OR reference the symbol. An example from Frogger would be `im_gatso`, would use `main.obj` instead of `sprdata.obj`.  
+ - **NOTE:** `.lib` libraries seem to be linked before `.obj` object files, regardless of if the `inclib` commands occur later in the linker script.  
  - If previousSymbolObjFile is linked before currentSymbolObjFile, the order is correct  
  - If previousSymbolObjFile is linked after currentSymbolObjFile, the order is incorrect  
  - If both symbols come from the same file, go to step 3  

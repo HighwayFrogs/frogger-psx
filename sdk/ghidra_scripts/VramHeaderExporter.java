@@ -24,21 +24,19 @@ import java.util.regex.Pattern;
 import java.lang.System;
 import java.util.Arrays;
 
+// This script was designed for Frogger, because of the assumptions made which are true for Frogger, but likely not other games.
 // This script is used to recreate the .c and .h files created by Vorg, the in-house image management software.
-// However, there is some degree of complexity here. The '.bss' section is not ordered like the rest of the symbols in the executable.
+// However, there is some degree of complexity here. The '.bss' section is not ordered like the rest of the symbols in the executable by the assembler & linker.
 // A hashing process is used, as the symbols are seemingly stored in a hash table.
 // This means we must output names which satisfy the sorting conditions in order to recreate the original order.
+// It relies upon having a Ghidra Project which has every single global variable in the .bss section besides textures given a label with their variable name.
+// This allows us to generate variable names that are guaranteed that when they combine with the other variables will order properly.
 
-// How exactly does the length sort work?
-// It's not actually done in the linker, and it's not even explicit as previously assumed.
-// For hash values under 256, we know the result of the assembler hash is the same as the linker hash on the modulo side.
-// But it's slightly different still. The assembler hash doesn't consider length, while the linker hash does.
-// This means if you have two strings with different lengths but a matching linker hash, the larger string will have a smaller assembler hash.
-// So, this will effectively sort the strings from largest to smallest, which when read backwards by the linker, will be reversed and cause the smaller strings to be placed first.
+// This script generates names for frogvram.c, which is part of sprdata.obj, one of the very first objs linked into the executable.
+// As such, the script uses assumptions about various symbols in the game based on the knowledge of where the symbols it generates will go.
 
-// How does this break im_swp5pic? Still need to work out the details.
-// So, here's the problem. im_swp5pic has an assembler hash of zero. This means larger strings which evaluate to the same linker hash will be less than zero, wrapping around.
-// Thus, the assembler hashes are greater for them, breaking the sorting. So we have a system to counteract this.
+// NOTE: The purpose of this script is documented in the vlo\README.MD file, which describes what's going on here.
+// Any mentions of "the documentation" are referring to this file.
 
 public class VramHeaderExporter extends GhidraScript {
 	private static final boolean GENERATE_BSS_NAMES = true;
@@ -57,7 +55,9 @@ public class VramHeaderExporter extends GhidraScript {
 		"SpuCommonError", "_ss_score", "_SsMarkCallback", "_snd_seq_s_max", "StEmu_Addr", "_snd_seq_t_max", "StEndFrame",
 		"StSTART_FLAG", "StRingBase", "StRingAddr", "_svm_vab_total", "_svm_vab_count", "_svm_vab_start", "_svm_envx_hist",
 		"StRingSize", "_svm_okof1", "_svm_okof2"));
-	
+
+	// This contains names of the symbols in bss added by objects (.obj, NOT .lib) which come before sprdata.obj. (So, from main.obj and fastram.obj)
+	// It is used to ensure the properly generated order of symbol names in bss.
 	private static final Set<String> USED_EARLY_SYMBOLS = new HashSet<>(Arrays.asList("im_gatso"));
 	
 	@Override
@@ -104,8 +104,7 @@ public class VramHeaderExporter extends GhidraScript {
 			if (name != null)
 				imageSymbolNames.add(name);
 			
-			if (name == null || !USED_EARLY_SYMBOLS.contains(name))
-				unorderedImages.add(new ImageHeader(name, imageDataAddress, texIndex));
+			unorderedImages.add(new ImageHeader(name, imageDataAddress, texIndex, USED_EARLY_SYMBOLS.contains(name)));
 			
 			readAddress = readAddress.add(4);
 			texIndex++;
@@ -123,15 +122,19 @@ public class VramHeaderExporter extends GhidraScript {
 		println("Finding symbols between " + symbolSearch + " and " + sortedImagesByAddressOrder.get(sortedImagesByAddressOrder.size() - 1).address);
 		while (symbolSearchEnd > symbolSearch.getOffset()) {
 			Symbol symbol = getSymbolAt(symbolSearch);
-			if (symbol != null && (symbol.getSource() == SourceType.USER_DEFINED || symbol.getSource() == SourceType.IMPORTED) && !AUTO_PATTERN.matcher(symbol.getName()).matches() && (!imageSymbolNames.contains(symbol.getName()) || USED_EARLY_SYMBOLS.contains(symbol.getName()))) {
+			if (symbol != null && (symbol.getSource() == SourceType.USER_DEFINED || symbol.getSource() == SourceType.IMPORTED) && !AUTO_PATTERN.matcher(symbol.getName()).matches() && !imageSymbolNames.contains(symbol.getName())) {
 				boolean comesBeforeImages = symbol.getName().startsWith("MR") // Variables starting with the 'MR' prefix are in .lib files because the MR api is turned into .lib files.
-					|| symbol.getName().startsWith("_") // Naming pattern, there are no variables which start with '_' in Frogger, but many in the runtime libraries do.
+					|| symbol.getName().startsWith("_") // Naming pattern, there are no variables which start with '_' in Frogger, but many in the SDK runtime libraries do.
 					|| LIB_SYMBOLS.contains(symbol.getName()) // .lib symbols are loaded before all objs.
 					|| USED_EARLY_SYMBOLS.contains(symbol.getName()); // Used before sprdata.obj is linked.
 				symbolsByAddressOrder.add(new HashedSymbol(symbol.getName(), symbol.getAddress(), comesBeforeImages));
 			}
 			
-			symbolSearch = getSymbolAfter(symbolSearch).getAddress();
+			Symbol nextSymbol = getSymbolAfter(symbolSearch);
+			if (nextSymbol == null)
+				break;
+			
+			symbolSearch = nextSymbol.getAddress();
 		}
 		symbolsByAddressOrder.addAll(sortedImagesByAddressOrder);
 		symbolsByAddressOrder.sort(Comparator.comparingLong(symbol -> symbol.address.getOffset()));
@@ -146,7 +149,7 @@ public class VramHeaderExporter extends GhidraScript {
 				if (symbol.hash == lastHash) {
 					for (HashedSymbol tempSymbol : seenHeaders)
 						tempSymbol.hash = lastHash;
-				} else if (!symbol.isFromLib && symbol.hasName() && !(symbol instanceof ImageHeader) && symbol.hash == lastHash + 1) {
+				} else if (!symbol.isOrderedEarly && symbol.hasName() && !(symbol instanceof ImageHeader) && symbol.hash == lastHash + 1) {
 					for (HashedSymbol tempSymbol : seenHeaders)
 						tempSymbol.hash = lastHash;
 				}
@@ -154,7 +157,7 @@ public class VramHeaderExporter extends GhidraScript {
 				// Ready for next.
 				seenHeaders.clear();
 				lastHash = symbol.hash;
-				if (symbol.isFromLib)
+				if (symbol.isOrderedEarly)
 					lastHash++;
 			} else {
 				seenHeaders.add(symbol);
@@ -168,6 +171,18 @@ public class VramHeaderExporter extends GhidraScript {
 			
 			seenHeaders.clear();
 		}
+		
+		// Generate FrogLord Config
+		StringBuilder cfgBuilder = new StringBuilder();
+		List<ImageHeader> sortedImagesByIndex = new ArrayList<>(sortedImagesByAddressOrder);
+		sortedImagesByIndex.sort(Comparator.comparingInt(image -> image.index));
+		for (int i = 0; i < sortedImagesByIndex.size(); i++) {
+			ImageHeader header = sortedImagesByIndex.get(i);
+			if (header.hasName())
+				cfgBuilder.append(header.index).append("=").append(header.name).append('\n');
+
+		}
+		
 		
 		// Generates BSS names.
 		StringBuilder macroBuilder = new StringBuilder();
@@ -189,20 +204,20 @@ public class VramHeaderExporter extends GhidraScript {
 					continue;
 				}
 				
-				// Upon encountering symbol from library.
-				// Does its hash match the last hash? If so, continue building the list. But, at the first non-lib symbol or lib symbol with hash that doesn't match, handle the group.
+				// Upon encountering that we know comes before the images we're generating, we must take action in order to keep generating valid names.
+				// Does the symbol's hash match the last hash? If so, continue building the list. But, at the first non-lib symbol or lib symbol with hash that doesn't match, handle the group.
 				// If the hash doesn't match, handle the previous group, but at the next non-lib symbol or symbol with hash, handle the new group.
 
-				// Allows resetting, since we're only generating the image names, which follow predictable results with respect to isFromLib.
-				boolean isReadyToResetFromLib = (lastSymbol != null && lastSymbol.isFromLib && lastSymbol.hasHash()) && !symbol.isFromLib;
+				// Allows resetting, since we're only generating the image names, which follow predictable results with respect to isOrderedEarly.
+				boolean isReadyToResetFromSymbol = (lastSymbol != null && lastSymbol.isOrderedEarly && lastSymbol.hasHash()) && !symbol.isOrderedEarly;
 				boolean encounteredNewHash = symbol.hasHash() && (symbol.hash != lastHash);
 				
-				if (encounteredNewHash || isReadyToResetFromLib) {
-					int maxHash = isReadyToResetFromLib ? lastSymbol.hash : symbol.hash;
+				if (encounteredNewHash || isReadyToResetFromSymbol) {
+					int maxHash = isReadyToResetFromSymbol ? lastSymbol.hash : symbol.hash;
 					int newHash = symbol.hasHash() ? symbol.hash : lastSymbol.hash + 1;
 
-					if (!isReadyToResetFromLib && encounteredNewHash && !(symbol instanceof ImageHeader) && !symbol.isFromLib)
-						maxHash = symbol.hash - 1; // The symbol we've encountered is exclusive, it we can't include it as a possibility.
+					if (!isReadyToResetFromSymbol && encounteredNewHash && !(symbol instanceof ImageHeader) && !symbol.isOrderedEarly)
+						maxHash = symbol.hash - 1; // The symbol we've encountered is exclusive, it we can't include its hash as a possibility.
 					
 					addMacrosForGroupSafely(tree, macroBuilder, symbolsSharingHash, lastHash, maxHash);
 					symbolsSharingHash.clear();
@@ -216,25 +231,27 @@ public class VramHeaderExporter extends GhidraScript {
 						String prevName = lastNamed.name;
 						String currName = symbol.name;
 						
-						// Linker Hashing Tiebreaker - Use the reverse order from what the assembler outputs.
-						boolean isCurrentImage = (symbol instanceof ImageHeader);
-						boolean isLastImage = (lastNamed instanceof ImageHeader);
-						
+						// Linker Hashing Tiebreaker - Use the reverse order from what the assembler outputs.						
 						int prevAssemblerHash = getAssemblerHash(prevName);
 						int currAssemblerHash = getAssemblerHash(currName);
 						
-						if (!isLastImage) {
-							// Current is image or symbol, last is symbol.
-							if (lastNamed != null && lastNamed.isFromLib && isCurrentImage && isCurrentImage)
+						if (!lastNamed.isImageGeneratedByUs()) {
+							// Current is made by us, last is not.
+
+							// Verify the previous symbol (which has been checked to have the same hash as the current one) isn't marked to come after the current symbol.
+							// Marked as being ordered early means it comes after because the linked order is reversed.
+							// If it is, the symbols are out of order, and we should throw an error.
+							if (lastNamed != null && lastNamed.isOrderedEarly && symbol.isImageGeneratedByUs())
 								throw new RuntimeException("Current image '" + symbol.name + "' is located after lib-symbol '" + lastNamed.name + "'.");
 							
+							// The previous symbol is located after the current one, which violates the idea that it really is the "previous" symbol.
 							if (lastNamed.address.getOffset() >= symbol.address.getOffset())
 								throw new RuntimeException("Symbol '" + prevName + "' comes after '" + currName + "' when it should come before.");
-						} else if (!isCurrentImage) {
+						} else if (!symbol.isImageGeneratedByUs()) {
 							// Current is symbol, last is either image or symbol.
 							
 							// Violates the rules explained in isMacroOrderValid.
-							if (!symbol.isFromLib || symbol.address.getOffset() <= lastNamed.address.getOffset())
+							if (!symbol.isOrderedEarly || symbol.address.getOffset() <= lastNamed.address.getOffset())
 								throw new RuntimeException("Symbol '" + currName + "' comes after '" + prevName + "', but it seems to be a symbol following an image..?");
 						} else if (prevAssemblerHash == currAssemblerHash) {
 							// Assembler Hashing Tiebreaker: Symbols are defined in the order which they are seen / referenced. (Not necessarily their declaration order)
@@ -249,7 +266,7 @@ public class VramHeaderExporter extends GhidraScript {
 								throw new RuntimeException("Symbol '" + prevName + "' shares the same linker hash (" + symbol.hash + ") with '" + currName + "', but it its index (" + lastImage.index + ") comes after the current one (" + currImage.index + ")");
 						} else {
 							// Hashes do not match, so ensure order in the reverse order of the hash.
-							if (currAssemblerHash > prevAssemblerHash && isCurrentImage) // curr must be < previous, because the order is reversed.
+							if (currAssemblerHash > prevAssemblerHash && symbol.isImageGeneratedByUs()) // curr must be < previous, because the order is reversed.
 								throw new RuntimeException("Symbol '" + prevName + "' shares the same linker hash (" + symbol.hash + ") with '" + currName + "', but it its assembler hash (" + prevAssemblerHash + ") comes before the current one (" + currAssemblerHash + ")");
 						}
 					}
@@ -288,7 +305,7 @@ public class VramHeaderExporter extends GhidraScript {
 		// Prints the images sorted.
 		StringBuilder headerBuilder = new StringBuilder();
 		for (HashedSymbol symbol : symbolsByAddressOrder) {
-			if (symbol instanceof ImageHeader) {
+			if (symbol.isImageGeneratedByUs()) {
 				headerBuilder.append("MR_TEXTURE\t").append(symbol.getDisplayName(false)).append(";");
 				
 				if (DEBUG_HASHES && symbol.hasHash()) {
@@ -301,7 +318,7 @@ public class VramHeaderExporter extends GhidraScript {
 				if (!DEBUG_HASHES)
 					continue;
 				
-				headerBuilder.append("// ").append(symbol.getDisplayName(false)).append(" (").append(symbol.hash).append(")");
+				headerBuilder.append("// ").append(symbol.getDisplayName(false)).append(" (").append(symbol.hash).append(" END)");
 			}
 			
 			headerBuilder.append("\n");
@@ -310,6 +327,7 @@ public class VramHeaderExporter extends GhidraScript {
 		// Write to file.
 		writeStringToFile("debug-export.c", sb.toString() + headerBuilder.toString());
 		writeStringToFile("texmacro.h", macroBuilder.toString());
+		writeStringToFile("config.txt", cfgBuilder.toString());
 	}
 	
 	private void addMacrosForGroupSafely(HashSumLookupTree tree, StringBuilder builder, List<HashedSymbol> symbols, int minHash, int maxHash) {
@@ -369,7 +387,7 @@ public class VramHeaderExporter extends GhidraScript {
 			ImageHeader currImage = (symbol instanceof ImageHeader) ? (ImageHeader) symbol : null;
 			ImageHeader lastImage = (lastSymbol instanceof ImageHeader) ? (ImageHeader) lastSymbol : null;
 			
-			if (currImage != null)
+			if (currImage != null && currImage.isImageGeneratedByUs())
 				currImage.macroValue = null;
 			
 			try {
@@ -377,7 +395,7 @@ public class VramHeaderExporter extends GhidraScript {
 				String newDisplayName = originalName;
 				
 				// If the header doesn't have a name, or does not follow the expected order, generate a name.
-				if (currImage != null && (!currImage.hasName() || !isMacroOrderValid(lastSymbol, currImage, lastName, newDisplayName))) {
+				if (currImage != null && currImage.isImageGeneratedByUs() && (!currImage.hasName() || !isMacroOrderValid(lastSymbol, currImage, lastName, newDisplayName))) {
 					int tHash = currImage.hasHash() ? currImage.hash : hash;
 					String autoPrefix = originalName + "_";
 					
@@ -451,7 +469,7 @@ public class VramHeaderExporter extends GhidraScript {
 		// Write macros.
 		for (int i = 0; i < symbols.size(); i++) {
 			HashedSymbol symbol = symbols.get(i);
-			if (!(symbol instanceof ImageHeader))
+			if (!symbol.isImageGeneratedByUs())
 				continue;
 			
 			ImageHeader header = (ImageHeader) symbol;
@@ -549,15 +567,12 @@ public class VramHeaderExporter extends GhidraScript {
 		// 'sprdata.obj' is very early for Frogger, coming before any other BSS symbols.
 		// So, if we see a non-texture symbol, it means it will be seen later than the texture symbols in the .obj files.
 		// Because this is reversed, it means other symbols always appear before textures in the final order.
-		
-		boolean isCurrentImage = (currSymbol instanceof ImageHeader);
-		boolean isLastImage = (lastSymbol instanceof ImageHeader);
-		
-		// Assumption: We know the real names of all non-image symbols, so if the a symbol wasn't an image, we can treat it as correct, and verify against it. (If it fails we know something is wrong with our labels)
-		if (!isLastImage) {
-			// Current is image, last is symbol, or both are symbol.
+				
+		// Assumption: We know the real names of all symbols we are not generating, so if the a symbol wasn't made by us, we can treat it as correct, and verify against it. (If it fails we know something is wrong with our labels)
+		if (lastSymbol == null || !lastSymbol.isImageGeneratedByUs()) {
+			// Current is an image generated by us and last is not, or both aren't.
 			
-			if (lastSymbol != null && lastSymbol.isFromLib && isCurrentImage) { // Should never occur, so it is printed as well as thrown (since thrown errors are interpretted as needing to try another combo.)
+			if (lastSymbol != null && lastSymbol.isOrderedEarly && currSymbol.isImageGeneratedByUs()) { // Should never occur, so it is printed as well as thrown (since thrown errors are interpretted as needing to try another combo.)
 				String errMsg = "Current image '" + currSymbol.name + "' is located after lib-symbol '" + lastSymbol.name + "'.";
 				println(errMsg);
 				throw new RuntimeException(errMsg);
@@ -565,10 +580,10 @@ public class VramHeaderExporter extends GhidraScript {
 			
 			// Example of this working: 'im_swp1pic' > 'Frogs'.
 			return currSymbol.address.getOffset() > lastSymbol.address.getOffset();
-		} else if (!isCurrentImage) {
+		} else if (!currSymbol.isImageGeneratedByUs()) {
 			// Current is symbol, last is image.
 			
-			if (currSymbol.isFromLib && currSymbol.address.getOffset() > lastSymbol.address.getOffset())
+			if (currSymbol.isOrderedEarly && currSymbol.address.getOffset() > lastSymbol.address.getOffset())
 				return true;
 			
 			// We throw an error here. This is because we want the list of symbols to be in order by address.
@@ -613,12 +628,16 @@ public class VramHeaderExporter extends GhidraScript {
 		public String macroValue;
 		public int index;
 		
-		public ImageHeader(String name, Address address, int index) {
-			super(name, address, false);
+		public ImageHeader(String name, Address address, int index, boolean isOrderedEarly) {
+			super(name, address, isOrderedEarly);
 			this.macroValue = null;
 			this.index = index;
 		}
 		
+		@Override
+		public boolean isImageGeneratedByUs() {
+			return !this.isOrderedEarly;
+		}
 		
 		@Override
 		public String getDisplayName(boolean reference) {
@@ -634,13 +653,13 @@ public class VramHeaderExporter extends GhidraScript {
 		public String name;
 		public Address address;
 		public int hash;
-		public boolean isFromLib;
+		public boolean isOrderedEarly; // Marked as being ordered early means it comes after because the linked order is reversed.
 		
-		public HashedSymbol(String name, Address address, boolean isFromLib) {
+		public HashedSymbol(String name, Address address, boolean isOrderedEarly) {
 			this.name = name;
 			this.address = address;
 			this.hash = hasName() ? getLinkerHash(name) : -1;
-			this.isFromLib = isFromLib;
+			this.isOrderedEarly = isOrderedEarly;
 		}
 		
 		public boolean hasHash() {
@@ -649,6 +668,10 @@ public class VramHeaderExporter extends GhidraScript {
 		
 		public boolean hasName() {
 			return this.name != null;
+		}
+		
+		public boolean isImageGeneratedByUs() {
+			return false;
 		}
 		
 		public String getDisplayName(boolean reference) {
@@ -705,7 +728,18 @@ public class VramHeaderExporter extends GhidraScript {
 		'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
 	};
 	
-	// This string has a hash of zero. It can be used to make a string longer (for sorting tiebreaker) without changing the hash.
+	// When I was reverse engineering the linker, I noticed what I called at the time a "length sort", where string length would appear to be some kind of sorting tiebreaker.
+	// It turned out to be a little more complicated.
+	// There is no explicit (intentional) sorting, but instead what happens is it's a mix of the order of the symbols in the .obj, and a slight difference between the linker hash algorithm and assembler hash algorithm.
+	// This is explored in the documentation, but the length of the string factors into the linker's hash calculation, but not the assembler's hash calculation.
+	// Meaning if you have two strings with different lengths but a matching linker hash, the larger string will have a smaller assembler hash. (Unless it wraps around)
+	// This will effectively sort the strings from largest to smallest, which when read backwards by the linker, will be reversed and cause the smaller strings to be placed first.
+	// Tying it all together, we have the concept of a "hash offset phrase", which is a string that has a hash of zero. This allows you to make a string longer (change the assembler hash) without changing the linker hash.
+	
+	// There's that one pesky case where a hash wraps around though. One example is how this broke 'im_swp5pic'.
+	// im_swp5pic has an assembler hash of zero. This means larger strings which evaluate to the same linker hash will be less than zero, wrapping around.
+	// Thus, the assembler hashes are greater for them, breaking the sorting. So we have a system to counteract this, or at least I think I addressed it.
+
 	private static final String HASH_OFFSET_PHRASE = "_Yah0I"; // Options: "Yaahx", "_Yah0I"
 	private static final String[] LINKER_HASH_OFFSET_PHRASES = {"_dare", "_Yah0I", "0000Ezz", "000000_y", "00000004s", "00000004A1"};
 	

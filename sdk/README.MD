@@ -28,8 +28,14 @@ If the original compiler ever surfaces, we can switch to using it in the DOSBox 
 The runtime libraries in the `lib\` folder have been copied from PsyQ 4.0, and are the version the game was originally compiled with.  
 
 **putchar.obj:**  
-I'm trying to remember what happened here, but I think I had to extract this .obj from one of the PsyQ .lib files. I don't remember which one or how I did it.  
-I may have just put the .lib into Ghidra (with the psx plugin installed) and extracted it through that. Or perhaps I used a tool from PsyQ. I don't recall.  
+This file was probably extracted from some `.lib` file with Ghidra, then modified to closely match the data seen in the build of the game.  
+Specific details have been forgotten, as it seems they were not documented. Here's my recollection of what happened.  
+These are the steps:  
+ - **1)** Install the [ghidra-psx-ldr](https://github.com/lab313ru/ghidra_psx_ldr) plugin installed in Ghidra.  
+ - **2)** Drag the `LIBC2.LIB` file into Ghidra.  
+ - **3)** It should ask what import mode you want since it has nested files. Select "File System".  
+ - **4)** Right-click "PUTCHAR.OBJ", and click "Export".  
+ - **5)** Modify the file with a hex editor, and replace the large existing function code with the handful of instructions seen in the actual game executable.  
 
 ## Two Build Pipelines
 There are build pipelines included for compiling the game. Both are similar, but contain key differences.  
@@ -128,10 +134,47 @@ However, CR LF line endings (\r\n) used by Windows completely break GCC, since o
 So, when you start encountering segfaults and/or syntax errors while trying to preprocess or compile this code in Linux, this is usually why.
 
 Working GCC Toolchain:
-sudo apt-get install -y git make gcc-mipsel-linux-gnu binutils-mipsel-linux-gnu python3 python3-pip
+sudo apt-get install -y git make gcc-mipsel-linux-gnu g++-mipsel-linux-gnu binutils-mipsel-linux-gnu python3 python3-pip
 
 Code Formatter:
 sudo apt-get install -y  clang clang-format clang-tidy-14
+
+Compilation Examples:
+
+1) Convert CR LF (\r\n) line endings to LF (\n), for compatibility with Linux tools:
+awk '{ sub("\r$", ""); print }' "source/FROG.C" > "source/FROG-LF.C"
+
+2) Preprocess with modern GNU (mipsel-linux-gnu-cpp instead of cpppsx.exe):
+mipsel-linux-gnu-cpp -Iinclude -undef -Wall -fno-builtin -Dmips -D__GNUC__=2 -D__OPTIMIZE__ -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C -DHACKS -DUSE_INCLUDE_ASM -lang-c source/FROG-LF.C > source/FROG-PREPROC.C
+NOTE: I got an error "mipsel-linux-gnu-cpp: fatal error: cannot execute ‘cc1plus’: execvp: No such file or directory", because I didn't have "g++-mipsel-linux-gnu" installed.
+This doesn't seem to produce compileable output for the old version, which is odd because in a decomp setup it compiles just fine.
+
+3) Compile Preprocessed FROG.C GNU (& Fix the Assembly Code):
+cat source/FROG-PREPROC.C | ./sdk/bin/gcc-2.6.3/cc1-psx-263 -O3 -G0 -funsigned-char -w -fpeephole -ffunction-cse -fpcc-struct-return -fcommon -fverbose-asm -msoft-float -g -quiet -mcpu=3000 -fgnu-linker -mgas -gcoff > source/FROG-ASM.S
+
+4) Update assembly with maspsx
+cat source/FROG-ASM.S | python3 tools/maspsx/maspsx.py --no-macro-inc >> src/main/FROG.asm
+
+4) Assemble with GNU Assembler/AS (mipsel-linux-gnu-as instead of aspsx.exe):
+mipsel-linux-gnu-as -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 src/main/FROG.asm -o src/main/FROG.o
+You'll get a .o file, which is a completely different format from what aspsx.
+
+Linker Info:
+Unfortunately, I have no idea how to link the .o objects into a PSX executable from this point.
+Other PSX decomp projects should probably get checked out.
+You'll need to use ld of course, but I am not sure how to make a linker script that LD likes.
+
+See the DOS pipelinecat FROG.PRE | ./sdk/bin/cc1-psx-263 -O3 -funsigned-char -w -fpeephole -ffunction-cse -fpcc-struct-return -fcommon -fverbose-asm -msoft-float -g -quiet -mcpu=3000 -fgnu-linker -mgas -gcoff > FROG.S
+cat src/main/FROG.PRE | ./bin/cc1-psx-263 -O3 -funsigned-char -w -fpeephole -ffunction-cse -fpcc-struct-return -fcommon -fverbose-asm -msoft-float -g -quiet -mcpu=3000 -fgnu-linker -mgas -gcoff > src/main/FROG.S
+aspsx.exe -q FROG.S -o FROG.OBJ
+
+
+Windows Example (Build 49, NOT Retail):
+ccpsx -save-temps -v -comments-c++ -c -Wunused -Wmissing-prototypes -Wuninitialized -O3 mapview.c
+OR
+cpppsx.exe -undef -D__GNUC__=2 -v -Wunused -Wmissing-prototypes -Wuninitialized -D__OPTIMIZE__ -lang-c -Dmips -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D__EXTENSIONS__ -D_MIPSEL -D__CHAR_UNSIGNED__ -D_LANGUAGE_C -DLANGUAGE_C mapview.c C:/build/temp/QLJHWRNT
+cc1psx.exe -quiet -version -Wunused -Wmissing-prototypes -Wuninitialized -O3 C:/build/temp/QLJHWRNT -o C:/build/temp/JFTSBZIG
+aspsx.exe -q C:\build\temp\JFTSBZIG -o mapview.obj
 ```
 
 ## Ghidra Scripts
