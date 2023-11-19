@@ -236,7 +236,7 @@ HUD_CHECKPOINT_ANIM_INFO	Hud_gold_frog_collect_anim[] =
 HUD_ITEM	HUD_script_one_viewport_player_1[] =
 	{
 		{	HUD_ITEM_SCORE,
-			SYSTEM_DISPLAY_WIDTH 	- 16 - 48,
+			SYSTEM_DISPLAY_WIDTH 	- 16 - 64,
 			16,
 		},
 		{	HUD_ITEM_TIMER,
@@ -307,7 +307,7 @@ HUD_ITEM	HUD_script_two_viewports_player_1[] =
 HUD_ITEM	HUD_script_two_viewports_player_2[] =
 	{
 		{	HUD_ITEM_SCORE,
-			SYSTEM_DISPLAY_WIDTH 	- 16 - 48,
+			SYSTEM_DISPLAY_WIDTH 	- 16 - 32,
 			16,
 		},
 		{	HUD_ITEM_EMPTY,
@@ -358,7 +358,7 @@ HUD_ITEM	HUD_script_four_viewports_player_1[] =
 HUD_ITEM	HUD_script_four_viewports_player_2[] =
 	{
 		{	HUD_ITEM_SCORE,
-			SYSTEM_DISPLAY_WIDTH 	- 16 - 48,
+			SYSTEM_DISPLAY_WIDTH 	- 16 - 32,
 			16,
 		},
 		{	HUD_ITEM_EMPTY,
@@ -402,7 +402,7 @@ HUD_ITEM	HUD_script_four_viewports_player_3[] =
 HUD_ITEM	HUD_script_four_viewports_player_4[] =
 	{
 		{	HUD_ITEM_SCORE,
-			SYSTEM_DISPLAY_WIDTH 	- 16 - 48,
+			SYSTEM_DISPLAY_WIDTH 	- 16 - 32,
 			(SYSTEM_DISPLAY_HEIGHT / 2) + 16,
 		},
 		{	HUD_ITEM_EMPTY,
@@ -521,30 +521,55 @@ MR_LONG		Hud_build_text_digits[3];
 MR_UBYTE	Hud_digits[10];
 
 MR_STRPTR	text_hud_score_words_right[]		= {"%jr%w UP",	(MR_STRPTR)&Hud_build_text_digits[0], (MR_STRPTR)1, NULL};
-MR_STRPTR	text_hud_score_digits_right[]		= {"%jr%w",	  	(MR_STRPTR)&Hud_build_text_digits[0], (MR_STRPTR)6, NULL};
+MR_STRPTR	text_hud_score_digits_right[]		= {"%jr%w",	  	(MR_STRPTR)&Hud_build_text_digits[0], (MR_STRPTR)8, NULL};
 MR_STRPTR	text_hud_score_words_left[]			= {"%w UP",   	(MR_STRPTR)&Hud_build_text_digits[0], (MR_STRPTR)1, NULL};
-MR_STRPTR	text_hud_score_digits_left[]		= {"%lw",	  	(MR_STRPTR)&Hud_build_text_digits[0], (MR_STRPTR)6, NULL};
+MR_STRPTR	text_hud_score_digits_left[]		= {"%lw",	  	(MR_STRPTR)&Hud_build_text_digits[0], (MR_STRPTR)8, NULL};
 
 // Help messages (in different languages)
-MR_STRPTR	text_help_superjump[]				= {"%jcSUPERJUMP", NULL};
+MR_STRPTR	text_help_superjump[]				= {"%jcSUPERHOP", NULL};
 MR_STRPTR	text_help_tongue[]					= {"%jcTONGUE", NULL};
 MR_STRPTR	text_help_croak[]					= {"%jcCROAK", NULL};
+MR_STRPTR	text_help_super_tongue[]			= {"%jcSUPER TONGUE", NULL};
+MR_STRPTR	text_help_auto_hop[]				= {"%jcAUTO-HOP", NULL};
+MR_STRPTR	text_help_quick_jump[]				= {"%jcQUICK JUMP", NULL};
+MR_STRPTR	text_help_super_light[]				= {"%jcBRIGHTEN", NULL};
+MR_STRPTR	text_help_lose_time[]				= {"%jcLOSE TIME", NULL};
 
 MR_STRPTR	text_help_superjump_i[]				= {"%jcSUPER SALTO", NULL};
 MR_STRPTR	text_help_tongue_i[]				= {"%jcLINGUA", NULL};
 MR_STRPTR	text_help_croak_i[]					= {"%jcGRACIDA", NULL};
+MR_STRPTR	text_help_super_tongue_i[]			= {"%jcSUPER LINGUA", NULL};
+MR_STRPTR	text_help_auto_hop_i[]				= {"%jcSALTO AUTOMATICO", NULL};
+MR_STRPTR	text_help_quick_jump_i[]			= {"%jcSALTO VELOCE", NULL};
+MR_STRPTR	text_help_super_light_i[]			= {"%jcILLUMINA", NULL};
+MR_STRPTR	text_help_lose_time_i[]				= {"%jcPERDI TEMPO", NULL};
 
 MR_STRPTR	text_help_superjump_g[]				= {"%jcSUPER-SPRUNG", NULL};
-MR_STRPTR	text_help_tongue_g[]				= {"%jcQUAK", NULL};
-MR_STRPTR	text_help_croak_g[]					= {"%jcZUNGE", NULL};
+MR_STRPTR	text_help_tongue_g[]				= {"%jcZUNGE", NULL};
+MR_STRPTR	text_help_croak_g[]					= {"%jcQUAK", NULL};
+MR_STRPTR	text_help_super_tongue_g[]			= {"%jcSUPERZUNGE", NULL};
+MR_STRPTR	text_help_auto_hop_g[]				= {"%jcAUTO-SPRUNG", NULL};
+MR_STRPTR	text_help_quick_jump_g[]			= {"%jcSCHNELL-SPRUNG", NULL};
+MR_STRPTR	text_help_super_light_g[]			= {"%jcHELLER", NULL};
+MR_STRPTR	text_help_lose_time_g[]				= {"%jcZEITVERLUST", NULL};
 
 MR_STRPTR	text_help_superjump_f[]				= {"%jcSUPER SAUT", NULL};
 MR_STRPTR	text_help_tongue_f[]				= {"%jcLANGUE", NULL};
 MR_STRPTR	text_help_croak_f[]					= {"%jcCOASSEMENT", NULL};
+MR_STRPTR	text_help_super_tongue_f[]			= {"%jcLANGUE TELESCOPIQUE", NULL};
+MR_STRPTR	text_help_auto_hop_f[]				= {"%jcAUTO-HOP", NULL};
+MR_STRPTR	text_help_quick_jump_f[]			= {"%jcQUICK-JUMP", NULL};
+MR_STRPTR	text_help_super_light_f[]			= {"%jcLUMIERE!", NULL};
+MR_STRPTR	text_help_lose_time_f[]				= {"%jcON PERD DU TEMPS!", NULL};
 
 MR_STRPTR	text_help_superjump_s[]				= {"%jcSUPERSALTO", NULL};
 MR_STRPTR	text_help_tongue_s[]				= {"%jcLENGUA", NULL};
 MR_STRPTR	text_help_croak_s[]					= {"%jcCROAR", NULL};
+MR_STRPTR	text_help_super_tongue_s[]			= {"%jcSUPERLENGUA", NULL};
+MR_STRPTR	text_help_auto_hop_s[]				= {"%jcAUTO-SALTO", NULL};
+MR_STRPTR	text_help_quick_jump_s[]			= {"%jcSALTO RAPIDO", NULL};
+MR_STRPTR	text_help_super_light_s[]			= {"%jcBRILLO", NULL};
+MR_STRPTR	text_help_lose_time_s[]				= {"%jcPERDER TIEMPO", NULL};
 
 // Cheats
 MR_STRPTR	text_help_collision_on[]			= {"%jcCOLLISION ON", NULL};
@@ -555,6 +580,7 @@ MR_STRPTR	text_help_infinite_lives_on[]		= {"%jcINFINITE LIVES ON", NULL};
 MR_STRPTR	text_help_infinite_lives_off[]		= {"%jcINFINITE LIVES OFF", NULL};
 MR_STRPTR	text_help_polygon_warning[]			= {"%jcTOO MANY POLYGONS", NULL};
 MR_STRPTR	text_help_all_levels_open[]			= {"%jcALL LEVELS OPEN", NULL};
+MR_STRPTR	text_help_all_zones_open[]			= {"%jcALL ZONES OPEN", NULL};
 MR_STRPTR	text_help_collect_checkpoint[]		= {"%jcCHECKPOINTS COLLECTED", NULL};
 MR_STRPTR	text_help_collect_goldfrog[]		= {"%jcGOLDFROG COLLECTED", NULL};
 
@@ -571,8 +597,14 @@ MR_STRPTR*	Hud_item_help_messages[HUD_ITEM_HELP_TOTAL][MAX_NUM_LANGUAGES] =
 		{text_help_infinite_lives_off,	text_help_infinite_lives_off,	text_help_infinite_lives_off,	text_help_infinite_lives_off,	text_help_infinite_lives_off},
 		{text_help_polygon_warning,		text_help_polygon_warning,		text_help_polygon_warning,		text_help_polygon_warning,		text_help_polygon_warning},
 		{text_help_all_levels_open,		text_help_all_levels_open,		text_help_all_levels_open,		text_help_all_levels_open,		text_help_all_levels_open},
+		{text_help_all_zones_open,		text_help_all_zones_open,		text_help_all_zones_open,		text_help_all_zones_open,		text_help_all_zones_open},
 		{text_help_collect_checkpoint,	text_help_collect_checkpoint,	text_help_collect_checkpoint,	text_help_collect_checkpoint,	text_help_collect_checkpoint},
-		{text_help_collect_goldfrog,	text_help_collect_goldfrog,		text_help_collect_goldfrog,		text_help_collect_goldfrog,		text_help_collect_goldfrog},	
+		{text_help_collect_goldfrog,	text_help_collect_goldfrog,		text_help_collect_goldfrog,		text_help_collect_goldfrog,		text_help_collect_goldfrog},
+		{text_help_super_tongue,		text_help_super_tongue_i,		text_help_super_tongue_g,		text_help_super_tongue_f,		text_help_super_tongue_s},
+		{text_help_auto_hop,			text_help_auto_hop_i,			text_help_auto_hop_g,			text_help_auto_hop_f,			text_help_auto_hop_s},
+		{text_help_quick_jump,			text_help_quick_jump_i,			text_help_quick_jump_g,			text_help_quick_jump_f,			text_help_quick_jump_s},
+		{text_help_super_light,			text_help_super_light_i,		text_help_super_light_g,		text_help_super_light_f,		text_help_super_light_s},
+		{text_help_lose_time,			text_help_lose_time_i,			text_help_lose_time_g,			text_help_lose_time_f,			text_help_lose_time_s},
 	};
 
 
@@ -965,6 +997,7 @@ MR_VOID DeinitialiseHUD(MR_VOID)
 	MRFreeMem(Hud_score_background_ft[0][0]);
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% StartHUD
 *------------------------------------------------------------------------------
@@ -976,12 +1009,14 @@ MR_VOID DeinitialiseHUD(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	08.05.97	Tim Closs		Created
+*	06.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	StartHUD(MR_VOID)
 {
 }
+#endif
 
 
 /******************************************************************************
@@ -1033,6 +1068,7 @@ MR_VOID	UpdateHUD(MR_VOID)
 *						MR_ULONG	id)
 *
 *	FUNCTION	Update items in a HUD script
+*	MATCH		https://decomp.me/scratch/tnQWG	(By Kneesnap)
 *
 *	INPUTS		item	-	ptr to first HUD_ITEM in script array
 *				id		-	player id (0..3)
@@ -1043,6 +1079,7 @@ MR_VOID	UpdateHUD(MR_VOID)
 *	11.06.97	Martin Kift		Tinkered with checkpoint hud code.
 *	05.07.97	Martin Kift		Added new checkpoint anim code (for level init)
 *	14.08.97	Gary Richards	Added Tick 'n' Tock for timer count down.
+*	06.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1134,7 +1171,10 @@ MR_VOID	UpdateHUDScript(	HUD_ITEM*	item,
 								{
 								// Start TimeOut music with 2 seconds to go.
 								if (Game_map_timer == 55)
+									{
 									MRSNDPlaySound(SFX_MUSIC_TIMEOUT, NULL, 0, 0);
+									DampenMusicVolumeTemporarily();
+									}
 
 								temp_map_timer = Game_map_timer / 15;	// Only Div once.
 	
@@ -1433,6 +1473,7 @@ MR_VOID	UpdateHUDScript(	HUD_ITEM*	item,
 				case HUD_ITEM_LEVEL_START_TIMER:
 					((MR_SP_CORE*)item->hi_api_0)->sc_flags &= ~MR_SPF_NO_DISPLAY;
 					((MR_SP_CORE*)item->hi_api_1)->sc_flags &= ~MR_SPF_NO_DISPLAY;
+					((MR_SP_CORE*)item->hi_api_2)->sc_flags &= ~MR_SPF_NO_DISPLAY;
 
 					if (Game_map_timer > (MR_LONG)(Game_map_time * 30))
 						{
@@ -1447,6 +1488,7 @@ MR_VOID	UpdateHUDScript(	HUD_ITEM*	item,
 				case HUD_ITEM_LEVEL_TIME:
 					((MR_SP_CORE*)item->hi_api_0)->sc_flags &= ~MR_SPF_NO_DISPLAY;
 					((MR_SP_CORE*)item->hi_api_1)->sc_flags &= ~MR_SPF_NO_DISPLAY;
+					((MR_SP_CORE*)item->hi_api_2)->sc_flags &= ~MR_SPF_NO_DISPLAY;
 					item->hi_flags |= (HUD_ITEM_FINISHED);
 					break;
 
@@ -1552,6 +1594,7 @@ MR_VOID	UpdateHUDScript(	HUD_ITEM*	item,
 					if ( MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FR_GO) )
 						{
 						FROG_CLEAR_PAD_PRESSED(Frog_input_ports[0], FR_GO);
+						MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
 
 						// Yes ... end
 						item->hi_timer = HUD_ITEM_BONUS_COUNT_ADD;
@@ -1582,19 +1625,18 @@ MR_VOID	UpdateHUDScript(	HUD_ITEM*	item,
 						case HUD_ITEM_BONUS_COUNT_UP:
 							if (Game_map_timer)
 								{
-								if ((Game_map_timer - 30) < 0)
-									{
-									Game_map_timer = 0;
-									break;
-									}
-
-								// dec game timer
-								Game_map_timer -= 10;
-								if ((Game_map_timer % 30) == 0)
-									Hud_bonus_score += FROG_TIMER_BONUS_SCORE;
-
 								// Play SFX for each digit.
-								MRSNDPlaySound(SFX_GEN_CLOCK_TICK, NULL, 0, 0);
+								if ((Game_map_timer % 30) == 0)
+									{
+									Hud_bonus_score += FROG_TIMER_BONUS_SCORE;
+									MRSNDPlaySound(SFX_GEN_CLOCK_TICK, NULL, 0, 0);
+									}
+								
+								// dec game timer
+								if (Game_map_timer - 10 < 0)
+									Game_map_timer = 0;
+								else
+									Game_map_timer -= 10;
 
 								HUDGetDigits(Hud_bonus_score, &digit_a, &digit_b, &digit_c);
 								for (i=0; i<HUD_MAX_BONUS_DIGITS; i++)
@@ -1686,6 +1728,7 @@ MR_VOID	ResetHUDScript(HUD_ITEM*	item)
 *									MR_ULONG	id)
 *
 *	FUNCTION	Setup a HUD script
+*	MATCH		https://decomp.me/scratch/0hpxW	(By Kneesnap & mono21400)
 *
 *	INPUTS		item	-	ptr to first item
 *				id		-	player id (0..3)
@@ -1695,6 +1738,7 @@ MR_VOID	ResetHUDScript(HUD_ITEM*	item)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	08.05.97	Tim Closs		Created
+*	08.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1728,8 +1772,17 @@ HUD_ITEM*	SetupHUDScript(	HUD_ITEM*	item,
 				if (Game_flags & GAME_FLAG_HUD_SCORE)
 					{
 					item->hi_flags 	|= HUD_ITEM_REBUILD;
-					item->hi_api_0	= MRAllocateTextArea(NULL, Game_font_infos[GAME_FONT_STANDARD], Game_viewporth, 20, item->hi_x, item->hi_y, 		48, 8);
-					item->hi_api_1	= MRAllocateTextArea(NULL, Game_font_infos[GAME_FONT_STANDARD],	Game_viewporth, 20, item->hi_x, item->hi_y + 8, 	48, 8);
+					if (Game_total_players == 1)
+						{
+						item->hi_api_0	= MRAllocateTextArea(NULL, Game_font_infos[GAME_FONT_STANDARD], Game_viewporth, 20, item->hi_x, item->hi_y, 		64, 8);
+						item->hi_api_1	= MRAllocateTextArea(NULL, Game_font_infos[GAME_FONT_STANDARD],	Game_viewporth, 20, item->hi_x, item->hi_y + 8, 	64, 8);
+						}
+					else
+						{
+						item->hi_api_0	= MRAllocateTextArea(NULL, Game_font_infos[GAME_FONT_STANDARD], Game_viewporth, 20, item->hi_x, item->hi_y, 		32, 8);
+						item->hi_api_1	= MRAllocateTextArea(NULL, Game_font_infos[GAME_FONT_STANDARD],	Game_viewporth, 20, item->hi_x, item->hi_y + 8, 	64, 8);
+						}
+					
 					((MR_TEXT_AREA*)item->hi_api_0)->ta_display = TRUE;
 					((MR_TEXT_AREA*)item->hi_api_1)->ta_display = TRUE;
 	
@@ -1757,12 +1810,22 @@ HUD_ITEM*	SetupHUDScript(	HUD_ITEM*	item,
 						setRGB0(Hud_score_background_f[id][j], 0x40, 0x40, 0x40);
 						setSemiTrans(Hud_score_background_f[id][j], 1);
 
-						Hud_score_background_f[id][j]->x0 = item->hi_x - 5;
-						Hud_score_background_f[id][j]->y0 = item->hi_y - 5;
-						Hud_score_background_f[id][j]->x1 = item->hi_x + 48 + 5;
+						if (Game_total_players == 1)
+							{
+							Hud_score_background_f[id][j]->x0 = item->hi_x - 5;
+							Hud_score_background_f[id][j]->y0 = item->hi_y - 5;
+							Hud_score_background_f[id][j]->x1 = item->hi_x + 64 + 5;
+							Hud_score_background_f[id][j]->y2 = item->hi_y + 16 + 5;
+							}
+						else
+							{
+							Hud_score_background_f[id][j]->x0 = item->hi_x - 5;
+							Hud_score_background_f[id][j]->y0 = item->hi_y - 5;
+							Hud_score_background_f[id][j]->x1 = item->hi_x + 32 + 5;
+							Hud_score_background_f[id][j]->y2 = item->hi_y + 8 + 5;
+							}
 						Hud_score_background_f[id][j]->y1 = Hud_score_background_f[id][j]->y0;
 						Hud_score_background_f[id][j]->x2 = Hud_score_background_f[id][j]->x0;
-						Hud_score_background_f[id][j]->y2 = item->hi_y + 16 + 5;
 						Hud_score_background_f[id][j]->x3 = Hud_score_background_f[id][j]->x1;
 						Hud_score_background_f[id][j]->y3 = Hud_score_background_f[id][j]->y2;
 
@@ -1946,6 +2009,8 @@ HUD_ITEM*	SetupHUDScript(	HUD_ITEM*	item,
 				// Set up digits
 				item->hi_api_0	= MRCreate2DSprite(item->hi_x + (HUD_ITEM_TIMER_WIDTH / 2) - 32, item->hi_y - 34, Game_viewporth, &im_32x32_0, NULL);
 				item->hi_api_1	= MRCreate2DSprite(item->hi_x + (HUD_ITEM_TIMER_WIDTH / 2) -  0, item->hi_y - 34, Game_viewporth, &im_32x32_0, NULL);
+				texture = Options_text_textures[OPTION_TEXT_SEC][Game_language];
+				item->hi_api_2	= MRCreate2DSprite(item->hi_x + (HUD_ITEM_TIMER_WIDTH / 2) + 32, item->hi_y - 18, Game_viewporth, texture, NULL);
 
 				// Update digits
 				d = (Game_map_timer + 29) / 30;
@@ -1956,6 +2021,7 @@ HUD_ITEM*	SetupHUDScript(	HUD_ITEM*	item,
 
 				((MR_SP_CORE*)item->hi_api_0)->sc_flags |= MR_SPF_NO_DISPLAY;
 				((MR_SP_CORE*)item->hi_api_1)->sc_flags |= MR_SPF_NO_DISPLAY;
+				((MR_SP_CORE*)item->hi_api_2)->sc_flags |= MR_SPF_NO_DISPLAY;
 				break;
 
 			//--------------------------------------------------------------------
@@ -1967,16 +2033,22 @@ HUD_ITEM*	SetupHUDScript(	HUD_ITEM*	item,
 				// Set up digits
 				item->hi_api_0	= MRCreate2DSprite(item->hi_x + (HUD_ITEM_TIMER_WIDTH>>1), item->hi_y, Game_viewporth, &im_32x32_0, NULL);
 				item->hi_api_1	= MRCreate2DSprite(item->hi_x + (HUD_ITEM_TIMER_WIDTH>>1) + 16, item->hi_y, Game_viewporth, &im_32x32_0, NULL);
+				texture = Options_text_textures[OPTION_TEXT_SEC][Game_language];
+				item->hi_api_2	= MRCreate2DSprite(item->hi_x + (HUD_ITEM_TIMER_WIDTH>>1) + 32, item->hi_y, Game_viewporth, texture, NULL);
 
 				// Update digits
-				d = ((Game_map_time*30) - Game_map_timer)/30;
-
+				while (Game_map_timer_decimalised && (Game_map_timer_decimalised % 30))
+					Game_map_timer_decimalised++;
+				
+				d = MIN(Game_map_timer_decimalised / 30, 99);
+					
 				// Display digits
 				MRChangeSprite(item->hi_api_0, Hud_score_images[d / 10]);
 				MRChangeSprite(item->hi_api_1, Hud_score_images[d % 10]);
 
 				((MR_SP_CORE*)item->hi_api_0)->sc_flags |= MR_SPF_NO_DISPLAY;
 				((MR_SP_CORE*)item->hi_api_1)->sc_flags |= MR_SPF_NO_DISPLAY;
+				((MR_SP_CORE*)item->hi_api_2)->sc_flags |= MR_SPF_NO_DISPLAY;
 				break;
 
 			//--------------------------------------------------------------------
@@ -2197,7 +2269,7 @@ HUD_ITEM*	SetupHUDScript(	HUD_ITEM*	item,
 				if (!(Gold_frogs & (1<<Game_map_theme)))
 					{
 					// Work out where the check point is, and where it needs to go
-					checkpoint_anim_info->hc_start_x		= 16 + (16*6);
+					checkpoint_anim_info->hc_start_x		= 16 + (16*5);
 					checkpoint_anim_info->hc_start_y		= -20;
 					checkpoint_anim_info->hc_timer			= 30;
 					checkpoint_anim_info->hc_velocity_x		= 0;
@@ -2209,8 +2281,8 @@ HUD_ITEM*	SetupHUDScript(	HUD_ITEM*	item,
 					}
 				else
 					{
-					checkpoint_anim_info->hc_start_x		= 16 + (16*6);
-					checkpoint_anim_info->hc_start_y		= (SYSTEM_DISPLAY_HEIGHT-32);
+					checkpoint_anim_info->hc_start_x		= 16 + (16*5);
+					checkpoint_anim_info->hc_start_y		= (SYSTEM_DISPLAY_HEIGHT-44);
 					checkpoint_anim_info->hc_timer			= 0;
 					checkpoint_anim_info->hc_velocity_x		= 0;
 					checkpoint_anim_info->hc_velocity_y		= 0;
@@ -2239,12 +2311,14 @@ HUD_ITEM*	SetupHUDScript(	HUD_ITEM*	item,
 *						HUD_ITEM*	item)
 *
 *	FUNCTION	Kill a HUD script (free allocated memory)
+*	MATCH		https://decomp.me/scratch/BNAsf	(By Kneesnap)
 *
 *	INPUTS		item	-	ptr to first item
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	08.05.97	Tim Closs		Created
+*	08.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2324,12 +2398,14 @@ MR_VOID	KillHUDScript(HUD_ITEM*	item)
 			case HUD_ITEM_LEVEL_START_TIMER:
 				MRKill2DSprite(item->hi_api_0);
 				MRKill2DSprite(item->hi_api_1);
+				MRKill2DSprite(item->hi_api_2);
 				break;
 
 			//--------------------------------------------------------------------
 			case HUD_ITEM_LEVEL_TIME:
 				MRKill2DSprite(item->hi_api_0);
 				MRKill2DSprite(item->hi_api_1);
+				MRKill2DSprite(item->hi_api_2);
 				break;
 
 			//--------------------------------------------------------------------
@@ -2377,18 +2453,24 @@ MR_VOID	KillHUDScript(HUD_ITEM*	item)
 *						MR_ULONG	help_id)
 *
 *	FUNCTION	Check the flag for a help item, and if 0, try and display it
+*	MATCH		https://decomp.me/scratch/WXQAa	(By Kneesnap)
 *
-*	INPUTS		frog_id	-	id of frog
-*				help_id	-	help item id
+*	INPUTS		frog_id		-	id of frog
+*				help_id		-	help item id
+*				overwrite	-	replace existing text display
+*				flags		-	the HUD flags to apply
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	08.05.97	Tim Closs		Created
+*	08.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	DisplayHUDHelp(	MR_ULONG	frog_id,
-				   		MR_ULONG	help_id)
+				   		MR_ULONG	help_id,
+				   		MR_BOOL		overwrite,
+				   		MR_USHORT	flags)
 {							
 	HUD_ITEM*	hud_item;
 	FROG*		frog;
@@ -2401,13 +2483,13 @@ MR_VOID	DisplayHUDHelp(	MR_ULONG	frog_id,
 		{
 		frog 		= &Frogs[frog_id];		
 		hud_item 	= frog->fr_hud_script + HUD_ITEM_HELP - 1;
-		if	(((MR_TEXT_AREA*)hud_item->hi_api_0)->ta_display == FALSE)
+		if	(((MR_TEXT_AREA*)hud_item->hi_api_0)->ta_display != TRUE || overwrite)
 			{
 			// Display help message
 			MRBuildText(hud_item->hi_api_0, Hud_item_help_messages[help_id][Game_language], MR_FONT_COLOUR_WHITE);
 			hud_item->hi_timer						= HUD_ITEM_FADE_DURATION;
 			hud_item->hi_flags						|= HUD_ITEM_FADE_UP;
-			Hud_item_help_flags[frog_id][help_id] 	= 1;
+			Hud_item_help_flags[frog_id][help_id] 	= flags;
 			}
 		}
 }
@@ -2557,6 +2639,7 @@ MR_VOID InitialiseMultiplayerHUDbackgrounds(MR_VOID)
 		}
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% UpdateMultiplayerHUDbackgrounds
 *------------------------------------------------------------------------------
@@ -2569,6 +2652,7 @@ MR_VOID InitialiseMultiplayerHUDbackgrounds(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	19.08.97	Martin Kift		Created
+*	08.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2598,6 +2682,7 @@ MR_VOID UpdateMultiplayerHUDbackgrounds(MR_VOID)
 //			break;
 //		}
 }
+#endif
 
 
 /******************************************************************************

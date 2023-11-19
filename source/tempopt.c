@@ -70,7 +70,7 @@ MR_ULONG	Options_count_down_units;		// Number of units remaining in count down
 
 MR_ULONG	Anti_piracy_count;			// Time anti piracy on screen for
 
-MR_2DSPRITE*	Warning_ptr;				// Ptr to 2D sprite for the anti piracy
+//MR_2DSPRITE*	Warning_ptr;				// Ptr to 2D sprite for the anti piracy
 
 #endif	// PSX
 
@@ -100,46 +100,48 @@ MR_LONG		Demo_level_table[][3]	=	// Table of demo levels to show
 	{
 
 	// Level number			// Resource id			// Level to check open, before playing demo mode
-	//LEVEL_ORIGINAL1,		RES_ORG1DEMO_DAT,		LEVEL_ORIGINAL1,
-	LEVEL_ORIGINAL2,		RES_ORG2DEMO_DAT,		LEVEL_ORIGINAL1,
-	LEVEL_ORIGINAL3,		RES_ORG3DEMO_DAT,		LEVEL_ORIGINAL1,
-	LEVEL_ORIGINAL4,		RES_ORG4DEMO_DAT,		LEVEL_ORIGINAL1,
-	LEVEL_ORIGINAL5,		RES_ORG5DEMO_DAT,		LEVEL_ORIGINAL1,
-
 	LEVEL_SUBURBIA1,		RES_SUB1DEMO_DAT,		LEVEL_SUBURBIA1,
-	LEVEL_SUBURBIA2,		RES_SUB2DEMO_DAT,		LEVEL_SUBURBIA1,
-	LEVEL_SUBURBIA3,		RES_SUB3DEMO_DAT,		LEVEL_SUBURBIA1,
-	LEVEL_SUBURBIA4,		RES_SUB4DEMO_DAT,		LEVEL_SUBURBIA1,
-	LEVEL_SUBURBIA5,		RES_SUB5DEMO_DAT,		LEVEL_SUBURBIA1,
-
-	LEVEL_FOREST1,			RES_FOR1DEMO_DAT,		LEVEL_FOREST1,
-//	LEVEL_FOREST2,			RES_FOR2DEMO_DAT,		LEVEL_FOREST1,
-
-	LEVEL_VOLCANO1,			RES_VOL1DEMO_DAT,		LEVEL_VOLCANO1,
-//	LEVEL_VOLCANO2,			RES_VOL2DEMO_DAT,		LEVEL_VOLCANO1,
-	LEVEL_VOLCANO3,			RES_VOL3DEMO_DAT,		LEVEL_VOLCANO1,
-
-	LEVEL_CAVES1,			RES_CAV1DEMO_DAT,		LEVEL_CAVES1,
-//	LEVEL_CAVES3,			RES_CAV3DEMO_DAT,		LEVEL_CAVES1,		// Removed because it looks poor
-//	LEVEL_CAVES4,			RES_CAV4DEMO_DAT,		LEVEL_CAVES1,		// Removed because start position is now invalid
-
-	LEVEL_SKY1,				RES_SKY1DEMO_DAT,		LEVEL_SKY1,
-//	LEVEL_SKY2,				RES_SKY2DEMO_DAT,		LEVEL_SKY1,			// Removed because it causes a STACK overflow in CreateMapGroups.
-	LEVEL_SKY3,				RES_SKY3DEMO_DAT,		LEVEL_SKY1,
-	LEVEL_SKY4,				RES_SKY4DEMO_DAT,		LEVEL_SKY1,
-
-	LEVEL_SWAMP1,			RES_SWP1DEMO_DAT,		LEVEL_SWAMP1,
-	LEVEL_SWAMP2,			RES_SWP2DEMO_DAT,		LEVEL_SWAMP1,
-	LEVEL_SWAMP3,			RES_SWP3DEMO_DAT,		LEVEL_SWAMP1,
-	LEVEL_SWAMP4,			RES_SWP4DEMO_DAT,		LEVEL_SWAMP1,
-	LEVEL_SWAMP5,			RES_SWP5DEMO_DAT,		LEVEL_SWAMP1,
-
 	LEVEL_DESERT1,			RES_DES1DEMO_DAT,		LEVEL_DESERT1,
-	LEVEL_DESERT2,			RES_DES2DEMO_DAT,		LEVEL_DESERT1,
+	LEVEL_SKY3,				RES_SKY3DEMO_DAT,		LEVEL_SKY1,
+	LEVEL_CAVES1,			RES_CAV1DEMO_DAT,		LEVEL_CAVES1,
+	LEVEL_SWAMP5,			RES_SWP5DEMO_DAT,		LEVEL_SWAMP1,
+	LEVEL_FOREST1,			RES_FOR1DEMO_DAT,		LEVEL_FOREST1,
+	LEVEL_VOLCANO1,			RES_VOL1DEMO_DAT,		LEVEL_VOLCANO1,
+	
+	// Play intro
+	-2,						-2,						-2,
+	LEVEL_ORIGINAL1,		RES_ORG1DEMO_DAT,		LEVEL_ORIGINAL1,
 	LEVEL_DESERT3,			RES_DES3DEMO_DAT,		LEVEL_DESERT1,
-//	LEVEL_DESERT4,			RES_DES4DEMO_DAT,		LEVEL_DESERT1,		// Removed because it needs too much memory
+	LEVEL_SUBURBIA5,		RES_SUB5DEMO_DAT,		LEVEL_SUBURBIA1,
+	LEVEL_CAVES4,			RES_CAV4DEMO_DAT,		LEVEL_CAVES1,
+	LEVEL_SKY2,				RES_SKY2DEMO_DAT,		LEVEL_SKY1,
+	LEVEL_SWAMP1,			RES_SWP1DEMO_DAT,		LEVEL_SWAMP1,
+	LEVEL_ORIGINAL4,		RES_ORG4DEMO_DAT,		LEVEL_ORIGINAL1,
+	LEVEL_FOREST2,			RES_FOR2DEMO_DAT,		LEVEL_FOREST1,
+	
+	// Play intro
+	-2,						-2,						-2,
+	LEVEL_VOLCANO3,			RES_VOL3DEMO_DAT,		LEVEL_VOLCANO1,
+	LEVEL_ORIGINAL2,		RES_ORG2DEMO_DAT,		LEVEL_ORIGINAL1,
+	LEVEL_SUBURBIA3,		RES_SUB3DEMO_DAT,		LEVEL_SUBURBIA1,
+	LEVEL_SKY4,				RES_SKY4DEMO_DAT,		LEVEL_SKY1,
+	LEVEL_SWAMP3,			RES_SWP3DEMO_DAT,		LEVEL_SWAMP1,
+	LEVEL_DESERT4,			RES_DES4DEMO_DAT,		LEVEL_DESERT1,
+	LEVEL_VOLCANO2,			RES_VOL2DEMO_DAT,		LEVEL_VOLCANO1,
+	LEVEL_SWAMP2,			RES_SWP2DEMO_DAT,		LEVEL_SWAMP1,
+	LEVEL_DESERT2,			RES_DES2DEMO_DAT,		LEVEL_DESERT1,
+	
+	// Play intro
+	-2,						-2,						-2,
+	LEVEL_ORIGINAL3,		RES_ORG3DEMO_DAT,		LEVEL_ORIGINAL1,
+	LEVEL_SKY1,				RES_SKY1DEMO_DAT,		LEVEL_SKY1,
+	LEVEL_SUBURBIA4,		RES_SUB4DEMO_DAT,		LEVEL_SUBURBIA1,
+	LEVEL_SWAMP4,			RES_SWP4DEMO_DAT,		LEVEL_SWAMP1,
+	LEVEL_ORIGINAL5,		RES_ORG5DEMO_DAT,		LEVEL_ORIGINAL1,
 	LEVEL_DESERT5,			RES_DES5DEMO_DAT,		LEVEL_DESERT1,
+	LEVEL_SUBURBIA2,		RES_SUB2DEMO_DAT,		LEVEL_SUBURBIA1,
 
+//	LEVEL_CAVES3,			RES_CAV3DEMO_DAT,		LEVEL_CAVES1,		// Removed because it looks poor
 //	LEVEL_JUNGLE1,			RES_JUN1DEMO_DAT,		LEVEL_JUNGLE1,		// Removed by order of Kev
 
 	// End of list
@@ -258,6 +260,8 @@ MR_TEXTURE*		Options_text_textures[OPTION_TEXT_TOTAL][MAX_NUM_LANGUAGES] =
 		{	&im_select4,			&im_select4_i,			&im_select4_g,			&im_select4_f,			&im_select4_s},				// OPTION_TEXT_SELECT4,
 		{	&im_select5,			&im_select5_i,			&im_select5_g,			&im_select5_f,			&im_select5_s},				// OPTION_TEXT_SELECT5,
 #endif
+		{	&im_select6,			&im_select6_i,			&im_select6_g,			&im_select6_f,			&im_select6_s},				// OPTION_TEXT_SELECT6,
+		{	&im_select7,			&im_select7_i,			&im_select7_g,			&im_select7_f,			&im_select7_s},				// OPTION_TEXT_SELECT7,
 		{	&im_sel_loading,		&im_seli_loading,		&im_selg_loading,		&im_self_loading,		&im_sels_loading},			// OPTION_TEXT_LOADING,		
 		{	&im_opt_insert_pad,		&im_opti_insert_pad,	&im_optg_insert_pad,	&im_optf_insert_pad,	&im_opts_insert_pad},		// OPTION_TEXT_INSERT_PAD,		
 		{	&im_opt_start,			&im_opti_start,			&im_optg_start,			&im_optf_start,			&im_opts_start},			// OPTION_TEXT_START,			
@@ -305,6 +309,9 @@ MR_TEXTURE*		Options_text_textures[OPTION_TEXT_TOTAL][MAX_NUM_LANGUAGES] =
 		{	&im_opt_now_loading,	&im_opti_now_loading,	&im_optg_now_loading,	&im_optf_now_loading,	&im_opts_now_loading},		// OPTION_TEXT_NOW_LOADING,
 		{	&im_opt_now_formatting,	&im_opti_now_formatting,&im_optg_now_formatting,&im_optf_now_formatting,&im_opts_now_formatting},	// OPTION_TEXT_NOW_FORMATTING,
 		{	&im_opt_now_checking,	&im_opti_now_checking,	&im_optg_now_checking,	&im_optf_now_checking,	&im_opts_now_checking},		// OPTION_TEXT_NOW_CHECKING,
+		{	&im_opt_sec,			&im_opti_sec,			&im_optg_sec,			&im_optf_sec,			&im_opts_sec},				// OPTION_TEXT_SEC,
+		{	&im_play_off,			&im_play_off_i,			&im_play_off_g,			&im_play_off_f,			&im_play_off_s},			// OPTION_TEXT_PLAY_OFF,
+
 	};		
 		
 
@@ -315,6 +322,7 @@ MR_TEXTURE*		Options_text_textures[OPTION_TEXT_TOTAL][MAX_NUM_LANGUAGES] =
 MR_MAT*			Options_extras_matrix_ptr[OPTIONS_NUM_EXTRAS];
 MR_OBJECT*		Options_extras_object_ptr[OPTIONS_NUM_EXTRAS];
 MR_MESH_INST*	Options_extras_mesh_inst_ptr[OPTIONS_NUM_EXTRAS];
+MR_2DSPRITE*	Options_extras_user_prompt_ptr;
 
 MR_ULONG		Options_extras_resource_id[] =
 	{
@@ -469,6 +477,7 @@ MR_2DSPRITE*	Pad_sprite_ptrs[MAX_NUM_PADS];
 MR_2DSPRITE*	Pad_text_sprite_ptrs[MAX_NUM_PADS];
 MR_2DSPRITE*	Pad_insert_sprite_ptrs[MAX_NUM_PADS];
 MR_2DSPRITE*	Pad_arrow_sprite_ptrs[MAX_NUM_PADS*2];
+MR_2DSPRITE*	Pad_user_prompt_text_instptr;
 
 #endif
 
@@ -538,66 +547,67 @@ MR_ULONG		Option_network_play_number_players;
 //------------------------------------------------------------------
 // Frog Selection 
 //
-FROG_SELECTION	Frog_selection[4];			// Misc data for each Frog
+//FROG_SELECTION	Frog_selection[4];			// Misc data for each Frog
 
 MR_ANIM_ENV*		Frog_anim_env_ptr[4];			// Anim env created
 MR_ANIM_ENV_INST*	Frog_anim_inst_ptr[4];			// Instance of anim env added to viewport
-MR_VEC				Frog_anim_position[4]=			// Position of each Frog on screen
-	{
-	{-150, -20, 0},
-	{ 150, -20, 0},
-	{-150, 180, 0},
-	{ 150, 180, 0},
-	};
+//MR_VEC				Frog_anim_position[4]=			// Position of each Frog on screen
+//	{
+//	{-150, -20, 0},
+//	{ 150, -20, 0},
+//	{-150, 180, 0},
+//	{ 150, 180, 0},
+//	};
 
 //MR_ULONG	Frog_selection_animation_count[4];		// Animation frame count ( 0 - when at end of animation )
 MR_ULONG		Frog_selection_master_flags;		// Frog selection flags
 MR_ULONG		Frog_selection_number_players;		// Number of players in game (upto 4)
 MR_ULONG		Frog_selection_states[4];			// NULL for no pad, 1 for pad but not selected, 2 for pad and selected
 MR_2DSPRITE*	Frog_selection_sprites[4];			// sprites for INSERT CONTROLLER
+MR_2DSPRITE*	Selection_Options_ptr;
 
 MR_ULONG	Frog_selection_network_request_flags;	// Network player input flags
 MR_ULONG	Frog_selection_master_player_id;		// Master player id (in multiplayer network mode)
 MR_ULONG	Frog_selection_request_flags;			// Frog selection request flags
 
-MR_TEXT_AREA*	Option_frog_selection_text_area[8];
+//MR_TEXT_AREA*	Option_frog_selection_text_area[8];
 
-MR_STRPTR	Option_frog_selection_text[5][20]	=	// Test text
-	{
-	{"%jcWAITING TO JOIN", NULL},
-	{"%jcSELECTING FROG", NULL},
-	{"%jcFROG SELECTED", NULL},
-	{"%jcMASTER", NULL},
-	{"%jcSLAVE", NULL},
-	};
+//MR_STRPTR	Option_frog_selection_text[5][20]	=	// Test text
+//	{
+//	{"%jcWAITING TO JOIN", NULL},
+//	{"%jcSELECTING FROG", NULL},
+//	{"%jcFROG SELECTED", NULL},
+//	{"%jcMASTER", NULL},
+//	{"%jcSLAVE", NULL},
+//	};
 
 // Test level selects -------------------------------------
 
-MR_ULONG	Options_world_number;			// Number of world currently selected in level select
-MR_ULONG	Options_level_number;			// Number of level currently selected in level select
+//MR_ULONG	Options_world_number;			// Number of world currently selected in level select
+//MR_ULONG	Options_level_number;			// Number of level currently selected in level select
 
 
 // Continue -----------------------------------------------
 
-MR_2DSPRITE*	Continue_title_sprite_ptr;
-MR_2DSPRITE*	Continue_time_sprite_ptr;
-MR_2DSPRITE*	Continue_no_sprite_ptr;
-MR_2DSPRITE*	Continue_yes_sprite_ptr;
-MR_2DSPRITE*	Continue_left_ptr;
+//MR_2DSPRITE*	Continue_title_sprite_ptr;
+//MR_2DSPRITE*	Continue_time_sprite_ptr;
+//MR_2DSPRITE*	Continue_no_sprite_ptr;
+//MR_2DSPRITE*	Continue_yes_sprite_ptr;
+//MR_2DSPRITE*	Continue_left_ptr;
 
-MR_TEXTURE*		Continue_time_sprite_table[10]=
-	{
-		&im_32x32_0,
-		&im_32x32_1,
-		&im_32x32_2,
-		&im_32x32_3,
-		&im_32x32_4,
-		&im_32x32_5,
-		&im_32x32_6,
-		&im_32x32_7,
-		&im_32x32_8,
-		&im_32x32_9,
-	};
+//MR_TEXTURE*		Continue_time_sprite_table[10]=
+//	{
+//		&im_32x32_0,
+//		&im_32x32_1,
+//		&im_32x32_2,
+//		&im_32x32_3,
+//		&im_32x32_4,
+//		&im_32x32_5,
+//		&im_32x32_6,
+//		&im_32x32_7,
+//		&im_32x32_8,
+//		&im_32x32_9,
+//	};
 
 // Game Over ----------------------------------------------
 
@@ -675,6 +685,7 @@ MR_BOOL		Options_music_playing = FALSE;
 MR_LONG		Demo_loading_mode	  = DEMO_LOADING_INIT;
 MR_BOOL		Game_demo_loading	  = FALSE;
 MR_BOOL		Game_over_no_new_sound = FALSE;
+MR_BOOL		Main_menu_fast_camera = TRUE;
 
 /******************************************************************************
 *%%%% VersionStartup
@@ -777,11 +788,14 @@ MR_VOID VersionShutdown(MR_VOID)
 *
 *	FUNCTION	Initialisation code for Anti Piracy screen.  Create the 2D
 *				sprite for the anti piracy logo.  And initialise time
-*			to display for.
+*				to display for.
+*
+*	MATCH		https://decomp.me/scratch/cmzRe	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -797,7 +811,7 @@ MR_VOID	AntiPiracyStartup(MR_VOID)
 	MRUnloadResource(RES_START_VRAM_VLO);
 
 	// Create sprite for piracy message
-	Warning_ptr = MRCreate2DSprite(56,25,Option_viewport_ptr,&im_sonywarn,NULL);
+	MRChangeSprite(Sel_level_title, &im_sonywarn);
 #else
 	// Load Frogger Logo for other Areas.
 	MRLoadResource(RES_STARTNTSC_VLO);
@@ -805,11 +819,14 @@ MR_VOID	AntiPiracyStartup(MR_VOID)
 	MRUnloadResource(RES_STARTNTSC_VLO);
 
 	// Create sprite for piracy message
-	Warning_ptr = MRCreate2DSprite(56,25,Option_viewport_ptr,&im_froglogo,NULL);
+	MRChangeSprite(Sel_level_title, &im_froglogo);
 #endif
 
 	// Set time Anti Piracy on screen for
 	Anti_piracy_count = ANTI_PIRACY_TIME;
+	Sel_level_title->sp_pos.x = 56;
+	Sel_level_title->sp_pos.y = 25;
+	Sel_level_title->sp_core.sc_flags &= ~MR_SPF_NO_DISPLAY;
 }
 
 /******************************************************************************
@@ -832,19 +849,10 @@ MR_VOID	AntiPiracyUpdate(MR_VOID)
 	// Are we the first time though this function?? (Wait for the screen to be drawn!)
 	if ( Anti_piracy_count == (ANTI_PIRACY_TIME - 5))
 		{
-#ifdef EXPERIMENTAL
 		// Load the GENERIC SFX (Theses stay loaded all the time,until the game is quit!!)
 		// Load these while the Anti-Piracy screen is up. (Hopefully they will be loaded in 5 secs)
 		Game_map_theme = 0;
 		InitialiseVab();
-#else
-		MRLoadResource(gVABInfo[THEME_GEN].va_vb_resource_id);
-		MRProcessResource(gVABInfo[THEME_GEN].va_vb_resource_id);
-		MRLoadResource(gVABInfo[THEME_GEN].va_vh_resource_id);
-		MRProcessResource(gVABInfo[THEME_GEN].va_vh_resource_id);
-		MRSNDOpenVab(THEME_GEN, TRUE);
-		MRUnloadResource(gVABInfo[THEME_GEN].va_vb_resource_id);
-#endif
 		}
 
 	// Has frame count reached zero ?
@@ -866,19 +874,18 @@ MR_VOID	AntiPiracyUpdate(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	AntiPiracyShutdown(MR_VOID)
 {
-#ifdef	PSX_MODE_PAL
-	// Remove piracy sprite from display
-	MRKill2DSprite(Warning_ptr);
-#endif
+	Sel_level_title->sp_core.sc_flags |= MR_SPF_NO_DISPLAY;
 }
 
 #endif	// PSX
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% HasbroLogoStartup
 *------------------------------------------------------------------------------
@@ -891,6 +898,7 @@ MR_VOID	AntiPiracyShutdown(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -900,6 +908,7 @@ MR_VOID	HasbroLogoStartup(MR_VOID)
 	// Do nothing ... ( yet !!! )
 
 }
+#endif
 
 /******************************************************************************
 *%%%% HasbroLogoUpdate
@@ -913,6 +922,7 @@ MR_VOID	HasbroLogoStartup(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -924,13 +934,18 @@ MR_VOID	HasbroLogoUpdate(MR_VOID)
 
 	// Initialise
 	fmv_skipped = FALSE;
+	
+	KillOptionsForStream();
+	MRCreateDisplay(MR_SCREEN_TRUECOLOUR_STANDARD_320);
 
 #ifdef	PSX_CD_STREAMS
-
 	// Play HASBRO logo video stream
 	fmv_skipped = Play_stream(STR_HASBRO_LOGO);
-
 #endif	// PSX_CD_STREAMS
+
+	MRKillDisplay();
+	MRCreateDisplay(SYSTEM_DISPLAY_MODE);
+	CreateOptionsAfterStream();
 
 // IF THE PLAYER SKIPS THE LOGO, THEY SHOULD SEE THE INTRO. AT LEAST IAN THINKS SO!
 
@@ -953,6 +968,7 @@ MR_VOID	HasbroLogoUpdate(MR_VOID)
 
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% HasbroLogoShutdown
 *------------------------------------------------------------------------------
@@ -965,6 +981,7 @@ MR_VOID	HasbroLogoUpdate(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -987,6 +1004,7 @@ MR_VOID	HasbroLogoShutdown(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -996,6 +1014,7 @@ MR_VOID	MillenniumLogoStartup(MR_VOID)
 	// Do nothing ... ( yet!!! )
 
 }
+#endif
 
 /******************************************************************************
 *%%%% MillenniumLogoUpdate
@@ -1028,6 +1047,7 @@ MR_VOID	MillenniumLogoUpdate(MR_VOID)
 
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% MillenniumLogoShutdown
 *------------------------------------------------------------------------------
@@ -1040,6 +1060,7 @@ MR_VOID	MillenniumLogoUpdate(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1049,6 +1070,7 @@ MR_VOID	MillenniumLogoShutdown(MR_VOID)
 	// Do nothing ... ( yet!!! )
 
 }
+#endif
 
 /******************************************************************************
 *%%%% IntroStartup
@@ -1063,12 +1085,16 @@ MR_VOID	MillenniumLogoShutdown(MR_VOID)
 *	-------		----------		------
 *	13.05.97	William Bell	Created
 *	26.08.97	Gary Richards	Added New Stream Playback code.
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	IntroStartup(MR_VOID)
 {
 #ifdef	PSX
+	// Stop the sfx loop for loading level
+	StopLoadingSfxLoop();
+
 	// Kill all viewports/camera frames etc...
 	KillOptionsForStream();
 
@@ -1107,6 +1133,7 @@ MR_VOID	IntroStartup(MR_VOID)
 *	-------		----------		------
 *	13.05.97	William Bell	Created
 *	04.07.97	Gary Richards	Remove the Intro Stream.
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1130,9 +1157,12 @@ MR_VOID	IntroUpdate(MR_VOID)
 		// No ... go on to main options
 		Option_page_request = OPTIONS_PAGE_MAIN_OPTIONS;
 		}
+		
+	Main_menu_fast_camera = TRUE;
 
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% IntroShutdown
 *------------------------------------------------------------------------------
@@ -1145,6 +1175,7 @@ MR_VOID	IntroUpdate(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1154,6 +1185,7 @@ MR_VOID	IntroShutdown(MR_VOID)
 	// Do nothing ... ( yet!!! )
 
 }
+#endif
 
 /******************************************************************************
 *%%%% MainOptionsStartup
@@ -1164,10 +1196,13 @@ MR_VOID	IntroShutdown(MR_VOID)
 *	FUNCTION	Initialisation code for Main Options screen.  Currently just
 *				builds text area for the three choices.
 *
+*	MATCH		https://decomp.me/scratch/BDrNu	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
 *	28.07.97	Gary Richards	Changed the order of loads.
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1178,25 +1213,26 @@ MR_VOID	MainOptionsStartup(MR_VOID)
 	MR_ULONG	loop_counter;
 	POLY_FT4*	poly_ft4;
 
+	// Load GEN wad
+	LoadGenericWad(0);				// This MUST be loaded first to keep memory order.
+	
 	// Load options resources
 	LoadOptionsResources();			// This MUST be loaded here to keep memory order.
 
-	// Load GEN wad
-	LoadGenericWad(0);				// This MUST be loaded first to keep memory order.
-
 	// Display main 3 entry menu
 	texture		= Options_text_textures[OPTION_TEXT_START][Game_language];
-	Start_ptr	= MRCreate2DSprite((Game_display_width - texture->te_w) >> 1, Game_display_height - MAIN_MENU_Y_OFFSET +  0 + 80, Option_viewport_ptr, texture, NULL);
+	UpdateSpriteDisplay(Start_ptr, texture, (Game_display_width - texture->te_w) >> 1, Game_display_height - MAIN_MENU_Y_OFFSET + 0 + 80);
 
 	texture		= Options_text_textures[OPTION_TEXT_RACE][Game_language];
-	Race_ptr	= MRCreate2DSprite((Game_display_width - texture->te_w) >> 1, Game_display_height - MAIN_MENU_Y_OFFSET + 16 + 80, Option_viewport_ptr, texture, NULL);
+	UpdateSpriteDisplay(Race_ptr, texture, (Game_display_width - texture->te_w) >> 1, Game_display_height - MAIN_MENU_Y_OFFSET + 16 + 80);
 
 	texture		= Options_text_textures[OPTION_TEXT_OPTIONS][Game_language];
-	Options_ptr	= MRCreate2DSprite((Game_display_width - texture->te_w) >> 1, Game_display_height - MAIN_MENU_Y_OFFSET + 32 + 80, Option_viewport_ptr, texture, NULL);
+	UpdateSpriteDisplay(Options_ptr, texture, (Game_display_width - texture->te_w) >> 1, Game_display_height - MAIN_MENU_Y_OFFSET + 32 + 80);
 
 	Option_spcore_ptrs[0] = (MR_SP_CORE*)Start_ptr;
 	Option_spcore_ptrs[1] = (MR_SP_CORE*)Race_ptr;
 	Option_spcore_ptrs[2] = (MR_SP_CORE*)Options_ptr;
+	Option_spcore_ptrs[3] = NULL;
 
 	// Calculate width and height of subtractive poly area
 	width 		= MAX(Options_text_textures[OPTION_TEXT_START][Game_language]->te_w,
@@ -1240,7 +1276,18 @@ MR_VOID	MainOptionsStartup(MR_VOID)
 	Option_number 		= 0;
 	From_options		= FALSE;
 	Main_options_status = MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_INIT;
-
+	High_score_view_flyon_counter = OPTIONS_CAMERA_FLYON_TIME;
+	High_score_view_flyoff_counter = 0;
+	High_score_view_delayed_request = 0;
+	if (Main_menu_fast_camera == TRUE)
+		{
+		Cameras[0].ca_move_timer = 1;
+		Main_menu_fast_camera = FALSE;
+		}
+	else
+		Cameras[0].ca_move_timer = OPTIONS_CAMERA_FLYON_TIME;
+	
+	Frog_player_data[0].fp_player_id = 0;
 }
 
 
@@ -1255,9 +1302,12 @@ MR_VOID	MainOptionsStartup(MR_VOID)
 *				selection.  Also shows game demo or high score tables in
 *				background from time to time.
 *
+*	MATCH		https://decomp.me/scratch/MM2Vf	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1265,7 +1315,6 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 {
 	static	MR_ULONG	score_time;
 	MR_ULONG			count;
-	SEL_LEVEL_INFO*		sel_level_info_ptr;
 	MR_BOOL				valid_demo_level;
 	MR_OBJECT*			object_ptr;
 	MR_UBYTE			i;
@@ -1290,6 +1339,8 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 					Game_demo_loading = TRUE;
 					// Move the Options Menu Off Screen.
 					High_score_view_flyoff_counter 	= OPTIONS_CAMERA_FLYOFF_TIME;
+					High_score_view_flyon_counter 	= 0;
+					
 					// Turn On Loading Sprite.
 					texture					= Options_text_textures[OPTION_TEXT_LOADING][Game_language];
 					Sel_loading_sprite_ptr->sp_core.sc_flags &= ~MR_SPF_NO_DISPLAY;
@@ -1385,6 +1436,7 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 						{
 						// -----------------------------------------------
 						case GAME_START_INIT:
+							Game_flags |= GAME_FLAG_DEMO_RUNNING;
 							GameStart();
 							Game_start_mode++;
 							break;
@@ -1414,11 +1466,9 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 					Main_options_status = MAIN_OPTIONS_STATUS_DEMO_MAIN;
 					Demo_loading_mode = DEMO_LOADING_INIT;
 
-					// Flag demo as running
-					Game_flags |= GAME_FLAG_DEMO_RUNNING;
-
 					// Move the Options Menu On Screen.
 					High_score_view_flyon_counter 	= OPTIONS_CAMERA_FLYON_TIME;
+					High_score_view_flyoff_counter 	= 0;
 
 					// Flag that we have finished loading the Demo.
 					Game_demo_loading = FALSE;
@@ -1452,6 +1502,7 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 				Options_count_down_units = 30;
 				// Move the Options Menu Off Screen.
 				High_score_view_flyoff_counter 	= OPTIONS_CAMERA_FLYOFF_TIME;
+				High_score_view_flyon_counter 	= 0;
 				// Loading Sprite as well Please.
 				Sel_loading_sprite_ptr->sp_core.sc_flags &= ~MR_SPF_NO_DISPLAY;
 				// Increase the brightness of the Loading Sprite.
@@ -1511,7 +1562,7 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 			GamePauseAddPrim();
 
 			// Deinitialise selected demo level
-			GameEnd();
+			GameEnd(TRUE);
 
 			// Flag demo mode as NOT running
 			Game_flags &= ~GAME_FLAG_DEMO_RUNNING;
@@ -1530,12 +1581,13 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 					Num_demo_levels_seen++;
 
 					// Have all demo levels been seen ?
+					
 					if ( Demo_level_table[Num_demo_levels_seen][0] == -1 )
 						// Yes ... reset level number
 						Num_demo_levels_seen = 0;
 
 					// Is this world open ?
-					if ( SelectGetLevelFlags(Demo_level_table[Num_demo_levels_seen][2]) & SEL_LF_SELECTABLE )
+					if ( (Demo_level_table[Num_demo_levels_seen][0] == -2) || ((MR_USHORT)SelectGetLevelFlags(Demo_level_table[Num_demo_levels_seen][2]) & SEL_LF_SELECTABLE) )
 						// Yes ... flag valid demo level
 						valid_demo_level = TRUE;
 
@@ -1547,14 +1599,21 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 				{
 				// Yes ... go back to the intro
 				Option_page_request = OPTIONS_PAGE_INTRO;
-				// Fool MainOptionsShutdown() in to thinking not to run GameEnd()
+
+				// Fool MainOptionsShutdown() in to thinking not to run GameEnd(TRUE)
 				Main_options_status = MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_INIT;
+				}
+			else if (Demo_level_table[Num_demo_levels_seen][0] == -2)
+				{
+				Option_page_request = OPTIONS_PAGE_INTRO;
+				
+				// Fool MainOptionsShutdown() in to thinking not to run GameEnd(TRUE)
+				Main_options_status = MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_INIT;
+
+				Num_demo_levels_seen++;
 				}
 			else
-				{
-				// Go on to initialise high score mode
 				Main_options_status = MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_INIT;
-				}
 
 			// Reload the options resource, to reset trashed textures.  Also sets up water
 			LoadOptionsResources();
@@ -1587,6 +1646,7 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 			Main_options_status 	= MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_MAIN;
 
 			// Start me some options music.
+			StopLoadingSfxLoop();
 			PlayOptionsMusic();
 
 		// Show high score table
@@ -1611,27 +1671,16 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 				}
 
 			// End of time ?
-#ifdef EXPERIMENTAL
-			if (score_time)
-				{
-				score_time--;
-				if	(
-					(!score_time) &&
-					(!High_score_view_flyoff_counter) &&
-					(!High_score_view_delayed_request)
-					)
-					{
-					// Yes ... switch mode to finish
-					Main_options_status = MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_FINISH;
-					}
-				}
-#else
-			if	((!score_time--))
+			if	(
+				(!High_score_view_flyoff_counter) &&
+				(!High_score_view_flyon_counter) &&
+				(!High_score_view_delayed_request) &&
+				(!score_time--)
+				)
 				{
 				// Yes ... switch mode to finish
 				Main_options_status = MAIN_OPTIONS_STATUS_HIGH_SCORE_VIEW_FINISH;
 				}
-#endif
 
 			break;
 
@@ -1763,6 +1812,7 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 		(!High_score_view_flyon_counter) &&
 		(!High_score_view_flyoff_counter) &&
 		(!Game_demo_loading)			   &&					// Not trying to load a demo mode.
+		(!High_score_view_delayed_request) &&
 		(MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FR_GO))
 		)
 		{
@@ -1800,13 +1850,15 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 					Frog_player_data[count].fp_port_id	= count;
 					}
 
+				GameUpdateControllers();
+				UpdateControllerInputFlags();
 				// Initialise scores etc. ready for high score table
 				HighScoreInitialiseData();
 
 			is_option_from_demo_mode:;
 				if (Game_flags & GAME_FLAG_DEMO_RUNNING)
 					{
-					GameEnd();
+					GameEnd(TRUE);
 					Game_flags &= ~GAME_FLAG_DEMO_RUNNING;
 					Game_flags |= (GAME_FLAG_HUD_SCORE|GAME_FLAG_HUD_TIMER|GAME_FLAG_HUD_HELP|GAME_FLAG_HUD_CHECKPOINTS|GAME_FLAG_HUD_LIVES);
 					MRUnloadResource(Demo_level_table[Num_demo_levels_seen][1]);
@@ -1820,8 +1872,10 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 						High_score_view_flyoff_counter 	= 0;
 						MR_COPY_SVEC(&Cameras[0].ca_current_source_ofs, &Cameras[0].ca_next_source_ofs);
 						MR_COPY_SVEC(&Cameras[0].ca_current_target_ofs, &Cameras[0].ca_next_target_ofs);
-						Cameras[0].ca_move_timer = 0;
+						Cameras[0].ca_move_timer = 1;
 						}
+
+					StopLoadingSfxLoop();
 					}
 				break;
 
@@ -1862,7 +1916,7 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 			
 				if (Game_flags & GAME_FLAG_DEMO_RUNNING)
 					{
-					GameEnd();
+					GameEnd(TRUE);
 					MRUnloadResource(Demo_level_table[Num_demo_levels_seen][1]);
 					LoadOptionsResources();
 					LoadGenericWad(0);
@@ -1882,8 +1936,10 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 					High_score_view_flyoff_counter 	= 0;
 					MR_COPY_SVEC(&Cameras[0].ca_current_source_ofs, &Cameras[0].ca_next_source_ofs);
 					MR_COPY_SVEC(&Cameras[0].ca_current_target_ofs, &Cameras[0].ca_next_target_ofs);
-					Cameras[0].ca_move_timer = 0;
+					Cameras[0].ca_move_timer = 1;
 					}
+
+				StopLoadingSfxLoop();
 				break;
 
 				goto is_option_from_demo_mode;
@@ -1895,7 +1951,7 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 
 				if (Game_flags & GAME_FLAG_DEMO_RUNNING)
 					{
-					GameEnd();
+					GameEnd(TRUE);
 					MRUnloadResource(Demo_level_table[Num_demo_levels_seen][1]);
 					LoadOptionsResources();
 					LoadGenericWad(0);
@@ -1903,6 +1959,7 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 				// Start moving camera NOW
 				OptionsCameraMoveToOptions();
 				High_score_view_flyoff_counter 	= OPTIONS_CAMERA_FLYOFF_TIME;
+				High_score_view_flyon_counter  = 0;
 
 				if (Game_flags & GAME_FLAG_DEMO_RUNNING)
 					{	
@@ -1913,8 +1970,10 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 					High_score_view_flyoff_counter 	= 0;
 					MR_COPY_SVEC(&Cameras[0].ca_current_source_ofs, &Cameras[0].ca_next_source_ofs);
 					MR_COPY_SVEC(&Cameras[0].ca_current_target_ofs, &Cameras[0].ca_next_target_ofs);
-					Cameras[0].ca_move_timer = 0;
+					Cameras[0].ca_move_timer = 1;
 					}
+
+				StopLoadingSfxLoop();
 				break;
 			}
 		}
@@ -1932,15 +1991,16 @@ MR_VOID	MainOptionsUpdate(MR_VOID)
 *	-------		----------		------
 *	13.05.97	William Bell	Created
 *	21.07.97	Gary Richards	Added code to tidy the free's.
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	MainOptionsShutdown(MR_VOID)
 {
 	// Kill sprites
-	MRKill2DSprite(Start_ptr);
-	MRKill2DSprite(Race_ptr);
-	MRKill2DSprite(Options_ptr);
+	MakeSpriteInvisible(Start_ptr);
+	MakeSpriteInvisible(Race_ptr);
+	MakeSpriteInvisible(Options_ptr);
 
 	// Flag triangle as active first time into level select stack
 	Sel_first_time = TRUE;
@@ -2660,12 +2720,14 @@ MR_VOID	NetworkPlayOptionsShutdown(MR_VOID)
 *	SYNOPSIS	MR_VOID	FrogSelectionStartup(MR_VOID)
 *
 *	FUNCTION	Initialisation code for Frog Selection screen.
+*	MATCH		https://decomp.me/scratch/cYgQ6	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
 *	22.06.97	Martin Kift		Totally recoded to work with networks and 
 *								different number of players
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2681,7 +2743,7 @@ MR_VOID	FrogSelectionStartup(MR_VOID)
 	// Load GEN wad for frogs
 	LoadGenericWad(0);
 
-	High_score_matrices = MRAllocMem(sizeof(MR_MAT) * 4, "HS matrices");
+	High_score_matrices = MRAllocMem(sizeof(MR_MAT) * 4, "HS matrices 1");
 	for (i = 0; i < 4; i++)	
 		High_score_view_number_matrix_ptr[i] = High_score_matrices + i;
 
@@ -2698,6 +2760,7 @@ MR_VOID	FrogSelectionStartup(MR_VOID)
 		}
 
 	High_score_view_flyon_counter 	= OPTIONS_CAMERA_FLYON_TIME;
+	High_score_view_flyoff_counter 	= 0;
 	High_score_view_delayed_request	= NULL;
 
 	// Set global for number of frogs player, 4 for local game (on psx and win95)
@@ -2756,6 +2819,9 @@ MR_VOID	FrogSelectionStartup(MR_VOID)
 		Frog_selection_states[i] = NULL;
 		}
 
+	texture = Options_text_textures[OPTION_TEXT_RACE][Game_language];
+	Selection_Options_ptr = MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), -76, Option_viewport_ptr, texture, NULL);
+
 #ifdef WIN95
 	// init and wait for a sync message
 	SendSync();
@@ -2776,11 +2842,14 @@ MR_VOID	FrogSelectionStartup(MR_VOID)
 *				The master can be changed by using the cowering and growling
 *				actions of the Frogs.
 *
+*	MATCH		https://decomp.me/scratch/suO86	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
 *	20.06.97	Martin Kift		Added support for win95 network mode, which
 *								meant I had to add a layer over loop_counter
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2792,6 +2861,9 @@ MR_VOID	FrogSelectionUpdate(MR_VOID)
 	MR_SVEC		svec;
 	MR_MAT		matrix;
 	MR_TEXTURE*	texture;
+	
+	// Update controllers
+	GameUpdateControllers();
 	
 	// Move camera
 	HSUpdateScrollyCamera();
@@ -2821,8 +2893,12 @@ MR_VOID	FrogSelectionUpdate(MR_VOID)
 		Frog_selection_sprites[1]->sp_pos.y -= 10;
 		Frog_selection_sprites[2]->sp_pos.y += 10;
 		Frog_selection_sprites[3]->sp_pos.y += 10;
+		Selection_Options_ptr->sp_pos.y -= 10;
 		goto exit;
 		}
+
+	if (High_score_view_flyon_counter != 0)
+		Selection_Options_ptr->sp_pos.y += 10;
 
 	// Count number of selected frogs
 	num_frogs = 0;
@@ -3030,6 +3106,7 @@ MR_VOID	FrogSelectionUpdate(MR_VOID)
 }
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% FrogSelectionReadInput
 *------------------------------------------------------------------------------
@@ -3042,6 +3119,7 @@ MR_VOID	FrogSelectionUpdate(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	22.06.97	Martin Kift		Created
+*	10.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -3179,6 +3257,7 @@ MR_VOID FrogSelectionReadInput(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	22.06.97	Martin Kift		Created
+*	10.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -3533,6 +3612,7 @@ MR_VOID	FrogSelectionNetworkUpdate(MR_VOID)
 //		Option_page_request = OPTIONS_PAGE_EXIT;
 //#endif
 }
+#endif
 
 /******************************************************************************
 *%%%% FrogSelectionShutdown
@@ -3541,10 +3621,12 @@ MR_VOID	FrogSelectionNetworkUpdate(MR_VOID)
 *	SYNOPSIS	MR_VOID	FrogSelectionShutdown(MR_VOID)
 *
 *	FUNCTION	Shutdown code for Frog Selection screen.
+*	MATCH		https://decomp.me/scratch/CKMcj	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -3552,6 +3634,11 @@ MR_VOID	FrogSelectionShutdown(MR_VOID)
 {
 	MR_LONG			i;
 	MR_OBJECT*		object;
+
+	// Update controller
+	GameUpdateControllers();
+	UpdateControllerInputFlags();
+	MRKill2DSprite(Selection_Options_ptr);
 
 
 	// Kill all particle effects
@@ -3624,6 +3711,7 @@ MR_VOID	FrogSelectionShutdown(MR_VOID)
 			}
 		}
 
+	MRFreeMem(High_score_matrices);
 	Game_viewports[0] = NULL;
 	Game_viewports[1] = NULL;
 	Game_viewports[2] = NULL;
@@ -3671,6 +3759,7 @@ MR_VOID	FrogSelectionCreateFrog(MR_LONG	frog_index,
 }
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% ContinueStartup
 *------------------------------------------------------------------------------
@@ -3685,6 +3774,7 @@ MR_VOID	FrogSelectionCreateFrog(MR_LONG	frog_index,
 *	-------		----------		------
 *	13.05.97	William Bell	Created
 *	08.08.97	Gary Richards	Added number of continues left.
+*	10.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -3718,6 +3808,7 @@ MR_VOID	ContinueStartup(MR_VOID)
 #endif
 
 }
+#endif
 
 /******************************************************************************
 *%%%% ContinueUpdate
@@ -3936,7 +4027,7 @@ MR_VOID	ContinueShutdown(MR_VOID)
 	Game_running = TRUE;
 #endif
 
-	GameEnd();
+	GameEnd(TRUE);
 
 	if (Option_page_request != OPTIONS_PAGE_LEVEL_SELECT)
 		{
@@ -3954,9 +4045,12 @@ MR_VOID	ContinueShutdown(MR_VOID)
 *	FUNCTION	Initialisation code for Game Over screen.  Currently just initialises
 *				the text and time.
 *
+*	MATCH		https://decomp.me/scratch/iv9ay	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -3966,21 +4060,13 @@ MR_VOID	GameOverStartup(MR_VOID)
 	
 	// Create sprites
 	texture0					= Options_text_textures[OPTION_TEXT_GAMEOVER][Game_language];
-	Gameover_title_sprite_ptr 	= MRCreate2DSprite((Game_display_width>>1)-(texture0->te_w>>1),(Game_display_height>>1)-(texture0->te_h>>1),Option_viewport_ptr,texture0,NULL);
+	UpdateSpriteDisplay(Gameover_title_sprite_ptr, texture0, (Game_display_width>>1)-(texture0->te_w>>1), (Game_display_height>>1)-(texture0->te_h>>1));
 	Gameover_title_sprite_ptr->sp_core.sc_base_colour.r = 0;
 	Gameover_title_sprite_ptr->sp_core.sc_base_colour.g = 0;
 	Gameover_title_sprite_ptr->sp_core.sc_base_colour.b = 0;
 
-	if (Game_paused_selection == HIDDEN_MENU_QUIT_GAME)
-		{
-		// Got here from quitting the game
-		Options_count_down_units 	= GAME_OVER_DURATION + 30 - 15;
-		}
-	else
-		{
-		// Initialise count down
-		Options_count_down_units 	= GAME_OVER_DURATION + GAME_OVER_PREDELAY;
-		}
+	// Initialise count down
+	Options_count_down_units 	= GAME_OVER_DURATION + GAME_OVER_PREDELAY;
 
 	// Game over finished.
 	Game_over_no_new_sound = TRUE;
@@ -3988,7 +4074,10 @@ MR_VOID	GameOverStartup(MR_VOID)
 #ifdef	PSX
 #ifdef	PSX_ENABLE_XA
 	// Play's Game Over.
+	MRSNDSetVolumeLevel(MRSND_FX_VOLUME, 0);
 	XAPlayChannel(LEVEL_TUNES5,3,FALSE);
+	if (Sound_volume != 0)
+		MRSNDSetVolumeLevel(MRSND_CD_VOLUME, (127 * Sound_volume) / OPTIONS_SOUND_STAGES);
 #endif
 #endif
 
@@ -4005,9 +4094,12 @@ MR_VOID	GameOverStartup(MR_VOID)
 *				limit before going on to high score input.  Also continues to render
 *				the last game screen in the background.
 *
+*	MATCH		https://decomp.me/scratch/6OFPV	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -4033,7 +4125,7 @@ MR_VOID	GameOverUpdate(MR_VOID)
 			}
 		else
 			{
-			if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FR_GO))
+			if (Options_count_down_units < GAME_OVER_DURATION - 15 && MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FR_GO))
 				{
 				MRSNDPlaySound(SFX_GEN_FROG_CROAK,NULL,0,0);
 				Option_page_request = OPTIONS_PAGE_CONTINUE;
@@ -4067,6 +4159,7 @@ MR_VOID	GameOverUpdate(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -4076,10 +4169,14 @@ MR_VOID	GameOverShutdown(MR_VOID)
 	Game_over_no_new_sound = FALSE;
 
 	// Kill 2D sprite
-	MRKill2DSprite(Gameover_title_sprite_ptr);
+	MakeSpriteInvisible(Gameover_title_sprite_ptr);
+	
+	// Restore SFX volume
+	MRSNDSetVolumeLevel(MRSND_FX_VOLUME, (127 * Sound_volume) / OPTIONS_SOUND_STAGES);
 }
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% OutroStartup
 *------------------------------------------------------------------------------
@@ -4092,6 +4189,7 @@ MR_VOID	GameOverShutdown(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -4099,6 +4197,7 @@ MR_VOID	OutroStartup(MR_VOID)
 {
 	// Does nothing ... ( yet!!! )
 }
+#endif
 
 /******************************************************************************
 *%%%% OutroUpdate
@@ -4115,6 +4214,7 @@ MR_VOID	OutroStartup(MR_VOID)
 *	-------		----------		------
 *	13.05.97	William Bell	Created
 *	23.08.97	Gary Richards	Re-coded.
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -4122,6 +4222,9 @@ MR_VOID	OutroUpdate(MR_VOID)
 {
 
 #ifdef	PSX
+	// Stop sfx loading loop
+	StopLoadingSfxLoop();
+
 	// Kill all viewports/camera frames etc...
 	KillOptionsForStream();
 
@@ -4149,6 +4252,7 @@ MR_VOID	OutroUpdate(MR_VOID)
 	Option_page_request = OPTIONS_PAGE_CREDITS;
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% OutroShutdown
 *------------------------------------------------------------------------------
@@ -4161,6 +4265,7 @@ MR_VOID	OutroUpdate(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	10.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -4168,6 +4273,7 @@ MR_VOID	OutroShutdown(MR_VOID)
 {
 	// Does nothing ... ( yet!!! )
 }
+#endif
 
 
 /******************************************************************************
@@ -4177,10 +4283,12 @@ MR_VOID	OutroShutdown(MR_VOID)
 *	SYNOPSIS	MR_VOID	OptionsStartup(MR_VOID)
 *
 *	FUNCTION	Initialisation code for Options screen
+*	MATCH		https://decomp.me/scratch/2EsID	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -4188,6 +4296,7 @@ MR_VOID	OptionsStartup(MR_VOID)
 {
 	MR_LONG		i, k;
 	FROG*		frog;
+	MR_TEXTURE*	texture;
 
 	// Make sure the music hasn't stopped.
 	PlayOptionsMusic();
@@ -4204,7 +4313,7 @@ MR_VOID	OptionsStartup(MR_VOID)
 
 	// Allocate memory for all matrices
 	// (1 frog, 7/8 numbers (blank), 7/8 initials (titles), 2 logs, extras)
-	High_score_matrices = MRAllocMem(sizeof(MR_MAT) * (1 + OPTIONS_NUM_OPTIONS + OPTIONS_NUM_OPTIONS + 2 + OPTIONS_NUM_EXTRAS), "HS matrices");
+	High_score_matrices = MRAllocMem(sizeof(MR_MAT) * (1 + OPTIONS_NUM_OPTIONS + OPTIONS_NUM_OPTIONS + 2 + OPTIONS_NUM_EXTRAS), "HS matrices 2");
 
 	High_score_view_frog_anim_matrix_ptr 		= High_score_matrices;
 	for (k = 0; k < OPTIONS_NUM_OPTIONS; k++)	
@@ -4279,6 +4388,8 @@ MR_VOID	OptionsStartup(MR_VOID)
 		k++;
 		}
 
+	Option_spcore_ptrs[i] = NULL;
+
 	// Create reflections (use same matrices)
 	for (i = 0; i < OPTIONS_NUM_OPTIONS - 2; i++)
 		{
@@ -4321,6 +4432,10 @@ MR_VOID	OptionsStartup(MR_VOID)
 	High_score_view_frog_sack_scale_matrix.m[0][0] = FROG_CROAK_MIN_SCALE;
 	High_score_view_frog_sack_scale_matrix.m[1][1] = FROG_CROAK_MIN_SCALE;
 	High_score_view_frog_sack_scale_matrix.m[2][2] = FROG_CROAK_MIN_SCALE;
+	
+	// Setup flags
+	High_score_view_frog_anim_env_ptr->ae_special_flags |= MR_ANIM_ENV_DISPLAY_LIMITED_PARTS;
+	MRAnimEnvSingleClearPartFlags(High_score_view_frog_anim_env_ptr, THROAT, MR_ANIM_ENV_NOT_ACTIVE);
 
 	// Attach to game viewports
 	MRAnimAddEnvToViewport(High_score_view_frog_anim_env_ptr, Option_viewport_ptr, 0);
@@ -4350,7 +4465,13 @@ MR_VOID	OptionsStartup(MR_VOID)
 	frog->fr_shadow->ef_flags	&= ~EFFECT_KILL_WHEN_FINISHED;
 
 	High_score_view_flyon_counter 	= OPTIONS_CAMERA_FLYON_TIME;
+	High_score_view_flyoff_counter = 0;
 	High_score_view_delayed_request	= NULL;
+	Cameras[0].ca_move_timer = OPTIONS_CAMERA_FLYON_TIME;
+	
+	// Create selection text sprite
+	texture = Options_text_textures[OPTION_TEXT_SELECT7][Game_language];
+	Options_extras_user_prompt_ptr = MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), (Game_display_height-texture->te_h)+76, Option_viewport_ptr, texture, NULL);
 }
 
 
@@ -4418,10 +4539,12 @@ MR_VOID	OptionsSetupVolumeLogAnimatedPolys(	MR_MESH*	mesh_ptr,
 *	SYNOPSIS	MR_VOID	OptionsUpdate(MR_VOID)
 *
 *	FUNCTION	Update code for Options screen
+*	MATCH		https://decomp.me/scratch/mlbrO	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -4497,10 +4620,21 @@ MR_VOID	OptionsUpdate(MR_VOID)
 	Options_extras_mesh_inst_ptr[1]->mi_custom_ambient.r = 0x20;
 	Options_extras_mesh_inst_ptr[1]->mi_custom_ambient.g = 0x20;
 	Options_extras_mesh_inst_ptr[1]->mi_custom_ambient.b = 0x20;
+	
+	// Update flyon sprite positions
+	if (High_score_view_flyon_counter != 0)
+		Options_extras_user_prompt_ptr->sp_pos.y -= 10;
+
+	if (High_score_view_flyoff_counter != 0)
+		Options_extras_user_prompt_ptr->sp_pos.y += 10;
 
 	// Move frog
 	OptionsUpdateFrog();
 	UpdateEffects();
+	
+	// If we're exiting, skip the following
+	if (High_score_view_delayed_request != 0 || Option_page_request != 0)
+		return;
 
 	Option_spcore_index = Frogs[0].fr_grid_z;
 
@@ -4513,7 +4647,7 @@ MR_VOID	OptionsUpdate(MR_VOID)
 		}
 
 	// Was triangle pressed ?
-	if ( MR_CHECK_PAD_PRESSED(frog->fr_input_id,FRR_TRIANGLE) )
+	if ((MR_CHECK_PAD_PRESSED(Frog_input_ports[0],FRR_TRIANGLE | FRR_START)) && (High_score_view_flyoff_counter == 0) && (High_score_view_flyon_counter == 0))
 		{
 		// Yes ... kill all current sounds ( including sound test )
 		if ( Sound_voice != -1 )
@@ -4531,6 +4665,7 @@ MR_VOID	OptionsUpdate(MR_VOID)
 		// Start moving camera NOW
 		OptionsCameraMoveToMain();
 		High_score_view_flyoff_counter 		= OPTIONS_CAMERA_FLYOFF_TIME;
+		High_score_view_flyon_counter 		= 0;
 
 		// Exit now!
 		return;
@@ -4554,7 +4689,7 @@ MR_VOID	OptionsUpdate(MR_VOID)
 						Options_extras_mesh_inst_ptr[1]->mi_custom_ambient.r = (Option_viewport_ptr->vp_frame_count & 0x7) << 5;
 						Options_extras_mesh_inst_ptr[1]->mi_custom_ambient.g = (Option_viewport_ptr->vp_frame_count & 0x7) << 5;
 						Options_extras_mesh_inst_ptr[1]->mi_custom_ambient.b = (Option_viewport_ptr->vp_frame_count & 0x7) << 5;
-						if (MR_CHECK_PAD_PRESSED(frog->fr_input_id, FRR_RIGHT))
+						if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_RIGHT))
 							{
 							if (Sound_volume < OPTIONS_SOUND_STAGES)
 								{
@@ -4569,7 +4704,7 @@ MR_VOID	OptionsUpdate(MR_VOID)
 								}
 							}
 						else
-						if (MR_CHECK_PAD_PRESSED(frog->fr_input_id, FRR_LEFT))
+						if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_LEFT))
 							{
 							if (Sound_volume)
 								{
@@ -4595,7 +4730,7 @@ MR_VOID	OptionsUpdate(MR_VOID)
 						Options_extras_mesh_inst_ptr[0]->mi_custom_ambient.r = (Option_viewport_ptr->vp_frame_count & 0x7) << 5;
 						Options_extras_mesh_inst_ptr[0]->mi_custom_ambient.g = (Option_viewport_ptr->vp_frame_count & 0x7) << 5;
 						Options_extras_mesh_inst_ptr[0]->mi_custom_ambient.b = (Option_viewport_ptr->vp_frame_count & 0x7) << 5;
-						if (MR_CHECK_PAD_PRESSED(frog->fr_input_id, FRR_RIGHT))
+						if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_RIGHT))
 							{
 							if (Music_volume < OPTIONS_SOUND_STAGES)
 								{
@@ -4610,7 +4745,7 @@ MR_VOID	OptionsUpdate(MR_VOID)
 								}
 							}
 						else
-						if (MR_CHECK_PAD_PRESSED(frog->fr_input_id, FRR_LEFT))
+						if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_LEFT))
 							{
 							if (Music_volume)
 								{
@@ -4634,7 +4769,7 @@ MR_VOID	OptionsUpdate(MR_VOID)
 					}
 
 				// Was fire pressed ?
-				if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FR_GO))
+				if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_CROSS) && High_score_view_flyoff_counter == 0 && High_score_view_flyon_counter == 0)
 					{
 					MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
 					MRAnimEnvSingleSetAction(High_score_view_frog_anim_env_ptr, GEN_FROG_OUCH);
@@ -4650,6 +4785,7 @@ MR_VOID	OptionsUpdate(MR_VOID)
 							// Start moving camera NOW
 							OptionsCameraMoveToMain();
 							High_score_view_flyoff_counter 		= OPTIONS_CAMERA_FLYOFF_TIME;
+							High_score_view_flyon_counter		= 0;
 							break;
 
 						case OPTIONS_VIEW_HIGH_SCORES_OPTION:
@@ -4674,6 +4810,7 @@ MR_VOID	OptionsUpdate(MR_VOID)
 							MR_SET_SVEC(&Cameras[0].ca_next_target_ofs,	0, 0, 0);
 							Cameras[0].ca_move_timer 		= OPTIONS_CAMERA_MOVE_TIME;
 							High_score_view_flyoff_counter 	= OPTIONS_CAMERA_FLYOFF_TIME;
+							High_score_view_flyon_counter 	= 0;
 							break;
 
 						case OPTIONS_SAVE_HS_OPTION:
@@ -4685,6 +4822,7 @@ MR_VOID	OptionsUpdate(MR_VOID)
 							MR_SET_SVEC(&Cameras[0].ca_next_target_ofs,	0, 0, 0);
 							Cameras[0].ca_move_timer 		= OPTIONS_CAMERA_MOVE_TIME;
 							High_score_view_flyoff_counter 	= OPTIONS_CAMERA_FLYOFF_TIME;
+							High_score_view_flyon_counter 	= 0;
 							break;
 
 						case OPTIONS_CTRL_CONFIG_OPTION:
@@ -4699,6 +4837,7 @@ MR_VOID	OptionsUpdate(MR_VOID)
 							MR_SET_SVEC(&Cameras[0].ca_next_target_ofs,	0, 0, 0);
 							Cameras[0].ca_move_timer 		= OPTIONS_CAMERA_MOVE_TIME;
 							High_score_view_flyoff_counter 	= OPTIONS_CAMERA_FLYOFF_TIME;
+							High_score_view_flyon_counter 	= 0;
 							break;
 						}
 					}
@@ -4727,10 +4866,12 @@ MR_VOID	OptionsUpdate(MR_VOID)
 *	SYNOPSIS	MR_VOID	OptionsUpdateFrog(MR_VOID)
 *
 *	FUNCTION	Move the frog around the number pads
+*	MATCH		https://decomp.me/scratch/uoB0S	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	17.07.97	Tim Closs		Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -4755,7 +4896,7 @@ MR_VOID	OptionsUpdateFrog(MR_VOID)
 			jump			= FALSE;
 			old_grid_z		= frog->fr_grid_z;
 			if	(
-				(MR_CHECK_PAD_HELD(frog->fr_input_id, FRR_UP)) &&
+				(MR_CHECK_PAD_HELD(Frog_input_ports[0], FRR_UP)) &&
 				(frog->fr_grid_z > 0)
 				)
 				{
@@ -4766,7 +4907,7 @@ MR_VOID	OptionsUpdateFrog(MR_VOID)
 				}
 			else
 			if	(
-				(MR_CHECK_PAD_HELD(frog->fr_input_id, FRR_DOWN)) &&
+				(MR_CHECK_PAD_HELD(Frog_input_ports[0], FRR_DOWN)) &&
 				(frog->fr_grid_z < (OPTIONS_NUM_OPTIONS - 1))
 				)
 				{
@@ -4937,6 +5078,7 @@ MR_VOID	OptionsUpdateFrog(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -4945,6 +5087,12 @@ MR_VOID	OptionsShutdown(MR_VOID)
 	MR_LONG	i;
 
 //	HSDeinitialiseWater();
+
+	// Clear sp cores
+	OptionClearSpcores();
+
+	// Kill prompt sprite
+	MRKill2DSprite(Options_extras_user_prompt_ptr);
 
 	// Free allocated matrices
 	MRFreeMem(High_score_matrices);
@@ -4983,6 +5131,7 @@ MR_VOID	OptionsShutdown(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	05.07.97	William Bell	Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -4993,6 +5142,7 @@ MR_VOID LanguageSelectionStartup(MR_VOID)
 	MR_ULONG		i;
 
 	// Load options resources
+	LoadGenericWad(0);
 	LoadOptionsResources();
 
 	// Loop once for each flag
@@ -5170,10 +5320,12 @@ MR_VOID LanguageSelectionUpdate(MR_VOID)
 *	SYNOPSIS	MR_VOID	LanguageSelectionShutdown(MR_VOID)
 *
 *	FUNCTION	Shutdown code for Language Select screen.  Kill off sprite "flags".
+*	MATCH		https://decomp.me/scratch/kT4DQ	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	05.07.97	William Bell	Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -5182,11 +5334,6 @@ MR_VOID LanguageSelectionShutdown(MR_VOID)
 
 	// Locals
 	MR_ULONG		i;
-
-	// Loop once for each language 
-	for(i=0;i<MAX_NUM_LANGUAGES;i++)
-		// Kill sprite "flag"
-		MRKill2DSprite(Language_flag_sprites_ptr[i]);
 
 	// Unload options
 	UnloadOptionsResources();
@@ -5199,6 +5346,21 @@ MR_VOID LanguageSelectionShutdown(MR_VOID)
 	// Re-load options
 	LoadOptionsResources();
 
+	// Unload generic wad
+	if (Game_flags & GAME_FLAG_GEN_WAD_LOADED) {
+		MRUnloadResource(Theme_library[THEME_GEN].tb_full_model_wad_res_id);
+		DeinitialiseModels(0);
+		Game_flags &= ~GAME_FLAG_GEN_WAD_LOADED;
+	}
+
+	// Load basic wad.
+	LoadGenericWad(0);
+
+	// Loop once for each language 
+	for(i=0;i<MAX_NUM_LANGUAGES;i++)
+		// Kill sprite "flag"
+		MRKill2DSprite(Language_flag_sprites_ptr[i]);
+
 }
 
 #ifdef PSX		// PSX Specific code ----------------------------------------
@@ -5210,10 +5372,12 @@ MR_VOID LanguageSelectionShutdown(MR_VOID)
 *	SYNOPSIS	MR_VOID	RedefinePSXButtonsStartup(MR_VOID)
 *
 *	FUNCTION	Initialisation code for Redefine PSX Buttons screen.
+*	MATCH		https://decomp.me/scratch/mMN5e	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.07.97	William Bell	Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -5281,7 +5445,12 @@ MR_VOID	RedefinePSXButtonsStartup(MR_VOID)
 		}
 
 	High_score_view_flyon_counter 	= OPTIONS_CAMERA_FLYON_TIME + 1;
+	High_score_view_flyoff_counter 	= 0;
 	High_score_view_delayed_request	= NULL;
+	Cameras[0].ca_move_timer = OPTIONS_CAMERA_FLYON_TIME;
+
+	texture = Options_text_textures[OPTION_TEXT_SELECT3][Game_language];
+	Pad_user_prompt_text_instptr = MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), Game_display_height+68, Option_viewport_ptr, texture, NULL);
 }
 
 
@@ -5294,9 +5463,12 @@ MR_VOID	RedefinePSXButtonsStartup(MR_VOID)
 *	FUNCTION	Update code for Redefine PSX Buttons screen.  Currently just waits for
 *				the fire button before continuing.
 *
+*	MATCH		https://decomp.me/scratch/1x0BH	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -5304,6 +5476,8 @@ MR_VOID	RedefinePSXButtonsUpdate(MR_VOID)
 {
 	MR_LONG	i;
 
+	// Update controllers
+	GameUpdateControllers();
 
 	// Move camera
 	HSUpdateScrollyCamera();
@@ -5335,6 +5509,7 @@ MR_VOID	RedefinePSXButtonsUpdate(MR_VOID)
 		Pad_arrow_sprite_ptrs[1*2+1]->sp_pos.y 	-= 10;
 		Pad_arrow_sprite_ptrs[2*2+1]->sp_pos.y 	+= 10;
 		Pad_arrow_sprite_ptrs[3*2+1]->sp_pos.y 	+= 10;
+		Pad_user_prompt_text_instptr->sp_pos.y	+= 10;
 		}
 	else
 	if (High_score_view_flyon_counter)
@@ -5359,6 +5534,7 @@ MR_VOID	RedefinePSXButtonsUpdate(MR_VOID)
 		Pad_arrow_sprite_ptrs[1*2+1]->sp_pos.y 	+= 10;
 		Pad_arrow_sprite_ptrs[2*2+1]->sp_pos.y 	-= 10;
 		Pad_arrow_sprite_ptrs[3*2+1]->sp_pos.y 	-= 10;
+		Pad_user_prompt_text_instptr->sp_pos.y	-= 10;
 		}
 
 	// Loop once for each pad
@@ -5422,7 +5598,7 @@ MR_VOID	RedefinePSXButtonsUpdate(MR_VOID)
 					}
 				}
 			// Has pad opted to go back to options?
-			if ( MR_CHECK_PAD_PRESSED(Frog_input_ports[i],FR_GO|FRR_TRIANGLE) )
+			if ((MR_CHECK_PAD_PRESSED(Frog_input_ports[i],FR_GO|FRR_TRIANGLE)) && (High_score_view_flyoff_counter == 0) && (High_score_view_flyon_counter == 0))
 				{
 				// Yes ... return to options
 				High_score_view_delayed_request = OPTIONS_PAGE_OPTIONS;
@@ -5430,6 +5606,7 @@ MR_VOID	RedefinePSXButtonsUpdate(MR_VOID)
 				// Start moving camera NOW
 				OptionsCameraMoveToOptions();
 				High_score_view_flyoff_counter 	= OPTIONS_CAMERA_FLYOFF_TIME;
+				High_score_view_flyon_counter 	= 0;
 				return;
 				}
 
@@ -5484,6 +5661,7 @@ MR_VOID	RedefinePSXButtonsUpdate(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -5509,7 +5687,8 @@ MR_VOID	RedefinePSXButtonsShutdown(MR_VOID)
 	Frog_current_control_methods[1] = Pad_configs[1];
 	Frog_current_control_methods[2] = Pad_configs[2];
 	Frog_current_control_methods[3] = Pad_configs[3];
-
+	
+	MRKill2DSprite(Pad_user_prompt_text_instptr);
 }
 
 #else
@@ -5601,9 +5780,12 @@ MR_VOID	ChooseWINControllerShutdown(MR_VOID)
 *	FUNCTION	Initialisation code for Level Complete screen.  Currently just initialises
 *				the text and time.
 *
+*	MATCH		https://decomp.me/scratch/bXTVA	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	11.06.97	William Bell	Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -5611,7 +5793,6 @@ MR_VOID	LevelCompleteStartup(MR_VOID)
 {
 	MR_LONG			j, y;
 	MR_2DSPRITE**	sprite_pptr;
-	MR_2DSPRITE*	sprite_ptr;
 	MR_ULONG		current_map;
 	MR_ULONG		total_time, value, digit_a, digit_b, digit_c;
 	SEL_LEVEL_INFO*	arcade_level_ptr;
@@ -5626,8 +5807,7 @@ MR_VOID	LevelCompleteStartup(MR_VOID)
 	y	= (Game_display_height>>1) - 70;
 	for (j=0; j<GEN_MAX_CHECKPOINTS; j++)
 		{
-		sprite_ptr										= Level_complete.Level_complete_checkpoints[j];
-		Level_complete.Level_complete_checkpoints[j]	= MRCreate2DSprite((Game_display_width>>1)-85, y, Option_viewport_ptr, Hud_checkpoint_animlists[j], NULL);
+		UpdateSpriteDisplay(Level_complete.Level_complete_checkpoints[j], Hud_checkpoint_animlists[j], (Game_display_width>>1)-105, y);
 		y += 20;
 		}
 
@@ -5636,31 +5816,34 @@ MR_VOID	LevelCompleteStartup(MR_VOID)
 	y			= (Game_display_height>>1) - 70;
 	for (j=0; j<GEN_MAX_CHECKPOINTS; j++)
 		{
-		Level_complete.Level_complete_checkpoint_time[j] = MRAllocMem(sizeof(MR_2DSPRITE*) * 2, "CHECKPOINT 2DSPRITE PTRS");
 		sprite_pptr		= (MR_2DSPRITE**)Level_complete.Level_complete_checkpoint_time[j];
 
-		HUDGetDigits(Frog_score_data[Game_map][0].he_time_to_checkpoint[j], &digit_a, &digit_b, &digit_c);
-		total_time += Frog_score_data[Game_map][0].he_time_to_checkpoint[j];
+		HUDGetDigits(Frog_time_data[j], &digit_a, &digit_b, &digit_c);
+		total_time += Frog_time_data[j];
 
-		*sprite_pptr++	= MRCreate2DSprite(	(Game_display_width>>1) -64, y, Option_viewport_ptr, Hud_score_images[Hud_digits[8]], NULL);
-		*sprite_pptr++	= MRCreate2DSprite(	(Game_display_width>>1) -48, y, Option_viewport_ptr, Hud_score_images[Hud_digits[9]], NULL);
+		UpdateSpriteDisplay(*sprite_pptr, Hud_score_images[Hud_digits[8]], (Game_display_width>>1) -84, y);
+		UpdateSpriteDisplay(*++sprite_pptr, Hud_score_images[Hud_digits[9]], (Game_display_width>>1) -68, y);
+		UpdateSpriteDisplay(*++sprite_pptr, Options_text_textures[OPTION_TEXT_SEC][Game_language], (Game_display_width>>1) -52, y);
 		y += 20;
 		}
 
 	HUDGetDigits(total_time, &digit_a, &digit_b, &digit_c);
-	Level_complete.Level_complete_total_time_text	= MRCreate2DSprite((Game_display_width>>1)-26, (Game_display_height>>1)-60, Option_viewport_ptr, Options_text_textures[OPTION_TEXT_TOTAL_TIME][Game_language], NULL);
-	Level_complete.Level_complete_total_time[0]		= MRCreate2DSprite((Game_display_width>>1), (Game_display_height>>1)-40, Option_viewport_ptr, Hud_score_images[Hud_digits[7]], NULL);
-	Level_complete.Level_complete_total_time[1]		= MRCreate2DSprite((Game_display_width>>1)+16, (Game_display_height>>1)-40, Option_viewport_ptr, Hud_score_images[Hud_digits[8]], NULL);
-	Level_complete.Level_complete_total_time[2]		= MRCreate2DSprite((Game_display_width>>1)+32, (Game_display_height>>1)-40, Option_viewport_ptr, Hud_score_images[Hud_digits[9]], NULL);
+	UpdateSpriteDisplay(Level_complete.Level_complete_total_time_text, Options_text_textures[OPTION_TEXT_TOTAL_TIME][Game_language], (Game_display_width>>1)-16, (Game_display_height>>1)-60);
+	UpdateSpriteDisplay(Level_complete.Level_complete_total_time[0], Hud_score_images[Hud_digits[7]], (Game_display_width>>1)+10, (Game_display_height>>1)-40);
+	UpdateSpriteDisplay(Level_complete.Level_complete_total_time[1], Hud_score_images[Hud_digits[8]], (Game_display_width>>1)+26, (Game_display_height>>1)-40);
+	UpdateSpriteDisplay(Level_complete.Level_complete_total_time[2], Hud_score_images[Hud_digits[9]], (Game_display_width>>1)+42, (Game_display_height>>1)-40);
+	UpdateSpriteDisplay(Level_complete.Level_complete_total_time[3], Options_text_textures[OPTION_TEXT_SEC][Game_language], (Game_display_width>>1)+58, (Game_display_height>>1)-40);
 
 	value = Frog_score_data[Game_map][0].he_score;
 	HUDGetDigits(value, &digit_a, &digit_b, &digit_c);
-	Level_complete.Level_complete_total_score_text	= MRCreate2DSprite((Game_display_width>>1)-30,	(Game_display_height>>1)-15,Option_viewport_ptr, Options_text_textures[OPTION_TEXT_TOTAL_SCORE][Game_language], NULL);
-	Level_complete.Level_complete_total_score[0]	= MRCreate2DSprite((Game_display_width>>1)-16,	(Game_display_height>>1)+5,	Option_viewport_ptr, Hud_score_images[Hud_digits[5]], NULL);
-	Level_complete.Level_complete_total_score[1]	= MRCreate2DSprite((Game_display_width>>1),		(Game_display_height>>1)+5,	Option_viewport_ptr, Hud_score_images[Hud_digits[6]], NULL);
-	Level_complete.Level_complete_total_score[2]	= MRCreate2DSprite((Game_display_width>>1)+16,	(Game_display_height>>1)+5,	Option_viewport_ptr, Hud_score_images[Hud_digits[7]], NULL);
-	Level_complete.Level_complete_total_score[3]	= MRCreate2DSprite((Game_display_width>>1)+32,	(Game_display_height>>1)+5,	Option_viewport_ptr, Hud_score_images[Hud_digits[8]], NULL);
-	Level_complete.Level_complete_total_score[4]	= MRCreate2DSprite((Game_display_width>>1)+48,	(Game_display_height>>1)+5,	Option_viewport_ptr, Hud_score_images[Hud_digits[9]], NULL);
+	UpdateSpriteDisplay(Level_complete.Level_complete_total_score_text,  Options_text_textures[OPTION_TEXT_TOTAL_SCORE][Game_language], (Game_display_width>>1)-22,	(Game_display_height>>1)-15);
+	UpdateSpriteDisplay(Level_complete.Level_complete_total_score[0], Hud_score_images[Hud_digits[4]], (Game_display_width>>1)-16+6,	(Game_display_height>>1)+5);
+	UpdateSpriteDisplay(Level_complete.Level_complete_total_score[1], Hud_score_images[Hud_digits[5]], (Game_display_width>>1)+0+6,		(Game_display_height>>1)+5);
+	UpdateSpriteDisplay(Level_complete.Level_complete_total_score[2], Hud_score_images[Hud_digits[6]], (Game_display_width>>1)+16+6,	(Game_display_height>>1)+5);
+	UpdateSpriteDisplay(Level_complete.Level_complete_total_score[3], Hud_score_images[Hud_digits[7]], (Game_display_width>>1)+32+6,	(Game_display_height>>1)+5);
+	UpdateSpriteDisplay(Level_complete.Level_complete_total_score[4], Hud_score_images[Hud_digits[8]], (Game_display_width>>1)+48+6,	(Game_display_height>>1)+5);
+	UpdateSpriteDisplay(Level_complete.Level_complete_total_score[5], Hud_score_images[Hud_digits[9]], (Game_display_width>>1)+64+6,	(Game_display_height>>1)+5);
+
 
 	// Yes ... are we in arcade mode ?
 	if (Sel_mode == SEL_MODE_ARCADE)
@@ -5718,11 +5901,7 @@ MR_VOID	LevelCompleteStartup(MR_VOID)
 				if ( Gold_frogs_current & (1<<Game_map_theme) )
 					{
 					// Yes ... show golden frog
-					Level_complete.Level_complete_golden_frog		= MRCreate2DSprite(	(Game_display_width>>1) + 80, 
-																						(Game_display_height>>1) + 40, 
-																						Option_viewport_ptr, 
-																						&Animlist_level_complete_golden_frog, 
-																						NULL);
+					UpdateSpriteDisplay(Level_complete.Level_complete_golden_frog, &Animlist_level_complete_golden_frog, (Game_display_width>>1) - 105, (Game_display_height>>1) + 30);
 					// Flush current
 					Gold_frogs_current &= ~(1<<Game_map_theme);
 					// Set zone
@@ -5730,30 +5909,16 @@ MR_VOID	LevelCompleteStartup(MR_VOID)
 					}
 
 				texture = Options_text_textures[OPTION_TEXT_NEXT][Game_language];
-				Level_complete.Level_complete_next_level_des	= MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), 
-																					Game_display_height-90, 
-																					Option_viewport_ptr, 
-																					texture,
-																					NULL);
-				Level_complete.Level_complete_next_level_text	= MRCreate2DSprite((Game_display_width>>1) - (arcade_next_level_ptr->li_level_name_texture_in_game->te_w>>1), 
-																					Game_display_height-70, 
-																					Option_viewport_ptr, 
-																					arcade_next_level_ptr->li_level_name_texture_in_game, 
-																					NULL);
+				UpdateSpriteDisplay(Level_complete.Level_complete_next_level_des, texture, (Game_display_width>>1) - (texture->te_w>>1), Game_display_height-90);
+				UpdateSpriteDisplay(Level_complete.Level_complete_next_level_text, arcade_next_level_ptr->li_level_name_texture_in_game, (Game_display_width>>1) - (arcade_next_level_ptr->li_level_name_texture_in_game->te_w>>1), Game_display_height-70);
 				texture = Options_text_textures[OPTION_TEXT_SELECT4][Game_language];
-				Level_complete.Level_complete_press_tri			= MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), 
-																					Game_display_height-30, 
-																					Option_viewport_ptr, 
-																					texture,
-																					NULL);
+				UpdateSpriteDisplay(Level_complete.Level_complete_press_tri, texture, (Game_display_width>>1) - (texture->te_w>>1), Game_display_height-30);
 				texture = Options_text_textures[OPTION_TEXT_PRESS_FIRE][Game_language];
-				Level_complete.Level_complete_press_fire		= MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), 
-																					Game_display_height-50, 
-																					Option_viewport_ptr, 
-																					texture,
-																					NULL);
+				UpdateSpriteDisplay(Level_complete.Level_complete_press_fire, texture, (Game_display_width>>1) - (texture->te_w>>1), Game_display_height-50);
+
 				// Play SFX for Level Complete.
-				MRSNDPlaySound(SFX_MUSIC_TARGET_COMPLETE,NULL,0,0);
+				MRSNDPlaySound(SFX_MUSIC_LEVEL_COMPLETE,NULL,0,0);
+				XAControl(XACOM_PAUSE, 0);
 				}
 			else
 				{
@@ -5770,33 +5935,22 @@ MR_VOID	LevelCompleteStartup(MR_VOID)
 				if ( Gold_frogs_zone & (1<<Game_map_theme) )
 					{
 					// Yes ... show golden frog
-					Level_complete.Level_complete_golden_frog		= MRCreate2DSprite((Game_display_width>>1) + 80, 
-																						(Game_display_height>>1) + 40, 
-																						Option_viewport_ptr, 
-																						&Animlist_level_complete_golden_frog, 
-																						NULL);
+					UpdateSpriteDisplay(Level_complete.Level_complete_golden_frog, &Animlist_level_complete_golden_frog, (Game_display_width>>1) - 105, (Game_display_height>>1) + 30);
 					// Flush zone
 					Gold_frogs_zone &= ~(1<<Game_map_theme);
 					}
 #ifdef PSX
+				if (Sound_volume)
+					MRSNDSetVolumeLevel(MRSND_CD_VOLUME, (127 * Sound_volume) / OPTIONS_SOUND_STAGES);
+				
 				// Zone Complete, so play Zone complete Music.
 				PlayZoneComplete();
 #endif
 
-				Level_complete.Level_complete_next_level_text	= NULL;
-
 				texture = Options_text_textures[OPTION_TEXT_ZONE_COMPLETE][Game_language];
-				Level_complete.Level_complete_next_level_des	= MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), 
-																					Game_display_height-50, 
-																					Option_viewport_ptr, 
-																					texture,
-																					NULL);
+				UpdateSpriteDisplay(Level_complete.Level_complete_next_level_des, texture, (Game_display_width>>1) - (texture->te_w>>1), Game_display_height-50);
 				texture = Options_text_textures[OPTION_TEXT_PRESS_FIRE][Game_language];
-				Level_complete.Level_complete_press_fire		= MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), 
-																					Game_display_height-32, 
-																					Option_viewport_ptr, 
-																					texture,
-																					NULL);
+				UpdateSpriteDisplay(Level_complete.Level_complete_press_fire, texture, (Game_display_width>>1) - (texture->te_w>>1), Game_display_height-32);
 
 				}
 			}
@@ -5804,6 +5958,8 @@ MR_VOID	LevelCompleteStartup(MR_VOID)
 
 	// init background
 	InitTransparentPolyBackground(0, 0, Game_display_width, Game_display_height);
+	Level_complete.Level_complete_press_fire->sp_core.sc_flags |= MR_SPF_NO_DISPLAY;
+	Game_viewporth->vp_flags |= MR_VP_NO_DISPLAY;
 }
 
 
@@ -5817,9 +5973,12 @@ MR_VOID	LevelCompleteStartup(MR_VOID)
 *				limit before going back to game.  Also continues to render
 *				the last game screen in the background.
 *
+*	MATCH		https://decomp.me/scratch/3zZFJ	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	11.06.97	William Bell	Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -5829,17 +5988,17 @@ MR_VOID	LevelCompleteUpdate(MR_VOID)
 	OptUpdateGame();
 
 	// Show subtractive polys
-	UpdateTransparentPolyBackground();
+	addPrim(Option_viewport_ptr->vp_work_ot + Option_viewport_ptr->vp_ot_size - 1, &Game_prim_f[MRFrame_index]);
+	addPrim(Option_viewport_ptr->vp_work_ot + Option_viewport_ptr->vp_ot_size - 1, &Game_prim_ft[MRFrame_index]);
 
-	// $wb - No time out on this screen, order of Kev!!!
 	// Dec ticks
-//	Options_count_down_ticks--;
+	Options_count_down_ticks--;
 
 	// Ticks zero ?
 	if ( !Options_count_down_ticks )
 		{
 		// Yes ... do we have any units left ?
-		if ( Options_count_down_units )
+		if ( Options_count_down_units > 17)
 			{
 			// Yes ... dec units
 			Options_count_down_units--;
@@ -5849,25 +6008,36 @@ MR_VOID	LevelCompleteUpdate(MR_VOID)
 		}
 
 	// Did we press fire to skip ?
-	if ( MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FR_GO) )
+	if (Options_count_down_units < 19)
 		{
-		// Yes ... stop count down
-		Options_count_down_units = 0;
-		Options_count_down_ticks = 0;
-		// Play sound
-		MRSNDPlaySound(SFX_GEN_FROG_CROAK,NULL,0,0);
+		if ( MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FR_GO) )
+			{
+			// Yes ... stop count down
+			Options_count_down_units = 0;
+			Options_count_down_ticks = 0;
+			// Play sound
+			MRSNDPlaySound(SFX_GEN_FROG_CROAK,NULL,0,0);
+			}
+
+		if ( MRFrame_number & 16 )
+			Level_complete.Level_complete_press_fire->sp_core.sc_flags |= MR_SPF_NO_DISPLAY;
+		else
+			Level_complete.Level_complete_press_fire->sp_core.sc_flags &= ~MR_SPF_NO_DISPLAY;
 		}
 
 	// Was triangle pressed ?
 	if ( MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_TRIANGLE) )
 		{
+		Game_viewporth->vp_flags &= ~MR_VP_NO_DISPLAY;
 		// Yes ... go back to level select stack
 		Option_page_request = OPTIONS_PAGE_LEVEL_SELECT;
 		// Level after current one ?
 		if (Level_complete.Level_complete_next_level)
 				{
 				// Yes ... make it accessable
-				SelectSetLevelFlags(Game_map,SEL_LF_SELECTABLE | SEL_LF_ZONEACCESSIBLE);
+				if (!(SelectGetLevelFlags(Game_map) & SEL_LF_SELECTABLE))
+					SelectSetLevelFlags(Game_map,SEL_LF_SELECTABLE | SEL_LF_ZONEACCESSIBLE);
+
 				Sel_arcade_level_ptr	= SelectGetLevelPointer(Game_map);
 				}
 		}
@@ -5899,17 +6069,6 @@ MR_VOID	LevelCompleteUpdate(MR_VOID)
 			Option_page_request = OPTIONS_PAGE_LEVEL_SELECT;
 			}
 		}
-
-	// Is there a next level ?
-	if ( Level_complete.Level_complete_next_level_text )
-		{
-		// Yes ... 
-		if ( MRFrame_number & 16 )
-			Level_complete.Level_complete_press_fire->sp_core.sc_flags |= MR_SPF_NO_DISPLAY;
-		else
-			Level_complete.Level_complete_press_fire->sp_core.sc_flags &= ~MR_SPF_NO_DISPLAY;
-		}
-
 }
 
 /******************************************************************************
@@ -5919,11 +6078,13 @@ MR_VOID	LevelCompleteUpdate(MR_VOID)
 *	SYNOPSIS	MR_VOID	LevelCompleteShutdown(MR_VOID)
 *
 *	FUNCTION	Shutdown code for Level Complete screen
+*	MATCH		https://decomp.me/scratch/pWko4	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	11.06.97	William Bell	Created
 *	09.07.97	Martin Kift		Completely rewrote
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -5933,40 +6094,32 @@ MR_VOID	LevelCompleteShutdown(MR_VOID)
 	MR_LONG			j;
 
 	for (j=0; j<GEN_MAX_CHECKPOINTS; j++)
-		MRKill2DSprite(Level_complete.Level_complete_checkpoints[j]);
+		MakeSpriteInvisible(Level_complete.Level_complete_checkpoints[j]);
 
 	for (j=0; j<GEN_MAX_CHECKPOINTS; j++)
 		{
 		sprite_pptr	= (MR_2DSPRITE**)Level_complete.Level_complete_checkpoint_time[j];
-		MRKill2DSprite(*sprite_pptr++);
-		MRKill2DSprite(*sprite_pptr++);
-		MRFreeMem(Level_complete.Level_complete_checkpoint_time[j]);
+		MakeSpriteInvisible(*sprite_pptr);
+		MakeSpriteInvisible(*++sprite_pptr);
+		MakeSpriteInvisible(*++sprite_pptr);
 		}
 
-	MRKill2DSprite(Level_complete.Level_complete_total_time_text);
-	MRKill2DSprite(Level_complete.Level_complete_total_score_text);
-	for (j=0; j<3; j++)
-		MRKill2DSprite(Level_complete.Level_complete_total_time[j]);
-	for (j=0; j<5; j++)
-		MRKill2DSprite(Level_complete.Level_complete_total_score[j]);
+	MakeSpriteInvisible(Level_complete.Level_complete_total_time_text);
+	MakeSpriteInvisible(Level_complete.Level_complete_total_score_text);
+	for (j=0; j<4; j++)
+		MakeSpriteInvisible(Level_complete.Level_complete_total_time[j]);
+	for (j=0; j<6; j++)
+		MakeSpriteInvisible(Level_complete.Level_complete_total_score[j]);
 	
-	if ( Level_complete.Level_complete_golden_frog )
-		MRKill2DSprite(Level_complete.Level_complete_golden_frog);
-
-	if (Level_complete.Level_complete_press_fire)
-		MRKill2DSprite(Level_complete.Level_complete_press_fire);
-
-	if (Level_complete.Level_complete_press_tri)
-		MRKill2DSprite(Level_complete.Level_complete_press_tri);
-
-	if (Level_complete.Level_complete_next_level_text)
-		MRKill2DSprite(Level_complete.Level_complete_next_level_text);
-
-	if (Level_complete.Level_complete_next_level_des)
-		MRKill2DSprite(Level_complete.Level_complete_next_level_des);
+	MakeSpriteInvisible(Level_complete.Level_complete_golden_frog);
+	MakeSpriteInvisible(Level_complete.Level_complete_press_fire);
+	MakeSpriteInvisible(Level_complete.Level_complete_press_tri);
+	MakeSpriteInvisible(Level_complete.Level_complete_next_level_des);
+	MakeSpriteInvisible(Level_complete.Level_complete_next_level_text);
 
 	// Shut down main game
-	GameEnd();
+	MRSNDSetVolumeLevel(MRSND_CD_VOLUME, (127 * Music_volume) / OPTIONS_SOUND_STAGES);
+	GameEnd(TRUE);
 }
 
 /******************************************************************************
@@ -6048,12 +6201,15 @@ MR_VOID OptUpdateGame(MR_VOID)
 *	FUNCTION	Used to give the API a chance to free any alloc's that may still
 *				be around..... MR_PRIMS etc... (To try and stop fragmentation.)
 *
+*	MATCH		https://decomp.me/scratch/rusMJ	(By Kneesnap)
+*
 *	INPUT		FreePrim	-	Do we called FreePrims??
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	21.07.97	Gary Richards	Created. 
 *	28.07.97	Gary Richards	Added parameter.
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -6074,7 +6230,10 @@ MR_VOID OptionsTidyMemory(MR_BOOL FreePrim)
 	while (i--)
 		{
 		DrawSync(0);
-		VSync(2);
+		if (Game_total_players >= 3)
+			VSync(3);
+		else
+			VSync(2);
 		MRSwapDisplay();
 
 		// Making sure we have the viewports to render.
@@ -6097,10 +6256,12 @@ MR_VOID OptionsTidyMemory(MR_BOOL FreePrim)
 *	SYNOPSIS	MR_VOID	LoadOptionsResources(MR_VOID)
 *
 *	FUNCTION	Loads all options/language resources if necessary
+*	MATCH		https://decomp.me/scratch/7rHp4	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	24.07.97	Tim Closs		Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -6108,14 +6269,6 @@ MR_VOID	LoadOptionsResources(MR_VOID)
 {
 	MR_LONG	cos;
 	MR_LONG	sin;
-#ifdef PSX
-#ifdef EXPERIMENTAL
-	MR_ULONG	saved_sp;
-
-
-	saved_sp = SetSp(saved_stack);
-#endif
-#endif
 
 	// Load options VRAM, VAB and WAD if not already loaded
 	if (MR_GET_RESOURCE_ADDR(RES_OPTIONS_WAD) == NULL)
@@ -6129,16 +6282,6 @@ MR_VOID	LoadOptionsResources(MR_VOID)
 		MRLoadResource(Opt_resource_files[Game_language]);
 		MRProcessResource(Opt_resource_files[Game_language]);
 		MRUnloadResource(Opt_resource_files[Game_language]);
-
-		// Load VAB
-#ifdef MR_API_SOUND
-		MRLoadResource(gVABInfo[VAB_SELECT].va_vh_resource_id);
-		MRProcessResource(gVABInfo[VAB_SELECT].va_vh_resource_id);
-		MRLoadResource(gVABInfo[VAB_SELECT].va_vb_resource_id);
-		MRProcessResource(gVABInfo[VAB_SELECT].va_vb_resource_id);
-		MRSNDOpenVab(VAB_SELECT, TRUE); 
-		MRUnloadResource(gVABInfo[VAB_SELECT].va_vb_resource_id);
-#endif
 
 		// Load WAD
 		Map_mof_index = 0;
@@ -6159,27 +6302,7 @@ MR_VOID	LoadOptionsResources(MR_VOID)
 
 		// Set up current position of water camera
 		InitialiseOptionsCamera();
-
-#ifdef BUILD_49
-	if (Game_flags & GAME_FLAG_GEN_WAD_LOADED) {
-		MRUnloadResource(Theme_library[THEME_GEN].tb_full_model_wad_res_id);
-		DeinitialiseModels(0);
-		Game_flags &= ~GAME_FLAG_GEN_WAD_LOADED;
-    }
-    if (Game_flags & GAME_FLAG_GENM_WAD_LOADED) {
-		MRUnloadResource(Theme_library[THEME_GEN].tb_multi_model_wad_res_id);
-		DeinitialiseModels(1);
-		Game_flags &= ~GAME_FLAG_GENM_WAD_LOADED;
-	}
-#endif
-
 		}
-
-#ifdef PSX
-#ifdef EXPERIMENTAL
-	SetSp(saved_sp);
-#endif
-#endif
 }
 	
 
@@ -6195,6 +6318,7 @@ MR_VOID	LoadOptionsResources(MR_VOID)
 *	-------		----------		------
 *	24.07.97	Tim Closs		Created
 *	05.08.97	Martin Kift		Had to reorder cleanup functions
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -6202,15 +6326,7 @@ MR_VOID	UnloadOptionsResources(MR_VOID)
 {
 	// If options stuff loaded, unload it
 	if (MR_GET_RESOURCE_ADDR(RES_OPTIONS_WAD) != NULL)
-		{	
-#ifdef MR_API_SOUND
-		// 'Unload' VAB (close VAB)
-		MRSNDCloseVab(VAB_SELECT);
-
-		// Unload VAB
-		MRUnloadResource(gVABInfo[VAB_SELECT].va_vh_resource_id);
-#endif
-
+		{
 		// Unload WAD
 		MRUnloadResource(RES_OPTIONS_WAD);
 
@@ -6518,9 +6634,12 @@ MR_VOID	ShowWaterShutdown(MR_VOID)
 *	FUNCTION	Initialisation code for Play Again screen.  Currently just initialises
 *				the text and time.
 *
+*	MATCH		https://decomp.me/scratch/0jR0l	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	17.08.97	William Bell	Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -6535,17 +6654,18 @@ MR_VOID	PlayAgainStartup(MR_VOID)
 
 	// Create sprites
 	texture					= Options_text_textures[OPTION_TEXT_PLAY_AGAIN][Game_language];
-	Playagain_pa_sprite_ptr = MRCreate2DSprite((Game_display_width>>1)-(texture->te_w>>1),(Game_display_height>>1)-24,Option_viewport_ptr,texture,NULL);
+	UpdateSpriteDisplay(Playagain_pa_sprite_ptr, texture, (Game_display_width>>1)-(texture->te_w>>1), (Game_display_height>>1)-24);
 
 	texture					= Options_text_textures[OPTION_TEXT_CHOOSE_COURSE][Game_language];
-	Playagain_cc_sprite_ptr = MRCreate2DSprite((Game_display_width>>1)-(texture->te_w>>1),(Game_display_height>>1)-8,Option_viewport_ptr,texture,NULL);
+	UpdateSpriteDisplay(Playagain_cc_sprite_ptr, texture, (Game_display_width>>1)-(texture->te_w>>1), (Game_display_height>>1)-8);
 
 	texture					= Options_text_textures[OPTION_TEXT_EXIT][Game_language];
-	Playagain_ex_sprite_ptr = MRCreate2DSprite((Game_display_width>>1)-(texture->te_w>>1),(Game_display_height>>1)+8,Option_viewport_ptr,texture,NULL);
+	UpdateSpriteDisplay(Playagain_ex_sprite_ptr, texture, (Game_display_width>>1)-(texture->te_w>>1), (Game_display_height>>1)+8);
 
 	Option_spcore_ptrs[0] 	= (MR_SP_CORE*)Playagain_pa_sprite_ptr;
 	Option_spcore_ptrs[1] 	= (MR_SP_CORE*)Playagain_cc_sprite_ptr;
 	Option_spcore_ptrs[2] 	= (MR_SP_CORE*)Playagain_ex_sprite_ptr;
+	Option_spcore_ptrs[3] 	= NULL;
 
 	// Initialise count down
 	Options_count_down_ticks 	= (FRAMES_PER_SECOND>>1);
@@ -6605,14 +6725,19 @@ MR_VOID	PlayAgainStartup(MR_VOID)
 *				limit before going on to high score input.  Also continues to render
 *				the last game screen in the background.
 *
+*	MATCH		https://decomp.me/scratch/dYivj	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	17.08.97	William Bell	Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	PlayAgainUpdate(MR_VOID)
 {
+	MR_ULONG input_id;
+	
 	// update game
 	OptUpdateGame();
 
@@ -6632,11 +6757,16 @@ MR_VOID	PlayAgainUpdate(MR_VOID)
 			}
 		}
 
+	if (Game_total_players > 1)
+		input_id = Frog_player_data[Frog_selection_master_player_id].fp_port_id;
+	else
+		input_id = Frog_input_ports[0];
+
 	// Do we still have time left ?
 	if ( Options_count_down_units || Options_count_down_ticks )
 		{
 		// Yes ... was up pressed ?
-		if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_UP))
+		if (MR_CHECK_PAD_PRESSED(input_id, FRR_UP))
 			{
 			// Yes ... reset count down
 			Options_count_down_ticks 	= (FRAMES_PER_SECOND>>1);
@@ -6652,7 +6782,7 @@ MR_VOID	PlayAgainUpdate(MR_VOID)
 			}
 
 		// Was down pressed ?
-		if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_DOWN))
+		if (MR_CHECK_PAD_PRESSED(input_id, FRR_DOWN))
 			{
 			// Yes ... reset count down
 			Options_count_down_ticks 	= (FRAMES_PER_SECOND>>1);
@@ -6668,7 +6798,7 @@ MR_VOID	PlayAgainUpdate(MR_VOID)
 			}
 
 		// Has fire button been pressed ?
-		if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FR_GO))
+		if (MR_CHECK_PAD_PRESSED(input_id, FR_GO))
 			{
 			// Yes ... play sound
 			MRSNDPlaySound(SFX_GEN_FROG_CROAK,NULL,0,0);
@@ -6721,6 +6851,7 @@ MR_VOID	PlayAgainUpdate(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	11.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -6728,9 +6859,9 @@ MR_VOID	PlayAgainShutdown(MR_VOID)
 {
 
 	// Kill 2D sprites
-	MRKill2DSprite(Playagain_pa_sprite_ptr);
-	MRKill2DSprite(Playagain_cc_sprite_ptr);
-	MRKill2DSprite(Playagain_ex_sprite_ptr);
+	MakeSpriteInvisible(Playagain_pa_sprite_ptr);
+	MakeSpriteInvisible(Playagain_cc_sprite_ptr);
+	MakeSpriteInvisible(Playagain_ex_sprite_ptr);
 
 }
 
@@ -6791,6 +6922,7 @@ MR_VOID	ShutdownOptionsMusic(MR_VOID)
 }
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% SwitchOffOptionsMenu
 *------------------------------------------------------------------------------
@@ -6803,6 +6935,7 @@ MR_VOID	ShutdownOptionsMusic(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	31.08.97	Gary Richards	Created 
+*	11.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 MR_VOID	SwitchOffOptionsMenu(MR_VOID)
@@ -6825,6 +6958,7 @@ MR_VOID	SwitchOffOptionsMenu(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	31.08.97	Gary Richards	Created 
+*	11.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 MR_VOID	SwitchOnOptionsMenu(MR_VOID)
@@ -6834,6 +6968,7 @@ MR_VOID	SwitchOnOptionsMenu(MR_VOID)
 	Race_ptr->sp_core.sc_flags 	 &= ~MR_SPF_NO_DISPLAY;
 	Options_ptr->sp_core.sc_flags &= ~MR_SPF_NO_DISPLAY;
 }
+#endif
 
 
 

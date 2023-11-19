@@ -22,6 +22,7 @@
 #include "loadsave.h"
 #include "main.h"
 #include "sound.h"
+#include "ent_gen.h"
 
 
 OPTION_PAGE		Option_page_info[] =
@@ -31,11 +32,11 @@ OPTION_PAGE		Option_page_info[] =
 #ifdef PSX
 				{AntiPiracyStartup,					AntiPiracyUpdate,					AntiPiracyShutdown},
 #endif
-				{HasbroLogoStartup,					HasbroLogoUpdate,					HasbroLogoShutdown},
-				{MillenniumLogoStartup,				MillenniumLogoUpdate,				MillenniumLogoShutdown},
+				{NULL,								HasbroLogoUpdate,					NULL},
+				{NULL,								MillenniumLogoUpdate,				NULL},
 				{LanguageSelectionStartup,			LanguageSelectionUpdate,			LanguageSelectionShutdown},
 				{CheckStartup,						CheckUpdate,						CheckShutdown},
-				{IntroStartup,						IntroUpdate,						IntroShutdown},
+				{IntroStartup,						IntroUpdate,						NULL},
 				{MainOptionsStartup,				MainOptionsUpdate,					MainOptionsShutdown},
 				{OptionsStartup,					OptionsUpdate,						OptionsShutdown},
 #ifdef WIN95
@@ -48,9 +49,9 @@ OPTION_PAGE		Option_page_info[] =
 //				{FrogSelectionStartup,				FrogSelectionNetworkUpdate,			FrogSelectionShutdown},
 
 				{SelectLevelStartup,				SelectLevelUpdate,					SelectLevelShutdown},
-				{ContinueStartup,					ContinueUpdate,						ContinueShutdown},
+				{NULL,								ContinueUpdate,						ContinueShutdown},
 				{GameOverStartup,					GameOverUpdate,						GameOverShutdown},
-				{OutroStartup,						OutroUpdate,						OutroShutdown},
+				{NULL,								OutroUpdate,						NULL},
 				{CreditsStartup,					CreditsUpdate,						CreditsShutdown},
 				{HighScoreInputStartup,				HighScoreInputUpdate,				HighScoreInputShutdown},
 				{HSViewStartup,						HSViewUpdate,						HSViewShutdown},
@@ -92,16 +93,19 @@ MR_LONG			Option_spcore_value;
 *				of the required viewports, this routine passes control to
 *				a page-based system of callbacks (controlling options page
 *				initialisation, main loop functionality, and shutdown).
+*	MATCH		https://decomp.me/scratch/uyNFW (By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	14.04.97	Dean Ashton		Created
 *	26.08.97	Gary Richards	Moved start-up code to CreateOptionsAfterStream.
+*	30.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
 *
 *%%%**************************************************************************/
 
 MR_BOOL	OptionStart(MR_VOID)
 {
+	MR_LONG vsync_mode;
 	CreateOptionsAfterStream();
 	
 	Option_page_request 	= NULL;
@@ -124,7 +128,15 @@ MR_BOOL	OptionStart(MR_VOID)
 			MRClearAllViewportOTs();
 #else			
 			DrawSync(0);
-			VSync(2);
+			if (Game_total_players >= 3) {
+				vsync_mode = 2;
+				if (Option_page_current == 0x15)
+					vsync_mode = 3;
+			} else {
+				vsync_mode = 2;
+			}
+			VSync(vsync_mode);
+	  
 			MRSwapDisplay();
 #endif			
 			// Free any prims left over
@@ -132,7 +144,6 @@ MR_BOOL	OptionStart(MR_VOID)
 
 			// Read input and sound
 			MRReadInput();
-			GameUpdateControllers();
 			MRSNDUpdateSound();
 
 #ifdef PSX_ENABLE_XA
@@ -196,9 +207,7 @@ MR_BOOL	OptionStart(MR_VOID)
 
 		} while (Option_page_current != OPTIONS_PAGE_EXIT);
 
-	MRKill2DSprite(Sel_level_title);
-	MRKill2DSprite(Sel_loading_sprite_ptr);
-
+	KillOptionsTextSprites();
 	MRKillViewport(Option_viewport_ptr);
 	return TRUE;
 }
@@ -409,10 +418,12 @@ MR_VOID	OptionUpdateSpcores(MR_VOID)
 *	SYNOPSIS	MR_VOID	CreateOptionsAfterStream(MR_VOID)
 *
 *	FUNCTION	Restores the viewports etc after it has been killed by the stream.
+*	MATCH		https://decomp.me/scratch/dxG2c (By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	26.08.97	Gary Richards	Created
+*	30.10.23	Kneesnap		Byte-matched to PSX Build 71. (Retail NTSC Build)
 *
 *%%%**************************************************************************/
 MR_VOID CreateOptionsAfterStream(MR_VOID)
@@ -442,16 +453,12 @@ MR_VOID CreateOptionsAfterStream(MR_VOID)
 	light1->ob_flags |= MR_OBJ_KILL_FRAME_WITH_OBJECT;
 	MRAddObjectToViewport(light1, Option_viewport_ptr, NULL);
 
-	// Create loading sprites ready for use!
-	Sel_level_title	= MRCreate2DSprite(0, 0, Option_viewport_ptr, &im_opt_start, NULL);
-	Sel_level_title->sp_core.sc_flags |= MR_SPF_NO_DISPLAY;
-	Sel_loading_sprite_ptr = MRCreate2DSprite(0, 0, Option_viewport_ptr, &im_opt_race, NULL);
-	Sel_loading_sprite_ptr->sp_core.sc_flags |= MR_SPF_NO_DISPLAY;
-
+	SetupOptionTextSprites();
 	Game_total_viewports	= 1;
 	Game_viewports[0] 		= Option_viewport_ptr;
 
 	InitialiseOptionsCamera();
+	HSUpdateScrollyCamera();
 }
 
 /******************************************************************************
@@ -466,11 +473,15 @@ MR_VOID CreateOptionsAfterStream(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	26.08.97	Gary Richards	Created
+*	30.10.23	Kneesnap		Byte-matched to PSX Build 71. (Retail NTSC Build)
 *
 *%%%**************************************************************************/
 
 MR_VOID	KillOptionsForStream(MR_VOID)
 {
+	// Kill option text sprites
+	KillOptionsTextSprites();
+	
 	// Remove the Active Viewport.
 	MRKillViewport(Option_viewport_ptr);
 	Option_viewport_ptr = NULL;
@@ -510,4 +521,348 @@ MR_VOID	OptionKill3DSprites(MR_VOID)
 			object_ptr->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY;
 		}
 }
+
+/******************************************************************************
+*%%%% SetupOptionTextSprites
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	SetupOptionTextSprites(MR_VOID)
+*
+*	FUNCTION	Sets up most of the options text sprites
+*	MATCH		https://decomp.me/scratch/dIJW3	(By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	31.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
+*
+*%%%**************************************************************************/
+
+MR_VOID SetupOptionTextSprites(MR_VOID)
+{
+	MR_LONG			i, y;
+	MR_2DSPRITE**	sprite_pptr;
+	MR_TEXTURE*		texture;
+
+	// Setup basic text graphics
+	Sel_level_title = MRCreate2DSprite(0, 0, Option_viewport_ptr, &im_opt_start, NULL);
+	MakeSpriteInvisible(Sel_level_title);
+	Sel_loading_sprite_ptr = MRCreate2DSprite(0, 0, Option_viewport_ptr, &im_opt_race, NULL);
+	MakeSpriteInvisible(Sel_loading_sprite_ptr);
+	
+	// Create hud checkpoint graphics
+	y	= (Game_display_height>>1) - 70;
+	for (i=0; i<GEN_MAX_CHECKPOINTS; i++)
+		{
+		Level_complete.Level_complete_checkpoints[i]	= MRCreate2DSprite((Game_display_width>>1)-105, y, Option_viewport_ptr, Hud_checkpoint_animlists[i], NULL);
+		MakeSpriteInvisible(Level_complete.Level_complete_checkpoints[i]);
+		y += 20;
+		}
+
+	// Create hud checkpoint time graphics
+	y			= (Game_display_height>>1) - 70;
+	for (i=0; i<GEN_MAX_CHECKPOINTS; i++)
+		{
+		Level_complete.Level_complete_checkpoint_time[i] = MRAllocMem(sizeof(MR_2DSPRITE*) * 3, "CHKPOINT PTR");
+		sprite_pptr		= (MR_2DSPRITE**)Level_complete.Level_complete_checkpoint_time[i];
+
+		MakeSpriteInvisible(*sprite_pptr++	= MRCreate2DSprite(	(Game_display_width>>1) -84, y, Option_viewport_ptr, Hud_score_images[Hud_digits[8]], NULL));
+		MakeSpriteInvisible(*sprite_pptr++	= MRCreate2DSprite(	(Game_display_width>>1) -68, y, Option_viewport_ptr, Hud_score_images[Hud_digits[9]], NULL));
+		texture = Options_text_textures[OPTION_TEXT_SEC][Game_language];
+		MakeSpriteInvisible(*sprite_pptr++	= MRCreate2DSprite(	(Game_display_width>>1) -52, y, Option_viewport_ptr, texture, NULL));
+		y += 20;
+		}
+	
+	Level_complete.Level_complete_total_time_text = MRCreate2DSprite((Game_display_width >> 1)-16, (Game_display_height>>1)-60, Option_viewport_ptr, Options_text_textures[OPTION_TEXT_TOTAL_TIME][Game_language], NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_total_time_text);
+	
+	Level_complete.Level_complete_total_time[0] = MRCreate2DSprite((Game_display_width>>1)+10, (Game_display_height>>1)-40, Option_viewport_ptr, Hud_score_images[Hud_digits[7]], NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_total_time[0]);
+	
+	Level_complete.Level_complete_total_time[1] = MRCreate2DSprite((Game_display_width>>1)+26, (Game_display_height>>1)-40, Option_viewport_ptr, Hud_score_images[Hud_digits[8]], NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_total_time[1]);
+	
+	Level_complete.Level_complete_total_time[2] = MRCreate2DSprite((Game_display_width>>1)+42, (Game_display_height>>1)-40, Option_viewport_ptr, Hud_score_images[Hud_digits[9]], NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_total_time[2]);
+
+	texture = Options_text_textures[OPTION_TEXT_SEC][Game_language];
+	Level_complete.Level_complete_total_time[3] = MRCreate2DSprite((Game_display_width>>1)+58, (Game_display_height>>1)-40, Option_viewport_ptr, texture, NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_total_time[3]);
+
+	Level_complete.Level_complete_total_score_text = MRCreate2DSprite((Game_display_width>>1)-26, (Game_display_height>>1)-15, Option_viewport_ptr, Options_text_textures[OPTION_TEXT_TOTAL_SCORE][Game_language], NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_total_score_text);
+	
+	Level_complete.Level_complete_total_score[0] = MRCreate2DSprite((Game_display_width>>1)-10, (Game_display_height>>1)+5, Option_viewport_ptr, Hud_score_images[Hud_digits[4]], NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_total_score[0]);
+	
+	Level_complete.Level_complete_total_score[1] = MRCreate2DSprite((Game_display_width>>1)+6, (Game_display_height>>1)+5, Option_viewport_ptr, Hud_score_images[Hud_digits[5]], NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_total_score[1]);
+	
+	Level_complete.Level_complete_total_score[2] = MRCreate2DSprite((Game_display_width>>1)+22, (Game_display_height>>1)+5, Option_viewport_ptr, Hud_score_images[Hud_digits[6]], NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_total_score[2]);
+	
+	Level_complete.Level_complete_total_score[3] = MRCreate2DSprite((Game_display_width>>1)+38, (Game_display_height>>1)+5, Option_viewport_ptr, Hud_score_images[Hud_digits[7]], NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_total_score[3]);
+	
+	Level_complete.Level_complete_total_score[4] = MRCreate2DSprite((Game_display_width>>1)+54, (Game_display_height>>1)+5, Option_viewport_ptr, Hud_score_images[Hud_digits[8]], NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_total_score[4]);
+	
+	Level_complete.Level_complete_total_score[5] = MRCreate2DSprite((Game_display_width>>1)+70, (Game_display_height>>1)+5, Option_viewport_ptr, Hud_score_images[Hud_digits[9]], NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_total_score[5]);
+
+	texture = Options_text_textures[OPTION_TEXT_PRESS_FIRE][Game_language];
+	Level_complete.Level_complete_next_level_des = MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), (((Game_display_height & 0xffff)-50) << 16) >> 16, Option_viewport_ptr, texture, NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_next_level_des);
+	
+	texture = Options_text_textures[OPTION_TEXT_PRESS_FIRE][Game_language];
+	Level_complete.Level_complete_press_fire = MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), (((Game_display_height & 0xffff)-32) << 16) >> 16, Option_viewport_ptr, texture, NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_press_fire);
+
+	Level_complete.Level_complete_next_level_text = MRCreate2DSprite(Game_display_width>>1, (((Game_display_height & 0xffff)-70) << 16) >> 16, Option_viewport_ptr, texture, NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_next_level_text);
+	
+	Level_complete.Level_complete_golden_frog = MRCreate2DSprite((Game_display_width>>1)-105, (Game_display_height>>1)+30, Option_viewport_ptr, texture, NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_golden_frog);
+
+	Level_complete.Level_complete_press_tri = MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), (((Game_display_height & 0xffff)-30) << 16) >> 16, Option_viewport_ptr, texture, NULL);
+	MakeSpriteInvisible(Level_complete.Level_complete_press_tri);
+
+	texture = Options_text_textures[OPTION_TEXT_START][Game_language];
+	Start_ptr = MRCreate2DSprite((Game_display_width - texture->te_w)>>1, Game_display_height, Option_viewport_ptr, texture, NULL);
+	MakeSpriteInvisible(Start_ptr);
+
+	texture = Options_text_textures[OPTION_TEXT_RACE][Game_language];
+	Race_ptr = MRCreate2DSprite((Game_display_width - texture->te_w)>>1, (((Game_display_height & 0xffff)+16) << 16) >> 16, Option_viewport_ptr, texture, NULL);
+	MakeSpriteInvisible(Race_ptr);
+
+	texture = Options_text_textures[OPTION_TEXT_OPTIONS][Game_language];
+	Options_ptr = MRCreate2DSprite((Game_display_width - texture->te_w)>>1, (((Game_display_height & 0xffff)+32) << 16) >> 16, Option_viewport_ptr, texture, NULL);
+	MakeSpriteInvisible(Options_ptr);
+	
+	texture = Options_text_textures[OPTION_TEXT_GAMEOVER][Game_language];
+	Gameover_title_sprite_ptr = MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), (Game_display_height>>1) - (texture->te_h>>1), Option_viewport_ptr, texture, NULL);
+	MakeSpriteInvisible(Gameover_title_sprite_ptr);
+	
+	SetupMultiplayerGameOverTextSprites();
+}
+
+/******************************************************************************
+*%%%% SetupMultiplayerGameOverTextSprites
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	SetupMultiplayerGameOverTextSprites(MR_VOID)
+*
+*	FUNCTION	Sets up most of the text sprites used for multiplayer game over displays
+*	MATCH		https://decomp.me/scratch/rH51H (By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	31.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
+*
+*%%%**************************************************************************/
+
+MR_VOID SetupMultiplayerGameOverTextSprites(MR_VOID)
+{
+	MR_LONG i;
+	MR_TEXTURE* texture;
+	
+
+	// Loop once for each viewport
+	for (i=0; i<4; i++)
+		{
+		// Create "PLAYED"/"WON"/"LOST" text headers 
+		texture = Options_text_textures[OPTION_TEXT_PLAYED][Game_language]; // Previously Game_over[i]->go_played_text
+		Game_over_Multiplayer_played_text[i] = MRCreate2DSprite(Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].x - ((texture->te_w>>1)+30), Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].y-20, Option_viewport_ptr, texture, NULL);
+		MakeSpriteInvisible(Game_over_Multiplayer_played_text[i]);
+		
+		texture = Options_text_textures[OPTION_TEXT_WON][Game_language]; // Previously Game_over[i]->go_won_text	
+		Game_over_Multiplayer_won_text[i] = MRCreate2DSprite(Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].x - ((texture->te_w>>1)+30), Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].y, Option_viewport_ptr, texture, NULL);
+		MakeSpriteInvisible(Game_over_Multiplayer_won_text[i]);
+		
+		texture = Options_text_textures[OPTION_TEXT_LOST][Game_language]; // Previously Game_over[i]->go_lost_text
+		Game_over_Multiplayer_lost_text[i] = MRCreate2DSprite(Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].x - ((texture->te_w>>1)+30), Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].y+20, Option_viewport_ptr, texture, NULL);
+		MakeSpriteInvisible(Game_over_Multiplayer_lost_text[i]);
+		}
+	
+	texture = Options_text_textures[OPTION_TEXT_PLAY_AGAIN][Game_language];
+	Playagain_pa_sprite_ptr = MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), (Game_display_height>>1)-24, Option_viewport_ptr, texture, NULL);
+	MakeSpriteInvisible(Playagain_pa_sprite_ptr);
+	
+	texture = Options_text_textures[OPTION_TEXT_CHOOSE_COURSE][Game_language];
+	Playagain_cc_sprite_ptr = MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), (Game_display_height>>1)-8, Option_viewport_ptr, texture, NULL);
+	MakeSpriteInvisible(Playagain_cc_sprite_ptr);
+	
+	texture = Options_text_textures[OPTION_TEXT_EXIT][Game_language];
+	Playagain_ex_sprite_ptr = MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), (Game_display_height>>1)+8, Option_viewport_ptr, texture, NULL);
+	MakeSpriteInvisible(Playagain_ex_sprite_ptr);
+}
+
+
+/******************************************************************************
+*%%%% KillOptionsTextSprites
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	KillOptionsTextSprites(MR_VOID)
+*
+*	FUNCTION	Kills most of the active options text sprites
+*	MATCH		https://decomp.me/scratch/ra6Fx	(By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	31.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
+*
+*%%%**************************************************************************/
+
+MR_VOID KillOptionsTextSprites(MR_VOID)
+{
+	MR_LONG i;
+	MR_2DSPRITE** sprite_pptr;
+
+	// Kill loading text sprites
+	MRKill2DSprite(Sel_level_title);
+	MRKill2DSprite(Sel_loading_sprite_ptr);
+
+	// Kill checkpoint text sprites
+	for (i=0; i<5; i++)
+		MRKill2DSprite(Level_complete.Level_complete_checkpoints[i]);
+
+	// Kill complete checkpoint time text sprites
+	for (i=0; i<5; i++)
+		{
+		sprite_pptr = Level_complete.Level_complete_checkpoint_time[i];
+		MRKill2DSprite(*sprite_pptr++);
+		MRKill2DSprite(*sprite_pptr++);
+		MRKill2DSprite(*sprite_pptr++);
+		MRFreeMem(Level_complete.Level_complete_checkpoint_time[i]);
+		}
+	
+	// Kill total text sprites
+	MRKill2DSprite(Level_complete.Level_complete_total_time_text);
+	MRKill2DSprite(Level_complete.Level_complete_total_score_text);
+
+	// Kill total time text sprites
+	for (i=0; i<4; i++)
+		MRKill2DSprite(Level_complete.Level_complete_total_time[i]);
+
+	// Kill total score text sprites
+	for (i=0; i<6; i++)
+		MRKill2DSprite(Level_complete.Level_complete_total_score[i]);
+
+	// Kill remaining text sprites
+	MRKill2DSprite(Level_complete.Level_complete_golden_frog);
+	MRKill2DSprite(Level_complete.Level_complete_press_fire);
+	MRKill2DSprite(Level_complete.Level_complete_next_level_des);
+	MRKill2DSprite(Level_complete.Level_complete_press_tri);
+	MRKill2DSprite(Level_complete.Level_complete_next_level_text);
+	MRKill2DSprite(Start_ptr);
+	MRKill2DSprite(Race_ptr);
+	MRKill2DSprite(Options_ptr);
+	MRKill2DSprite(Gameover_title_sprite_ptr);
+
+	// Kill game over sprites
+	KillGameOverTextSprites();
+}
+
+
+/******************************************************************************
+*%%%% KillGameOverTextSprites
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	KillGameOverTextSprites(MR_VOID)
+*
+*	FUNCTION	Kills most of the active options text sprites
+*	MATCH		https://decomp.me/scratch/EbL2E (By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	31.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
+*
+*%%%**************************************************************************/
+
+MR_VOID KillGameOverTextSprites(MR_VOID)
+{
+	MR_LONG i;
+
+	// Kill game over result text sprites
+	for (i=0; i<4; i++)
+		{
+		MRKill2DSprite(Game_over_Multiplayer_played_text[i]);
+		MRKill2DSprite(Game_over_Multiplayer_won_text[i]);
+		MRKill2DSprite(Game_over_Multiplayer_lost_text[i]);
+		}
+
+	// Kill game over action text sprites
+	MRKill2DSprite(Playagain_pa_sprite_ptr);
+	MRKill2DSprite(Playagain_cc_sprite_ptr);
+	MRKill2DSprite(Playagain_ex_sprite_ptr);
+}
+
+/******************************************************************************
+*%%%% UpdateSpriteDisplay
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	UpdateSpriteDisplay(
+*											MR_2DSPRITE*	sprite,
+*											MR_TEXTURE*		texture,
+*											MR_SHORT		x,
+*											MR_SHORT		y)
+*
+*	FUNCTION	Updates the provided sprite.
+*	MATCH		https://decomp.me/scratch/DHu9s (By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	29.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
+*
+*%%%**************************************************************************/
+
+MR_VOID UpdateSpriteDisplay(MR_2DSPRITE *sprite, MR_TEXTURE *texture, MR_SHORT x, MR_SHORT y)
+{
+    MRChangeSprite(sprite, texture);
+    sprite->sp_pos.x = x;
+    sprite->sp_pos.y = y;
+    sprite->sp_core.sc_flags &= ~MR_SPF_NO_DISPLAY;
+}
+
+/******************************************************************************
+*%%%% MakeSpriteVisible
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	MakeSpriteVisible(
+*										MR_2DSPRITE*	sprite)
+*
+*	FUNCTION	Updates the provided sprite.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	29.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
+*
+*%%%**************************************************************************/
+
+MR_VOID MakeSpriteVisible(MR_2DSPRITE *sprite)
+{
+    sprite->sp_core.sc_flags &= ~MR_SPF_NO_DISPLAY;
+}
+
+
+/******************************************************************************
+*%%%% MakeSpriteInvisible
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	MakeSpriteInvisible(
+*									MR_2DSPRITE*	sprite)
+*
+*	FUNCTION	Updates the provided sprite.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	29.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
+*
+*%%%**************************************************************************/
+
+MR_VOID MakeSpriteInvisible(MR_2DSPRITE *sprite)
+{
+    sprite->sp_core.sc_flags |= MR_SPF_NO_DISPLAY;
+}
+
+
 

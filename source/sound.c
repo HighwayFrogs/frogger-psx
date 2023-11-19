@@ -167,8 +167,10 @@ MRSND_SAMPLE_INFO	gSampleInfo[]=
 	{MRSNDVF_SINGLE,VAB_JUNGLE,SFX_GROUP_ENTITY,	13,	0,	 60,   60,	 0,	120,	 NULL},		// JUN_WATER_NOISE
 	{MRSNDVF_SINGLE,VAB_JUNGLE,SFX_GROUP_ENTITY,	14,	0,	 60,   60,	 0,	120,	 NULL},		// OUT_FROG_EXPLODE
 	{MRSNDVF_LOOPED,VAB_JUNGLE,SFX_GROUP_ENTITY,	15,	0,	 56,   60,	 0,	120,	 NULL},		// OUT_STONE_RUMBLE_REPEAT
-	{MRSNDVF_SINGLE,VAB_JUNGLE,SFX_GROUP_ENTITY,	16,	0,	 60,   60,	 0,	120,	 NULL},		// OUT_STONE_RUMBLE
-	{MRSNDVF_SINGLE,VAB_JUNGLE,SFX_GROUP_ENTITY,	7,	0,	 72,   60,	 0,	120,	 NULL},		// JUN_PLANT_SNAP
+	{MRSNDVF_SINGLE,VAB_JUNGLE,SFX_GROUP_ENTITY,	16,	0,	 64,   60,	 0,	127,	 NULL},		// OUT_STONE_RUMBLE
+	{MRSNDVF_LOOPED,VAB_JUNGLE,SFX_GROUP_ENTITY,	17,	0,	 60,   60,	 0,	127,	 NULL},		// JUN_RHINO_RUMBLE
+	{MRSNDVF_SINGLE,VAB_JUNGLE,SFX_GROUP_ENTITY,	7,	0,	 72,   60,	 0, 120,	 NULL},		// JUN_PLANT_SNAP
+
 
 	// 									ORIGINAL SFX.
 	//																	  	  VOL			
@@ -190,21 +192,24 @@ MRSND_SAMPLE_INFO	gSampleInfo[]=
 	// FLAGS       		VAB   		GROUP         PROG TONE	PITCH P MOD	MIN MAX  NAME
 	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY,		0,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_CRUSHER
 	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_FROGGER,   	1,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_NUCLEAR_BARREL_EXPLODE
-	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY,		2,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_NUCLEAR_BARREL_GEIGER
+	{MRSNDVF_LOOPED,VAB_SWAMP,SFX_GROUP_ENTITY,		2,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_NUCLEAR_BARREL_GEIGER
  	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_FROGGER,   	3,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_HOLLOW_THUD
 	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY,		4,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_RAT
-	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY,  	5,	0,	 60,   60,	 0,	50,		 NULL},		// SWP_STAT_FLUME
+	{MRSNDVF_LOOPED,VAB_SWAMP,SFX_GROUP_ENTITY,  	5,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_STAT_FLUME
 	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY,  	6,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_STAT_MARSH
 	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY,  	7,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_STAT_PIPE_HOLE
-	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY,  	8,	0,	 60,   60,	 0,	100, 	 NULL},		// SWP_STAT_WEIR
+	{MRSNDVF_LOOPED,VAB_SWAMP,SFX_GROUP_ENTITY,  	8,	0,	 60,   60,	 0,	100, 	 NULL},		// SWP_STAT_WEIR
 	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY,  	9,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_ACID_DRIP
-	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY, 	10,	0,	 60,   60,	 0,	50,	 	 NULL},		// SWP_WATERNOISE
+	{MRSNDVF_LOOPED,VAB_SWAMP,SFX_GROUP_ENTITY, 	10,	0,	 60,   60,	 0,	100,	 NULL},		// SWP_WATERNOISE
 	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY, 	11,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_SLIPPING
 	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY, 	12,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_BIRD_WING
 	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY, 	13,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_BIRD_WING_FRENZIED
 	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY, 	14,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_PELICAN_CALL
 	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY, 	15,	0,	 60,   60,	 0,	120,	 NULL},		// SWP_PELICAN_CALL_FRENZIED
-	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY, 	16,	0,	 60,   60,	 0,	127,	 NULL},		// SWP_SNAIL_MOVE
+	{MRSNDVF_LOOPED,VAB_SWAMP,SFX_GROUP_ENTITY,		16,	0,	 60,   60,	 0, 120,	 NULL},		// SWP_CRUSH_AMB
+	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY,		17,	0,	 58,   60,	 0, 127,	 NULL},		// SWP_SNAIL_MOVE
+	{MRSNDVF_SINGLE,VAB_SWAMP,SFX_GROUP_ENTITY,		18,	0,	 60,   60,	 0, 127,	 NULL},		// SWP_FROG_CRUSH
+	{MRSNDVF_LOOPED,VAB_SWAMP,SFX_GROUP_ENTITY,		19,	0,	 60,   60,	 0, 120,	 NULL},		// SWP_MACHINE
 
 	// 									SKY SFX.
 	//																	  VOL			
@@ -268,15 +273,6 @@ MRSND_SAMPLE_INFO	gSampleInfo[]=
 	{MRSNDVF_SINGLE,VAB_INDUSTRIAL,SFX_GROUP_ENTITY,   6,	0,	 60,   60,	 0,	120,	 NULL},		// IND_STREAM_JET3
 	{MRSNDVF_SINGLE,VAB_INDUSTRIAL,SFX_GROUP_ENTITY,   7,	0,	 60,   60,	 0,	120,	 NULL},		// IND_SWITCH
 
-	// 									SELECT SFX.
-	//																	  VOL			
-	// FLAGS       		VAB   		GROUP         PROG TONE	PITCH P MOD	MIN MAX  NAME
-	{MRSNDVF_SINGLE,VAB_SELECT,SFX_GROUP_SELECT,	0,	0,	 60,   60,	 0,	120,	 NULL},		// SEL_CANCEL
-	{MRSNDVF_SINGLE,VAB_SELECT,SFX_GROUP_SELECT,	1,	0,	 60,   60,	 0,	120,	 NULL},		// SEL_HI_SCORE_COUNT
-	{MRSNDVF_SINGLE,VAB_SELECT,SFX_GROUP_SELECT,	2,	0,	 60,   60,	 0,	120,	 NULL},		// SEL_HI_SCORE_COUNT0
-	{MRSNDVF_SINGLE,VAB_SELECT,SFX_GROUP_SELECT,	3,	0,	 60,   60,	 0,	120,	 NULL},		// SEL_SCORE_FINISH
-	{MRSNDVF_SINGLE,VAB_SELECT,SFX_GROUP_SELECT,	0,	0,	 60,   60,	 0,	120,	 NULL},		// SEL_SPLASH
-
 
 	{NULL,			0,0,					0,	0, 		0, 		0,		0,  0,		NULL},
 };
@@ -284,6 +280,9 @@ MRSND_SAMPLE_INFO	gSampleInfo[]=
 #ifdef	MR_DEBUG
 	MR_LONG	current_sfx = 0;
 #endif
+
+MR_BOOL		Load_music_playing = FALSE;													
+MR_LONG		Load_music_sfx_handle = -1;
 
 /******************************************************************************
 *%%%% TestSoundEffects
@@ -336,14 +335,6 @@ MR_VOID	TestSoundEffects(MR_VOID)
 *%%%**************************************************************************/
 MR_VOID	InitialiseVab(MR_VOID)
 {
-#ifdef PSX
-#ifdef EXPERIMENTAL
-	MR_ULONG	saved_sp;
-
-
-	saved_sp = SetSp(saved_stack);
-#endif
-#endif
 
 #ifdef MR_API_SOUND
 	MRLoadResource(gVABInfo[Game_map_theme].va_vh_resource_id);
@@ -356,11 +347,6 @@ MR_VOID	InitialiseVab(MR_VOID)
 	MRUnloadResource(gVABInfo[Game_map_theme].va_vb_resource_id);
 #endif
 
-#ifdef PSX
-#ifdef EXPERIMENTAL
-	SetSp(saved_sp);
-#endif
-#endif
 }
 
 /******************************************************************************
@@ -540,6 +526,90 @@ MR_VOID	KillMovingSound(LIVE_ENTITY* live_entity)
 	// Check to make sure that there is a moving sound to kill
 	if (live_entity->le_moving_sound != NULL)
 		MRSNDKillMovingSound(live_entity->le_moving_sound);
+}
+
+/******************************************************************************
+*%%%% DampenMusicVolumeTemporarily
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	DampenMusicVolumeTemporarily(MR_VOID)
+*
+*	FUNCTION	Halfs the volume of the music, without changing the player's volume settings. Used when collecting a froglet.
+*	MATCH		https://decomp.me/scratch/RBcsn (By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	24.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
+*
+*%%%**************************************************************************/
+MR_VOID DampenMusicVolumeTemporarily(MR_VOID) {
+    if (Music_volume > 1)
+		MRSNDSetVolumeLevel(MRSND_CD_VOLUME, (127 * (Music_volume >> 1)) / OPTIONS_SOUND_STAGES);
+}
+
+/******************************************************************************
+*%%%% SetTemporaryMusicVolume
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	SetTemporaryMusicVolume(
+*						MR_UBYTE	new_volume)
+*
+*	FUNCTION	Changes the music volume, without changing palyer volume settings. Used when collecting a froglet.
+*	MATCH		https://decomp.me/scratch/J2jRb (By Kneesnap)
+*
+*	INPUTS		new_volume	-	the temporary volume to apply
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	24.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
+*
+*%%%**************************************************************************/
+MR_VOID SetTemporaryMusicVolume(MR_UBYTE new_volume) {
+	MRSNDSetVolumeLevel(MRSND_CD_VOLUME, (127 * new_volume) / OPTIONS_SOUND_STAGES);
+}
+
+/******************************************************************************
+*%%%% PlayLoadingSfxLoop
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	PlayLoadingSfxLoop(MR_VOID)
+*
+*	FUNCTION	Plays the loading drum sfx loop.
+*	MATCH		https://decomp.me/scratch/WUZRv (By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	24.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
+*
+*%%%**************************************************************************/
+MR_VOID PlayLoadingSfxLoop(MR_VOID) {
+	if (Load_music_playing == FALSE) {
+		Load_music_sfx_handle = MRSNDPlaySound(	SFX_MUSIC_DRUMLOAD, NULL, 0, 0);
+		Load_music_playing = TRUE;
+	}
+}
+
+/******************************************************************************
+*%%%% StopLoadingSfxLoop
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	StopLoadingSfxLoop(MR_VOID)
+*
+*	FUNCTION	Stops the loading drum sfx loop.
+*	MATCH		https://decomp.me/scratch/SPAig (By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	24.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
+*
+*%%%**************************************************************************/
+MR_VOID StopLoadingSfxLoop(MR_VOID) {
+    Load_music_playing = TRUE;
+    if (Load_music_sfx_handle != -1)
+        MRSNDKillSound(Load_music_sfx_handle);
+  
+    Load_music_sfx_handle = -1;
+    Load_music_playing = FALSE;
 }
 
 // A list of pitches to play the level_complete and the target_complete music.

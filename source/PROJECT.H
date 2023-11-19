@@ -75,7 +75,7 @@
 #define	FR_SUPERJUMP			FRR_BLUE
 #define	FR_TONGUE				FRR_PINK
 #define	FR_CROAK				FRR_RED
-#define	FR_GO					(FRR_BLUE | FRR_START)	// for Sony guidelines
+#define	FR_GO					(FRR_BLUE | FRR_START)  // for Sony guidelines
 
 #ifdef	PSX_RELEASE
 // On Demo recording on a Gold Disk.

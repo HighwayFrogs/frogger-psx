@@ -16,7 +16,9 @@
 #include "scripts.h"
 #include "sound.h"
 #include "frog.h"
+#include "collide.h"
 
+MR_MAT		Rat_splash_matrix;
 
 /******************************************************************************
 *%%%% ENTSTRSwpCreateSquirt
@@ -155,12 +157,14 @@ MR_VOID	ENTSTRSwpUpdateSquirt(LIVE_ENTITY*	live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Create a crusher for the swamp level
+*	MATCH		https://decomp.me/scratch/G9TXb	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	24.05.97	Martin Kift		Created
+*	04.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -180,6 +184,8 @@ MR_VOID	ENTSTRSwpCreateCrusher(LIVE_ENTITY* live_entity)
 	crusher->cr_direction = SWAMP_CRUSHER_IN;
 	crusher->cr_time	= crusher_map_data->cr_delay;
 	crusher->cr_action	= SWAMP_CRUSHER_WAITING;
+	crusher->cr_count = 0;
+	PlayMovingSound(live_entity, SFX_SWP_CRUSH_AMB, 768, 1280);
 }
 
 
@@ -191,12 +197,14 @@ MR_VOID	ENTSTRSwpCreateCrusher(LIVE_ENTITY* live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	This function is used to update the swamp crusher entity.
+*	MATCH		https://decomp.me/scratch/UsN6l	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to update
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	24.05.97	Martin Kift		Created
+*	04.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -209,6 +217,9 @@ MR_VOID	ENTSTRSwpUpdateCrusher(LIVE_ENTITY*	live_entity)
 	entity				= live_entity->le_entity;
 	crusher				= live_entity->le_specific;
 	crusher_map_data	= (SWAMP_CRUSHER*)(entity + 1);
+
+	if (crusher->cr_count)
+		crusher->cr_count--;
 
 	if (crusher->cr_action == SWAMP_CRUSHER_WAITING)
 		{
@@ -292,6 +303,7 @@ MR_VOID	ENTSTRSwpUpdateCrusher(LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	This is the callback for swamp crushers. When struck, it looks
 *				at the frogs velocity, and attempts to bounce it off.
+*	MATCH		https://decomp.me/scratch/3nLrQ	(By Kneesnap & stuck-pixel)
 *
 *	INPUTS		frog		-	ptr to frog (VOID* for convenience on prototype)
 *				live_entity	-	ptr to live entity that was collide with
@@ -300,6 +312,7 @@ MR_VOID	ENTSTRSwpUpdateCrusher(LIVE_ENTITY*	live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	01.07.97	Martin Kift		Created
+*	17.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -316,6 +329,12 @@ MR_VOID SwpCrusherCallback(	MR_VOID*	void_frog,
 	MR_LONG				u, y1, s, grid_x, grid_z, dx, dz;
 	GRID_STACK*			grid_stack;
 	GRID_SQUARE*		grid_square;
+	FORM*				form;
+	FORM_DATA*			form_data;
+	MR_MAT				matrix;
+	MR_SVEC				svec;
+	MR_VEC				vec;
+	MR_LONG				temp, x_pos, z_pos;
 
 	frog				= (FROG*)void_frog;
 	live_entity			= (LIVE_ENTITY*)void_live_entity;
@@ -324,42 +343,92 @@ MR_VOID SwpCrusherCallback(	MR_VOID*	void_frog,
 	crusher_map_data	= (SWAMP_CRUSHER*)(entity+1);
 	crusher				= (SWAMP_RT_CRUSHER*)live_entity->le_specific;
 
-	// We have hit a collprim, work out the angle at which we are jumping into
-	// the collprim, reverse it so we bounce back, and then work out the nearest
-	// grid square to aim for, and go for it.
-	u	= frog->fr_direction;
-	switch (u)
+	if (Game_map_theme == THEME_SWP)
 		{
-		case FROG_DIRECTION_N:
-			dx	=  0;
-			dz	= -1;
-			u	= FROG_DIRECTION_S;
-			break;
-		case FROG_DIRECTION_E:
-			dx = -1;
-			dz =  0;
-			u	= FROG_DIRECTION_W;
-			break;
-		case FROG_DIRECTION_S:
-			dx =  0;
-			dz =  1;
-			u	= FROG_DIRECTION_N;
-			break;
-		case FROG_DIRECTION_W:
-			dx =  1;
-			dz =  0;
-			u	= FROG_DIRECTION_E;
-			break;
-		default:
-			dx = 0;
-			dz = 0;
-			break;
+		if (crusher->cr_count)
+			return;
+			
+		crusher->cr_count = 5;
+		grid_x = (frog->fr_lwtrans->t[0] - Grid_base_x) >> 8;
+		grid_z = (frog->fr_lwtrans->t[2] - Grid_base_z) >> 8;
+		if (frog->fr_velocity.vx || frog->fr_velocity.vz)
+			{
+			if (abs(frog->fr_velocity.vx) > abs(frog->fr_velocity.vz))
+				{
+				if (frog->fr_velocity.vx > 0)
+					{
+					dx = -1;
+					dz = 0;
+					u = FROG_DIRECTION_W;
+					}
+				else
+					{
+					dx = 1;
+					dz = 0;
+					u = FROG_DIRECTION_E;
+					}
+				}
+			else
+				{
+				if (frog->fr_velocity.vz > 0)
+					{
+					dx = 0;
+					dz = -1;
+					u = FROG_DIRECTION_S;
+					}
+				else
+					{
+					dx = 0;
+					dz = 1;
+					u = FROG_DIRECTION_N;
+					}
+				}
+			}
+		else
+			goto default_handler;
+		}
+	else
+		{
+default_handler:
+		// work out grid we are now heading towards
+		grid_x	= frog->fr_grid_x;
+		grid_z	= frog->fr_grid_z;
+
+		// We have hit a collprim, work out the angle at which we are jumping into
+		// the collprim, reverse it so we bounce back, and then work out the nearest
+		// grid square to aim for, and go for it.
+		u	= frog->fr_direction;
+		switch (u)
+			{
+			case FROG_DIRECTION_N:
+				dx	=  0;
+				dz	= -1;
+				u	= FROG_DIRECTION_S;
+				break;
+			case FROG_DIRECTION_E:
+				dx = -1;
+				dz =  0;
+				u	= FROG_DIRECTION_W;
+				break;
+			case FROG_DIRECTION_S:
+				dx =  0;
+				dz =  1;
+				u	= FROG_DIRECTION_N;
+				break;
+			case FROG_DIRECTION_W:
+				dx =  1;
+				dz =  0;
+				u	= FROG_DIRECTION_E;
+				break;
+			default:
+				dx = 0;
+				dz = 0;
+				break;
+			}
 		}
 
-	// work out grid we are now heading towards
-	grid_x	= frog->fr_grid_x + dx;
-	grid_z	= frog->fr_grid_z + dz;
-
+	grid_x += dx;
+	grid_z += dz;
 	grid_stack 	= GetGridStack(grid_x, grid_z);
 	if (s = grid_stack->gs_numsquares)
 		{
@@ -374,14 +443,21 @@ MR_VOID SwpCrusherCallback(	MR_VOID*	void_frog,
 					// jump back to slope
 					if (frog->fr_mode >= FROG_MODE_USER)
 						{
-						// assume some sort of slipping motion
-						frog->fr_flags		|= FROG_JUMP_FROM_COLLPRIM;
-						frog->fr_velocity.vx = -frog->fr_velocity.vx;
-						frog->fr_velocity.vz = -frog->fr_velocity.vz;
+						frog->fr_count = FROG_JUMP_TIME;
+						frog->fr_grid_x = grid_x;
+						frog->fr_grid_z = grid_z;
+						frog->fr_grid_square = grid_square;
 
-						// push the frog ever so slightly back, to try and avoid repeated hits on the collprim
-						frog->fr_pos.vx += frog->fr_velocity.vx;
-						frog->fr_pos.vz += frog->fr_velocity.vz;
+						// Snap player position to grid tile
+						frog->fr_target_pos.vx = (frog->fr_grid_x << 8) + Grid_base_x + 0x80;
+						frog->fr_target_pos.vy = GetGridSquareHeight(grid_square);
+						frog->fr_target_pos.vz = (frog->fr_grid_z << 8) + Grid_base_z + 0x80;
+
+						// Update velocity
+						frog->fr_velocity.vx = ((frog->fr_target_pos.vx << 16) - frog->fr_pos.vx) / frog->fr_count;
+						frog->fr_velocity.vy = ((frog->fr_target_pos.vy << 16) - frog->fr_pos.vy) / frog->fr_count;
+						frog->fr_velocity.vz = ((frog->fr_target_pos.vz << 16) - frog->fr_pos.vz) / frog->fr_count;
+						crusher->cr_count = 4;
 						}
 					else
 						{
@@ -412,9 +488,32 @@ MR_VOID SwpCrusherCallback(	MR_VOID*	void_frog,
 						// push the frog ever so slightly back, to try and avoid repeated hits on the collprim
 						frog->fr_lwtrans->t[0]	+= (frog->fr_velocity.vx>>15);
 						frog->fr_lwtrans->t[2]	+= (frog->fr_velocity.vz>>15);
+						break;
 						}
 					}
 				}
+			}
+		}
+
+	// Kill frog if it has reached a deadly form
+	if ((Game_map_theme == THEME_SWP) && ((form = ENTITY_GET_FORM(entity))->fo_numformdatas != 0))
+		{
+		form_data = ((FORM_DATA**)&form->fo_formdata_ptrs)[0];
+		svec.vx = frog->fr_lwtrans->t[0] - live_entity->le_lwtrans->t[0];
+		svec.vy = frog->fr_lwtrans->t[1] - live_entity->le_lwtrans->t[1];
+		svec.vz = frog->fr_lwtrans->t[2] - live_entity->le_lwtrans->t[2];
+		MRTransposeMatrix(live_entity->le_lwtrans, &matrix);
+		MRApplyMatrix(&matrix, &svec, &vec);
+		temp = form->fo_xofs;
+		x_pos = form->fo_xofs + (form->fo_xnum << 8); 
+		z_pos = form->fo_zofs + (form->fo_znum << 8);
+		if ((vec.vx > form->fo_xofs) && (x_pos > vec.vx)
+			&& (vec.vz > form->fo_zofs) && (z_pos > vec.vz)
+			&& (vec.vy >= form_data->fd_height) && (vec.vy <= form->fo_max_y))
+			{
+			temp = form_data->fd_grid_squares[(((vec.vz - form->fo_zofs) >> 8) * form->fo_xnum) + ((vec.vx - form->fo_xofs) >> 8)];
+			if (temp & GRID_SQUARE_DEADLY)
+				FrogKill(frog, FROG_ANIMATION_SQUISHED, 0);
 			}
 		}
 }
@@ -428,12 +527,14 @@ MR_VOID SwpCrusherCallback(	MR_VOID*	void_frog,
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Create a press for the swamp level
+*	MATCH		https://decomp.me/scratch/hPxoz	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	16.06.97	Gary Richards	Created
+*	04.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -453,6 +554,7 @@ MR_VOID	ENTSTRSwpCreatePress(LIVE_ENTITY* live_entity)
 	press->pr_direction = SWAMP_PRESS_MOVING_UP;
 	press->pr_time		= press_map_data->pr_delay;
 	press->pr_action	= SWAMP_PRESS_WAITING;
+	PlayMovingSound(live_entity, SFX_SWP_MACHINE, 768, 1280);
 }
 
 
@@ -464,12 +566,14 @@ MR_VOID	ENTSTRSwpCreatePress(LIVE_ENTITY* live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	This function is used to update the swamp press entity.
+*	MATCH		https://decomp.me/scratch/89Pq4	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to update
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	16.06.97	Gary Richards	Created
+*	04.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -498,13 +602,22 @@ MR_VOID	ENTSTRSwpUpdatePress(LIVE_ENTITY*	live_entity)
 					{
 					live_entity->le_lwtrans->t[1] -= (press_map_data->pr_speed>>WORLD_SHIFT);
 					if (live_entity->le_lwtrans->t[1] < (press_map_data->pr_matrix.t[1] - press_map_data->pr_distance))
+						{
 						press->pr_direction = !press->pr_direction;
+						}
 					}
 				else
 					{
 					live_entity->le_lwtrans->t[1] += (press_map_data->pr_speed>>WORLD_SHIFT);
 					if (live_entity->le_lwtrans->t[1] > press_map_data->pr_matrix.t[1])
+						{
 						press->pr_direction = !press->pr_direction;
+						// At top play SFX.
+						if ((live_entity->le_flags & LIVE_ENTITY_CARRIES_FROG))
+					 		MRSNDPlaySound(SFX_SWP_FROG_CRUSH, NULL, 0, 0);
+						else if (DistanceToFrogger(live_entity, 0, 0) < SWP_PRESS_DISTANCE)
+							MRSNDPlaySound(SFX_SWP_CRUSHER, NULL, 0, 0);
+						}
 					}
 				break;
 			// --------------------------------------------------------------------------------------------------------
@@ -515,16 +628,20 @@ MR_VOID	ENTSTRSwpUpdatePress(LIVE_ENTITY*	live_entity)
 					if (live_entity->le_lwtrans->t[1] > (press_map_data->pr_matrix.t[1] + press_map_data->pr_distance))
 						{
 						press->pr_direction = !press->pr_direction;
-						// At top play SFX.
-						if ( DistanceToFrogger(live_entity,0,0)  < SWP_PRESS_DISTANCE)
-					 		MRSNDPlaySound(SFX_SWP_CRUSHER, NULL, 0, 0);
 						}
 					}
 				else
 					{
 					live_entity->le_lwtrans->t[1] -= (press_map_data->pr_speed>>WORLD_SHIFT);
 					if (live_entity->le_lwtrans->t[1] < press_map_data->pr_matrix.t[1])
+						{
 						press->pr_direction = !press->pr_direction;
+						// At bottom play SFX.
+						if ((live_entity->le_flags & LIVE_ENTITY_CARRIES_FROG))
+					 		MRSNDPlaySound(SFX_SWP_FROG_CRUSH, NULL, 0, 0);
+						else if (DistanceToFrogger(live_entity, 0, 0) < SWP_PRESS_DISTANCE)
+							MRSNDPlaySound(SFX_SWP_CRUSHER, NULL, 0, 0);
+						}
 					}
 				break;
 			// --------------------------------------------------------------------------------------------------------
@@ -566,7 +683,9 @@ MR_LONG		script_swp_snail[] =
 	{
 	ENTSCR_SETLOOP,
 		ENTSCR_PLAY_MOVING_SOUND,		SFX_SWP_SNAIL_MOVE,		
-										ENTSCR_NO_REGISTERS,		512,		1024,
+										ENTSCR_NO_REGISTERS,		1024,		1536,
+		ENTSCR_SET_TIMER,				ENTSCR_NO_REGISTERS,		0,						// set time to zero
+		ENTSCR_WAIT_UNTIL_TIMER,		ENTSCR_NO_REGISTERS,		20,						// wait until delay
 	ENTSCR_ENDLOOP,
 	ENTSCR_RESTART																												
 	};
@@ -733,17 +852,36 @@ MR_LONG		script_swp_stat_pipe_hole[] =
 
 MR_LONG		script_swp_water_noise[] = 
 	{								// SFX				
-	ENTSCR_PREPARE_REGISTERS,		sizeof(MR_MAT),			1,
-
-	ENTSCR_SET_TIMER,				ENTSCR_NO_REGISTERS,	0,						// set time to zero
-	ENTSCR_WAIT_UNTIL_TIMER,		ENTSCR_REGISTERS,		ENTSCR_REGISTER_0,		// wait until mappy entered delay
+	ENTSCR_PREPARE_REGISTERS,		sizeof(MR_MAT),			2,
 
 	ENTSCR_SETLOOP,
 	ENTSCR_PLAY_MOVING_SOUND,		SFX_SWP_STAT_FLUME,		// 	MIN		MAX.
-									ENTSCR_NO_REGISTERS,		1536, 	2560,
+									ENTSCR_REGISTERS,		ENTSCR_REGISTER_0,	ENTSCR_REGISTER_1,	// wait until mappy entered delay
 
-															// Min, Max	  Speed,  Range,
-	ENTSCR_PITCH_BEND_MOVING_SOUND,	ENTSCR_NO_REGISTERS,	40,		90,		3,		6,	64,
+	ENTSCR_ENDLOOP,
+	ENTSCR_RESTART,
+	};
+
+MR_LONG		script_swp_weir_noise[] = 
+	{								// SFX				
+	ENTSCR_PREPARE_REGISTERS,		sizeof(MR_MAT),			2,
+
+	ENTSCR_SETLOOP,
+	ENTSCR_PLAY_MOVING_SOUND,		SFX_SWP_STAT_WEIR,		// 	MIN				MAX.
+									ENTSCR_REGISTERS,		ENTSCR_REGISTER_0, 	ENTSCR_REGISTER_1,
+
+	ENTSCR_ENDLOOP,
+	ENTSCR_RESTART,
+	};
+
+MR_LONG		script_swp_recycle_bin_noise[] = 
+	{								// SFX				
+	ENTSCR_PREPARE_REGISTERS,		sizeof(MR_MAT),			2,
+
+	ENTSCR_SETLOOP,
+	ENTSCR_PLAY_MOVING_SOUND,		SFX_SWP_WATERNOISE,		// 	MIN				MAX.
+									ENTSCR_REGISTERS,		ENTSCR_REGISTER_0, 	ENTSCR_REGISTER_1,
+
 	ENTSCR_ENDLOOP,
 	ENTSCR_RESTART,
 	};
@@ -882,12 +1020,14 @@ MR_VOID	ENTSTRSwpCreateRat(LIVE_ENTITY* live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	This function is used to update the swamp press entity.
+*	MATCH		https://decomp.me/scratch/QJRqC	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to update
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	24.07.97	William Bell	Created
+*	04.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -898,6 +1038,7 @@ MR_VOID	ENTSTRSwpUpdateRat(LIVE_ENTITY*	live_entity)
 	ENTITY*				entity;
 	SWAMP_RT_RAT*		rat;
 	SWAMP_RAT*			rat_map_data;
+	MR_OBJECT*			sprite_ptr;
 
 	// Set up pointers
 	entity				= live_entity->le_entity;
@@ -1034,6 +1175,23 @@ MR_VOID	ENTSTRSwpUpdateRat(LIVE_ENTITY*	live_entity)
 			// Add on sin data
 			rat->ra_pos.vy -= ((rsin(rat->ra_jump2_sin_pos)*250)>>12)<<4;
 
+			// Create sprite
+			if (((rat->ra_pos.vy >> 4) >= -0xFF) & rat->ra_has_sprite == FALSE)
+				{
+				rat->ra_has_sprite = TRUE;
+				MR_INIT_MAT(&Rat_splash_matrix);
+				MR_COPY_VEC(Rat_splash_matrix.t, &rat->ra_pos);
+				Rat_splash_matrix.t[0] >>= 4;
+				Rat_splash_matrix.t[1] >>= 4;
+				Rat_splash_matrix.t[2] >>= 4;
+				sprite_ptr = MRCreate3DSprite((MR_FRAME*)&Rat_splash_matrix, MR_OBJ_STATIC, &FrogSplashAnimList);
+				sprite_ptr->ob_extra.ob_extra_sp_core->sc_flags 	|= MR_SPF_IN_XZ_PLANE;
+				sprite_ptr->ob_extra.ob_extra_sp_core->sc_ot_offset = -0x10;
+				GameAddObjectToViewports(sprite_ptr);
+				SetLiveEntityScaleColours(live_entity, 0x80, 0x80, 0x80);
+				SetLiveEntityCustomAmbient(live_entity, 0xff, 0, 0xff);
+				}
+
 			// Inc movement through sin table
 			rat->ra_jump2_sin_pos += rat->ra_jump2_sin_movement;
 
@@ -1054,6 +1212,11 @@ MR_VOID	ENTSTRSwpUpdateRat(LIVE_ENTITY*	live_entity)
 			rat->ra_pos.vy = rat_map_data->ra_start_target.vy<<4;
 			rat->ra_pos.vz = rat_map_data->ra_start_target.vz<<4;
 
+			// Reset rat colour and sprite
+			SetLiveEntityScaleColours(live_entity, 0x80, 0x80, 0x80);
+			SetLiveEntityCustomAmbient(live_entity, 0xff, 0xff, 0xff);
+			rat->ra_has_sprite = FALSE;
+
 			// Store y
 			rat->ra_prev_y = rat->ra_pos.vy;
 
@@ -1071,6 +1234,7 @@ MR_VOID	ENTSTRSwpUpdateRat(LIVE_ENTITY*	live_entity)
 	live_entity->le_lwtrans->t[2] >>= 4;
 
 }
+
 
 //------------------------------------------------------------------------------------------------
 // Swp Mutant Fish.
@@ -1162,6 +1326,8 @@ MR_VOID	ENTSTRSwpCreateSlug(LIVE_ENTITY*	live_entity)
 }
 
 
+
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% ENTSTRSwpKillSlug
 *------------------------------------------------------------------------------
@@ -1176,6 +1342,7 @@ MR_VOID	ENTSTRSwpCreateSlug(LIVE_ENTITY*	live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.08.97	William Bell	Created
+*	04.11.23	Kneesnap		Disabled as part of byte-matching PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1202,6 +1369,7 @@ MR_VOID	ENTSTRSwpKillSlug(LIVE_ENTITY*	live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.08.97	William Bell	Created
+*	04.11.23	Kneesnap		Disabled as part of byte-matching PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1212,6 +1380,7 @@ MR_VOID	ENTSTRSwpUpdateSlug(LIVE_ENTITY*	live_entity)
 	ENTSTRUpdateMovingMOF(live_entity);
 
 }
+#endif
 
 //------------------------------------------------------------------------------------------------
 MR_LONG		script_swp_pelican[] =
@@ -1238,8 +1407,49 @@ MR_VOID	ScriptCBSwpPelicanCall(LIVE_ENTITY* live_entity)
 MR_LONG	script_swp_pelican_call_sfx[] =
 	{
 	ENTSCR_PLAY_SOUND_DISTANCE,			ENTSCR_NO_REGISTERS,		30,		SFX_SWP_PELICAN_CALL,
-										ENTSCR_COORD_Z,			    128,
+										ENTSCR_COORD_Z,				128,
 	ENTSCR_RESTART,
 	};
 
+/******************************************************************************
+*%%%% ENTSTRSwpCreateWeir
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ENTSTRSwpCreateWeir(
+*						LIVE_ENTITY*	live_entity)
+*
+*	FUNCTION	Create a swamp weir as a dynamic mof
+*	MATCH		https://decomp.me/scratch/0LYr5	(By Kneesnap)
+*
+*	INPUTS		live_entity	-	to create
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	04.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
+*
+*%%%**************************************************************************/
 
+MR_VOID ENTSTRSwpCreateWeir(LIVE_ENTITY* live_entity)
+{
+	ENTITY*				entity;
+	MR_SVEC				svec;
+	SWAMP_STAT_WEIR*	weir_map_data;
+
+	entity 			= live_entity->le_entity;
+	weir_map_data   = (SWAMP_STAT_WEIR*)(entity + 1);
+
+	MR_SET_SVEC(&svec, 0, 0, SWP_WEIR_ROTATION);
+	MRRotMatrix(&svec, &weir_map_data->wr_matrix);
+	ENTSTRCreateDynamicMOF(live_entity);
+}
+
+
+MR_LONG	script_swp_weir_rotate[] =
+	{
+	ENTSCR_SET_ENTITY_TYPE,			ENTSCR_ENTITY_TYPE_MATRIX,										// set as matrix entity
+	ENTSCR_SETLOOP,
+	ENTSCR_ROTATE,					ENTSCR_COORD_X,			0x1000,	0x20,	-1,
+	ENTSCR_WAIT_UNTIL_ROTATED,
+	ENTSCR_ENDLOOP,
+	ENTSCR_RESTART,
+	};

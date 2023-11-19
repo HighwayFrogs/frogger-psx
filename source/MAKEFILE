@@ -29,7 +29,7 @@ C_OPT_WARNINGS	=	-Wunused -Wmissing-prototypes -Wuninitialized	#// Warnings for 
 CFLAGS			=	-comments-c++ -c $(C_STD_WARNINGS) -g			#// Debug build (C)
 AFLAGS			=	/z /zd /l /g /q /o s+ /o l. /o c+				#// Debug build (MIPS)
 !ELSE
-CFLAGS			=	-comments-c++ -c $(C_OPT_WARNINGS) -O3			#// Release build (C)
+CFLAGS			=	-comments-c++ -c $(C_OPT_WARNINGS) -O3 -Wa,0	#// Release build (C)
 AFLAGS			=	/z /zd /l /g /q /o s+ /o l. /o c+				#// Release build (MIPS)
 !ENDIF
 

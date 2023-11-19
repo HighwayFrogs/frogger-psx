@@ -180,11 +180,11 @@ MR_PGEN_INIT	PGIN_hilite_fire =
 		Hilite_fire_move,						// Update routine
 		Hilite_fire_disp,						// Display routine
 		-(1 << 16),								// Gravity (16:16)
-		50,										// Max particles at any time
+		40,										// Max particles at any time
 		-1,										// Generator lifetime (-1 => Infinite)
-		15, 									// Min lifetime
-		25,										// Max lifetime
-		(80 << 10),								// User Data 1 (scale value)
+		10, 									// Min lifetime
+		20,										// Max lifetime
+		(70 << 10),								// User Data 1 (scale value)
 		(MR_ULONG)&im_frog_smoke1,				// User Data 2 (image)
 		};
 
@@ -225,49 +225,49 @@ MR_SVEC	Explosion_offsets_octagon[] =
 		{-0x05a8,	-0x05a8,	0},
 	};
 
-MR_SVEC	Shield_offsets_octagon[] =
-	{
-		// Outer
-		{ 0x0000,	-0x1000,	0},
-		{ 0x0b50,	-0x0b50,	0},
-		{ 0x1000,	 0x0000,	0},
-		{ 0x0b50,	 0x0b50,	0},
-		{ 0x0000,	 0x1000,	0},
-		{-0x0b50,	 0x0b50,	0},
-		{-0x1000,	 0x0000,	0},
-		{-0x0b50,	-0x0b50,	0},
-
-		// Middle
-		{ 0x0000,	-0x0c00,	0},
-		{ 0x087c,	-0x087c,	0},
-		{ 0x0c00,	 0x0000,	0},
-		{ 0x087c,	 0x087c,	0},
-		{ 0x0000,	 0x0c00,	0},
-		{-0x087c,	 0x087c,	0},
-		{-0x0c00,	 0x0000,	0},
-		{-0x087c,	-0x087c,	0},
-
-		// Inner
-		{ 0x0000,	-0x0800,	0},
-		{ 0x05a8,	-0x05a8,	0},
-		{ 0x0800, 	 0x0000,	0},
-		{ 0x05a8,	 0x05a8,	0},
-		{ 0x0000,	 0x0800,	0},
-		{-0x05a8,	 0x05a8,	0},
-		{-0x0800,	 0x0000,	0},
-		{-0x05a8,	-0x05a8,	0},
-	};
+//MR_SVEC	Shield_offsets_octagon[] =
+//	{
+//		// Outer
+//		{ 0x0000,	-0x1000,	0},
+//		{ 0x0b50,	-0x0b50,	0},
+//		{ 0x1000,	 0x0000,	0},
+//		{ 0x0b50,	 0x0b50,	0},
+//		{ 0x0000,	 0x1000,	0},
+//		{-0x0b50,	 0x0b50,	0},
+//		{-0x1000,	 0x0000,	0},
+//		{-0x0b50,	-0x0b50,	0},
+//
+//		// Middle
+//		{ 0x0000,	-0x0c00,	0},
+//		{ 0x087c,	-0x087c,	0},
+//		{ 0x0c00,	 0x0000,	0},
+//		{ 0x087c,	 0x087c,	0},
+//		{ 0x0000,	 0x0c00,	0},
+//		{-0x087c,	 0x087c,	0},
+//		{-0x0c00,	 0x0000,	0},
+//		{-0x087c,	-0x087c,	0},
+//
+//		// Inner
+//		{ 0x0000,	-0x0800,	0},
+//		{ 0x05a8,	-0x05a8,	0},
+//		{ 0x0800, 	 0x0000,	0},
+//		{ 0x05a8,	 0x05a8,	0},
+//		{ 0x0000,	 0x0800,	0},
+//		{-0x05a8,	 0x05a8,	0},
+//		{-0x0800,	 0x0000,	0},
+//		{-0x05a8,	-0x05a8,	0},
+//	};
 
 	
 //----------------------------------------
 // Other
 //----------------------------------------
 
-MR_SHORT	Explosion_poly_offsets_octagon[] =
-	{
-	1, 1, 1, 1, 1, 1, 1, -7, 
-	1, 1, 1, 1, 1, 1, 1, 0
-	};
+//MR_SHORT	Explosion_poly_offsets_octagon[] =
+//	{
+//	1, 1, 1, 1, 1, 1, 1, -7, 
+//	1, 1, 1, 1, 1, 1, 1, 0
+//	};
 
 MR_MAT		Explosion_matrix = 
 	{
@@ -275,59 +275,59 @@ MR_MAT		Explosion_matrix =
 		{0, 0, SYSTEM_PERSPECTIVE},
 	};
 
-MR_ULONG	Shield_vertex_rgbs[] =
-	{
-	0x0000e0,
-	0x0010d0,
-	0x0020c0,
-	0x0030b0,
-	0x0040a0,
-	0x005090,
-	0x006080,
-	0x007070,
-	0x007070,
-	0x008060,
-	0x009050,
-	0x00a040,
-	0x00b030,
-	0x00c020,
-	0x00d010,
-	0x00e000,
-
-	0x00e000,
-	0x10d000,
-	0x20c000,
-	0x30b000,
-	0x40a000,
-	0x509000,
-	0x608000,
-	0x707000,
-	0x707000,
-	0x806000,
-	0x905000,
-	0xa04000,
-	0xb03000,
-	0xc02000,
-	0xd01000,
-	0xe00000,
-
-	0xe00000,
-	0xd00010,
-	0xc00020,
-	0xb00030,
-	0xa00040,
-	0x900050,
-	0x800060,
-	0x700070,
-	0x700070,
-	0x600080,
-	0x500090,
-	0x4000a0,
-	0x3000b0,
-	0x2000c0,
-	0x1000d0,
-	0x0000e0,
-	};
+//MR_ULONG	Shield_vertex_rgbs[] =
+//	{
+//	0x0000e0,
+//	0x0010d0,
+//	0x0020c0,
+//	0x0030b0,
+//	0x0040a0,
+//	0x005090,
+//	0x006080,
+//	0x007070,
+//	0x007070,
+//	0x008060,
+//	0x009050,
+//	0x00a040,
+//	0x00b030,
+//	0x00c020,
+//	0x00d010,
+//	0x00e000,
+//
+//	0x00e000,
+//	0x10d000,
+//	0x20c000,
+//	0x30b000,
+//	0x40a000,
+//	0x509000,
+//	0x608000,
+//	0x707000,
+//	0x707000,
+//	0x806000,
+//	0x905000,
+//	0xa04000,
+//	0xb03000,
+//	0xc02000,
+//	0xd01000,
+//	0xe00000,
+//
+//	0xe00000,
+//	0xd00010,
+//	0xc00020,
+//	0xb00030,
+//	0xa00040,
+//	0x900050,
+//	0x800060,
+//	0x700070,
+//	0x700070,
+//	0x600080,
+//	0x500090,
+//	0x4000a0,
+//	0x3000b0,
+//	0x2000c0,
+//	0x1000d0,
+//	0x0000e0,
+//	};
 
 MR_PGEN_INIT	PGIN_frog_slip_effect =	
 		{
@@ -483,6 +483,7 @@ MR_VOID	Pickup_prim_init(MR_PGEN_INST* pgeninst)
 }
 
 //------------------------------------------------------------------------------------------------
+// Match: https://decomp.me/scratch/nshT1 (By Kneesnap, 12-11-23)
 MR_VOID	Pickup_move(MR_OBJECT* object)
 {
 	MR_PGEN*			pgen;
@@ -492,7 +493,7 @@ MR_VOID	Pickup_move(MR_OBJECT* object)
 	pgen 		= object->ob_extra.ob_extra_pgen;
 	geom_ptr	= pgen->pg_particle_info;
 
-	if (!(Game_timer & 0x1))
+	if (!MRFrame_index)
 		{
 		// Increase pickup image animlist
 		geom_ptr->pt_lifetime++;
@@ -564,23 +565,18 @@ MR_VOID	Pickup_disp(MR_PGEN_INST* pgeninst, MR_VIEWPORT* viewport)
 	
 	if ((otz > 0) && (otz < MRVp_ot_size))	
 		{
-#ifndef BUILD_49
 		// Glow
 		gte_stsxy(&sxy);
 		
 		// Only try to render if abs(y) < 768
 		if (abs(sxy.y) < 0x300)
 			{
-#endif
 			// If half size viewports, halve size of sprites
 			if (Game_total_viewports > 2)
 				shift = 9;
 			else
 				shift = 8;
-#ifdef BUILD_49
-			// Glow
-			gte_stsxy(&sxy);
-#endif
+
 			glow_mag 	= (rsin(geom_ptr->pt_lifetime) + 0x3800) << 3;
 			xofs 		= ((glow_texture->te_w * glow_mag) / otz) >> shift;
 			yofs 		= ((glow_texture->te_h * glow_mag) / otz) >> shift;
@@ -610,9 +606,7 @@ MR_VOID	Pickup_disp(MR_PGEN_INST* pgeninst, MR_VIEWPORT* viewport)
 #endif
 			MR_COPY16(poly_ptr->u2, image_texture->te_u2);
 			MR_COPY16(poly_ptr->u3, image_texture->te_u3);
-#ifndef BUILD_49
 			}
-#endif
 		}
 }
 
@@ -672,6 +666,8 @@ MR_VOID	Particle_ft4_prim_list_init(MR_PGEN_INST* pgeninst)
 
 
 //------------------------------------------------------------------------------------------------
+//	12.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 MR_VOID	Particle_2D_move(MR_OBJECT* object)
 {
 	MR_PGEN*			pgen		= object->ob_extra.ob_extra_pgen;
@@ -725,6 +721,7 @@ MR_VOID	Particle_2D_move(MR_OBJECT* object)
 		object->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY;
 		}
 }
+#endif
 //------------------------------------------------------------------------------------------------
 MR_VOID	Particle_no_geometry_move(MR_OBJECT* object)
 {
@@ -1075,6 +1072,8 @@ MR_VOID	Frog_pop_explosion_disp(MR_PGEN_INST* pgeninst, MR_VIEWPORT* viewport)
 }
 
 //------------------------------------------------------------------------------------------------
+#ifdef INCLUDE_UNUSED_FUNCTIONS
+//	12.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 MR_VOID	Player_shield_prim_init(MR_PGEN_INST* pgeninst)
 {
 	POLY_G4*	poly_ptr;
@@ -1102,6 +1101,7 @@ MR_VOID	Player_shield_prim_init(MR_PGEN_INST* pgeninst)
 			}
 		}
 }
+#endif
 
 //------------------------------------------------------------------------------------------------
 MR_VOID	Player_shield_disp(MR_PGEN_INST* pgeninst, MR_VIEWPORT* viewport)
@@ -2391,12 +2391,14 @@ MR_VOID	For_swarm_disp(MR_PGEN_INST* pgeninst, MR_VIEWPORT* viewport)
 *						MR_OBJECT*		object)
 *
 *	FUNCTION	add to fire particle system
+*	MATCH		https://decomp.me/scratch/RHxFs	(By Kneesnap)
 *
 *	INPUTS		object			-	ptr to object to add to
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	27.08.97	Martin Kift		Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2405,6 +2407,8 @@ MR_VOID	Hilite_fire_add(MR_OBJECT* object)
 	MR_PGEN*			pgen;
 	MR_PTYPE_2D_GEOM* 	part_ptr;
 	ENTITY_SPECIAL*		entity_special;
+	MR_SVEC				svec;
+	MR_VEC				vec;
 
 	pgen			= object->ob_extra.ob_extra_pgen;
 	entity_special	= (ENTITY_SPECIAL*)pgen->pg_owner;
@@ -2425,9 +2429,12 @@ MR_VOID	Hilite_fire_add(MR_OBJECT* object)
 	part_ptr->pt_velocity.vx = ((rand() & 0xf) - 8) << 16;
 	part_ptr->pt_velocity.vy = ((rand() & 0xf) - 8) << 16;
 	part_ptr->pt_velocity.vz = ((rand() & 0xf) - 8) << 16;
-	part_ptr->pt_position.vx = entity_special->es_lwtrans.t[0] << 16;
-	part_ptr->pt_position.vy = entity_special->es_lwtrans.t[1] << 16;
-	part_ptr->pt_position.vz = entity_special->es_lwtrans.t[2] << 16;
+
+	MR_SET_SVEC(&svec, 0, 0, -100);
+	MRApplyMatrix(&entity_special->es_lwtrans, &svec, &vec);
+	part_ptr->pt_position.vx = (entity_special->es_lwtrans.t[0] + vec.vx) << 16;
+	part_ptr->pt_position.vy = (entity_special->es_lwtrans.t[1] + vec.vy) << 16;
+	part_ptr->pt_position.vz = (entity_special->es_lwtrans.t[2] + vec.vz) << 16;
 }
 
 
@@ -2439,12 +2446,14 @@ MR_VOID	Hilite_fire_add(MR_OBJECT* object)
 *						MR_OBJECT*		object)
 *
 *	FUNCTION	move fire particle system
+*	MATCH		https://decomp.me/scratch/Hu5KM	(By Kneesnap)
 *
 *	INPUTS		object			-	ptr to object to add to
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	27.08.97	Martin Kift		Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2460,8 +2469,7 @@ MR_VOID	Hilite_fire_move(MR_OBJECT* object)
 	loop		= pgen->pg_max_particles;
 	frog		= pgen->pg_owner;
 
-	if (rand() & 1)
-		Hilite_fire_add(object);
+	Hilite_fire_add(object);
 
 	// Loop through all active particles for this generator
 	while(loop--)
@@ -2475,6 +2483,10 @@ MR_VOID	Hilite_fire_move(MR_OBJECT* object)
 			geom_ptr->pt_position.vx += geom_ptr->pt_velocity.vx;	
 			geom_ptr->pt_position.vy += geom_ptr->pt_velocity.vy;	
 			geom_ptr->pt_position.vz += geom_ptr->pt_velocity.vz;	
+			if (geom_ptr->pt_user >= 2)
+				geom_ptr->pt_user--;
+			else
+				geom_ptr->pt_user = 0;
 			}
 		geom_ptr++;	
 		}
@@ -2490,6 +2502,7 @@ MR_VOID	Hilite_fire_move(MR_OBJECT* object)
 *						MR_VIEWPORT*	viewport)
 *
 *	FUNCTION	Display fire particle system
+*	MATCH		https://decomp.me/scratch/VMnlq	(By Kneesnap)
 *
 *	INPUTS		pgeninst		-	ptr to particle generator
 *				viewport		-	ptr to viewport
@@ -2497,6 +2510,7 @@ MR_VOID	Hilite_fire_move(MR_OBJECT* object)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	27.08.97	Martin Kift		Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2566,13 +2580,9 @@ MR_VOID	Hilite_fire_disp(	MR_PGEN_INST*	pgeninst,
 					poly_ptr->y1 = poly_ptr->y0 = sxy.y - yofs;
 					poly_ptr->y2 = poly_ptr->y3 = sxy.y + yofs;
 
-					if (geom_ptr->pt_user > 2)
-						geom_ptr->pt_user -= 4;
-					else
-						geom_ptr->pt_user = 0;
-					poly_ptr->r0	= 255;
-					poly_ptr->g0	= MIN(255, geom_ptr->pt_user);
+					poly_ptr->g0	= MIN(255, geom_ptr->pt_user << 1);
 					poly_ptr->b0	= 0;
+					poly_ptr->r0	= 255;
 					addPrim(MRVp_work_ot + otz, poly_ptr);
 					}
 				}				
@@ -2594,7 +2604,7 @@ MR_VOID	Gold_frog_glow_prim_init(MR_PGEN_INST* pgeninst)
 
 	while (loop--)
 		{
-		MR_SET32(poly_ptr->r0, 0x20aaaa);
+		MR_SET32(poly_ptr->r0, 0xaaaaa);
 		setPolyFT4(poly_ptr);
 		setSemiTrans(poly_ptr, 1);
 	#ifdef PSX
@@ -2626,18 +2636,18 @@ MR_VOID	Gold_frog_glow_move(MR_OBJECT* object)
 }
 
 //------------------------------------------------------------------------------------------------
+// Match: https://decomp.me/scratch/j0aOH, By Kneesnap, 12-11-23
 MR_VOID	Gold_frog_glow_disp(MR_PGEN_INST* pgeninst, MR_VIEWPORT* viewport)
 {
 	MR_SVEC				svec;
 	MR_PGEN*			pgen;
 	MR_PTYPE_2D_GEOM*	geom_ptr;
 	POLY_FT4*			poly_ptr;
-	MR_TEXTURE*			glow_texture;
 	MR_LONG				glow_mag;
 	MR_XY				sxy;
 	MR_SHORT			xofs;
 	MR_SHORT			yofs;
-	MR_LONG				otz, shift;
+	MR_LONG				otz;
 	MR_MAT*				lwtrans;
 #ifdef WIN95
 	MR_LONG				z;
@@ -2660,7 +2670,6 @@ MR_VOID	Gold_frog_glow_disp(MR_PGEN_INST* pgeninst, MR_VIEWPORT* viewport)
 	gte_SetTransMatrix(MRViewtrans_ptr);
 	
 	poly_ptr 		= (POLY_FT4*)pgeninst->pi_particle_prims[MRFrame_index]; 
-	glow_texture	= &im_tongue_tip;
 	geom_ptr 		= (MR_PTYPE_2D_GEOM*)pgen->pg_particle_info;
 
 	if (pgeninst->pi_object->ob_flags & MR_OBJ_STATIC)
@@ -2679,26 +2688,28 @@ MR_VOID	Gold_frog_glow_disp(MR_PGEN_INST* pgeninst, MR_VIEWPORT* viewport)
 	
 	if ((otz > 0) && (otz < MRVp_ot_size))	
 		{
-#ifndef BUILD_49			
 		// Glow
 		gte_stsxy(&sxy);	
 
 		// Only try to render if abs(y) < 768
 		if (abs(sxy.y) < 0x300)
 			{
-#endif
+			glow_mag 	= (rsin(geom_ptr->pt_lifetime) + 0x3800) << 3;
+				
 			// If half size viewports, halve size of sprites
 			if (Game_total_viewports > 2)
-				shift = 9;
+				{
+				xofs 		= ((im_tongue_tip.te_w * glow_mag) / otz) >> 9;
+				yofs 		= ((im_tongue_tip.te_h * glow_mag) / otz) >> 9;
+				}
 			else
-				shift = 8;
-#ifdef BUILD_49
-			// Glow
-			gte_stsxy(&sxy);
-#endif
-			glow_mag 	= (rsin(geom_ptr->pt_lifetime) + 0x3800) << 4;
-			xofs 		= ((glow_texture->te_w * glow_mag) / otz) >> shift;
-			yofs 		= ((glow_texture->te_h * glow_mag) / otz) >> shift;
+				{
+				xofs 		= ((im_tongue_tip.te_w * glow_mag) / otz) >> 8;
+				yofs 		= ((im_tongue_tip.te_h * glow_mag) / otz) >> 8;
+				}
+
+			
+			
 			poly_ptr->x2 = poly_ptr->x0 = sxy.x - xofs;
 			poly_ptr->x3 = poly_ptr->x1 = sxy.x + xofs;
 			poly_ptr->y1 = poly_ptr->y0 = sxy.y - yofs;
@@ -2708,9 +2719,7 @@ MR_VOID	Gold_frog_glow_disp(MR_PGEN_INST* pgeninst, MR_VIEWPORT* viewport)
 			poly_ptr->z0 = poly_ptr->z1 = poly_ptr->z2 = poly_ptr->z3 = otz;
 #endif
 			addPrim(MRVp_work_ot + otz, poly_ptr);
-#ifndef BUILD_49
 			}
-#endif
 		}
 }
 

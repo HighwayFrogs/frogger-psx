@@ -31,6 +31,7 @@ typedef struct __swamp_rt_press			SWAMP_RT_PRESS;
 typedef struct __swamp_rat				SWAMP_RAT;
 typedef struct __swamp_rt_rat			SWAMP_RT_RAT;
 typedef struct __swamp_slug				SWAMP_SLUG;
+typedef struct __swamp_stat_weir		SWAMP_STAT_WEIR;
 
 enum	{
 		// Actions for slug
@@ -82,8 +83,9 @@ enum {
 	SWAMP_PRESS_CRUSHING,
 	};
 
-#define	SWP_PRESS_DISTANCE	 (1024)
+#define	SWP_PRESS_DISTANCE	 (1536)
 #define	SWP_SQUIRT_DISTANCE  (1536)
+#define SWP_WEIR_ROTATION	 (1024)
 
 enum	{
 		SWAMP_RAT_MODE_INIT_FIRST_JUMP,
@@ -136,7 +138,7 @@ struct __swamp_rt_crusher
 	MR_USHORT	cr_direction;		// Curr direction
 	MR_USHORT	cr_time;			// Curr time
 	MR_USHORT	cr_action;			// Curr acion
-	MR_USHORT	cr_pad;				// pad
+	MR_USHORT	cr_count;			// Curr count
 	};	// SWAMP_RT_CRUSHER
 
 struct __swamp_press
@@ -193,6 +195,7 @@ struct __swamp_rt_rat
 	MR_VEC		ra_jump2_vel;
 
 	MR_VEC		ra_pos;
+	MR_BOOL		ra_has_sprite;
 
 	};	// SWAMP_RT_RAT
 
@@ -201,6 +204,11 @@ struct	__swamp_slug
 	PATH_INFO		sl_path_info;
 	MR_ULONG		sl_motion_type;
 	};	// swamp_slug
+	
+struct	__swamp_stat_weir
+	{
+	MR_MAT			wr_matrix;
+	}; // swamp_stat_weir
 
 //-----------------------------------------------------------------------------
 //	Macros
@@ -222,6 +230,8 @@ extern	MR_LONG		script_swp_stat_pipe[];
 extern	MR_LONG		script_swp_stat_pipe_big_str[]; 
 extern	MR_LONG		script_swp_stat_pipe_hole[]; 
 extern	MR_LONG		script_swp_water_noise[];
+extern	MR_LONG		script_swp_weir_noise[];
+extern	MR_LONG		script_swp_recycle_bin_noise[];
 extern	MR_LONG		script_swp_rat[];
 extern	MR_LONG		script_swp_rat_sfx[];
 extern	MR_LONG		script_swp_mutant_fish[];
@@ -229,6 +239,7 @@ extern	MR_LONG		script_swp_raccoon[];
 extern	MR_LONG		script_swp_snail[];
 extern	MR_LONG		script_swp_pelican[];
 extern	MR_LONG		script_swp_pelican_call_sfx[];
+extern	MR_LONG		script_swp_weir_rotate[];
 
 //-----------------------------------------------------------------------------
 //	Prototypes
@@ -256,5 +267,6 @@ extern	MR_VOID		SwpCrusherCallback(MR_VOID*, MR_VOID*, MR_VOID*);
 extern	MR_VOID		ENTSTRSwpCreateSlug(LIVE_ENTITY*);
 extern	MR_VOID		ENTSTRSwpUpdateSlug(LIVE_ENTITY*);
 extern	MR_VOID		ENTSTRSwpKillSlug(LIVE_ENTITY*);
+extern	MR_VOID		ENTSTRSwpCreateWeir(LIVE_ENTITY* live_entity);
 
 #endif	//__ENT_SWP_H

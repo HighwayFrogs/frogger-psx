@@ -135,12 +135,12 @@ MR_LONG			Port_id;
 // DMA:	At the moment the hiscore text area is faked up. Once you've put a place for the top 3 names/times/scores into the
 //		SEL_LEVEL_INFO structure (or your equivalent somewhere else in your code) then you'll need to modify the calls to
 //		MRBuildText() later on.
-MR_STRPTR		Sel_hiscore_text[3][21]	=
+MR_STRPTR		Sel_hiscore_text[3][25]	=
 				{//	  0123456789012345678901
 //					{"%jc   DMA 32345678   ", NULL},	// race score is centred as here
-					{"%jcDMA  1:11 12345678", NULL},	// arcade score is centred as here
-					{"%jcDMA  1:11 22345678", NULL},
-					{"%jcDMA  1:11 32345678", NULL},
+					{"%jc1.DMA 0000000000:00s  ", NULL},	// arcade score is centred as here
+					{"%jc2.DMA  1:11 22345678  ", NULL},
+					{"%jc3.DMA  1:11 32345678  ", NULL},
 				};
 
 SEL_LEVEL_INFO*	Sel_spin_backup_ptr;										// So we can re-enable level mof after spin
@@ -265,7 +265,7 @@ SEL_LEVEL_INFO	Sel_arcade_levels[] =										// List of levels for arcade mode
 					},
 
 					// ------------------------------------------------------------------------------------------------
-					// Industrial/Volcano levels: 1, 2, 3
+					// Industrial/Volcano levels: 1, 3, 2
 
   					// VOLCANO 1
 					{	
@@ -276,22 +276,22 @@ SEL_LEVEL_INFO	Sel_arcade_levels[] =										// List of levels for arcade mode
 					&im_vol1name,											// IN GAME level name bitmap
 					},
 
-  					// VOLCANO 2
-					{	
-					LEVEL_VOLCANO2,	SEL_WORLD_ID_VOLCANO,3,THEME_VOL,					// Library ID
-					SEL_ARCADE_LEVEL_2_ID, SEL_VOLCANO_ARC_LEVELS,			// Number of level in world, and level count in world		
-					&im_vol_col, &im_vol_grey,	&im_vol_grey,				// Selectable, visited, and not-tried world images (30x30x256)
-					&im_vol2pic, &im_vol2name,								// Level representation and Level name bitmaps
-					&im_vol2name,											// IN GAME level name bitmap
-					},
-
   					// VOLCANO 3
 					{	
-					LEVEL_VOLCANO3, SEL_WORLD_ID_VOLCANO,3,THEME_VOL,					// Library ID
-					SEL_ARCADE_LEVEL_3_ID, SEL_VOLCANO_ARC_LEVELS,			// Number of level in world, and level count in world		
+					LEVEL_VOLCANO3,	SEL_WORLD_ID_VOLCANO,3,THEME_VOL,					// Library ID
+					SEL_ARCADE_LEVEL_2_ID, SEL_VOLCANO_ARC_LEVELS,			// Number of level in world, and level count in world		
 					&im_vol_col, &im_vol_grey,	&im_vol_grey,				// Selectable, visited, and not-tried world images (30x30x256)
 					&im_vol3pic, &im_vol3name,								// Level representation and Level name bitmaps
 					&im_vol3name,											// IN GAME level name bitmap
+					},
+
+  					// VOLCANO 2
+					{	
+					LEVEL_VOLCANO2, SEL_WORLD_ID_VOLCANO,3,THEME_VOL,					// Library ID
+					SEL_ARCADE_LEVEL_3_ID, SEL_VOLCANO_ARC_LEVELS,			// Number of level in world, and level count in world		
+					&im_vol_col, &im_vol_grey,	&im_vol_grey,				// Selectable, visited, and not-tried world images (30x30x256)
+					&im_vol2pic, &im_vol2name,								// Level representation and Level name bitmaps
+					&im_vol2name,											// IN GAME level name bitmap
 					},
 
 					// ------------------------------------------------------------------------------------------------
@@ -325,7 +325,7 @@ SEL_LEVEL_INFO	Sel_arcade_levels[] =										// List of levels for arcade mode
 					},
 
 					// ------------------------------------------------------------------------------------------------
-					// Sky levels: 1, 2, 3, 4
+					// Sky levels: 1, 3, 4, 2
 
   					// SKY 1
 					{	
@@ -336,16 +336,16 @@ SEL_LEVEL_INFO	Sel_arcade_levels[] =										// List of levels for arcade mode
 					&im_sky1name,											// IN GAME level name bitmap
 					},
 
-  					// SKY 2
+  					// SKY 3
 					{	
-					LEVEL_SKY2, SEL_WORLD_ID_SKY,5,THEME_SKY,							// Library ID
+					LEVEL_SKY3,	SEL_WORLD_ID_SKY,5,THEME_SKY,							// Library ID
 					SEL_ARCADE_LEVEL_2_ID, SEL_SKY_ARC_LEVELS, 				// Number of level in world, and level count in world		
 					&im_sky_col, &im_sky_grey,	&im_sky_grey,				// Selectable, visited, and not-tried world images (30x30x256)
-					&im_sky2pic, &im_sky2name,								// Level representation and Level name bitmaps
-					&im_sky2name,											// IN GAME level name bitmap
+					&im_sky3pic, &im_sky3name,								// Level representation and Level name bitmaps
+					&im_sky3name,											// IN GAME level name bitmap
 					},
 
-  					// SKY 3
+  					// SKY 4
 					{	
 					LEVEL_SKY4,	SEL_WORLD_ID_SKY,5,THEME_SKY,							// Library ID
 					SEL_ARCADE_LEVEL_3_ID, SEL_SKY_ARC_LEVELS, 				// Number of level in world, and level count in world		
@@ -354,17 +354,17 @@ SEL_LEVEL_INFO	Sel_arcade_levels[] =										// List of levels for arcade mode
 					&im_sky4name,											// IN GAME level name bitmap
 					},
 
-  					// SKY 4
+					// SKY 2
 					{	
-					LEVEL_SKY3,	SEL_WORLD_ID_SKY,5,THEME_SKY,							// Library ID
+					LEVEL_SKY2, SEL_WORLD_ID_SKY,5,THEME_SKY,							// Library ID
 					SEL_ARCADE_LEVEL_4_ID, SEL_SKY_ARC_LEVELS, 				// Number of level in world, and level count in world		
 					&im_sky_col, &im_sky_grey,	&im_sky_grey,				// Selectable, visited, and not-tried world images (30x30x256)
-					&im_sky3pic, &im_sky3name,								// Level representation and Level name bitmaps
-					&im_sky3name,											// IN GAME level name bitmap
+					&im_sky2pic, &im_sky2name,								// Level representation and Level name bitmaps
+					&im_sky2name,											// IN GAME level name bitmap
 					},
 
 					// ------------------------------------------------------------------------------------------------
-					// Swamp levels: 1, 3, 4, 5, 2
+					// Swamp levels: 1, 4, 3, 2, 5
 
   					// SWAMP 1
 					{	
@@ -375,22 +375,22 @@ SEL_LEVEL_INFO	Sel_arcade_levels[] =										// List of levels for arcade mode
 					&im_swp1name,											// IN GAME level name bitmap
 					},
 
-  					// SWAMP 3
-					{	
-					LEVEL_SWAMP3, SEL_WORLD_ID_SWAMP,6,THEME_SWP,						// Library ID
-					SEL_ARCADE_LEVEL_2_ID, SEL_SWAMP_ARC_LEVELS,			// Number of level in world, and level count in world		
-					&im_swp_col, &im_swp_grey,	&im_swp_grey,				// Selectable, visited, and not-tried world images (30x30x256)
-					&im_swp3pic, &im_swp3name,								// Level representation and Level name bitmaps
-					&im_swp3name,											// IN GAME level name bitmap
-					},
-
   					// SWAMP 4
 					{	
 					LEVEL_SWAMP4, SEL_WORLD_ID_SWAMP,6,THEME_SWP,						// Library ID
-					SEL_ARCADE_LEVEL_3_ID, SEL_SWAMP_ARC_LEVELS, 			// Number of level in world, and level count in world		
+					SEL_ARCADE_LEVEL_2_ID, SEL_SWAMP_ARC_LEVELS,			// Number of level in world, and level count in world		
 					&im_swp_col, &im_swp_grey,	&im_swp_grey,				// Selectable, visited, and not-tried world images (30x30x256)
 					&im_swp4pic, &im_swp4name,								// Level representation and Level name bitmaps
 					&im_swp4name,											// IN GAME level name bitmap
+					},
+
+  					// SWAMP 3
+					{	
+					LEVEL_SWAMP3, SEL_WORLD_ID_SWAMP,6,THEME_SWP,						// Library ID
+					SEL_ARCADE_LEVEL_3_ID, SEL_SWAMP_ARC_LEVELS, 			// Number of level in world, and level count in world		
+					&im_swp_col, &im_swp_grey,	&im_swp_grey,				// Selectable, visited, and not-tried world images (30x30x256)
+					&im_swp3pic, &im_swp3name,								// Level representation and Level name bitmaps
+					&im_swp3name,											// IN GAME level name bitmap
 					},
 
   					// SWAMP 2
@@ -744,6 +744,7 @@ MR_VOID	SelectSetLevelFlags(MR_LONG sl_game_map, MR_ULONG sl_flags)
 *									MR_LONG		gl_game_map);
 *
 *	FUNCTION	A mechanism for reading a levels selection flags 
+*	MATCH		https://decomp.me/scratch/IdCV9	(By Kneesnap)
 *
 *	INPUTS		gl_game_map	-	Library ID of the level to read selection
 *								flags for (must exist in level stack!)
@@ -753,6 +754,7 @@ MR_VOID	SelectSetLevelFlags(MR_LONG sl_game_map, MR_ULONG sl_flags)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.07.97	Dean Ashton		Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -783,6 +785,20 @@ MR_ULONG	SelectGetLevelFlags(MR_LONG gl_game_map)
 			return(level_ptr->li_flags);
 			}
 		level_ptr++;
+		}
+
+	// The jungle levels should always return the flags from the first level in the stack, due to level replacement
+	if (gl_game_map >= LEVEL_JUNGLE1 && gl_game_map <= LEVEL_JUNGLE2)
+		{
+		level_ptr = Sel_arcade_levels;
+		while(level_ptr->li_library_id != -1)
+			{
+			if (level_ptr->li_library_id >= LEVEL_JUNGLE1 && level_ptr->li_library_id <= LEVEL_JUNGLE2)
+				{
+				return(level_ptr->li_flags);
+				}
+			level_ptr++;
+			}
 		}
 
 	// Didn't find the level in the appropriate stack.. Barf.
@@ -857,10 +873,13 @@ SEL_LEVEL_INFO*	SelectGetLevelPointer(MR_LONG gl_game_map)
 *				coordinates, that can be used for the spin-out to show the level
 *				picture/details.
 *
+*	MATCH		https://decomp.me/scratch/VnJUx	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	14.05.97	Dean Ashton		Created
 *	08.07.97	Dean Ashton		Modified yet again for bloody Kev.
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -967,6 +986,8 @@ MR_VOID	SelectLevelStartup(MR_VOID)
 	Sel_title->sp_core.sc_base_colour.r = 0x60;
 	Sel_title->sp_core.sc_base_colour.g = 0x60;
 	Sel_title->sp_core.sc_base_colour.b = 0x60;
+	if ((Option_page_current == OPTIONS_PAGE_HIGH_SCORE_VIEW) && (HSView_automatic_flag == TRUE)) 
+		Sel_title->sp_core.sc_flags |= MR_SPF_NO_DISPLAY;
 
 	// Create 2D sprite for user-prompting
 	if ( (Sel_first_time == TRUE) || (Sel_mode == SEL_MODE_RACE) )
@@ -1001,6 +1022,11 @@ MR_VOID	SelectLevelStartup(MR_VOID)
 
 #ifdef	PSX_ENABLE_XA
 #ifdef PSX
+	StopLoadingSfxLoop();
+	Sel_loading_sprite_ptr->sp_core.sc_flags |= MR_SPF_NO_DISPLAY;
+	Sel_level_title->sp_core.sc_flags |= MR_SPF_NO_DISPLAY;
+
+	
 	// Only Play Level Select Music, if actually Selecting a level.
 	if (Options_music_playing == FALSE)
 		{
@@ -1047,7 +1073,7 @@ MR_VOID	SelectLevelStartup(MR_VOID)
 	world_id = level_ptr->li_world_id;
 
 	// Loop once for each level
-	for(loop_counter=0;loop_counter<10;loop_counter++)
+	for(loop_counter=0;loop_counter<9;loop_counter++)
 		{
 		// Initialise points for golden frog texture
 		Sel_golden_frog_points[0+(loop_counter*2)].vx = level_mof_ptr->sm_verts[4].vx + SEL_STACK_X_POS;
@@ -1072,6 +1098,8 @@ MR_VOID	SelectLevelStartup(MR_VOID)
 		world_id = level_ptr->li_world_id;
 
 		}
+
+	level_mof_ptr--;
 
 	// Set bottom of last box
 	Sel_golden_frog_points[0+(loop_counter*2)].vx = level_mof_ptr->sm_verts[6].vx + SEL_STACK_X_POS;
@@ -1101,12 +1129,15 @@ MR_VOID	SelectLevelStartup(MR_VOID)
 *				release of frames, and deallocation of memory used for code
 *				generated MOFs.
 *
+*	MATCH		https://decomp.me/scratch/BmNdB	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	14.05.97	Dean Ashton		Created
 *	08.07.97	Dean Ashton		Modified again for bloody Kev.
 *	21.07.97	Gary Richards	Added code to give the API a chance to tidy Free's.
 *	20.08.97	Gary Richards	Fixed bug with Sel_camera_frame being left over.
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1198,6 +1229,8 @@ MR_VOID	SelectLevelShutdown(MR_VOID)
 		MRUpdateViewportRenderMatrices();
 		From_options = FALSE;
 		}
+
+	Main_menu_fast_camera = TRUE;
 }
 
 
@@ -1215,6 +1248,7 @@ MR_VOID	SelectLevelShutdown(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	14.05.97	Dean Ashton		Created
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1428,7 +1462,7 @@ MR_VOID	SelectLevelUpdate(MR_VOID)
 				gte_ldv0(&Sel_golden_frog_points[level_number+3]);
 				gte_rtps();
 				gte_stsxy(&Sel_golden_frog_polys[MRFrame_index][loop_counter].x3);
-				addPrim(Option_viewport_ptr->vp_work_ot,&Sel_golden_frog_polys[MRFrame_index][loop_counter]);
+				addPrim(Option_viewport_ptr->vp_work_ot + 3,&Sel_golden_frog_polys[MRFrame_index][loop_counter]);
 				}
 			}
 		}
@@ -2732,11 +2766,13 @@ MR_VOID	SelectLevelCreateBG(MR_VOID)
 *	SYNOPSIS	MR_VOID	SelectLevelUpdateBG(MR_VOID)	
 *
 *	FUNCTION	Update tiled background
+*	MATCH		https://decomp.me/scratch/UiIc1	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.06.97	Gary Richards	Created
 *	15.08.97	Tim Closs		Changed
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2746,8 +2782,13 @@ MR_VOID	SelectLevelUpdateBG(MR_VOID)
 	POLY_FT4*	poly_ft4;
 
 
-	if (++Select_bg_counter == SELECT_BG_TILE_MOVE_SPEED)
-		Select_bg_counter = 0;
+	if ((HSView_automatic_flag == FALSE))
+		{
+		if (++Select_bg_counter == SELECT_BG_TILE_MOVE_SPEED)
+    		Select_bg_counter = 0;
+		}
+	else
+		Select_bg_counter = SELECT_BG_TILE_MOVE_SPEED>>1;
 
 	if (Select_bg_direction & BG_LEFT)
 		x = (Select_bg_counter * Select_bg_xlen) / SELECT_BG_TILE_MOVE_SPEED;

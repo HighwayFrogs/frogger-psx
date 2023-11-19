@@ -818,9 +818,12 @@ CREDIT_RUNTIME_MODEL	Credits_runtime_models[CREDITS_MAX_NUM_MODELS_ON_SCREEN];
 *	FUNCTION	Initialisation code for	Credits screen.  Initialise script PC and
 *				delay count.
 *
+*	MATCH		https://decomp.me/scratch/eekPx	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -828,6 +831,9 @@ MR_VOID	CreditsStartup(MR_VOID)
 {
 
 #ifdef	PSX
+	// Stop sfx loading loop
+	StopLoadingSfxLoop();
+
 	// Kill all viewports/camera frames etc...
 	KillOptionsForStream();
 
@@ -850,6 +856,7 @@ MR_VOID	CreditsStartup(MR_VOID)
 		 
 	// Now we have to put everything back to how it was.
 	CreateOptionsAfterStream();
+	Game_flags &= ~GAME_FLAG_NO_PAUSE_ALLOWED;
 #endif
 
 }

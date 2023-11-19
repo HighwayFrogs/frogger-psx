@@ -208,12 +208,14 @@ MR_VOID	ENTSTROrgUpdateLogSnake(LIVE_ENTITY*	live_entity)
 *	SYNOPSIS	MR_VOID	ENTSTROrgCreateBabyFrog(LIVE_ENTITY* live_entity)
 *
 *	FUNCTION	Create a baby frog entity for the original map.
+*	MATCH		https://decomp.me/scratch/fmNb4	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	27.05.97	Martin Kift		Created
+*	04.11.23	Kneesnap		Byte matched to PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -222,9 +224,11 @@ MR_VOID ENTSTROrgCreateBabyFrog(LIVE_ENTITY* live_entity)
 	ORG_BABY_FROG_DATA*	frog_map_data;
 	ORG_RT_BABY_FROG*	frog;
 	ENTITY*				entity;
+	MR_SVEC				svec;
 
 	entity 			= live_entity->le_entity;
 	frog_map_data	= (ORG_BABY_FROG_DATA*)(entity + 1);
+	frog					= (ORG_RT_BABY_FROG*)live_entity->le_specific;
 
 	// DO NOT CREATE this baby frog if its a GOLD variety AND this theme has already got its
 	// gold frog
@@ -235,20 +239,41 @@ MR_VOID ENTSTROrgCreateBabyFrog(LIVE_ENTITY* live_entity)
 		{
 		// mark it as no display
 		live_entity->le_entity->en_flags |= ENTITY_NO_DISPLAY;
-		return;
 		}
 
 	// Create the entity using standard function
 	ENTSTRCreateDynamicMOF(live_entity);
 
 	// the runtime structure has already been alloced
-	frog					= (ORG_RT_BABY_FROG*)live_entity->le_specific;
 	frog->bf_entity			= NULL;
 	frog->bf_frog			= NULL;
 	frog->bf_mode			= ORG_BABY_FROG_SEARCHING;
 	frog->bf_entity_angle	= 0;
 	frog->bf_flags			= 0;
 	frog->bf_search_count	= 0;
+	frog->bf_gold_frog_glow_pgen = NULL;
+	frog->bf_gold_frog_script = NULL;
+
+	if (!(live_entity->le_entity->en_flags & ENTITY_NO_DISPLAY))
+		{
+		if (live_entity->le_flags & LIVE_ENTITY_ANIMATED)
+			((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags |= MR_ANIM_ENV_ONE_SHOT;
+		
+		if (entity->en_form_book_id == ORG_GOLD_BABY_FROG_FORM_ID)
+			{
+			MR_SET_SVEC(&svec, 0, -75, 30);
+			frog->bf_gold_frog_glow_pgen = MRCreatePgen(&PGIN_gold_frog_glow, (MR_FRAME*)live_entity->le_lwtrans, MR_OBJ_STATIC, &svec);
+			GameAddObjectToViewports(frog->bf_gold_frog_glow_pgen);
+			if (frog->bf_gold_frog_glow_pgen != NULL)
+				frog->bf_gold_frog_glow_pgen->ob_extra.ob_extra_pgen->pg_flags |= MR_PF_NO_ACTIVE_PARTS;
+			}
+		
+		if (live_entity->le_api_item0 != NULL)
+			((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_extra.ae_extra_env_flipbook->ae_object->ob_flags |= MR_OBJ_NO_DISPLAY;
+		}
+	
+	if (entity->en_form_book_id == ORG_GOLD_BABY_FROG_FORM_ID)
+		frog->bf_gold_frog_script = SetupHUDScript(HUD_script_gold_frog, 0);
 
 	// Don't do pouch if we are a gold frog
 //	if (!(entity->en_form_book_id == ORG_GOLD_BABY_FROG_FORM_ID))
@@ -264,14 +289,6 @@ MR_VOID ENTSTROrgCreateBabyFrog(LIVE_ENTITY* live_entity)
 //		MRAnimEnvSingleSetAction(live_entity->le_api_item0, ORG_BABY_FROG_COMPLETE);
 //		((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags = (MR_ANIM_ENV_DEFAULT_FLAGS|MR_ANIM_ENV_ONE_SHOT);
 //		}
-
-	// Is this animated ?
-	if ( live_entity->le_flags & LIVE_ENTITY_ANIMATED )
-		{
-		// Yes ... make all animations single shot
-		((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags |= MR_ANIM_ENV_ONE_SHOT;
-		}
-
 }
 
 /******************************************************************************
@@ -282,6 +299,8 @@ MR_VOID ENTSTROrgCreateBabyFrog(LIVE_ENTITY* live_entity)
 *
 *	FUNCTION	This function is used to update the baby frog original map
 *				entity.
+*
+*	MATCH		https://decomp.me/scratch/kWWCN	(By Kneesnap)
 *
 *	INPUTS		live_entity		- ptr to live entity
 *
@@ -299,6 +318,7 @@ MR_VOID ENTSTROrgCreateBabyFrog(LIVE_ENTITY* live_entity)
 *	27.05.97	Martin Kift		Created
 *	27.06.97	Gary Richards	Added Sound Effects.
 *	14.08.97	Gary Richards	Changed Code because this became a FlipBook.
+*	18.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -309,7 +329,7 @@ MR_VOID ENTSTROrgUpdateBabyFrog(LIVE_ENTITY* live_entity)
 	ORG_BABY_FROG_DATA*		frog_map_data;
 	MR_VEC					vec;
 	MR_ULONG				u;
-	MR_LONG					dx, dz, height;
+	MR_LONG					dx, dz, y, height;
 	MR_LONG					grid_x, grid_z;
 	FORM*					form;
 	FORM_DATA*				form_data;
@@ -374,26 +394,33 @@ MR_VOID ENTSTROrgUpdateBabyFrog(LIVE_ENTITY* live_entity)
 						form_data 	= ((FORM_DATA**)&form->fo_formdata_ptrs)[0];
 						flags		= form_data->fd_grid_squares[(frog->bf_entity_grid_z * form->fo_xnum) + frog->bf_entity_grid_x];
 						height		= form_data->fd_height;
-
-						live_entity->le_lwtrans->t[0] = frog->bf_entity->en_live_entity->le_lwtrans->t[0] + form->fo_xofs + 0x80;
-						live_entity->le_lwtrans->t[1] = height;
-						live_entity->le_lwtrans->t[2] = frog->bf_entity->en_live_entity->le_lwtrans->t[2] + form->fo_zofs + 0x80;
+						y			= (height-30) << 16;
 
 						frog->bf_mode = ORG_BABY_FROG_ON_ENTITY;
 
 						// setup positional information
 						MR_INIT_MAT(live_entity->le_lwtrans);
-						MR_SET_VEC(&frog->bf_entity_ofs, 0, height, 0);
+						MR_SET_VEC(&frog->bf_entity_ofs, 0, y, 0);
 						MRTransposeMatrix(frog->bf_entity->en_live_entity->le_lwtrans, &entity_transmatrix);
 						MRMulMatrixABC(live_entity->le_lwtrans, &entity_transmatrix, &frog->bf_entity_transform);
+
+						frog->bf_entity_ofs.vx = ((frog->bf_entity_grid_x << 8) + form->fo_xofs + 0x80) << 16;
+						frog->bf_entity_ofs.vy = y;
+						frog->bf_entity_ofs.vz = ((frog->bf_entity_grid_z << 8) + form->fo_zofs + 0x80) << 16;
+
+						// Display model
+						if (live_entity->le_api_item0 != NULL)
+							((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_extra.ae_extra_env_flipbook->ae_object->ob_flags &= ~MR_OBJ_NO_DISPLAY;
+
+						// Display glow
+						if (frog->bf_gold_frog_glow_pgen != NULL)
+							frog->bf_gold_frog_glow_pgen->ob_extra.ob_extra_pgen->pg_flags &= ~MR_PF_NO_ACTIVE_PARTS;
 
 						// Reset jump count
 						frog->bf_jump_time_count = 0;
 						}
-					}
-				else
-					{
-					frog->bf_mode = ORG_BABY_FROG_WAIT_TO_SEARCH_AGAIN;
+					else
+						frog->bf_mode = ORG_BABY_FROG_WAIT_TO_SEARCH_AGAIN;
 					}
 				}
 			break;
@@ -410,6 +437,15 @@ MR_VOID ENTSTROrgUpdateBabyFrog(LIVE_ENTITY* live_entity)
 				if (!parent_entity->en_live_entity)
 					frog->bf_mode = ORG_BABY_FROG_SEARCHING;
 				}
+			
+			// Hide model
+			if (live_entity->le_api_item0 != NULL)
+				((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_extra.ae_extra_env_flipbook->ae_object->ob_flags |= MR_OBJ_NO_DISPLAY;
+
+			// Hide glow
+			if (frog->bf_gold_frog_glow_pgen != NULL)
+				frog->bf_gold_frog_glow_pgen->ob_extra.ob_extra_pgen->pg_flags |= MR_PF_NO_ACTIVE_PARTS;
+
 			break;
 
 		//------------------------------------------------------------------------------
@@ -427,6 +463,7 @@ MR_VOID ENTSTROrgUpdateBabyFrog(LIVE_ENTITY* live_entity)
 				frog->bf_entity = NULL;
 				frog->bf_frog   = NULL;
 				frog->bf_delay	= 0;
+				frog->bf_search_count = 0;
 				break;
 				}
 
@@ -499,15 +536,16 @@ baby_frog_calc_jump:;
 				frog->bf_entity_grid_x = grid_x;
 				frog->bf_entity_grid_z = grid_z;
 
-				form_data 	= ((FORM_DATA**)&form->fo_formdata_ptrs)[0];
+				form_data	= ((FORM_DATA**)&form->fo_formdata_ptrs)[0];
 				flags		= form_data->fd_grid_squares[(frog->bf_entity_grid_z * form->fo_xnum) + frog->bf_entity_grid_x];
 				height		= form_data->fd_height;
+
 				if (flags & GRID_SQUARE_USABLE)
 					{
 					// Jump from entity to useable grid square on same entity
 					// Jump will be performed as offset in entity frame
 					frog->bf_target_pos.vx 	= (frog->bf_entity_grid_x << 8) + form->fo_xofs + 0x80;
-					frog->bf_target_pos.vy 	= height;
+					frog->bf_target_pos.vy 	= height - 30;
 					frog->bf_target_pos.vz 	= (frog->bf_entity_grid_z << 8) + form->fo_zofs + 0x80;
 					frog->bf_count			= 6;
 					}
@@ -522,6 +560,11 @@ baby_frog_calc_jump:;
 				if (!(entity->en_form_book_id == ORG_GOLD_BABY_FROG_FORM_ID))
 					{
 					LiveEntitySetAction(live_entity, ORG_BABY_FROG_HOP);
+					}
+				else
+					{
+					LiveEntitySetAction(live_entity, ORG_BABY_FROG_HOP);
+					((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags |= (MR_ANIM_ENV_STEP | MR_ANIM_ENV_ONE_SHOT);
 					}
 					
 				// update animation
@@ -632,6 +675,15 @@ baby_frog_calc_jump:;
 			// no parent, make ourselves invisible
 			if (live_entity->le_api_item0)
 				((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_extra.ae_extra_env_flipbook->ae_object->ob_flags |= MR_OBJ_NO_DISPLAY;
+			
+			// Update gold frog hud script
+			if (frog->bf_gold_frog_script != NULL)
+				{
+				if (Gold_frogs & (1<<Game_map_theme))
+					frog->bf_gold_frog_script->hi_flags &= ~HUD_ITEM_NO_UPDATE;
+		
+				UpdateHUDScript(frog->bf_gold_frog_script, 0);
+				}
 			return;
 		//------------------------------------------------------------------------------
 		default:
@@ -651,6 +703,26 @@ baby_frog_calc_jump:;
 				{
 				frog->bf_mode = ORG_BABY_FROG_NOTHING;
 				FrogCollectGoldFrog(&Frogs[0], entity);
+				LiveEntityInitPop(live_entity);
+				LiveEntityStartPolyPiecePop(live_entity);
+
+				// Kill glow effect pgen
+				if (frog->bf_gold_frog_glow_pgen != NULL)
+					{
+					frog->bf_gold_frog_glow_pgen->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY;
+					frog->bf_gold_frog_glow_pgen = NULL;
+					}
+
+
+				// Update gold frog hud script
+				if (frog->bf_gold_frog_script != NULL)
+					{
+					if (Gold_frogs & (1<<Game_map_theme))
+						frog->bf_gold_frog_script->hi_flags &= ~HUD_ITEM_NO_UPDATE;
+
+					UpdateHUDScript(frog->bf_gold_frog_script, 0);
+					}
+				
 				return;
 				}
 			}
@@ -739,47 +811,50 @@ baby_frog_calc_jump:;
 		((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_extra.ae_extra_env_flipbook->ae_object->ob_flags |= MR_OBJ_NO_DISPLAY;
 		}
 
-	// Update croak sack
-	switch (frog->bf_croak_mode)
+	// Update gold frog hud script
+	if (frog->bf_gold_frog_script != NULL)
 		{
-		//---------------------------------------------------------------------
-		case FROG_CROAK_INFLATE:
-			frog->bf_croak_timer--;
-			frog->bf_croak_scale = (((FROG_CROAK_MAX_SCALE - FROG_CROAK_MIN_SCALE) * (FROG_CROAK_INFLATE_TIME - frog->bf_croak_timer)) / FROG_CROAK_INFLATE_TIME) + FROG_CROAK_MIN_SCALE;
-
-			if (!frog->bf_croak_timer)
-				{
-				frog->bf_croak_mode 	= FROG_CROAK_HOLD;
-				frog->bf_croak_timer 	= FROG_CROAK_HOLD_TIME;
-				}
-			break;
-		//---------------------------------------------------------------------
-		case FROG_CROAK_HOLD:
-			frog->bf_croak_timer--;
-
-			if (!frog->bf_croak_timer)
-				{
-				frog->bf_croak_mode 	= FROG_CROAK_DEFLATE;
-				frog->bf_croak_timer 	= FROG_CROAK_DEFLATE_TIME;
-				}
-			break;
-		//---------------------------------------------------------------------
-		case FROG_CROAK_DEFLATE:
-			frog->bf_croak_timer--;
-			frog->bf_croak_scale = (((FROG_CROAK_MAX_SCALE - FROG_CROAK_MIN_SCALE) * frog->bf_croak_timer) / FROG_CROAK_DEFLATE_TIME) + FROG_CROAK_MIN_SCALE;
-
-			if (!frog->bf_croak_timer)
-				frog->bf_croak_mode 	= FROG_CROAK_NONE;
-
-			break;
-		//---------------------------------------------------------------------
+		if (Gold_frogs & (1<<Game_map_theme))
+			frog->bf_gold_frog_script->hi_flags &= ~HUD_ITEM_NO_UPDATE;
+		
+		UpdateHUDScript(frog->bf_gold_frog_script, 0);
 		}
-
-	frog->bf_croak_scale_matrix.m[0][0] = frog->bf_croak_scale;
-	frog->bf_croak_scale_matrix.m[1][1] = frog->bf_croak_scale;
-	frog->bf_croak_scale_matrix.m[2][2] = frog->bf_croak_scale;
 }
 
+
+/******************************************************************************
+*%%%% ENTSTROrgKillBabyFrog
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ENTSTROrgKillBabyFrog(LIVE_ENTITY* live_entity)
+*
+*	FUNCTION	This function is used to kill the baby frog original map entity
+*	MATCH		https://decomp.me/scratch/omkRv	(By Kneesnap)
+*
+*	INPUTS		live_entity		- ptr to live entity
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	27.05.97	Martin Kift		Created
+*	27.06.97	Gary Richards	Added Sound Effects.
+*	05.11.23	Kneesnap		Recreated by byte-matching PSX Build 71. (Retail NTSC)
+*
+*%%%**************************************************************************/
+
+MR_VOID ENTSTROrgKillBabyFrog(LIVE_ENTITY* live_entity)
+{
+	ORG_RT_BABY_FROG*		frog;
+
+	frog = live_entity->le_specific;
+	
+	if (frog->bf_gold_frog_glow_pgen != NULL)
+		frog->bf_gold_frog_glow_pgen->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY;
+	
+	if (frog->bf_gold_frog_script != NULL)
+		KillHUDScript(frog->bf_gold_frog_script);
+	
+	ENTSTRKillDynamicMOF(live_entity);
+}
 
 /******************************************************************************
 *%%%% 					SCRIPTS FOR ORIGINAL ENTITIES
@@ -901,7 +976,7 @@ MR_LONG		script_org_lorry[] =
 MR_LONG		script_org_lorry_sfx[] =
 	{
 	ENTSCR_PLAY_SOUND_DISTANCE,			ENTSCR_NO_REGISTERS,		20,		SFX_ORG_LORRY_HORN02,
-										ENTSCR_COORD_Z,			    384,
+										ENTSCR_COORD_Z,				384,
 	ENTSCR_RESTART,
 	};
 
@@ -941,7 +1016,7 @@ MR_LONG		script_org_road_noise[] =
 	ENTSCR_PREPARE_REGISTERS,		sizeof(MR_MAT),			2,
 	ENTSCR_SETLOOP,
 									// SFX										   
-	ENTSCR_PLAY_MOVING_SOUND,		SFX_ORG_ROAD_NOISE,		//    MIN				MAX.
+	ENTSCR_PLAY_MOVING_SOUND,		SFX_ORG_ROAD_NOISE,		//	MIN				MAX.
 									ENTSCR_REGISTERS,		ENTSCR_REGISTER_0, ENTSCR_REGISTER_1,
 															// Min, Max	   Shift,  Range, Pitch,
 	//ENTSCR_PITCH_BEND_MOVING_SOUND,	ENTSCR_NO_REGISTERS,	64,		84,		3,		9,		72,
@@ -974,40 +1049,40 @@ MR_LONG		script_org_water_noise[] =
 // These appear once at a time, over random trigger points, although only if that checkpoint has
 // not been hit already. If hit, they award the frog bonus points. 
 //
-MR_LONG		script_org_bonus_fly_collected[] = 
-	{
-	// play sound, maybe anim, and then make us disappear and go back to start of other script
-	ENTSCR_PLAY_SOUND,					SFX_GEN_FROG_FLY_GULP,
-	ENTSCR_AWARD_FROG_POINTS,			1000,
-	ENTSCR_START_SCRIPT,				SCRIPT_ORG_BONUS_FLY,
-	ENTSCR_COLL_CHECKPOINT,
-	ENTSCR_COLL_CHECKPOINT
-	};
+//MR_LONG		script_org_bonus_fly_collected[] = 
+//	{
+//	// play sound, maybe anim, and then make us disappear and go back to start of other script
+//	ENTSCR_PLAY_SOUND,					SFX_GEN_FROG_FLY_GULP,
+//	ENTSCR_AWARD_FROG_POINTS,			1000,
+//	ENTSCR_START_SCRIPT,				SCRIPT_ORG_BONUS_FLY,
+//	ENTSCR_COLL_CHECKPOINT,
+//	ENTSCR_COLL_CHECKPOINT
+//	};
 
-MR_LONG		script_org_bonus_fly[] = 
-	{
-	// ensure fly is hidden
-	ENTSCR_DISAPPEAR_ENTITY,
-
-	// wait for preset amount of time
-	ENTSCR_SET_TIMER,					ENTSCR_NO_REGISTERS,		0,
-	ENTSCR_WAIT_UNTIL_TIMER,			ENTSCR_NO_REGISTERS,		120,
-
-	// choose a random checkpoint
-	ENTSCR_CHOOSE_RND_CHECKPOINT,
+//MR_LONG		script_org_bonus_fly[] = 
+//	{
+//	// ensure fly is hidden
+//	ENTSCR_DISAPPEAR_ENTITY,
+//
+//	// wait for preset amount of time
+//	ENTSCR_SET_TIMER,					ENTSCR_NO_REGISTERS,		0,
+//	ENTSCR_WAIT_UNTIL_TIMER,			ENTSCR_NO_REGISTERS,		120,
+//
+//	// choose a random checkpoint
+//	ENTSCR_CHOOSE_RND_CHECKPOINT,
 //	ENTSCR_NO_COLL_CHECKPOINT,
-	ENTSCR_APPEAR_ENTITY,				
-	
-	ENTSCR_SET_TIMER,					ENTSCR_NO_REGISTERS,		0,
-	ENTSCR_SETLOOP,
-		ENTSCR_SCRIPT_IF,				ENTSCR_NEW_SCRIPT,			ENTSCR_HIT_FROG,	SCRIPT_ORG_BONUS_FLY_COLLECTED,		0,
-		ENTSCR_BREAKLOOP_IF_TIMER,		ENTSCR_NO_REGISTERS,		120,
-	ENTSCR_ENDLOOP,
-
-	// Bring back check point
-	ENTSCR_COLL_CHECKPOINT,
-	ENTSCR_RESTART,
-	};
+//	ENTSCR_APPEAR_ENTITY,				
+//	
+//	ENTSCR_SET_TIMER,					ENTSCR_NO_REGISTERS,		0,
+//	ENTSCR_SETLOOP,
+//		ENTSCR_SCRIPT_IF,				ENTSCR_NEW_SCRIPT,			ENTSCR_HIT_FROG,	SCRIPT_ORG_BONUS_FLY_COLLECTED,		0,
+//		ENTSCR_BREAKLOOP_IF_TIMER,		ENTSCR_NO_REGISTERS,		120,
+//	ENTSCR_ENDLOOP,
+//
+//	// Bring back check point
+//	ENTSCR_COLL_CHECKPOINT,
+//	ENTSCR_RESTART,
+//	};
 
 //------------------------------------------------------------------------------------------------
 // ORG crocodile
@@ -1071,7 +1146,7 @@ MR_LONG		script_org_turtle_swim[] =
 	ENTSCR_DEVIATE,						ENTSCR_NO_REGISTERS,		ENTSCR_COORD_Y,		0, -0x8<<8, -1,
 	ENTSCR_WAIT_DEVIATED,		
 	ENTSCR_PLAY_SOUND_DISTANCE,			ENTSCR_NO_REGISTERS,		20,		SFX_GEN_ENTITY_DIVE1,
-										ENTSCR_COORD_Z,			    256,
+										ENTSCR_COORD_Z,				256,
 	ENTSCR_RESTART,
 	};
 
@@ -1109,7 +1184,7 @@ MR_LONG		script_turtle[] =
 		ENTSCR_DEVIATE,						ENTSCR_NO_REGISTERS,		ENTSCR_COORD_Y,		0, -0x8<<8, -1,
 		ENTSCR_WAIT_DEVIATED,		
 		ENTSCR_PLAY_SOUND_DISTANCE,			ENTSCR_NO_REGISTERS,		20,		SFX_GEN_ENTITY_DIVE1,
-											ENTSCR_COORD_Z,			    256,
+											ENTSCR_COORD_Z,				256,
 	ENTSCR_ENDLOOP,
 	ENTSCR_RESTART,
 
@@ -1544,12 +1619,14 @@ MR_BOOL	ENTSTROrgChooseRandomCheckPoint(	LIVE_ENTITY*	live_entity,
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Create a original map BONUS_FLY...
+*	MATCH		https://decomp.me/scratch/y3AG3	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	11.06.97	Martin Kift		Created
+*	05.11.23	Kneesnap		Byte-matched function in PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1585,8 +1662,9 @@ MR_VOID	ENTSTROrgCreateBonusFly(LIVE_ENTITY* live_entity)
 	live_entity->le_entity->en_flags |= ENTITY_NO_COLLISION;
 
 	// Setup entity
-	bonus_fly->bf_mode		= ORG_BONUS_FLY_WAITING;
-	bonus_fly->bf_timer		= ORG_BONUS_FLY_APPEAR_TIME;
+	bonus_fly->bf_mode			= ORG_BONUS_FLY_WAITING;
+	bonus_fly->bf_timer			= ORG_BONUS_FLY_APPEAR_TIME;
+	bonus_fly->bf_checkpoint_id = -1;
 
 	// Important, set type
 	bonus_fly_data->bf_type		= 0;
@@ -1601,12 +1679,14 @@ MR_VOID	ENTSTROrgCreateBonusFly(LIVE_ENTITY* live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Update a BONUS_FLY
+*	MATCH		https://decomp.me/scratch/bDQ7Q	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	11.06.97	Martin Kift		Updated
+*	05.11.23	Kneesnap		Byte-matched function to PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1624,6 +1704,7 @@ MR_VOID	ENTSTROrgUpdateBonusFly(LIVE_ENTITY* live_entity)
 	switch (bonus_fly->bf_mode)
 		{
 		case ORG_BONUS_FLY_WAITING:
+			((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_special_flags |= MR_ANIM_ENV_UNKNOWN;
 			if (!(bonus_fly->bf_timer--))
 				{
 				// Try and find a free check point
@@ -1652,6 +1733,7 @@ MR_VOID	ENTSTROrgUpdateBonusFly(LIVE_ENTITY* live_entity)
 					// No check point found, restart
 					bonus_fly->bf_mode  = ORG_BONUS_FLY_WAITING;
 					bonus_fly->bf_timer = ORG_BONUS_FLY_APPEAR_TIME;
+					bonus_fly->bf_checkpoint_id = -1;
 					}
 				}
 			break;
@@ -1674,8 +1756,14 @@ MR_VOID	ENTSTROrgUpdateBonusFly(LIVE_ENTITY* live_entity)
 					live_entity->le_entity->en_flags |= ENTITY_NO_COLLISION;
 					bonus_fly->bf_mode  = ORG_BONUS_FLY_WAITING;
 					bonus_fly->bf_timer = ORG_BONUS_FLY_APPEAR_TIME;
-					((MR_OBJECT*)live_entity->le_api_item0)->ob_flags |= MR_OBJ_NO_DISPLAY;
-					Checkpoint_data[bonus_fly->bf_checkpoint_id].cp_flags &= ~GEN_CHECKPOINT_IS_COVERED;
+
+					if (bonus_fly->bf_checkpoint_id != -1)
+						{
+						Checkpoint_data[bonus_fly->bf_checkpoint_id].cp_flags &= ~GEN_CHECKPOINT_IS_COVERED;
+						bonus_fly->bf_checkpoint_id = -1;
+						}
+
+					live_entity->le_flags &= ~LIVE_ENTITY_TARGETTED;
 					}
 				}
 			else
@@ -1685,8 +1773,13 @@ MR_VOID	ENTSTROrgUpdateBonusFly(LIVE_ENTITY* live_entity)
 				live_entity->le_entity->en_flags |= ENTITY_NO_COLLISION;
 				bonus_fly->bf_mode  = ORG_BONUS_FLY_WAITING;
 				bonus_fly->bf_timer = ORG_BONUS_FLY_APPEAR_TIME;
-				((MR_OBJECT*)live_entity->le_api_item0)->ob_flags |= MR_OBJ_NO_DISPLAY;
-				Checkpoint_data[bonus_fly->bf_checkpoint_id].cp_flags &= ~GEN_CHECKPOINT_IS_COVERED;
+				if (bonus_fly->bf_checkpoint_id != -1)
+					{
+					Checkpoint_data[bonus_fly->bf_checkpoint_id].cp_flags &= ~GEN_CHECKPOINT_IS_COVERED;
+					bonus_fly->bf_checkpoint_id = -1;
+					}
+					
+				live_entity->le_flags &= ~LIVE_ENTITY_TARGETTED;
 				}
 			break;
 		}
@@ -1701,17 +1794,25 @@ MR_VOID	ENTSTROrgUpdateBonusFly(LIVE_ENTITY* live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Kill a original map BONUS_FLY
+*	MATCH		https://decomp.me/scratch/R6G6e	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	11.06.97	Martin Kift		Updated
+*	05.11.23	Kneesnap		Byte-matched function to PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	ENTSTROrgKillBonusFly(LIVE_ENTITY*	live_entity)
 {
+	MR_LONG			checkpoint_id;
+	
+	checkpoint_id = ((ORG_RT_BONUS_FLY*)live_entity->le_specific)->bf_checkpoint_id;
+	if (checkpoint_id != -1)
+		Checkpoint_data[checkpoint_id].cp_flags &= ~GEN_CHECKPOINT_IS_COVERED;
+	
 	((MR_OBJECT*)live_entity->le_api_item0)->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY;
 }
 
@@ -1812,12 +1913,14 @@ MR_VOID	ENTSTROrgResetCrocHead(	LIVE_ENTITY*		live_entity,
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Update a croc head
+*	MATCH		https://decomp.me/scratch/x8euU	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	11.06.97	Martin Kift		Updated
+*	05.11.23	Kneesnap		Byte-matched function to PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1851,7 +1954,8 @@ MR_VOID	ENTSTROrgUpdateCrocHead(LIVE_ENTITY* live_entity)
 				if (ENTSTROrgChooseRandomCheckPoint(live_entity, &croc_head->ch_checkpoint_id, &position))
 					{
 					// make croc_head appear in right place
-					position.vz -= 50;
+					position.vz += 50;
+					position.vy -= 100;
 
 					// make our entity appear at the precalculated position
 					MR_VEC_EQUALS_SVEC((MR_VEC*)live_entity->le_lwtrans->t, &position);
@@ -1929,6 +2033,7 @@ MR_VOID	ENTSTROrgUpdateCrocHead(LIVE_ENTITY* live_entity)
 				rot.vy = 2048;
 				rot.vz = 0;
 				MRRotMatrix(&rot,live_entity->le_lwtrans);
+				live_entity->le_lwtrans->t[2] -= 100;
 
 				// Set collision
 				entity->en_flags &= ~ENTITY_NO_COLLISION;
@@ -1980,9 +2085,11 @@ MR_VOID	ENTSTROrgUpdateCrocHead(LIVE_ENTITY* live_entity)
 							}
 						frog_index++;
 						}
-	
+
+					
 					// Reset crochead
-					ENTSTROrgResetCrocHead(live_entity, entity, croc_head);
+					croc_head->ch_mode = ORG_CROC_HEAD_RESET;
+					croc_head->ch_timer = ORG_CROC_HEAD_RESET_TIME;
 					}
 				}
 			else
@@ -1990,6 +2097,10 @@ MR_VOID	ENTSTROrgUpdateCrocHead(LIVE_ENTITY* live_entity)
 				// Reset crochead
 				ENTSTROrgResetCrocHead(live_entity, entity, croc_head);
 				}
+			break;
+		case ORG_CROC_HEAD_RESET:
+			if (!--croc_head->ch_timer)
+				ENTSTROrgResetCrocHead(live_entity, entity, croc_head);
 			break;
 		}
 }
@@ -2002,12 +2113,14 @@ MR_VOID	ENTSTROrgUpdateCrocHead(LIVE_ENTITY* live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	kill a croc head
+*	MATCH		https://decomp.me/scratch/ZeBdN	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	01.09.97	Martin Kift		Updated
+*	05.11.23	Kneesnap		Byte-matched function to PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2021,10 +2134,34 @@ MR_VOID	ENTSTROrgKillCrocHead(LIVE_ENTITY* live_entity)
 	// put collision back on checkpoint that we were covering perhaps?
 	if (croc_head->ch_checkpoint_id != -1)
 		{
+		Checkpoint_data[croc_head->ch_checkpoint_id].cp_flags &= ~GEN_CHECKPOINT_IS_COVERED;
 		if (Checkpoint_data[croc_head->ch_checkpoint_id].cp_entity)
 			Checkpoint_data[croc_head->ch_checkpoint_id].cp_entity->en_flags &= ~ENTITY_NO_COLLISION;
 		}
 
 	// kill model
 	ENTSTRKillDynamicMOF(live_entity);
+}
+
+
+/******************************************************************************
+*%%%% OrgFlyCallBack
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	OrgFlyCallBack(
+*						FROG*	frog)
+*
+*	FUNCTION	adds score to the frog. Appears unused.
+*
+*	INPUTS		frog	-	the frog to add score to
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	05.11.23	Kneesnap		Byte-matched function to PSX Build 71. (Retail NTSC)
+*
+*%%%**************************************************************************/
+
+MR_VOID	OrgFlyCallBack(MR_VOID* void_frog, MR_VOID* void_entity, MR_VOID* void_null)
+{
+	AddFrogScore((FROG*)void_frog, SCORE_250, 0);
 }

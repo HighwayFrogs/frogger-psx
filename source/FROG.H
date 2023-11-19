@@ -74,7 +74,7 @@
 #endif
 
 #define	FROG_MAX_LIVES						10			// Max lives Frogger can have
-#define	FROG_DEATH_TIME						60			// death time
+#define	FROG_DEATH_TIME						70			// death time
 #define	FROG_POLY_PIECE_POP_DURATION		32			// duration of popping frog effect
 
 // Frog flags
@@ -162,6 +162,7 @@ enum	{
 		FROG_MODE_CENTRING,
 		FROG_MODE_STUNNED,
 		FROG_MODE_STACK_MASTER,
+		FROG_MODE_NO_CONTROL,
 		
 		// Frog user modes start here
 		FROG_MODE_USER = 0x100,
@@ -222,15 +223,12 @@ enum	{
 
 enum	{
 		 FROG_ANIMATION_AUTOHOP,
-		 FROG_ANIMATION_DEATH,
 		 FROG_ANIMATION_BACKFLIP,
 		 FROG_ANIMATION_SQUISHED,
 		 FROG_ANIMATION_WAIT1,
 		 FROG_ANIMATION_TIMEOUT,
-		 FROG_ANIMATION_SWIM,
 		 FROG_ANIMATION_STRUGGLE,
 		 FROG_ANIMATION_FALLING,
-		 FROG_ANIMATION_WAIT4,
 		 FROG_ANIMATION_TRIGGER,
 		 FROG_ANIMATION_DROWN,
 		 FROG_ANIMATION_COMPLETE,
@@ -239,40 +237,26 @@ enum	{
 		 FROG_ANIMATION_FLOP,
 		 FROG_ANIMATION_OUCH,
 		 FROG_ANIMATION_PANT,
-		 FROG_ANIMATION_SWIMPANT,
 		 FROG_ANIMATION_ROLL,
-		 FROG_ANIMATION_LCARTWHEEL,
-		 FROG_ANIMATION_RCARTWHEEL,
-		 FROG_ANIMATION_LEAPFROG,
 		 FROG_ANIMATION_HOP,
-		 FROG_ANIMATION_START1,
 		 FROG_ANIMATION_SUPERJUMP,
 		 FROG_ANIMATION_PANT2,
 		 FROG_ANIMATION_WAIT3,
 		 FROG_ANIMATION_SUPERHOP,
 		 FROG_ANIMATION_WAIT2,
-		 FROG_ANIMATION_SUPERSTART,
 		 FROG_ANIMATION_SLIP,
 		 FROG_ANIMATION_POP,
 		 FROG_ANIMATION_SLIPRIGHT,
 		 FROG_ANIMATION_SLIPLEFT,
-		 FROG_ANIMATION_HOPLEFT,
-		 FROG_ANIMATION_HOPRIGHT,
 		 FROG_ANIMATION_CRASH,
-		 FROG_ANIMATION_ROLL_REPEATING,
-
-		 FROG_ANIMATION_PIPESLIP,
 		 FROG_ANIMATION_PHEW,
-		 FROG_ANIMATION_BOUNCE,
-		 FROG_ANIMATION_SINK,
-		 FROG_ANIMATION_LEFT,
-		 FROG_ANIMATION_RIGHT,
 		 FROG_ANIMATION_LOOKDOWN,
 		 FROG_ANIMATION_LOOKUP,
 		 FROG_ANIMATION_LOOKLEFT,
 		 FROG_ANIMATION_LOOKRIGHT,
 		 FROG_ANIMATION_DANCE,
 		 FROG_ANIMATION_MOWN,
+		 FROG_ANIMATION_ROLL_REPEATING,
 
 		 FROG_ANIMATION_MAX,
 	};
@@ -407,6 +391,7 @@ struct	__frog
 
 		// Movement
 		MR_LONG			fr_count;				// counts down to 0 for jump
+		MR_LONG			fr_death_count;			// death countdown timer
 		MR_VEC			fr_velocity;			// add to fr_pos each frame (16.16)
 		MR_SVEC			fr_target_pos;			// if jumping, target position
 
@@ -438,7 +423,7 @@ struct	__frog
 		
 		// HUD and scores
 		HUD_ITEM*		fr_hud_script;			// ptr to HUD script (or NULL)
-		MR_ULONG		fr_score;				// current score
+		MR_LONG			fr_score;				// current score
 		MR_ULONG		fr_old_score;			// old score
 		MR_ULONG		fr_prev_score;			// score at end of last level ( used for calculating race mode scores on level by level basis )
 		MR_LONG			fr_lives;				// current lives in the bank
@@ -569,6 +554,7 @@ extern	FROG_PLAYER_DATA	Frog_player_data[];
 extern	MR_BOOL				Frog_cave_light_special;
 extern	MR_SVEC*			Frog_jump_shadow_offsets[];
 extern	MR_TEXTURE*			Frog_jump_shadow_textures[];
+extern	MR_MAT				Frog_splash_matrix;
 
 #ifdef WIN95
 extern	MR_ULONG			Frog_local_id;						
@@ -604,7 +590,7 @@ extern	ENTITY*			FrogGetNearestCheckpoint(FROG*);
 extern	MR_VOID			FrogKill(FROG*, MR_ULONG, MR_VEC*);
 extern	MR_VOID			UpdateFrogBaseColour(FROG*);
 extern	MR_VOID			UpdateFrogStackMaster(FROG*, FROG*);
-extern	MR_VOID			FrogReactToFallDistance(FROG*, MR_LONG);
+extern	MR_VOID			FrogReactToFallDistance(FROG*, MR_LONG, MR_USHORT);
 extern	MR_VOID			JumpFrogOnSpot(FROG*, MR_LONG);
 extern	MR_VOID			FrogInitCustomAmbient(FROG*);
 extern	MR_VOID			SetFrogScaleColours(FROG*, MR_LONG, MR_LONG, MR_LONG);
@@ -623,6 +609,7 @@ extern	MR_ULONG		FrogModeMovementStationary(FROG*, MR_ULONG, MR_ULONG*);
 extern	MR_ULONG		FrogModeMovementJumping(FROG*, MR_ULONG, MR_ULONG*);
 extern	MR_ULONG		FrogModeMovementDying(FROG*, MR_ULONG, MR_ULONG*);
 extern	MR_ULONG		FrogModeMovementHitCheckpoint(FROG*, MR_ULONG, MR_ULONG*);
+extern	MR_VOID			FrogUpdateFreefall(FROG*);
 extern	MR_ULONG		FrogModeMovementCentring(FROG*, MR_ULONG, MR_ULONG*);
 extern	MR_ULONG		FrogModeMovementStunned(FROG*, MR_ULONG, MR_ULONG*);
 extern	MR_ULONG		FrogModeMovementLevelStartBounce(FROG*, MR_ULONG, MR_ULONG*);

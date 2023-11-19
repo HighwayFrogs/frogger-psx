@@ -38,8 +38,6 @@ MR_LONG*	Scripts[] = {
 		script_swp_nuclear_barrel_waiting,
 		script_swp_nuclear_barrel_ejecting,
 		script_log_splash,
-		script_org_bonus_fly,
-		script_org_bonus_fly_collected,
 		script_swp_waste_barrel_waiting,
 		script_swp_waste_barrel_spinning,
 		script_swp_bobbing_waste_barrel,
@@ -145,6 +143,11 @@ MR_LONG*	Scripts[] = {
 		script_sky_magical_popping_balloon_pop,
 		script_des_snake,
 		script_org_turtle_swim,
+		script_des_falling_rock,
+		script_swp_weir_noise,
+		script_swp_recycle_bin_noise,
+		script_sky_cloudplatform,
+		script_swp_weir_rotate,
 		};	
 
 MR_VOID	(*script_callback_functions[])(LIVE_ENTITY*) = {
@@ -169,4 +172,8 @@ MR_VOID	(*script_callback_functions[])(LIVE_ENTITY*) = {
 	ScriptCBSwpMutantFish,
 	ScriptCBSwpRaccoon,
 	ScriptCBSwpPelicanCall,
+	ScriptCBVolMechanism,
+	ScriptCBSkyHomingBird,
+	ScriptCBSkyBalloon,
+	ScriptCBJunHippoDive,
 	};

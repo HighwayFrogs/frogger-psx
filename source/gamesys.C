@@ -44,6 +44,7 @@
 #include "gen_gold.h"
 #include "pause.h"
 #include "hsview.h"
+#include "entlib.h"
 
 #ifdef WIN95
 #include "cdaudio.h"
@@ -77,11 +78,8 @@ MR_ULONG		Game_border_colours[] =
 
 // System
 MR_VEC			Game_x_axis_pos 	= { 0x1000, 0, 0};
-MR_VEC			Game_x_axis_neg 	= {-0x1000, 0, 0};
 MR_VEC			Game_y_axis_pos 	= {0,  0x1000, 0};
-MR_VEC			Game_y_axis_neg 	= {0, -0x1000, 0};
 MR_VEC			Game_z_axis_pos 	= {0, 0,  0x1000};
-MR_VEC			Game_z_axis_neg 	= {0, 0, -0x1000};
 
 // Display
 MR_CVEC			Game_back_colour[60]	= 
@@ -168,6 +166,7 @@ MR_LONG			Game_last_map_timer;			// Used to control the sounds for the timer.
 MR_FRAC16		Game_map_timer_speed;			// These are used to ramp the time limit up/down
 MR_FRAC16		Game_map_timer_frac;			// for when a Time Bonus Fly is picked up.
 MR_UBYTE		Game_map_timer_flags;			// 
+MR_LONG			Game_map_timer_decimalised;		// partial frame
 MR_ULONG		Game_map_time;					// max time for this level
 MR_ULONG		Game_reset_flags;				// game reset flags (such as resetting due to frog death)
 HUD_ITEM*		Game_hud_script;				// ptr to HUD script (or NULL), used for fancy effects
@@ -223,6 +222,7 @@ POLY_FT3		Game_prim_ft[2];
 
 // Multiplayer background graphic data (sprite ptrs and positions on screen)
 MR_2DSPRITE*	Game_multiplayer_no_player[4];
+MR_2DSPRITE*	Game_multiplayer_play_off_sprite;
 
 // Table for text positions at end of multiplayer game
 MR_XY	Multiplayer_end_of_game_text_pos[4][4]=
@@ -245,12 +245,39 @@ MR_XY	Multiplayer_end_of_game_text_pos[4][4]=
 			}
 		};
 
+MR_TEXTURE*	Multiplayer_end_of_game_rank_textures[5]=
+{
+	&im_rank_equal,
+	&im_rank_1,
+	&im_rank_2,
+	&im_rank_3,
+	&im_rank_4,
+};
+
 // Used for ASync Loading.
 MR_LONG	Game_start_mode = GAME_START_INIT;
 
 
 // Multiplayer 
 GAME_OVER_MULTIPLAYER*		Game_over[4];
+MR_2DSPRITE*				Game_over_Multiplayer_played_text[4];
+MR_2DSPRITE*				Game_over_Multiplayer_won_text[4];
+MR_2DSPRITE*				Game_over_Multiplayer_lost_text[4];
+MR_2DSPRITE*				Game_over_press_fire;
+
+// Order of the plinths in the jungle stage
+MR_ULONG		Game_end_plinth_order[9] =
+{
+	THEME_ORG,
+	THEME_SUB,
+	THEME_FOR,
+	THEME_VOL,
+	THEME_CAV,
+	THEME_SKY,
+	THEME_SWP,
+	THEME_DES,
+	THEME_JUN
+};
 
 //------------------------------------------------------------------------------------------------
 // Game mainloop setup functions	- called from GameMainLoop()
@@ -417,7 +444,7 @@ MR_VOID	GameStart(MR_VOID)
 	ClearOptions();
 
 	// Start the loading Tune. (After Select Vab has been unloaded)
-	MRSNDPlaySound(	SFX_MUSIC_DRUMLOAD, NULL, 0, 0);
+	PlayLoadingSfxLoop();
 
 	// Load correct generic wad (if not already loaded)
 	if (Game_total_players > GAME_MAX_HIGH_POLY_PLAYERS)
@@ -442,7 +469,7 @@ MR_VOID	GameStart(MR_VOID)
 
 	// Load level map
 	Map_mof_index = 0;
-   	InitialiseMap();
+	InitialiseMap();
 
 //	HideAllEntitiesExcept(1984);
 //	MRShowMemSummary(NULL);
@@ -501,6 +528,7 @@ MR_VOID	GameStart(MR_VOID)
 	Game_cheat_mode		= FALSE;
 	Game_debug_mode		= FALSE;
 	Game_hud_script		= NULL;
+	Game_mode_data		= NULL;
 
 	// Kill loading sprite
 //	if ( Sel_loading_sprite_ptr )
@@ -560,7 +588,7 @@ MR_VOID	GameStart(MR_VOID)
 		LevelStart(GAME_MODE_MULTI_START);
 		}
 	// Kill SFX of loading sample.
-	MRSNDKillAllSounds();
+	StopLoadingSfxLoop();
 
 	// turn on pause (default for in game)
 	Game_flags &= ~GAME_FLAG_NO_PAUSE_ALLOWED;
@@ -574,7 +602,7 @@ MR_VOID	GameStart(MR_VOID)
 *%%%% GameEnd
 *------------------------------------------------------------------------------
 *
-*	SYNOPSIS	MR_VOID	GameEnd(MR_VOID)
+*	SYNOPSIS	MR_VOID	GameEnd(MR_BOOL	play_loading_sfx)
 *
 *	FUNCTION	End main game
 *
@@ -585,7 +613,7 @@ MR_VOID	GameStart(MR_VOID)
 *
 *%%%**************************************************************************/
 
-MR_VOID	GameEnd(MR_VOID)
+MR_VOID	GameEnd(MR_BOOL play_loading_sfx)
 {
 	MR_ULONG		loop_counter;
 	
@@ -597,6 +625,9 @@ MR_VOID	GameEnd(MR_VOID)
 		MCStop();
 #endif //PSX
 #endif //PSX_ENABLE_XA
+
+	// Restore the correct music volume level.
+	MRSNDSetVolumeLevel(MRSND_CD_VOLUME, (127 * Music_volume) / OPTIONS_SOUND_STAGES);
 
 	// Kill all live entities
 	KillAllLiveEntities();
@@ -610,6 +641,10 @@ MR_VOID	GameEnd(MR_VOID)
 	
 	// Close the Vab.
 	MRSNDCloseVab(Game_map_theme);
+	
+	// Play the loading SFX if specified.
+	if (play_loading_sfx == TRUE)
+		PlayLoadingSfxLoop();
 
 #ifdef MR_API_SOUND
 	// Remove the Header From Main RAM.
@@ -625,6 +660,9 @@ MR_VOID	GameEnd(MR_VOID)
 
 	// Kill map display
 	DeinitialiseMapDisplay();
+	
+	// Kill each score sprite.
+	KillScoreSprites();
 
 	// Loop once for each Frog
 	for(loop_counter=0;loop_counter<Game_total_players;loop_counter++)
@@ -723,6 +761,9 @@ MR_VOID	LevelStart(MR_ULONG game_mode)
 		UpdateFrogCameraZone(frog);
 		frog++;
 		}
+		
+	// Update frog animations.
+	UpdateFrogAnimationScripts();
 
 	// Reset sky scrolly background
 	MR_CLEAR_VEC(&Sky_drift_position);
@@ -779,8 +820,10 @@ MR_VOID	LevelStart(MR_ULONG game_mode)
 	Game_map_time			= Map_general_header->gh_trigger_timers[0];
 	Game_map_timer			= Game_map_time * 30;
 	Game_map_timer_speed 	= 1 << 16;							// Cos it's a Fraction.
+	Game_map_timer_decimalised	= 0;
 	Game_map_timer_frac		= 0;
 	Game_map_timer_flags 	= GAME_TIMER_FLAGS_COUNT_UP;
+	Time_out_message_count = TIME_OUT_MESSAGE_LEN;
 
 	// Set up start timer based on the type of start
 	switch (game_mode)
@@ -807,7 +850,7 @@ MR_VOID	LevelStart(MR_ULONG game_mode)
 	// position to generate a valid game view
 	UpdateCameras();
 	MRUpdateFrames();
-
+	Game_viewporth->vp_flags &= ~MR_VP_NO_DISPLAY;
 }
 
 
@@ -1439,7 +1482,7 @@ MR_VOID	GameMainloop(MR_VOID)
 	if (!(Game_flags & GAME_FLAG_DEMO_RUNNING))
 		{
 		// Are we in hud intro ?
-		if ( !Game_hud_script )
+		if ( !Game_hud_script && !(Game_flags & GAME_FLAG_NO_PAUSE_ALLOWED))
 			{
 			// No ... check for all important JoyPads.
 			CheckJoyPadStillPresent();
@@ -1456,13 +1499,12 @@ MR_VOID	GameMainloop(MR_VOID)
 
 #ifdef PSX	
 //	MRStartGatso();
-#ifndef EXPERIMENTAL
+#ifdef PSX_MASTER
 	FASTSTACK;
 #endif
 #endif		
 
 	MRSetActiveViewport(Game_viewport0);
-	StartHUD();
 
   	if (Game_running == TRUE)
 		{
@@ -1554,7 +1596,6 @@ MR_VOID	GameMainloop(MR_VOID)
 				RenderMap(i);
 				}
 
-			UpdateMultiplayerHUDbackgrounds();
 			MRRenderViewport(Game_viewporth);
 
 #ifdef DEBUG
@@ -1576,7 +1617,7 @@ MR_VOID	GameMainloop(MR_VOID)
 		}
 
 #ifdef PSX	
-#ifndef EXPERIMENTAL
+#ifdef PSX_MASTER
 	SLOWSTACK;
 #endif
 	MRGetMemoryStats();
@@ -1593,6 +1634,8 @@ MR_VOID	GameMainloop(MR_VOID)
 *
 *	FUNCTION	Game mainloop play update function
 *
+*	MATCH		https://decomp.me/scratch/iErhm	(By Kneesnap)
+*
 *	NOTES		On the pc we need to lock the frame rate, so here goes a nastyish 
 *				piece of code. Note that this code goes around the logic part of 
 *				this main game loop and not the render part, which is allowed to 
@@ -1601,6 +1644,7 @@ MR_VOID	GameMainloop(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	05.07.97	Martin Kift		Created
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1627,6 +1671,10 @@ MR_VOID	GameMainloopPlayUpdate(MR_VOID)
 						Game_map_timer = 0;
 					}
 				}
+
+			// Increase timer frames.
+			if (Game_map_timer)
+				Game_map_timer_decimalised += (Game_map_timer_speed >> 16);
 			}
 #endif	// GAME_TIMER_DECREASE
 		}
@@ -1805,6 +1853,7 @@ MR_VOID GameCheckStatus(MR_VOID)
 						frog		= &Frogs[0];
 						while (frog_index--)
 							{
+							frog->fr_death_count = FROG_DEATH_TIME;
 							FrogKill(frog, FROG_ANIMATION_TIMEOUT, NULL);
 							frog++;
 							}
@@ -2524,6 +2573,7 @@ MR_VOID	GameMainloopMultiTriggerCollectedUpdate(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	05.07.97	Martin Kift		Created
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2533,7 +2583,7 @@ MR_VOID	GameMainloopSingleFailedUpdate(MR_VOID)
 	LevelEnd();
 
 	// Exit with the level over flag
-	Option_page_request = OPTIONS_PAGE_CONTINUE;
+	Option_page_request = OPTIONS_PAGE_GAME_OVER;
 }
 
 
@@ -2749,10 +2799,12 @@ MR_VOID	GameMainloopFastStartUpdate(MR_VOID)
 *	SYNOPSIS	MR_VOID	GameMainloopMultiCompleteSetup(MR_VOID)
 *
 *	FUNCTION	Game mainloop LEVEL COMPLETE setup function
+*	MATCH		https://decomp.me/scratch/F1VnR (By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	27.08.97	Martin Kift		Created
+*	27.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
 *
 *%%%**************************************************************************/
 
@@ -2763,6 +2815,10 @@ MR_VOID	GameMainloopMultiCompleteSetup(MR_VOID)
 	MR_LONG					num_winning_frogs, max_checkpoints, checkpoint_count[4];
 	MR_LONG					winning_order[4], order_number, curr_check;
 	MR_BOOL					found;
+	MR_MAT					matrix;
+	FROG*					frog;
+	GEN_CHECKPOINT_DATA*	data;
+	MR_TEXTURE*				texture;
 
 	// init data
 	Game_mode	= GAME_MODE_MULTIPLAYER_CAMERA;
@@ -2771,8 +2827,24 @@ MR_VOID	GameMainloopMultiCompleteSetup(MR_VOID)
 	Game_flags	|= GAME_FLAG_NO_PAUSE_ALLOWED;
 
 	// Mark all frogs as no-control whilst effects are done.
-	for (i=0; i<Game_total_players; i++)
-		Frogs[i].fr_flags &= ~FROG_CONTROL_ACTIVE;
+	i = Game_total_players;
+	frog = Frogs;
+	while (i--) {
+		frog->fr_flags &= ~FROG_CONTROL_ACTIVE;
+
+		if (frog->fr_entity) {
+			ProjectMatrixOntoWorldXZ(frog->fr_entity->en_live_entity->le_lwtrans, &matrix);
+			MRMulMatrixABA(&Cameras[frog->fr_frog_id].ca_mod_matrix, &matrix);
+			frog->fr_entity = NULL;
+		}
+
+		if ((frog->fr_flags & FROG_ACTIVE) && frog->fr_poly_piece_pop)
+			FrogStartPolyPiecePop(frog);
+
+		frog->fr_flags = 0;
+		frog->fr_mode = FROG_MODE_NO_CONTROL;
+		frog++;
+	}
 
 	// alloc data needed
 	Game_mode_data	= MRAllocMem(sizeof(GAME_MULTI_COMPLETE), "GAME_MULTI_COMPLETE");
@@ -2809,13 +2881,14 @@ MR_VOID	GameMainloopMultiCompleteSetup(MR_VOID)
 		
 		if (found == TRUE)
 			order_number++;
-		curr_check--;
+		if (--curr_check < 0)
+			break;
 		}
 
 	// setup right number bitmaps for the viewports
 	for (i=0; i<Game_total_viewports; i++)
 		{
-		MRChangeSprite(multi->gm_numbers[i], Hud_timer_images[winning_order[i]]);
+		MRChangeSprite(multi->gm_numbers[i], Multiplayer_end_of_game_rank_textures[winning_order[i]]);
 		multi->gm_data[i].gm_mode		= GAME_MODE_MULTIPLAYER_DATA_DELAY;
 		multi->gm_data[i].gm_counter	= winning_order[i] * 15;
 		}
@@ -2844,8 +2917,27 @@ MR_VOID	GameMainloopMultiCompleteSetup(MR_VOID)
 	multi->gm_mode = GAME_MODE_MULTIPLAYER_NUMBER_ZOOM;
 
 	// if number of winnning frogs is 1, then play music
-	if (num_winning_frogs == 1)
+	if (num_winning_frogs == 1) {
 		MRSNDPlaySound(SFX_MUSIC_LEVEL_COMPLETE,NULL,0,0);
+		Game_multiplayer_play_off_sprite = NULL;
+	} else {
+		texture = Options_text_textures[65][Game_language];
+		Game_multiplayer_play_off_sprite = MRCreate2DSprite((Game_display_width>>1)-(texture->te_w>>1), (Game_display_height - 70), Game_viewporth, texture, NULL);
+	}
+
+	data = Checkpoint_data;
+	i = GEN_MAX_CHECKPOINTS;
+	while (i--)
+		{
+		if	(
+			(data->cp_entity != NULL) && 
+			(data->cp_entity->en_live_entity != NULL)
+			)
+			{
+			((MR_ANIM_ENV*) (data->cp_entity->en_live_entity->le_api_item0))->ae_extra.ae_extra_env_flipbook->ae_object->ob_flags |= MR_OBJ_NO_DISPLAY;
+			}
+		data++;
+		}
 }
 
   
@@ -2856,10 +2948,12 @@ MR_VOID	GameMainloopMultiCompleteSetup(MR_VOID)
 *	SYNOPSIS	MR_VOID	GameMainloopMultiCompleteUpdate(MR_VOID)
 *
 *	FUNCTION	Game mainloop LEVEL COMPLETE update function
+*	MATCH		https://decomp.me/scratch/HX0Gy (By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	08.07.97	Martin Kift		Created
+*	27.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
 *
 *%%%**************************************************************************/
 
@@ -2875,7 +2969,15 @@ MR_VOID GameMainloopMultiCompleteUpdate(MR_VOID)
 	MR_BOOL					finished;
 	GAME_MULTI_COMPLETE*	multi;
 
+	// remove control flag and mark as invisible
+	for (i=0; i<Game_total_players; i++)
+		Frogs[i].fr_flags &= ~FROG_CONTROL_ACTIVE;
+
 	multi = (GAME_MULTI_COMPLETE*)Game_mode_data;
+
+	// Abort if the game is paused.
+	if (Game_flags & GAME_FLAG_PAUSED)
+		return;
 
 	// switch on game mode to create flow
 	switch (multi->gm_mode)
@@ -2985,14 +3087,14 @@ MR_VOID GameMainloopMultiCompleteUpdate(MR_VOID)
 				// we have more than one winning frog.. reset game so that these frogs
 				// can replay on a checkpoint that a different frog collected...
 				frog			= Frogs;
-				marked_check	= FALSE;	
+				marked_check	= FALSE;
 
-				for (i=0; i<4; i++)
+				for (i=0; i<Game_total_players; i++)
 					{
 					if (checkpoint_count[i] != max_checkpoints)
 						{
-						// remoce control flag and mark as invisible
-						frog->fr_flags &= ~FROG_CONTROL_ACTIVE;
+						((MR_ANIM_ENV*) frog->fr_api_item)->ae_extra.ae_extra_env_flipbook->ae_object->ob_flags |= 0x40;
+						frog->fr_flags &= ~FROG_CONTROL_ACTIVE; 
 						frog->fr_flags &= ~FROG_ACTIVE;
 
 						// use this checkpoint as one to go for...
@@ -3009,6 +3111,7 @@ MR_VOID GameMainloopMultiCompleteUpdate(MR_VOID)
 									marked_check				= TRUE;
 									data->cp_frog_collected_id	= -1;
 									Checkpoints					&= ~(1<<j);
+									data->cp_flags &= ~FROG_ACTIVE;
 									break;
 									}
 								data++;
@@ -3018,6 +3121,8 @@ MR_VOID GameMainloopMultiCompleteUpdate(MR_VOID)
 						// Show the no-play bitmap, and mark viewport as no-display
 						((MR_SP_CORE*)Game_multiplayer_no_player[frog->fr_frog_id])->sc_flags &= ~MR_SPF_NO_DISPLAY;
 						Game_viewports[frog->fr_frog_id]->vp_flags |= MR_VP_NO_DISPLAY;
+						frog->fr_mode = FROG_MODE_NO_CONTROL;
+						frog->fr_flags = 0;
 						}
 					else
 						{
@@ -3025,19 +3130,42 @@ MR_VOID GameMainloopMultiCompleteUpdate(MR_VOID)
 						ResetFrog(frog, frog->fr_start_grid_x, frog->fr_start_grid_z, GAME_MODE_LEVEL_FAST_START);
 						ResetCamera(&Cameras[frog->fr_frog_id]);
 						SetGameMainloopMode(GAME_MODE_LEVEL_PLAY);
+						}  
+					frog++;
+					}
+				}
+				
+			if (num_winning_frogs > 1)
+				{
+				KillMultiplayerCheckpoints();
+				frog = Frogs;
+				while (i--)
+					{
+					if (!(frog->fr_flags & FROG_ACTIVE))
+						{
+						((MR_ANIM_ENV*) frog->fr_api_item)->ae_extra.ae_extra_env_flipbook->ae_object->ob_flags |= MR_OBJ_NO_DISPLAY;
+						frog->fr_mode = FROG_MODE_NO_CONTROL;
+						frog->fr_flags = 0;
+						frog->fr_lwtrans->t[1] = 20000;
+						frog->fr_grid_square = NULL;
+						frog->fr_grid_x = 0;
+						frog->fr_grid_z = 0;
 						}
+
 					frog++;
 					}
 				}
 
 			// clean up
+			if (Game_multiplayer_play_off_sprite != NULL)
+				MRKill2DSprite(Game_multiplayer_play_off_sprite);
 			for (i=0; i<Game_total_viewports; i++)
 				MRKill2DSprite(multi->gm_numbers[i]);
 			MRFreeMem(Game_mode_data);
+			Game_mode_data = NULL;
 			break;
 		}
 }
-
 
 		// Tot up scores.. currently commented out since scores are probably being trashed... until
 		// of course they change their minds, and then change it back again, and so on...
@@ -3062,6 +3190,76 @@ MR_VOID GameMainloopMultiCompleteUpdate(MR_VOID)
 //			Frogs[loop_counter].fr_prev_score = Frogs[loop_counter].fr_score;
 //			}
 
+
+
+/******************************************************************************
+*%%%% KillMultiplayerCheckpoints
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	KillMultiplayerCheckpoints(MR_VOID)
+*
+*	FUNCTION	Kills all active checkpoint entities
+*	MATCH		https://decomp.me/scratch/5RW9c (By Kneesnap, mkst, Wiseguy)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	27.10.23	Kneesnap		Created
+*
+*%%%**************************************************************************/
+
+MR_VOID KillMultiplayerCheckpoints(MR_VOID) {
+	GEN_CHECKPOINT_DATA *data;
+	ENTITY **entity_pptr;
+	ENTITY *entity;
+	MR_LONG entity_type;
+	MR_LONG i, j;
+	MR_LONG temp_v0;
+	
+	data = Checkpoint_data;
+	for (i = 0; i < GEN_MAX_CHECKPOINTS; i++) {
+		if (data->cp_entity != NULL) {
+			if (data->cp_frog_collected_id == -1) {
+				data->cp_entity->en_flags &= ~ENTITY_NO_DISPLAY;
+				data->cp_entity->en_flags &= ~ENTITY_NO_COLLISION;
+				data->cp_entity->en_flags &= ~ENTITY_HIDDEN;
+				if (data->cp_entity->en_live_entity != NULL)
+					KillLiveEntity(data->cp_entity->en_live_entity);
+			} else {
+				if (data->cp_entity->en_live_entity != NULL)
+					KillLiveEntity(data->cp_entity->en_live_entity);
+			
+				data->cp_entity->en_flags |= ENTITY_NO_DISPLAY;
+				data->cp_entity->en_flags |= ENTITY_NO_COLLISION;
+				data->cp_entity->en_flags |= ENTITY_HIDDEN;
+			}
+		} else {
+			entity_pptr = Map_entity_ptrs;
+			j = Map_entity_header->eh_numentities;
+			while (j--) {
+				entity = *entity_pptr;
+				entity_type = (Form_library_ptrs[(entity->en_form_book_id & 0x8000) >> (temp_v0 = 15)] + (entity->en_form_book_id & 0x7fff))->fb_entity_type;
+				if (((entity_type == ENTITY_TYPE_CHECKPOINT) || (entity_type == ENTITY_TYPE_MULTIPOINT)) && (((GEN_CHECKPOINT *) (entity + 1))->cp_id == data->cp_id)) {
+					temp_v0 = -1;
+					if (data->cp_frog_collected_id == temp_v0) {
+						entity->en_flags &= ~(ENTITY_HIDDEN | ENTITY_NO_DISPLAY | ENTITY_NO_COLLISION);
+						if (entity->en_live_entity != NULL)
+							KillLiveEntity(entity->en_live_entity);
+					} else {
+						if (entity->en_live_entity != NULL)
+							KillLiveEntity(entity->en_live_entity);
+						entity->en_flags |= (ENTITY_HIDDEN | ENTITY_NO_DISPLAY | ENTITY_NO_COLLISION);
+					}
+					
+					break;
+				}
+				
+				entity_pptr++;
+			}
+		}
+		
+		data++;
+	}
+}
 
 
 /******************************************************************************
@@ -3134,6 +3332,7 @@ MR_VOID	GameMainloopEndOfGameSetup(MR_VOID)
 }
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% GameHasThemeBeenCompleted
 *------------------------------------------------------------------------------
@@ -3148,6 +3347,7 @@ MR_VOID	GameMainloopEndOfGameSetup(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	20.08.97	Martin Kift		Created
+*	28.10.23	Kneesnap		Disabled as part of byte-matching decompilation from PSX Build 71 (Retail NTSC).
 *
 *%%%**************************************************************************/
 
@@ -3185,6 +3385,7 @@ MR_BOOL GameHasThemeBeenCompleted(MR_LONG theme)
 	// got here, so theme must be complete
 	return (TRUE);
 }
+#endif
 
 
 /******************************************************************************
@@ -3194,19 +3395,20 @@ MR_BOOL GameHasThemeBeenCompleted(MR_LONG theme)
 *	SYNOPSIS	MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 *
 *	FUNCTION	Game end... fancy screen etc.
+*	MATCH		https://decomp.me/scratch/g0EzK (By Kneesnap & mkst)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	30.07.97	Martin Kift		Created
+*	28.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
 *
 *%%%**************************************************************************/
 
 MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 {
 	LIVE_ENTITY*				live_entity1;
-	LIVE_ENTITY*				live_entity2;
 	JUN_OUTRO_ENTITY*			outro_entity;
-//	MR_SVEC						svec;
+	MR_SVEC						svec;
 	MR_LONG						x, z, i;
 	JUN_OUTRO_RT_GOLD_FROG*		frog;
 	SEL_LEVEL_INFO*				arcade_level_ptr;
@@ -3215,6 +3417,10 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 
 	outro_data		= (JUN_OUTRO_DATA*)Game_mode_data;
 	outro_entity	= (JUN_OUTRO_ENTITY*)(outro_data->od_entity + 1);
+
+	// Abort if the game is paused
+	if (Game_flags & GAME_FLAG_PAUSED)
+		return;
 
 	switch (outro_data->od_mode)
 		{
@@ -3236,7 +3442,8 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 			outro_data->od_counter		= 60;
 
 			// Play SFX for door opening.
-			PlayMovingSound(outro_data->od_live_entity, SFX_OUT_STONE_RUMBLE, 4096, 8192);
+			MRSNDPlaySound(SFX_OUT_STONE_RUMBLE, NULL, 0, 0);
+			DampenMusicVolumeTemporarily();
 
 			// Shake camera for duration of the animation
 			ShakeCamera(&Cameras[0], 0x40, 60, 0x8000);
@@ -3246,13 +3453,16 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 		case GAME_END_SEQUENCE_WAITING_DOOR_OPEN:
 			if (!(outro_data->od_counter--))
 				{
+				// Restore original volume.
+				SetTemporaryMusicVolume(Music_volume);
+				
 				// Door has opened, reset game on this level, so that the frog can make his
 				// way back to open doors.. we should always remain in this game mode!
 				outro_data->od_mode = GAME_END_SEQUENCE_WAITING_FROG_HIT_STATUE;
 
-				// Find central stone frog and remember live entity
-				outro_data->od_live_entity = JunFindEntity(JUN_OUTRO_STONE_FROG, GAME_END_MAX_PLINTHS);
-				MR_ASSERTMSG (outro_data->od_live_entity, "You need a central (id of 8) stone frog for this final map!");
+				// Stop tracking the entity.
+				outro_data->od_live_entity->le_entity->en_flags |= ENTITY_NO_COLLISION; 
+				outro_data->od_live_entity = NULL;
 
 				// restart level, lie about the reset type
 				Game_reset_flags = FORM_BOOK_RESET_ON_CHECKPOINT;
@@ -3267,16 +3477,42 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 
 		//---------------------------------------------------------------------
 		case GAME_END_SEQUENCE_WAITING_FROG_HIT_STATUE:
-			// Find central stone frog and remember live entity
-			outro_data->od_live_entity = JunFindEntity(JUN_OUTRO_STONE_FROG, GAME_END_MAX_PLINTHS);
-			MR_ASSERTMSG (outro_data->od_live_entity, "You need a central (id of 8) stone frog for this final map!");
+			// Find central gold frog and remember live entity
+			outro_data->od_live_entity = JunFindEntity(JUN_OUTRO_GOLD_FROG, GAME_END_MAX_PLINTHS);
+			MR_ASSERTMSG (outro_data->od_live_entity, "You need a central (id of 8) gold frog for this final map!");
 
 			// wait for frog to hit statue
 			if (outro_data->od_live_entity->le_flags & LIVE_ENTITY_HIT_FROG)
 				{
 				Frogs[0].fr_flags &= ~FROG_CONTROL_ACTIVE;
 				Frogs[0].fr_flags |= FROG_DO_NOT_UPDATE_CAMERA_ZONES;
+				Game_flags |= GAME_FLAG_NO_PAUSE_ALLOWED;
+				Gold_frogs |= GEN_GOLD_FROG_4;
 
+				// Store high-score data in an unused level slot, presumably so it isn't wiped by exiting gameplay.
+				if (Game_map == LEVEL_JUNGLE2) {
+					if (Frog_score_data[LEVEL_JUNGLE1][0].he_initials[0] == 'Z') {
+						if (Frog_score_data[LEVEL_JUNGLE1][0].he_score < Frogs[0].fr_score - Frogs[0].fr_prev_score) {
+							Frog_score_data[LEVEL_JUNGLE1][0].he_score = Frogs[0].fr_score - Frogs[0].fr_prev_score;
+							Frog_score_data[LEVEL_JUNGLE1][0].he_time_to_checkpoint[0] = 0;
+							Frog_score_data[LEVEL_JUNGLE1][0].he_time_to_checkpoint[1] = 0;
+							Frog_score_data[LEVEL_JUNGLE1][0].he_time_to_checkpoint[2] = 0;
+							Frog_score_data[LEVEL_JUNGLE1][0].he_time_to_checkpoint[3] = 0;
+							Frog_score_data[LEVEL_JUNGLE1][0].he_time_to_checkpoint[4] = 0;
+						}
+					} else {
+						Frog_score_data[LEVEL_JUNGLE1][0].he_initials[0] = 'Z';
+						Frog_score_data[LEVEL_JUNGLE1][0].he_time_to_checkpoint[0] = 0;
+						Frog_score_data[LEVEL_JUNGLE1][0].he_time_to_checkpoint[1] = 0;
+						Frog_score_data[LEVEL_JUNGLE1][0].he_time_to_checkpoint[2] = 0;
+						Frog_score_data[LEVEL_JUNGLE1][0].he_time_to_checkpoint[3] = 0;
+						Frog_score_data[LEVEL_JUNGLE1][0].he_time_to_checkpoint[4] = 0;
+						Frog_score_data[LEVEL_JUNGLE1][0].he_score = Frogs[0].fr_score - Frogs[0].fr_prev_score;
+					}
+
+					Frogs[0].fr_prev_score = Frogs[0].fr_score;
+				}
+				
 				// Bounce frog back to where it came from
 				Frogs[0].fr_lwtrans->t[1]	= outro_data->od_live_entity->le_lwtrans->t[1];
 				Frogs[0].fr_pos.vy			= outro_data->od_live_entity->le_lwtrans->t[1]<<16;
@@ -3284,28 +3520,7 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 
 				// frog has hit us, move on
 				outro_data->od_mode		= GAME_END_SEQUENCE_GOLD_FROG_APPEAR;
-
-				// Find our stone & gold frog(s), and make them disappear/appear
-				// respectively, probably with particle effect
-				live_entity1 = JunFindEntity(JUN_OUTRO_STONE_FROG, JUN_STONE_FROG_STATUE_ID);
-				MR_ASSERT (live_entity1);
-
-				// Make disappear for the time being, do effect later
-				MR_ASSERT (!(live_entity1->le_flags & LIVE_ENTITY_ANIMATED));
-				((MR_OBJECT*)live_entity1->le_api_item0)->ob_flags |= MR_OBJ_NO_DISPLAY;
-
-				live_entity2 = JunFindEntity(JUN_OUTRO_GOLD_FROG, JUN_GOLD_FROG_STATUE_ID);
-				MR_ASSERT (live_entity2);
-
-				// Make appear for the time being, do effect later
-				MR_ASSERT (live_entity2->le_flags & LIVE_ENTITY_ANIMATED);
-				MR_ASSERT (live_entity2->le_flags & LIVE_ENTITY_FLIPBOOK);
-				((MR_ANIM_ENV*)live_entity2->le_api_item0)->ae_extra.ae_extra_env_flipbook->ae_object->ob_flags &= ~MR_OBJ_NO_DISPLAY;
-				((MR_ANIM_ENV*)live_entity2->le_api_item0)->ae_flags |= MR_ANIM_ENV_STEP;
-				LiveEntitySetAction(live_entity2, GEN_GOLD_FROG_EXCITED);
-
-				// set up timer
-				outro_data->od_counter	= GAME_END_GOLD_FROG_DELAY;
+				outro_data->od_counter = GAME_END_GOLD_FROG_DELAY;
 				}
 			break;
 
@@ -3386,10 +3601,7 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 				outro_data->od_velocity.vx = 0;
 				outro_data->od_velocity.vy = -(GAME_END_MAX_PLINTH_RAISE_DISTANCE / GAME_END_MAX_PLINTH_RAISE_TIME) << 16;
 				outro_data->od_velocity.vz = 0;
-				}
-			else
-				{
-				// move camera
+				} else {
 				outro_data->od_position.vx += (outro_data->od_velocity.vx >> 16);
 				outro_data->od_position.vy += (outro_data->od_velocity.vy >> 16);
 				outro_data->od_position.vz += (outro_data->od_velocity.vz >> 16);
@@ -3441,7 +3653,7 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 				{
 				// Have we collected this gold frog?
 #ifndef GAME_GOLD_FROG_CHEAT
-				if (Gold_frogs & outro_data->od_plinth)
+				if (Gold_frogs & (1<<Game_end_plinth_order[outro_data->od_plinth]))
 #endif
 					{
 					// Create pop for stone frog
@@ -3456,6 +3668,20 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 					((MR_ANIM_ENV*)outro_data->od_live_entity2->le_api_item0)->ae_flags |= MR_ANIM_ENV_STEP;
 					((MR_ANIM_ENV*)outro_data->od_live_entity2->le_api_item0)->ae_extra.ae_extra_env_flipbook->ae_object->ob_flags &= ~MR_OBJ_NO_DISPLAY;
 					LiveEntitySetAction(outro_data->od_live_entity2, GEN_GOLD_FROG_EXCITED);
+
+					frog = (JUN_OUTRO_RT_GOLD_FROG *)(outro_data->od_live_entity2->le_specific);
+					if (frog->op_object == NULL)
+						{
+						// Create particle effect
+						svec.vy = -50;
+						svec.vx = 0;
+						svec.vz = 20;
+						frog->op_object = MRCreatePgen(&PGIN_gold_frog_glow,
+											(MR_FRAME*)outro_data->od_live_entity2->le_lwtrans,
+											MR_OBJ_STATIC,
+											&svec);
+						GameAddObjectToViewports(frog->op_object);
+						}
 					}
 				}
 
@@ -3510,14 +3736,14 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 				{
 				// goto credits screen... By order of the management
 				outro_data->od_counter		= 60;
-				outro_data->od_mode			= GAME_END_SEQUENCE_FADE_SCREEN;
+				outro_data->od_mode			= GAME_END_SEQUENCE_UNUSED1;
 				}
 			break;
 
 		//---------------------------------------------------------------------
 		case GAME_END_SEQUENCE_FINAL_CAMERA_POS:
 			outro_data->od_mode			= GAME_END_SEQUENCE_FINAL_CAMERA_POS_MOVE;
-			outro_data->od_counter		= outro_entity->oe_targets[outro_data->od_plinth+1].ot_time;
+			outro_data->od_counter	  = 30; // outro_entity->oe_targets[outro_data->od_plinth+1].ot_time;
 
 			MR_VEC_EQUALS_SVEC(&outro_data->od_target, &outro_entity->oe_targets[GAME_END_LAST_DOOR_TARGET].ot_target);
 			MR_COPY_VEC(&outro_data->od_position, Cameras[0].ca_offset_origin);
@@ -3606,8 +3832,15 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 					// if run out of jumps, stop now
 					if (Jun_outro_gold_frog_jumps[outro_data->od_plinth][outro_data->od_counter] == -1)
 						outro_data->od_mode = GAME_END_SEQUENCE_NEXT_GOLD_FROGS_EXITING;
-
-					JunJumpGoldFrog(outro_data->od_live_entity, Jun_outro_gold_frog_jumps[outro_data->od_plinth][outro_data->od_counter]);
+					
+					// if run out of jumps, stop now
+					Cameras[0].ca_mode = CAMERA_MODE_FIXED;
+					if (Jun_outro_gold_frog_jumps[outro_data->od_plinth][outro_data->od_counter + 1] == -1) {						
+						JunJumpGoldFrog(outro_data->od_live_entity, Jun_outro_gold_frog_jumps[outro_data->od_plinth][outro_data->od_counter], 12);
+					} else {
+						JunJumpGoldFrog(outro_data->od_live_entity, Jun_outro_gold_frog_jumps[outro_data->od_plinth][outro_data->od_counter], 6);
+					}
+					
 					outro_data->od_counter++;
 					}
 				}
@@ -3632,11 +3865,18 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 				if (Frogs[0].fr_mode == FROG_MODE_STATIONARY)
 					{
 					// if run out of jumps, stop now
-					if (Jun_outro_frog_jumps[outro_data->od_counter] == -1)
+					if (Jun_outro_frog_jumps[outro_data->od_counter] == -1) {
 						outro_data->od_mode = GAME_END_SEQUENCE_FADE_SCREEN;
+						outro_data->od_counter = 60;
+					}
 
 					// jump in required direction
-					JumpFrog(&Frogs[0], Jun_outro_frog_jumps[outro_data->od_counter], NULL, 1, 6);
+					if (Jun_outro_frog_jumps[outro_data->od_counter + 1] == -1) {
+						JumpFrog(&Frogs[0], Jun_outro_frog_jumps[outro_data->od_counter], NULL, 1, 12);
+					} else {
+						JumpFrog(&Frogs[0], Jun_outro_frog_jumps[outro_data->od_counter], NULL, 1, 6);
+					}
+
 					outro_data->od_counter++;
 					}
 				}
@@ -3645,6 +3885,53 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 				outro_data->od_mode			= GAME_END_SEQUENCE_FADE_SCREEN;
 				outro_data->od_counter		= 60;
 				}
+			break;
+
+		//---------------------------------------------------------------------
+		case GAME_END_SEQUENCE_UNUSED1:
+			outro_data->od_target.vx = outro_entity->oe_targets[10].ot_target.vx;
+			outro_data->od_target.vy = outro_entity->oe_targets[10].ot_target.vy;
+			outro_data->od_target.vz = outro_entity->oe_targets[10].ot_target.vz;
+			outro_data->od_position.vx = Cameras[0].ca_offset_origin->vx;
+			outro_data->od_position.vy = Cameras[0].ca_offset_origin->vy;
+			outro_data->od_position.vz = Cameras[0].ca_offset_origin->vz;
+			Cameras[0].ca_offset_origin = &outro_data->od_position;
+			outro_data->od_counter = 30;
+			outro_data->od_mode = GAME_END_SEQUENCE_UNUSED2;
+			outro_data->od_velocity.vx = ((outro_data->od_target.vx - outro_data->od_position.vx) << 16) / (int)outro_data->od_counter;
+			outro_data->od_velocity.vy = ((outro_data->od_target.vy - outro_data->od_position.vy) << 16) / (int)outro_data->od_counter;
+			outro_data->od_velocity.vz = ((outro_data->od_target.vz - outro_data->od_position.vz) << 16) / (int)outro_data->od_counter;
+			break;
+
+		//---------------------------------------------------------------------
+		case GAME_END_SEQUENCE_UNUSED2:
+			if (!(outro_data->od_counter--)) {
+				// Move the camera towards the portal and fade out (I think-- I didn't run this unused code so I think that's what this is ~Knee, while byte-matching / decomping missing code)
+				MR_COPY_VEC(&outro_data->od_position, &outro_data->od_target);
+
+				// Update camera zones
+				x = GET_GRID_X_FROM_WORLD_X(outro_data->od_position.vx);
+				z = GET_GRID_Z_FROM_WORLD_Z(outro_data->od_position.vz);
+				CheckCoordsInZones(x, z, ZONE_TYPE_CAMERA, &Frogs[0].fr_cam_zone, &Frogs[0].fr_cam_zone_region);
+
+				// on to the next mode
+				Frogs[0].fr_flags |= FROG_DO_NOT_UPDATE_CAMERA_ZONES;
+				outro_data->od_mode = GAME_END_SEQUENCE_UNUSED3;
+				outro_data->od_counter = GAME_END_MAX_PLINTH_RAISE_TIME;
+			} else {
+				outro_data->od_position.vx += (outro_data->od_velocity.vx >> 16);
+				outro_data->od_position.vy += (outro_data->od_velocity.vy >> 16);
+				outro_data->od_position.vz += (outro_data->od_velocity.vz >> 16);
+			}
+			break;
+
+		//---------------------------------------------------------------------
+		case GAME_END_SEQUENCE_UNUSED3:
+			if (outro_data->od_counter--)
+				return;
+			
+			outro_data->od_mode = GAME_END_SEQUENCE_FADE_SCREEN;
+			outro_data->od_counter = GAME_OUTRO_FADE_DURATION;
 			break;
 
 		//---------------------------------------------------------------------
@@ -3675,8 +3962,9 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 
 			// free alloced memory and close everything down
 			MRFreeMem(Game_mode_data);
+			Game_mode_data = NULL;
 			LevelEnd();
-			GameEnd();
+			GameEnd(FALSE);
 
 			// Hack the level stack data to point jungle 1 to jungle 2.... WIll told me to do it,
 			// honest guv, on my life...
@@ -3694,7 +3982,6 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 		}
 }
 
-
 /******************************************************************************
 *%%%% GameMainloopEndOfMultiplayerGameSetup
 *------------------------------------------------------------------------------
@@ -3702,10 +3989,12 @@ MR_VOID	GameMainloopEndOfGameUpdate(MR_VOID)
 *	SYNOPSIS	MR_VOID	GameMainloopEndOfMultiplayerGameSetup(MR_VOID)
 *
 *	FUNCTION	Game mainloop END OF MULTIPLAYER GAME setup function
+*	MATCH		https://decomp.me/scratch/b3FZV	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	08.07.97	Martin Kift		Created
+*	29.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
 *
 *%%%**************************************************************************/
 
@@ -3717,6 +4006,12 @@ MR_VOID GameMainloopEndOfMultiplayerGameSetup(MR_VOID)
 	MR_ULONG				checks[4];
 	MR_TEXTURE*				texture;
 
+	// Reset frog flags.
+	for (i=0; i<Game_total_players; i++)
+		{
+			Frogs[i].fr_flags &= ~FROG_CONTROL_ACTIVE;
+		}
+	
 	// Initialise number of check points collected
 	for (i=0; i<4; i++)
 		{
@@ -3850,25 +4145,25 @@ MR_VOID GameMainloopEndOfMultiplayerGameSetup(MR_VOID)
 #endif
 			}
 
-		// Creat "PLAYED"/"WON"/"LOST" text headers 
-		texture = Options_text_textures[OPTION_TEXT_PLAYED][Game_language];
-		Game_over[i]->go_played_text	= MRCreate2DSprite((Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].x-30)-(texture->te_w>>1),	
-															Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].y-20,	
-															Game_viewporth,
-															texture,
-															NULL);
-		texture = Options_text_textures[OPTION_TEXT_WON][Game_language];
-		Game_over[i]->go_won_text		= MRCreate2DSprite((Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].x-30)-(texture->te_w>>1),	
-															Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].y,
-															Game_viewporth,
-															texture,
-															NULL);
-		texture = Options_text_textures[OPTION_TEXT_LOST][Game_language];
-		Game_over[i]->go_lost_text		= MRCreate2DSprite((Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].x-30)-(texture->te_w>>1),	
-															Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].y+20,
-															Game_viewporth,
-															texture,
-															NULL);
+		// Create "PLAYED"/"WON"/"LOST" text headers 
+		texture = Options_text_textures[OPTION_TEXT_PLAYED][Game_language]; // Previously Game_over[i]->go_played_text
+		UpdateSpriteDisplay(Game_over_Multiplayer_played_text[i],
+					texture,
+					(Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].x-30)-(texture->te_w>>1),
+					Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].y-20);
+			
+		texture = Options_text_textures[OPTION_TEXT_WON][Game_language]; // Previously Game_over[i]->go_won_text	
+		UpdateSpriteDisplay(Game_over_Multiplayer_won_text[i],
+					texture,
+					(Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].x-30)-(texture->te_w>>1),	
+					Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].y);
+		
+		texture = Options_text_textures[OPTION_TEXT_LOST][Game_language]; // Previously Game_over[i]->go_lost_text
+		UpdateSpriteDisplay(Game_over_Multiplayer_lost_text[i],
+					texture,
+					(Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].x-30)-(texture->te_w>>1),	
+					Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].y+20);
+			
 		// Display number of games played
 		HUDGetDigits(Frogs[i].fr_multi_games_won + Frogs[i].fr_multi_games_lost, NULL, NULL, NULL);
 		Game_over[i]->go_played_number[0]	= MRCreate2DSprite(Multiplayer_end_of_game_text_pos[Game_total_viewports-1][i].x+20,	
@@ -3908,6 +4203,14 @@ MR_VOID GameMainloopEndOfMultiplayerGameSetup(MR_VOID)
 															Hud_score_images[Hud_digits[9]],
 															NULL);
 		}
+
+	// Setup press fire graphic
+	texture = Options_text_textures[OPTION_TEXT_PRESS_FIRE][Game_language];
+	Game_over_press_fire = MRCreate2DSprite((Game_display_width >> 1) - (texture->te_w >> 1),
+											Game_display_height - 50,
+											Option_viewport_ptr,
+											texture,
+											NULL);
 	
 	// Remove control from frogs..
 	for (i=0; i<Game_total_players; i++)
@@ -3920,6 +4223,7 @@ MR_VOID GameMainloopEndOfMultiplayerGameSetup(MR_VOID)
 	Game_flags |= GAME_FLAG_NO_PAUSE_ALLOWED;
 }
 
+
 /******************************************************************************
 *%%%% GameMainloopEndOfMultiplayerGameUpdate
 *------------------------------------------------------------------------------
@@ -3927,10 +4231,12 @@ MR_VOID GameMainloopEndOfMultiplayerGameSetup(MR_VOID)
 *	SYNOPSIS	MR_VOID	GameMainloopEndOfMultiplayerGameUpdate(MR_VOID)
 *
 *	FUNCTION	Game mainloop END OF MULTIPLAYER GAME update function
+*	MATCH		https://decomp.me/scratch/mHV0v	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	08.07.97	Martin Kift		Created
+*	29.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
 *
 *%%%**************************************************************************/
 
@@ -3938,6 +4244,11 @@ MR_VOID GameMainloopEndOfMultiplayerGameUpdate(MR_VOID)
 {
 	MR_ULONG		i,j;
 	MR_BOOL			exit_flag;
+
+	for (i=0; i<Game_total_players; i++)
+		{
+		Frogs[i].fr_flags &= ~FROG_CONTROL_ACTIVE;
+		}
 
 	// Loop once for each viewport
 	for (i=0; i<Game_total_viewports; i++)
@@ -3968,10 +4279,11 @@ MR_VOID GameMainloopEndOfMultiplayerGameUpdate(MR_VOID)
 		// Yes ... loop once for each viewport
 		for (i=0; i<Game_total_viewports; i++)
 			{
-			// Remove sprites
-			MRKill2DSprite(Game_over[i]->go_played_text);
-			MRKill2DSprite(Game_over[i]->go_won_text);
-			MRKill2DSprite(Game_over[i]->go_lost_text);
+			// Hide & remove sprites
+			MakeSpriteInvisible(Game_over_Multiplayer_played_text[i]);
+			MakeSpriteInvisible(Game_over_Multiplayer_won_text[i]);
+			MakeSpriteInvisible(Game_over_Multiplayer_lost_text[i]);
+			MRKill2DSprite(Game_over_press_fire);
 
 			for (j=0; j<2; j++)
 				{
@@ -3991,6 +4303,7 @@ MR_VOID GameMainloopEndOfMultiplayerGameUpdate(MR_VOID)
 		Game_flags &= ~GAME_FLAG_NO_PAUSE_ALLOWED;
 		}
 }
+
 
 /******************************************************************************
 *%%%% SetGameMainloopMode
@@ -4015,7 +4328,7 @@ MR_VOID	SetGameMainloopMode(MR_ULONG game_mainloop_mode)
 
 	// Call setup callback
 	if 	(Game_mainloop_setup_functions[game_mainloop_mode])
-	   	(Game_mainloop_setup_functions[game_mainloop_mode])();
+		(Game_mainloop_setup_functions[game_mainloop_mode])();
 
 	// Set frog mode
 	Game_mode = game_mainloop_mode;

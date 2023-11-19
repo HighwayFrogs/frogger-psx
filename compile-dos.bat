@@ -240,7 +240,7 @@ ECHO Assembling %FILE_NAME%.S
 "%DOSBOX%" -noautoexec -noconsole ^
  -c "MOUNT C: '%~dp0'" ^
  -c "C:" ^
- -c "sdk\bin\aspsx -q %DOS_PATH%.S -o %DOS_PATH%.OBJ" ^
+ -c "sdk\bin\aspsx -0 -q %DOS_PATH%.S -o %DOS_PATH%.OBJ" ^
  -c "IF ERRORLEVEL 1 PAUSE" ^
  -c "sdk\bin\dmpsx %DOS_PATH%.OBJ -b" ^
  -c "exit"

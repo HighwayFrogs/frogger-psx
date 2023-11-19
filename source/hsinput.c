@@ -165,10 +165,13 @@ MR_VOID HighScoreInitialiseData(MR_VOID)
 *	FUNCTION	Initialisation code for High Score Input screen.  Sets up text
 *				for displaying.  Initialise players initials.
 *
+*	MATCH		https://decomp.me/scratch/Pnlhe	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
 *	23.06.97	Martin Kift		Changed port data structure
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -222,6 +225,9 @@ MR_VOID	HighScoreInputStartup(MR_VOID)
 		return;
 		}
 
+	// Load GEN wad
+	LoadGenericWad(0);
+
 	// Load options resources
 	LoadOptionsResources();
 
@@ -232,7 +238,7 @@ MR_VOID	HighScoreInputStartup(MR_VOID)
 	//
 	// Allocate memory for all matrices
 	// (30 letters, 4 frogs, 12 initials, extras)
-	High_score_matrices = MRAllocMem(sizeof(MR_MAT) * (30 + 4 + 12 + HIGH_SCORE_INPUT_NUM_EXTRAS), "HS matrices");
+	High_score_matrices = MRAllocMem(sizeof(MR_MAT) * (30 + 4 + 12 + HIGH_SCORE_INPUT_NUM_EXTRAS), "HS matrices 3");
 
 	for (k = 0; k < 30; k++)	
 		High_score_input_letters_matrix_ptr[k] 		= High_score_matrices + k;
@@ -401,6 +407,8 @@ MR_VOID	HighScoreInputStartup(MR_VOID)
 //		Option_page_request = OPTIONS_PAGE_MAIN_OPTIONS;
 //		return;
 //		}
+
+	StopLoadingSfxLoop();
 }
 
 
@@ -544,10 +552,12 @@ MR_VOID	HighScoreInputUpdate(MR_VOID)
 *	SYNOPSIS	MR_VOID	HighScoreInputShutdown(MR_VOID)
 *
 *	FUNCTION	Shutdown code for High Score Input screen
+*	MATCH		https://decomp.me/scratch/V7TKy	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.05.97	William Bell	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -588,6 +598,8 @@ MR_VOID	HighScoreInputShutdown(MR_VOID)
 			Frogs[i].fr_poly_piece_pop = NULL;
 			}
 		}
+
+	OptionsTidyMemory(TRUE);
 }
 
 
@@ -642,6 +654,8 @@ MR_BOOL HighScoreCheckScore(MR_ULONG score)
 *	FUNCTION	This function checks the time against the entries in the level high
 *				score table.
 *
+*	MATCH		https://decomp.me/scratch/1ZvXy	(By Kneesnap)
+*
 *	INPUTS		high_score_table_number		- Number of the table to enter the score
 *												in.
 *
@@ -653,6 +667,7 @@ MR_BOOL HighScoreCheckScore(MR_ULONG score)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	16.06.97	William Bell	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -666,6 +681,10 @@ MR_BOOL HighScoreCheckArcadeTime(MR_ULONG high_score_table_number,MR_ULONG time)
 	// $da: Changed, because we're making high_score_table_number the same as Game_map,
 	//		so be careful to ensure that the order of Arcade_high_scores array is _EXACTLY_
 	//		the same as the main library layout. No gaps, missus. Or it'll barf. 
+
+	// Ensure JUN2 uses high-score data from JUN1
+	if (high_score_table_number == LEVEL_JUNGLE2)
+		high_score_table_number = LEVEL_JUNGLE1;
 
 	// Loop once for each entry in high score table
 	for(loop_counter=0;loop_counter<3;loop_counter++)
@@ -845,6 +864,7 @@ MR_VOID HighScoreEnterScore(MR_ULONG score)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	16.06.97	William Bell	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -860,6 +880,9 @@ MR_VOID HighScoreEnterArcadeTime(MR_ULONG level_number,MR_ULONG time)
 	//		so be careful to ensure that the order of Arcade_high_scores array is _EXACTLY_
 	//		the same as the main library layout. No gaps, missus. Or it'll barf.
 
+	// Ensure JUN2 uses high-score data from JUN1
+	if (level_number == LEVEL_JUNGLE2)
+		level_number = LEVEL_JUNGLE1;
 
 	// Loop once for each entry in table
 	for(loop_counter_1=0;loop_counter_1<3;loop_counter_1++)
@@ -1276,12 +1299,14 @@ MR_VOID HSInputInitialiseCamera(MR_VOID)
 *						FROG*	frog)
 *
 *	FUNCTION	Move the frog around the number pads
+*	MATCH		https://decomp.me/scratch/jcr91	(By Kneesnap)
 *
 *	INPUTS		frog	-	ptr to FROG to update
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	21.07.97	Tim Closs		Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1364,13 +1389,14 @@ MR_VOID	HSInputUpdateFrog(FROG*	frog)
 					if (High_score_input_initial_pos[frog->fr_frog_id])
 						{
 #ifdef PSX
-						MRSNDPlaySound(SFX_SEL_SPLASH, NULL, 0, 0);
+						MRSNDPlaySound(SFX_GEN_FROG_FLY_GULP, NULL, 0, 0);
 #else
 						MRSNDPlaySound(SFX_SEL_HI_SCORE_COUNT, NULL, 0, 0);
 #endif
 						High_score_input_initial_pos[frog->fr_frog_id]--;
 
 						// Set up lily to turn and show new letter
+						High_score_input_initials[frog->fr_frog_id][High_score_input_initial_pos[frog->fr_frog_id]] = ' ';
 						High_score_input_lily_infos[frog->fr_frog_id].hs_initial_index 	= (frog->fr_frog_id * 3) + High_score_input_initial_pos[frog->fr_frog_id];
 						High_score_input_lily_infos[frog->fr_frog_id].hs_object			= High_score_input_initials_object_ptr[High_score_input_lily_infos[frog->fr_frog_id].hs_initial_index];
 						High_score_input_lily_infos[frog->fr_frog_id].hs_angle			= 0;
@@ -1382,7 +1408,7 @@ MR_VOID	HSInputUpdateFrog(FROG*	frog)
 					{
 					// End hiscore input - explode frog
 #ifdef PSX
-					MRSNDPlaySound(SFX_SEL_SPLASH, NULL, 0, 0);
+					MRSNDPlaySound(SFX_GEN_FROG_EXPLODE, NULL, 0, 0);
 #else
 					MRSNDPlaySound(SFX_SEL_HI_SCORE_COUNT, NULL, 0, 0);
 #endif
@@ -1402,7 +1428,7 @@ MR_VOID	HSInputUpdateFrog(FROG*	frog)
 					if (High_score_input_initial_pos[frog->fr_frog_id] < 3)
 						{
 #ifdef PSX
-						MRSNDPlaySound(SFX_SEL_SPLASH, NULL, 0, 0);
+						MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
 #else
 						MRSNDPlaySound(SFX_SEL_HI_SCORE_COUNT, NULL, 0, 0);
 #endif
@@ -1517,6 +1543,7 @@ MR_VOID	HSInputUpdateFrog(FROG*	frog)
 				// setup anim
 				MRAnimEnvFlipbookSetAction((MR_ANIM_ENV*)frog->fr_api_item, GENM_FROG_SIT);
 				MRAnimEnvFlipbookSetCel((MR_ANIM_ENV*)frog->fr_api_item, 0);
+				MRSNDPlaySound(SFX_GEN_FROG_SPLASH1, NULL, 0, 0);
 				}
 			break;
 		//--------------------------------------------------------------------

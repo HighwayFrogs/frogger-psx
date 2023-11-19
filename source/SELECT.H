@@ -79,8 +79,8 @@
 #define	SEL_SPIN_TIME					(10)
 
 #ifdef PSX
-	#define	SEL_STATUS_END_X_POS			(184)
-	#define	SEL_STATUS_WIDTH				(19 * 8)
+	#define	SEL_STATUS_END_X_POS			(168)
+	#define	SEL_STATUS_WIDTH				(24 * 8)
 	#define	SEL_LEVEL_TITLE_Y				(138)
 	#define	SEL_LEVEL_SCORE_LINE_0_Y		(160+(16*0))
 	#define	SEL_LEVEL_SCORE_LINE_1_Y		(160+(16*1))
@@ -328,7 +328,7 @@ extern	MR_FRAME*		Sel_camera_frame;
 extern	MR_LONG			Sel_target_y;
 extern	SEL_LEVEL_INFO*	Sel_level_ptr;
 extern	SEL_LEVEL_INFO*	Sel_work_level_ptr;
-extern	MR_STRPTR		Sel_hiscore_text[3][21];
+extern	MR_STRPTR		Sel_hiscore_text[3][25];
 extern	MR_BOOL			Sel_requested_play;
 extern	MR_VIEWPORT*	Sel_viewport;
 extern	MR_LONG			Sel_status_start_x;

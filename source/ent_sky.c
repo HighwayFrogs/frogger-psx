@@ -19,7 +19,7 @@
 MR_LONG		script_sky_magical_popping_balloon_pop[] =
 	{
 	ENTSCR_POP,
-	ENTSCR_PLAY_SOUND,			SFX_SKY_RUBBER_BALLOON_FART,				// play sound effect
+	ENTSCR_PLAY_SOUND,			SFX_SKY_HELIUM_BALLOON_POP,					// play sound effect
 	ENTSCR_END,																// stop processing
 	};
 
@@ -76,15 +76,21 @@ MR_LONG		script_sky_homing_bird_hit_frog[] =
 
 MR_LONG		script_sky_homing_bird[] =
 	{
-	ENTSCR_SET_ENTITY_TYPE,			ENTSCR_ENTITY_TYPE_MATRIX,
+	ENTSCR_REGISTER_CALLBACK,		ENTSCR_CALLBACK_1,		SCRIPT_CB_SKY_HOMING_BIRD,		ENTSCR_HIT_FROG,		ENTSCR_CALLBACK_ONCE,
+	ENTSCR_SET_ENTITY_TYPE,			ENTSCR_ENTITY_TYPE_PATH,
 	ENTSCR_PREPARE_REGISTERS,		sizeof(MR_MAT),		2,
 	ENTSCR_SET_ACTION,				1,
-	ENTSCR_REGISTER_CALLBACK,		ENTSCR_CALLBACK_1,		SCRIPT_CB_SKY_BIRD4_CALL,		ENTSCR_HIT_FROG,		ENTSCR_CALLBACK_ONCE,
 	ENTSCR_SETLOOP,
 		ENTSCR_HOME_IN_ON_FROG,		ENTSCR_REGISTERS,	ENTSCR_REGISTER_0,	ENTSCR_REGISTER_1,
 	ENTSCR_ENDLOOP,
 	ENTSCR_RESTART,
 	};
+
+// 04.11.23 - Decompiled by Kneesnap using Ghidra.
+MR_VOID	ScriptCBSkyHomingBird(LIVE_ENTITY* live_entity)
+{
+	MRSNDPlaySound(SFX_SKY_HAWK_CALL, NULL, 0, 0);
+}
 
 //------------------------------------------------------------------------------------------------
 // SKY rubber balloon script(s)
@@ -340,4 +346,20 @@ MR_VOID	ScriptCBSkyHeliumBalloon(LIVE_ENTITY* live_entity)
 	START_NEW_SCRIPT((SCRIPT_INFO*)live_entity->le_script, SCRIPT_SKY_HELIUM_BALLOON_RISING);
 } 
 
+// 04.11.23 - Decompiled by Kneesnap using Ghidra.
+MR_VOID	ScriptCBSkyBalloon(LIVE_ENTITY* live_entity)
+{
+	MRSNDPlaySound(SFX_SKY_RUBBER_BALLOON_SQUEAK, NULL, 0, 0);
+} 
 
+MR_LONG		script_sky_cloudplatform[] =
+	{
+	ENTSCR_REGISTER_CALLBACK,		ENTSCR_CALLBACK_1,		SCRIPT_CB_SKY_BALLOON,		ENTSCR_HIT_FROG,		ENTSCR_CALLBACK_ONCE,
+
+	ENTSCR_SETLOOP,
+
+	ENTSCR_SET_TIMER,				ENTSCR_NO_REGISTERS,	0,
+	ENTSCR_WAIT_UNTIL_TIMER,		ENTSCR_NO_REGISTERS,	10,
+	ENTSCR_ENDLOOP,
+	ENTSCR_RESTART,
+	};

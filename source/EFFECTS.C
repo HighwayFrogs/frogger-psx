@@ -269,6 +269,7 @@ MR_VOID	KillAllEffects(MR_VOID)
 *	SYNOPSIS	MR_VOID	UpdateEffects(MR_VOID)
 *
 *	FUNCTION	Update (but not render) all effects
+*	MATCH		https://decomp.me/scratch/OTXfd	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
@@ -276,6 +277,7 @@ MR_VOID	KillAllEffects(MR_VOID)
 *	02.06.97	Martin Kift		PC'er'fied
 *	07.07.97	Gary Richards	Update the Tongue object code.
 *	20.08.97	Martin Kift		Fixed the update to the tongue code.
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -669,7 +671,8 @@ MR_VOID	UpdateEffects(MR_VOID)
 								{
 								// Set ENTITY to follow tongue back in
 								tongue->to_target->en_flags |= ENTITY_NO_MOVEMENT;
-								live_entity->le_flags		|= LIVE_ENTITY_TONGUED;
+								if (live_entity)
+									live_entity->le_flags	|= LIVE_ENTITY_TONGUED;
 								}
 							}
 						}
@@ -695,12 +698,13 @@ MR_VOID	UpdateEffects(MR_VOID)
 								FrogSetScaling(tongue->to_owner, TONGUE_OWNER_MAX_SCALE, TONGUE_OWNER_SCALE_UP_TIME, TONGUE_OWNER_SCALE_DOWN_TIME);
 		
 								if (form_book->fb_bonus_callback)
-									form_book->fb_bonus_callback(tongue->to_owner, live_entity, NULL);
+									form_book->fb_bonus_callback(tongue->to_owner, tongue->to_target, NULL);
 								else
 									AddFrogScore(tongue->to_owner, Bonus_fly_scores[((GEN_BONUS_FLY*)(tongue->to_target + 1))->bf_type], NULL);
 								
 								// play sfx
 								MRSNDPlaySound(SFX_GEN_FROG_FLY_GULP, NULL, 0, 0);
+								tongue->to_target = NULL;
 								}
 							}
 						}
@@ -1415,7 +1419,8 @@ MR_VOID	ResetTrail(EFFECT*	effect)
 		}
 }
 
-	
+
+#ifdef INCLUDE_UNUSED_FUNCTIONS	
 /******************************************************************************
 *%%%% CreatePolyMesh
 *------------------------------------------------------------------------------
@@ -1446,6 +1451,7 @@ MR_VOID	ResetTrail(EFFECT*	effect)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	20.12.96	Tim Closs		Created
+*	12.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1535,6 +1541,7 @@ POLY_MESH*	CreatePolyMesh(	MR_TEXTURE*		texture,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	20.12.96	Tim Closs		Created
+*	12.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1564,6 +1571,7 @@ MR_VOID	KillPolyMesh(POLY_MESH*	poly_mesh)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	12.12.96	Tim Closs		Created
+*	12.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1683,6 +1691,7 @@ MR_VOID	UpdatePolyMesh(	POLY_MESH*			poly_mesh,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	12.12.96	Tim Closs		Created
+*	12.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1703,6 +1712,7 @@ MR_VOID	RenderPolyMesh(POLY_MESH*	poly_mesh)
 		poly++;
 		}
 }
+#endif
 
 
 /******************************************************************************
@@ -1862,6 +1872,7 @@ MR_VOID	StartTongue(EFFECT*	effect,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	11.07.97	Tim Closs		Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1874,8 +1885,6 @@ MR_VOID	ResetTongue(EFFECT*	effect)
 	tongue = effect->ef_extra;
 
 	effect->ef_flags |= (EFFECT_NO_UPDATE | EFFECT_NO_DISPLAY);
-	if (tongue->to_target)
-		tongue->to_target->en_flags |= ENTITY_HIDDEN;
 
 	tongue->to_flags 	= NULL;
 	tongue->to_target	= NULL;
@@ -2044,6 +2053,7 @@ MR_VOID	UpdatePolyPiecePop(POLY_PIECE_POP*	poly_piece_pop)
 *						MR_ULONG		vp_id)
 *
 *	FUNCTION	Render popping polys
+*	MATCH		https://decomp.me/scratch/e8QAo	(By Kneesnap)
 *
 *	INPUTS		poly_piece_pop	-	ptr to structure to update
 *				mesh_inst_ptr	-	ptr to MR_MESH_INST (to get to polys)
@@ -2052,6 +2062,7 @@ MR_VOID	UpdatePolyPiecePop(POLY_PIECE_POP*	poly_piece_pop)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.07.97	Tim Closs		Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2112,7 +2123,8 @@ MR_VOID	RenderPolyPiecePop(	POLY_PIECE_POP*	poly_piece_pop,
 		type		= ((MR_MPRIM_HEADER*)prim_ptr)->mm_type;
 		i			= ((MR_MPRIM_HEADER*)prim_ptr)->mm_count;
 		prims		-= i;
-		prim_ptr 	+= (1 + (MRPrim_type_mod_sizes[type] * i));
+		prim_ptr++;
+		//prim_ptr 	+= (1 + (MRPrim_type_mod_sizes[type] * i));
 			
 		switch(type)
 			{
@@ -2132,6 +2144,12 @@ MR_VOID	RenderPolyPiecePop(	POLY_PIECE_POP*	poly_piece_pop,
 					gte_stsxy3(	(MR_LONG*)&((POLY_F3*)poly_ptr)->x0,
 								(MR_LONG*)&((POLY_F3*)poly_ptr)->x1,
 								(MR_LONG*)&((POLY_F3*)poly_ptr)->x2);
+					setRGB0((POLY_F3*)poly_ptr,
+							((MR_MPRIM_F3*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_F3*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_F3*)prim_ptr)->mp_cvec.b);
+
+					((MR_MPRIM_F3*)prim_ptr)++;
 					((POLY_F3*)poly_ptr)++;
 					}
 				break;
@@ -2151,6 +2169,12 @@ MR_VOID	RenderPolyPiecePop(	POLY_PIECE_POP*	poly_piece_pop,
 					gte_stsxy3(	(MR_LONG*)&((POLY_FT3*)poly_ptr)->x0,
 								(MR_LONG*)&((POLY_FT3*)poly_ptr)->x1,
 								(MR_LONG*)&((POLY_FT3*)poly_ptr)->x2);
+					setRGB0((POLY_FT3*)poly_ptr,
+							((MR_MPRIM_FT3*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_FT3*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_FT3*)prim_ptr)->mp_cvec.b);
+
+					((MR_MPRIM_FT3*)prim_ptr)++;
 					((POLY_FT3*)poly_ptr)++;
 					}
 				break;
@@ -2170,6 +2194,20 @@ MR_VOID	RenderPolyPiecePop(	POLY_PIECE_POP*	poly_piece_pop,
 					gte_stsxy3(	(MR_LONG*)&((POLY_G3*)poly_ptr)->x0,
 								(MR_LONG*)&((POLY_G3*)poly_ptr)->x1,
 								(MR_LONG*)&((POLY_G3*)poly_ptr)->x2);
+					setRGB0((POLY_G3*)poly_ptr,
+							((MR_MPRIM_G3*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_G3*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_G3*)prim_ptr)->mp_cvec.b);
+					setRGB1((POLY_G3*)poly_ptr,
+							((MR_MPRIM_G3*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_G3*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_G3*)prim_ptr)->mp_cvec.b);
+					setRGB2((POLY_G3*)poly_ptr,
+							((MR_MPRIM_G3*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_G3*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_G3*)prim_ptr)->mp_cvec.b);
+
+					((MR_MPRIM_G3*)prim_ptr)++;
 					((POLY_G3*)poly_ptr)++;
 					}
 				break;
@@ -2189,6 +2227,20 @@ MR_VOID	RenderPolyPiecePop(	POLY_PIECE_POP*	poly_piece_pop,
 					gte_stsxy3(	(MR_LONG*)&((POLY_GT3*)poly_ptr)->x0,
 								(MR_LONG*)&((POLY_GT3*)poly_ptr)->x1,
 								(MR_LONG*)&((POLY_GT3*)poly_ptr)->x2);
+					setRGB0((POLY_GT3*)poly_ptr,
+							((MR_MPRIM_GT3*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_GT3*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_GT3*)prim_ptr)->mp_cvec.b);
+					setRGB1((POLY_GT3*)poly_ptr,
+							((MR_MPRIM_GT3*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_GT3*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_GT3*)prim_ptr)->mp_cvec.b);
+					setRGB2((POLY_GT3*)poly_ptr,
+							((MR_MPRIM_GT3*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_GT3*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_GT3*)prim_ptr)->mp_cvec.b);
+
+					((MR_MPRIM_GT3*)prim_ptr)++;
 					((POLY_GT3*)poly_ptr)++;
 					}
 				break;
@@ -2212,6 +2264,12 @@ MR_VOID	RenderPolyPiecePop(	POLY_PIECE_POP*	poly_piece_pop,
 					gte_rtps();
 					poly_piece++;
 					gte_stsxy((MR_LONG*)&((POLY_F4*)poly_ptr)->x3);
+					setRGB0((POLY_F4*)poly_ptr,
+							((MR_MPRIM_F4*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_F4*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_F4*)prim_ptr)->mp_cvec.b);
+
+					((MR_MPRIM_F4*)prim_ptr)++;
 					((POLY_F4*)poly_ptr)++;
 					}
 				break;
@@ -2235,6 +2293,12 @@ MR_VOID	RenderPolyPiecePop(	POLY_PIECE_POP*	poly_piece_pop,
 					gte_rtps();
 					poly_piece++;
 					gte_stsxy((MR_LONG*)&((POLY_FT4*)poly_ptr)->x3);
+					setRGB0((POLY_FT4*)poly_ptr,
+							((MR_MPRIM_FT4*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_FT4*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_FT4*)prim_ptr)->mp_cvec.b);
+
+					((MR_MPRIM_FT4*)prim_ptr)++;
 					((POLY_FT4*)poly_ptr)++;
 					}
 				break;
@@ -2258,6 +2322,24 @@ MR_VOID	RenderPolyPiecePop(	POLY_PIECE_POP*	poly_piece_pop,
 					gte_rtps();
 					poly_piece++;
 					gte_stsxy((MR_LONG*)&((POLY_G4*)poly_ptr)->x3);
+					setRGB0((POLY_G4*)poly_ptr,
+							((MR_MPRIM_G4*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_G4*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_G4*)prim_ptr)->mp_cvec.b);
+					setRGB1((POLY_G4*)poly_ptr,
+							((MR_MPRIM_G4*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_G4*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_G4*)prim_ptr)->mp_cvec.b);
+					setRGB2((POLY_G4*)poly_ptr,
+							((MR_MPRIM_G4*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_G4*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_G4*)prim_ptr)->mp_cvec.b);
+					setRGB3((POLY_G4*)poly_ptr,
+							((MR_MPRIM_G4*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_G4*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_G4*)prim_ptr)->mp_cvec.b);
+
+					((MR_MPRIM_G4*)prim_ptr)++;
 					((POLY_G4*)poly_ptr)++;
 					}
 				break;
@@ -2281,6 +2363,24 @@ MR_VOID	RenderPolyPiecePop(	POLY_PIECE_POP*	poly_piece_pop,
 					gte_rtps();
 					poly_piece++;
 					gte_stsxy((MR_LONG*)&((POLY_GT4*)poly_ptr)->x3);
+					setRGB0((POLY_GT4*)poly_ptr,
+							((MR_MPRIM_GT4*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_GT4*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_GT4*)prim_ptr)->mp_cvec.b);
+					setRGB1((POLY_GT4*)poly_ptr,
+							((MR_MPRIM_GT4*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_GT4*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_GT4*)prim_ptr)->mp_cvec.b);
+					setRGB2((POLY_GT4*)poly_ptr,
+							((MR_MPRIM_GT4*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_GT4*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_GT4*)prim_ptr)->mp_cvec.b);
+					setRGB3((POLY_GT4*)poly_ptr,
+							((MR_MPRIM_GT4*)prim_ptr)->mp_cvec.r,
+							((MR_MPRIM_GT4*)prim_ptr)->mp_cvec.g,
+							((MR_MPRIM_GT4*)prim_ptr)->mp_cvec.b);
+
+					((MR_MPRIM_GT4*)prim_ptr)++;
 					((POLY_GT4*)poly_ptr)++;
 					}
 				break;

@@ -96,6 +96,22 @@ MR_VOID	ScriptCBDesVultureKill(LIVE_ENTITY* live_entity)
 } */
 
 //------------------------------------------------------------------------------------------------
+// Des Falling Rock Script
+
+MR_LONG		script_des_falling_rock[] =
+	{
+	ENTSCR_REGISTER_CALLBACK,	ENTSCR_CALLBACK_1,		SCRIPT_CB_FROG_TRAFFIC_SPLAT,		ENTSCR_HIT_FROG,		ENTSCR_CALLBACK_ONCE,
+
+	ENTSCR_SETLOOP,
+
+		ENTSCR_SET_TIMER,			ENTSCR_NO_REGISTERS,	0,
+		ENTSCR_WAIT_UNTIL_TIMER,	ENTSCR_NO_REGISTERS,	100,
+	ENTSCR_ENDLOOP,
+	ENTSCR_RESTART,
+	};
+
+
+//------------------------------------------------------------------------------------------------
 // Des Bison Script
 //
 // Play's a sound effect if Frogger gets to close to the bison.
@@ -177,6 +193,7 @@ MR_LONG		script_des_salamander[] =
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Create a falling rock fo desert level
+*	MATCH		https://decomp.me/scratch/AaUXF	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
@@ -184,6 +201,7 @@ MR_LONG		script_des_salamander[] =
 *	-------		----------		------
 *	28.04.97	Martin Kift		Created
 *	18.07.97	Martin Kift		Rewrote rock tumbling code
+*	04.11.23	Kneesnap		Byte-matched function in PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -194,7 +212,6 @@ MR_VOID	ENTSTRDesCreateFallingRock(LIVE_ENTITY*	live_entity)
 	ENTITY*							entity;
 	DESERT_FALLING_ROCK_TARGETS*	target;
 	MR_LONG							i;
-
 
 	entity 			= live_entity->le_entity;
 	rock_map_data	= (DESERT_FALLING_ROCK*)(entity + 1);
@@ -210,6 +227,9 @@ MR_VOID	ENTSTRDesCreateFallingRock(LIVE_ENTITY*	live_entity)
 			target->fr_target.vz 	= (target->fr_target.vz & ~0xff) + 0x80;
 			target->fr_target.vy	= GetHeightFromWorldXYZ(target->fr_target.vx, target->fr_target.vy, target->fr_target.vz, NULL);
 			MR_ASSERT((MR_USHORT)target->fr_target.vy != GRID_RETURN_VALUE_ERROR);
+			if (i == (rock_map_data->fr_num_bounces - 1))
+				target->fr_target.vy -= 0x80;
+				
 			target++;
 			}
 		rock_map_data->fr_flags = DESERT_FALLING_ROCK_TARGETS_RESOLVED;
@@ -517,6 +537,7 @@ MR_VOID	ENTSTRDesKillFallingRock(LIVE_ENTITY*	live_entity)
 
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% ENTSTRDesCreateThermal
 *------------------------------------------------------------------------------
@@ -532,6 +553,7 @@ MR_VOID	ENTSTRDesKillFallingRock(LIVE_ENTITY*	live_entity)
 *	-------		----------		------
 *	06.05.97	Martin Kift		Created
 *	19.08.97	Gary Richards	Removed as they are not used.
+*	04.11.23	Kneesnap		#ifdef'd out to match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -576,6 +598,7 @@ MR_VOID ENTSTRDesCreateThermal(LIVE_ENTITY*	live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	06.05.97 	Martin Kift		Rewrote and ported to new frogger
+*	04.11.23	Kneesnap		#ifdef'd out to match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -600,6 +623,7 @@ MR_VOID ENTSTRDesUpdateThermal(LIVE_ENTITY* live_entity)
 //		MRRotMatrix(&thermal->tw_rotation, live_entity->le_lwtrans);
 //	}
 }
+#endif
 
 /******************************************************************************
 *%%%% ENTSTRDesCreateSnake
@@ -886,7 +910,7 @@ MR_VOID	ENTSTRDesUpdateVulture(LIVE_ENTITY*	live_entity)
 	
 	entity 		= live_entity->le_entity;
 	path_runner = entity->en_path_runner;
-	tan    		= path_runner->pr_tangent;
+	tan			= path_runner->pr_tangent;
 
 	switch(vulture->vu_requested_anim)
 		{
@@ -974,6 +998,7 @@ MR_VOID ENTSTRDesCreateCrocHead(LIVE_ENTITY*	live_entity)
 *	SYNOPSIS	MR_VOID	ENTSTRDesUpdateCrocHead(LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	This function is used to update the Croc Head for the desert maps.
+*	MATCH		https://decomp.me/scratch/Phibl	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to update
 *
@@ -982,6 +1007,7 @@ MR_VOID ENTSTRDesCreateCrocHead(LIVE_ENTITY*	live_entity)
 *	20.06.97	William Bell	Created.
 *	23.06.97	William Bell	Added pause3.
 *	21.08.97	Gary Richards	Added SFX.
+*	04.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1099,7 +1125,8 @@ MR_VOID	ENTSTRDesUpdateCrocHead(LIVE_ENTITY*	live_entity)
 				crochead_rt_ptr->ch_rt_deadly = FALSE;
 				
 				// Make SFX of mouth snapping shut.
-				MRSNDPlaySound(SFX_DES_CROCODILE_SNAP, NULL, 0, 0);
+				if (!live_entity->le_moving_sound)
+					PlayMovingSound(live_entity, SFX_DES_CROCODILE_SNAP, 512, 1536);
 				}
 
 			break;
@@ -1201,9 +1228,7 @@ MR_VOID ENTSTRDesCreateCrack(LIVE_ENTITY*	live_entity)
 	rt_crack->cr_state		  	= DES_CRACK_WAITING_FOR_HITS;
 	rt_crack->cr_current_wait 	= 0;
 	rt_crack->cr_num_hits	  	= 0;
-#ifndef BUILD_49
 	rt_crack->cr_vel_y			= 0;
-#endif
 
 	// Probably need to set the animation in here somewhere as well.
 	MR_ASSERT (live_entity->le_flags & LIVE_ENTITY_FLIPBOOK);
@@ -1224,6 +1249,7 @@ MR_VOID ENTSTRDesCreateCrack(LIVE_ENTITY*	live_entity)
 *	SYNOPSIS	MR_VOID	ENTSTRDesUpdateCrack(LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	This function is used to update the Crack for the desert maps.
+*	MATCH		https://decomp.me/scratch/mbAEZ	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to update
 *
@@ -1231,6 +1257,7 @@ MR_VOID ENTSTRDesCreateCrack(LIVE_ENTITY*	live_entity)
 *	-------		----------		------
 *	26.06.97	Gary Richards	Created.
 *	12.07.97	Martin Kift		Added Updating code
+*	04.11.23	Kneesnap		Byte-matched function to PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1247,6 +1274,7 @@ MR_VOID	ENTSTRDesUpdateCrack(LIVE_ENTITY*	live_entity)
 	MR_LONG					num;
 	FROG*					frog;
 	MR_ULONG				frog_index;
+	MR_LONG					col;
 
 	// Get pointer to runtime structure
 	entity 			= live_entity->le_entity;
@@ -1283,50 +1311,20 @@ MR_VOID	ENTSTRDesUpdateCrack(LIVE_ENTITY*	live_entity)
 				if ( crack_rt_ptr->cr_num_hits >= crack_ptr->cr_hops_before )
 					{
 					// Best we start falling.
-					crack_rt_ptr->cr_current_wait = crack_ptr->cr_fall_delay;
+					crack_rt_ptr->cr_current_wait = 2;
 					crack_rt_ptr->cr_state = DES_CRACK_WAITING_TO_FALL;
 					}
 				}
-			else
-				mesh->me_flags |= MR_MESH_PAUSE_ANIMATED_POLYS;
 			break;
 		// -------------------------------------------------------------------------
 		case DES_CRACK_WAITING_TO_FALL:
-#ifdef BUILD_49
-			if (!(crack_rt_ptr->cr_current_wait--))
-				{
-				// Turn on anims
-				crack_rt_ptr->cr_state = DES_CRACK_FALLING;
-				((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags |= (MR_ANIM_ENV_STEP|MR_ANIM_ENV_ONE_SHOT);
-				mesh->me_flags &= ~MR_MESH_PAUSE_ANIMATED_POLYS;
-
-				// Make SFX for falling .
-				PlaySoundDistance(live_entity, SFX_DES_HOLE01, 30);
-				
-				// turn off collision for this entity
-				live_entity->le_entity->en_flags |= ENTITY_NO_COLLISION;
-					
-				// turn off parent entity for frog, and make it FALL
-				frog		= Frogs;
-				frog_index	= 4;
-				while (frog_index--)
-					{
-					if (frog->fr_entity == live_entity->le_entity)
-						{
-						FROG_FALL(frog);
-						}
-					frog++;
-					}
-				}
-#else
 			crack_rt_ptr->cr_current_wait--;
 		
 			// Start fall sound/anim a little before we drop the frog
-			if (crack_rt_ptr->cr_current_wait <= 0x8)
+			if (crack_rt_ptr->cr_current_wait)
 				{
 				// Turn on anims
 				((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags |= (MR_ANIM_ENV_STEP|MR_ANIM_ENV_ONE_SHOT);
-				mesh->me_flags &= ~MR_MESH_PAUSE_ANIMATED_POLYS;
 
 				// Make SFX for falling .
 				PlaySoundDistance(live_entity, SFX_DES_HOLE01, 30);
@@ -1335,18 +1333,13 @@ MR_VOID	ENTSTRDesUpdateCrack(LIVE_ENTITY*	live_entity)
 				crack_rt_ptr->cr_state 	= DES_CRACK_FALLING;
 				crack_rt_ptr->cr_y		= live_entity->le_lwtrans->t[1] << 16;
 				}
-#endif
-
 			break;
 		// -------------------------------------------------------------------------
 		// This really should be opening, but we don't have the animations for it yet.
 		case DES_CRACK_FALLING:
-#ifdef BUILD_49
-			if (live_entity->le_lwtrans->t[1] < 1024)
-				{
-				live_entity->le_lwtrans->t[1] 	+= SYSTEM_GRAVITY >> 16;
-				}
-#else
+			if (LiveEntityCheckAnimationFinished(live_entity) == FALSE)
+				break;
+			
 			if (crack_rt_ptr->cr_current_wait > 0) 
 				{
 				if (!(--crack_rt_ptr->cr_current_wait))
@@ -1366,6 +1359,7 @@ MR_VOID	ENTSTRDesUpdateCrack(LIVE_ENTITY*	live_entity)
 						frog++;
 						}
 					}
+					break;
 				}
 			else
 				{
@@ -1375,14 +1369,17 @@ MR_VOID	ENTSTRDesUpdateCrack(LIVE_ENTITY*	live_entity)
 					crack_rt_ptr->cr_y 				+= crack_rt_ptr->cr_vel_y;
 					live_entity->le_lwtrans->t[1] 	= crack_rt_ptr->cr_y >> 16;
 					}
+				else
+					crack_rt_ptr->cr_state = DES_CRACK_FINISHED;
 				}
-#endif
+			live_entity->le_flags |= LIVE_ENTITY_NO_SCREEN_FADE;
+			col = MAX(0, (crack_ptr->cr_matrix.t[1] - live_entity->le_lwtrans->t[1] >> 3) + 0x80);
+			SetLiveEntityScaleColours(live_entity, col, col, col);
 			break;
 		// -------------------------------------------------------------------------
 		}
 
 }
-
 
 /******************************************************************************
 *%%%% ENTSTRDesFallingRockCalculateInitialVelocity

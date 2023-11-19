@@ -207,6 +207,7 @@ MR_VOID	ENTSTRCavUpdateFroggerLight(LIVE_ENTITY*	live_entity)
 		}	  
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% CavStickyWebCallback
 *------------------------------------------------------------------------------
@@ -228,6 +229,7 @@ MR_VOID	ENTSTRCavUpdateFroggerLight(LIVE_ENTITY*	live_entity)
 *	-------		----------		------
 *	28.05.97	Martin Kift		Created
 *	30.05.97	Martin Kift		Changed params to MR_VOID*'s
+*	06.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -243,6 +245,7 @@ MR_VOID CavStickyWebCallback(	MR_VOID*	void_frog,
 	// Go into frog user mode for stickyness
 	SetFrogUserMode((FROG*)void_frog, FROGUSER_MODE_COBWEB);
 }
+#endif
 
 
 /******************************************************************************
@@ -404,6 +407,7 @@ MR_VOID	ENTSTRCavCreateFatFireFly(LIVE_ENTITY*	live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	19.06.97	Gary Richards	Created
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -416,7 +420,7 @@ MR_VOID	ENTSTRCavUpdateFatFireFly(LIVE_ENTITY*	live_entity)
 	if (!(entity->en_flags & ENTITY_NO_MOVEMENT))
 		{
 		// Bob fly up and down
-		i 								= (((entity->en_unique_id & 7) << 7) + (Game_timer << 8)) & 0xfff;
+		i 								= (((entity->en_unique_id & 7) << 7) + (MRFrame_number << 8)) & 0xfff;
 		live_entity->le_lwtrans->t[1] 	= ((ENTSTR_STATIC*)(entity + 1))->et_matrix.t[1] + (rsin(i) >> 5);
 
 		if (rand()%20 == 1)
@@ -450,6 +454,7 @@ MR_VOID	ENTSTRCavKillFatFireFly(LIVE_ENTITY*	live_entity)
 	((MR_OBJECT*)live_entity->le_api_item0)->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY;
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% ENTSTRCavCreateRaceSnail
 *------------------------------------------------------------------------------
@@ -464,6 +469,7 @@ MR_VOID	ENTSTRCavKillFatFireFly(LIVE_ENTITY*	live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	01.07.97	Gary Richards	Created
+*	06.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -506,6 +512,7 @@ MR_VOID ENTSTRCavCreateRaceSnail(LIVE_ENTITY* live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	01.07.97	Gary Richards	Created
+*	06.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -558,6 +565,7 @@ MR_VOID ENTSTRCavUpdateRaceSnail(LIVE_ENTITY* live_entity)
 	// update entity WRT path
 	ENTSTRUpdateMovingMOF(live_entity);
 }
+#endif
 
 
 /******************************************************************************

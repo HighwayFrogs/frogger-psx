@@ -103,6 +103,7 @@ MR_LONG	GetWorldYQuadrantFromMatrix(MR_MAT*	matrix)
 }
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% SetMatrixToWorldYQuadrant
 *------------------------------------------------------------------------------
@@ -120,6 +121,7 @@ MR_LONG	GetWorldYQuadrantFromMatrix(MR_MAT*	matrix)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	02.07.97	Tim Closs		Created
+*	03.11.23	Kneesnap		Disabled as part of effort to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -141,6 +143,7 @@ MR_LONG	SetMatrixToWorldYQuadrant(MR_MAT*	matrix)
 	matrix->m[2][1] = 0;
 	matrix->m[2][2] = cos;
 }
+#endif
 
 
 /******************************************************************************

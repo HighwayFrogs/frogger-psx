@@ -18,7 +18,9 @@
 #include "misc.h"
 
 CAMERA	Cameras[SYSTEM_MAX_VIEWPORTS];
+#ifdef CAMERA_DEBUG_REMOTE
 MR_MAT	Camera_debug_remote_matrix;
+#endif
 
 
 /******************************************************************************
@@ -28,10 +30,12 @@ MR_MAT	Camera_debug_remote_matrix;
 *	SYNOPSIS	MR_VOID	InitialiseCameras(MR_VOID)
 *
 *	FUNCTION	Initialise cameras for all viewports
+*	MATCH		https://decomp.me/scratch/nlPNM	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.05.97	Tim Closs		Created
+*	30.10.23	Kneesnap		Added ORG multiplayer check to byte-match PSX Build 71.
 *
 *%%%**************************************************************************/
 
@@ -39,6 +43,12 @@ MR_VOID	InitialiseCameras(MR_VOID)
 {
 	MR_ULONG	i;
 	
+	// Change the camera offset in multiplayer ORG levels.
+	if ((Game_total_players > 2) && (Game_map_theme == THEME_ORG))
+		{
+		Map_general_header->gh_default_camera_source_ofs.vy = (Map_general_header->gh_default_camera_source_ofs.vy * 3 >> 2);
+		Map_general_header->gh_default_camera_target_ofs.vy = (Map_general_header->gh_default_camera_target_ofs.vy * 3 >> 2);
+		}
 
 #ifdef CAMERA_FORCE_DEFAULT
 	MR_SET_SVEC(&Map_general_header->gh_default_camera_source_ofs, CAMERA_FROG_DEFAULT_SOURCE_OFS_X, CAMERA_FROG_DEFAULT_SOURCE_OFS_Y, CAMERA_FROG_DEFAULT_SOURCE_OFS_Z);
@@ -204,6 +214,7 @@ MR_VOID	UpdateCameras(MR_VOID)
 *	09.05.97	Tim Closs		Created
 *	07.06.97	Martin Kift		Added CAMERA_IGNORE_FROG_Y flag
 *	19.08.97	Tim Closs		Recoded the way it works out the control quadrant
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -582,7 +593,7 @@ MR_VOID	UpdateCamera(CAMERA*	camera)
 				)
 				{
 				// Fixed y zone - override dest_y
-				dest_y = camera->ca_current_source_ofs.vy;
+				dest_y = camera->ca_next_source_ofs.vy;
 				}
 			// Move camera_current.vy towards dest_y
 			if (!(camera->ca_flags & CAMERA_IGNORE_FROG_Y))

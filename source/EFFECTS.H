@@ -270,11 +270,13 @@ extern	EFFECT*			CreateTongue(MR_MAT*, MR_VOID*);
 extern	MR_VOID			StartTongue(EFFECT*, ENTITY*);
 extern	MR_VOID			ResetTongue(EFFECT*);
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 // Poly mesh
 extern	POLY_MESH*		CreatePolyMesh(MR_TEXTURE*, MR_SHORT, MR_SHORT, MR_USHORT, MR_USHORT, MR_VIEWPORT*, MR_ULONG, MR_USHORT);
 extern	MR_VOID			KillPolyMesh(POLY_MESH*);
 extern	MR_VOID			UpdatePolyMesh(POLY_MESH*, POLY_MESH_LIGHT*, POLY_MESH_LIGHT*, POLY_MESH_LIGHT*);
 extern	MR_VOID			RenderPolyMesh(POLY_MESH*);
+#endif
 
 // Poly piece
 extern	POLY_PIECE*		CreateMeshPolyPieces(MR_MOF*);

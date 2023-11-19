@@ -49,7 +49,7 @@ XA_FILE		xa_file_list[] =
 					{	"\\L_TUNES1.STR;1",				// File name
 				 		NULL,						 	// Pointer to change list 
 						{			
-						DEF_XA_LENGTH(2,26,0),			// Sky1
+						DEF_XA_LENGTH(2,25,21),			// Sky1
 						DEF_XA_LENGTH(2,8,4),			// Industrial2
 						DEF_XA_LENGTH(2,5,21),			// Caves1
 						DEF_XA_LENGTH(2,5,7),			// Suburbia2
@@ -62,7 +62,7 @@ XA_FILE		xa_file_list[] =
 					{	"\\L_TUNES2.STR;1",				// File name
 				 		NULL,						 	// Pointer to change list 
 						{			
-						DEF_XA_LENGTH(2,4,5),			// Original1
+						DEF_XA_LENGTH(2,4,1),			// Original1
 						DEF_XA_LENGTH(2,1,0),			// Jungle3.
 						DEF_XA_LENGTH(2,0,4),			// Desert1
 						DEF_XA_LENGTH(1,59,22),			// Jungle1
@@ -75,8 +75,8 @@ XA_FILE		xa_file_list[] =
 					{	"\\L_TUNES3.STR;1",				// File name
 				 		NULL,						 	// Pointer to change list 
 						{			
-						DEF_XA_LENGTH(1,25,4),			// Jungle2
-						DEF_XA_LENGTH(1,25,3),			// Forest1
+						DEF_XA_LENGTH(1,24,17),			// Jungle2
+						DEF_XA_LENGTH(1,23,23),			// Forest1
 						DEF_XA_LENGTH(1,24,10),			// Sky2
 						DEF_XA_LENGTH(1,23,29),			// Original2
 						DEF_XA_LENGTH(0,59,7),			// Forest2
@@ -88,23 +88,23 @@ XA_FILE		xa_file_list[] =
 					{	"\\L_TUNES4.STR;1",				// File name
 				 		NULL,						 	// Pointer to change list 
 						{			
-						DEF_XA_LENGTH(0,10,0),			// Caves Zone Complete.
-						DEF_XA_LENGTH(0,10,0),			// Desert Zone Complete.
-						DEF_XA_LENGTH(0,10,0),			// Forest Zone Complete.
-						DEF_XA_LENGTH(0,10,0),			// Jungle Zone Complete.
-						DEF_XA_LENGTH(0,10,0),			// Retro Zone Complete.
-						DEF_XA_LENGTH(0,10,0),			// Ruins Zone Complete.
-						DEF_XA_LENGTH(0,10,0),			// Sewer Zone Complete
+						DEF_XA_LENGTH(0,9,21),			// Caves Zone Complete.
+						DEF_XA_LENGTH(0,9,21),			// Desert Zone Complete.
+						DEF_XA_LENGTH(0,9,21),			// Forest Zone Complete.
+						DEF_XA_LENGTH(0,9,21),			// Jungle Zone Complete.
+						DEF_XA_LENGTH(0,9,21),			// Retro Zone Complete.
+						DEF_XA_LENGTH(0,9,21),			// Ruins Zone Complete.
+						DEF_XA_LENGTH(0,9,21),			// Sewer Zone Complete
 						},
 					},
 
 					{	"\\L_TUNES5.STR;1",				// File name
 				 		NULL,						 	// Pointer to change list 
 						{			
-						DEF_XA_LENGTH(0,10,0),			// Sky Zone Complete.
-						DEF_XA_LENGTH(0,10,0),			// Sub Zone Complete.
-						DEF_XA_LENGTH(0,10,0),			// Industrial Zone Complete.
-						DEF_XA_LENGTH(0,9,0),			// Game Over.
+						DEF_XA_LENGTH(0,9,21),			// Sky Zone Complete.
+						DEF_XA_LENGTH(0,9,21),			// Sub Zone Complete.
+						DEF_XA_LENGTH(0,9,21),			// Industrial Zone Complete.
+						DEF_XA_LENGTH(0,7,0),			// Game Over.
 						DEF_XA_LENGTH(0,10,0),			// Pad1.
 						DEF_XA_LENGTH(0,10,0),			// Pad2.
 						DEF_XA_LENGTH(0,10,0),			// Pad3.

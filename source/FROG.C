@@ -23,6 +23,7 @@
 *%%%**************************************************************************/
 
 #include "camera.h"
+#include "collide.h"
 #include "entlib.h"
 #include "ent_cav.h"
 #include "ent_gen.h"
@@ -44,6 +45,8 @@
 #include "SYSTEM.H"
 #include "tempopt.h"
 #include "xalist.h"
+
+MR_MAT Frog_splash_matrix;
 
 // This is the only function in this file not declared in FROG.H
 MR_ULONG TestFrogHasLineOfSight(FROG* frog, LIVE_ENTITY* entity);
@@ -184,7 +187,8 @@ MR_VOID (*Frog_controller_hooks[])(FROG*, MR_ULONG) =
 	NULL,
 	FrogModeControlStationary,
 	NULL,
-	FrogModeControlStationary
+	FrogModeControlStationary,
+	NULL
 	};
 	
 MR_ULONG (*Frog_movement_hooks[])(FROG*, MR_ULONG, MR_ULONG*) =
@@ -270,6 +274,7 @@ MR_VOID	InitialiseFrogs(MR_VOID) {
 *
 *	FUNCTION	Creates a frog representation for the provided player at the provided position
 *	MATCH		https://decomp.me/scratch/akXaF (By Kneesnap & Anon)
+*				https://decomp.me/scratch/HzhTp (By Kneesnap)
 *
 *	INPUTS		frog_id		-	The id (between 0 and 3) of the frog to create.
 *				input		-	The index into the Frog_current_control_methods array.
@@ -308,6 +313,7 @@ FROG* CreateFrog(MR_ULONG frog_id, MR_ULONG input, MR_ULONG startX, MR_ULONG sta
         MR_INIT_MAT(&frog->fr_croak_scale_matrix);
         MRAnimEnvSingleSetPartFlags(frog->fr_api_item, THROAT, MR_ANIM_PART_TRANSFORM_PART_SPACE);
         MRAnimEnvSingleSetImportedTransform((MR_ANIM_ENV*) frog->fr_api_item, THROAT, &frog->fr_croak_scale_matrix);
+		((MR_ANIM_ENV*) frog->fr_api_item)->ae_special_flags |= MR_ANIM_ENV_DISPLAY_LIMITED_PARTS;
         MRAnimEnvSingleClearPartFlags((MR_ANIM_ENV*) frog->fr_api_item, THROAT, MR_ANIM_PART_DISPLAY);
     } else { // Use low poly frogs.
         model = Model_MOF_ptrs[Frog_player_data[frog_id].fp_player_id + MODEL_MOF_FROG_FLIPBOOK_0];
@@ -366,7 +372,7 @@ FROG* CreateFrog(MR_ULONG frog_id, MR_ULONG input, MR_ULONG startX, MR_ULONG sta
     // Setup Poly Piece Pop
     if (Game_total_players > GAME_MAX_HIGH_POLY_PLAYERS) {
         frog->fr_poly_piece_pop = MRAllocMem(sizeof(POLY_PIECE_POP) + (Frog_model_pieces_polys * sizeof(POLY_PIECE_DYNAMIC)), "FROG POLY PIECE POP");
-        frog->fr_poly_piece_pop->pp_mof = Frog_model_pieces_mof;
+        frog->fr_poly_piece_pop->pp_mof = Model_MOF_ptrs[Frog_player_data[frog_id].fp_player_id + MODEL_MOF_FROG_FLIPBOOK_0];
         frog->fr_poly_piece_pop->pp_numpolys = Frog_model_pieces_polys;
         frog->fr_poly_piece_pop->pp_timer = 0;
         frog->fr_poly_piece_pop->pp_lwtrans = frog->fr_lwtrans;
@@ -445,6 +451,7 @@ MR_VOID FrogInitCustomAmbient(FROG* frog) {
 *
 *	FUNCTION	Resets the provided frog to the provided position
 *	MATCH		https://decomp.me/scratch/GBPEd (By Kneesnap)
+				https://decomp.me/scratch/XeHVp (By Kneesnap)
 *
 *	INPUTS		frog		-	pointer to the frog
 *				gridStartX	-	the x grid coordinate to place the frog on
@@ -454,6 +461,7 @@ MR_VOID FrogInitCustomAmbient(FROG* frog) {
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	01.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -464,9 +472,12 @@ MR_VOID ResetFrog(FROG* frog, MR_LONG gridStartX, MR_LONG gridStartZ, MR_ULONG g
     MR_SHORT cos;
     MR_SHORT sin;
     MR_LONG frog_dir;
-    MR_LONG i;
+    MR_LONG i, j;
     GRID_STACK* grid_stack;
     MR_OBJECT* frog_obj;
+    FROG* temp_frog, *temp_frog2;
+    MR_MAT matrix;
+    MR_LONG x, z;
 
     // Reset basic frog data.
     frog->fr_flags = (FROG_CONTROL_ACTIVE | FROG_ACTIVE);
@@ -505,13 +516,13 @@ MR_VOID ResetFrog(FROG* frog, MR_LONG gridStartX, MR_LONG gridStartZ, MR_ULONG g
             frog->fr_pos.vy += (-FROG_COLLIDE_RADIUS2 << 12); 
             break;
         case GAME_MODE_SINGLE_TRIGGER_COLLECTED:
-	    case GAME_MODE_SINGLE_FROG_DIED:
-	    case GAME_MODE_MULTI_START:
-	    case GAME_MODE_MULTI_TRIGGER_COLLECTED:
-	    case GAME_MODE_MULTI_FROG_DIED:
-	    case GAME_MODE_LEVEL_FAST_START:
-	    case GAME_MODE_LEVEL_PLAY:
-	    default:
+        case GAME_MODE_SINGLE_FROG_DIED:
+        case GAME_MODE_MULTI_START:
+        case GAME_MODE_MULTI_TRIGGER_COLLECTED:
+        case GAME_MODE_MULTI_FROG_DIED:
+        case GAME_MODE_LEVEL_FAST_START:
+        case GAME_MODE_LEVEL_PLAY:
+        default:
             frog->fr_mode = FROG_MODE_WAIT_FOR_CAMERA;
             break;
     }
@@ -554,9 +565,42 @@ MR_VOID ResetFrog(FROG* frog, MR_LONG gridStartX, MR_LONG gridStartZ, MR_ULONG g
     if (frog->fr_tongue != NULL)
         ResetTongue(frog->fr_tongue);
 
-    // Reset stacking.
-    frog->fr_stack_master = NULL;
-    frog->fr_stack_slave = NULL;
+    // Reset stacking
+    if (frog->fr_stack_master != NULL) {
+        frog->fr_stack_master->fr_stack_slave = NULL;
+        frog->fr_stack_master = NULL;
+    }
+
+    if (frog->fr_stack_slave != NULL) {
+        frog->fr_stack_slave->fr_stack_master = NULL;
+        frog->fr_stack_slave = NULL;
+    }
+
+    // Update stacked frogs on the square the frog is placed
+    temp_frog = Frogs; // Should be: a2, is: a3 ot
+    j = Game_total_players; // Should be a3, is: a1
+    while (j--) {
+        if ((temp_frog != frog) && (temp_frog->fr_flags & FROG_ACTIVE) && (temp_frog->fr_mode == FROG_MODE_STATIONARY) && temp_frog->fr_lwtrans != NULL) {
+            x = (temp_frog->fr_lwtrans->t[0] - Grid_base_x) >> 8;
+            z = (temp_frog->fr_lwtrans->t[2] - Grid_base_z) >> 8;
+
+            if (x == gridStartX && z == gridStartZ && (temp_frog->fr_stack_slave == NULL)) {
+                temp_frog->fr_stack_slave = frog;
+                frog->fr_stack_master = temp_frog;
+                
+                temp_frog2 = frog;
+                while (temp_frog2->fr_stack_master != NULL) {
+                    MRTransposeMatrix(temp_frog2->fr_lwtrans, &matrix);
+                    SnapFrogRotationToMatrix(temp_frog2->fr_stack_master, temp_frog2->fr_lwtrans, &matrix);
+                    MRMulMatrixABC(temp_frog2->fr_stack_master->fr_lwtrans, &matrix, &temp_frog2->fr_stack_master->fr_stack_mod_matrix);
+                    temp_frog2 = temp_frog2->fr_stack_master;
+                }
+                break; 
+            }
+        }
+
+        temp_frog++;
+    }
 
     // Find the object for the frog character.
     if (Game_total_players > GAME_MAX_HIGH_POLY_PLAYERS) {
@@ -597,11 +641,12 @@ MR_VOID ResetFrog(FROG* frog, MR_LONG gridStartX, MR_LONG gridStartZ, MR_ULONG g
     // Allow camera zones to update again.
     frog->fr_flags &= ~FROG_DO_NOT_UPDATE_CAMERA_ZONES;
 
-    // Resume music.
-    if (Game_pausing_xa == TRUE) {
-        XAControl(XACOM_RESUME, 0);
+    // Resume music
+    if (Game_pausing_xa == TRUE)
         Game_pausing_xa = FALSE;
-    }
+    
+    SetTemporaryMusicVolume(Music_volume);
+    LiveEntityChangeVolume(0, TRUE);
 }
 
 /******************************************************************************
@@ -662,10 +707,12 @@ MR_VOID KillFrog(FROG* frog) {
 *
 *	FUNCTION	Updates all frogs by handling controller input / movement and by updating powerups, effects, frog coloring, and, stacking.
 *	MATCH		https://decomp.me/scratch/KO13T (By Kneesnap)
+*				https://decomp.me/scratch/MUjyD (By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	01.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -706,7 +753,7 @@ MR_VOID UpdateFrogs(MR_VOID) {
     frog = Frogs;
     i = Game_total_players;
     while (i--) {
-        if ((frog->fr_flags & (FROG_ACTIVE | FROG_CONTROL_ACTIVE)) == (FROG_ACTIVE | FROG_CONTROL_ACTIVE))
+        if ((frog->fr_flags & FROG_ACTIVE) == FROG_ACTIVE)
             CollideFrog(frog);
         
         UpdateFrogEffects(frog);
@@ -724,12 +771,14 @@ MR_VOID UpdateFrogs(MR_VOID) {
 *
 *	FUNCTION	Listens and performs updates for any controller inputs the player performs.
 *	MATCH		https://decomp.me/scratch/6D8Zh (By Kneesnap)
+*				https://decomp.me/scratch/OPejj (By Kneesnap)
 *
 *	INPUTS		frog		-	pointer to the frog
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	01.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -738,8 +787,11 @@ MR_VOID ControlFrog(FROG* frog) {
 
     if (frog->fr_flags & FROG_MUST_DIE) {
         frog->fr_flags &= ~FROG_MUST_DIE;
+        if ((frog->fr_mode != FROG_MODE_JUMPING) || !(frog->fr_flags & FROG_JUMP_TO_LAND))
+            frog->fr_count = 0;
+		
         frog->fr_mode = FROG_MODE_DYING;
-        frog->fr_count = FROG_DEATH_TIME;
+        frog->fr_death_count = FROG_DEATH_TIME;
         camera = &Cameras[frog->fr_frog_id];
         camera->ca_next_source_ofs.vx = CAMERA_FROG_DEATH_SOURCE_OFS_X;
         camera->ca_next_source_ofs.vy = CAMERA_FROG_DEATH_SOURCE_OFS_Y;
@@ -772,12 +824,14 @@ MR_VOID ControlFrog(FROG* frog) {
 *
 *	FUNCTION	Updates the provided frog's movement regardless of its current state (eg: sliding, hopping, etc)
 *	MATCH		https://decomp.me/scratch/o2JEl (By Kneesnap & nneonneo)
+*				https://decomp.me/scratch/V6Hyn (By Kneesnap)
 *
 *	INPUTS		frog		-	pointer to the frog
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	01.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -813,8 +867,13 @@ MR_VOID MoveFrog(FROG* frog) {
     if (flags & FROG_MOVEMENT_CALLBACK_UPDATE_OLD_POS)
         UpdateFrogOldPositionalInfo(frog);
     
-    if (frog->fr_flags & FROG_ON_ENTITY)
-        frog->fr_entity->en_live_entity->le_flags |= (LIVE_ENTITY_CARRIES_FROG_0 << frog->fr_frog_id);
+    if (frog->fr_flags & FROG_ON_ENTITY) {
+        if (frog->fr_entity->en_live_entity == NULL) {
+            frog->fr_flags &= ~FROG_ON_ENTITY;
+        } else {
+            frog->fr_entity->en_live_entity->le_flags |= (LIVE_ENTITY_CARRIES_FROG_0 << frog->fr_frog_id);
+        }        
+    }
     
     UpdateFrogCameraZone(frog);
 }
@@ -913,6 +972,7 @@ MR_VOID SetFrogUserMode(FROG* frog, MR_ULONG mode) {
 *
 *	FUNCTION	Enters the jumping process to cause the frog to jump in a particular direction.
 *	MATCH		https://decomp.me/scratch/mjSV0 (By mono21400 & stuck-pixel & Kneesnap) Extra extra thanks to mono21400 for this function.
+*				https://decomp.me/scratch/vv0WT	(By Kneesnap & mono21400 for the giga-brain match)
 *
 *	INPUTS		frog		-	pointer to the frog
 *				direction	-	the cardinal direction to move the frog
@@ -923,6 +983,7 @@ MR_VOID SetFrogUserMode(FROG* frog, MR_ULONG mode) {
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	13.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	01.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -959,28 +1020,20 @@ MR_VOID JumpFrog(FROG* frog, MR_LONG jump_direction, MR_ULONG jump_type, MR_LONG
     old_direction = frog->fr_direction;
     camera = &Cameras[frog->fr_frog_id];
 
-    // Grid positions.
-    do { // TODO: This block here is almost certainly a fake match, but we haven't found anything better.
-        original_entity_grid_x = frog->fr_entity_grid_x;
-        x_dir = 0; 
+    // Grid positions
+    original_entity_grid_x = frog->fr_entity_grid_x;
+    x_dir = 0; 
     
-        entity = frog->fr_entity;
+    entity = frog->fr_entity;
     
-        original_entity_grid_z = frog->fr_entity_grid_z;
-        z_dir = 0;
-    } while(0);
+    original_entity_grid_z = frog->fr_entity_grid_z;
+    z_dir = 0;
 
-    // Remove the stack master.
-    if (frog->fr_stack_master != NULL) {
-        frog->fr_stack_master->fr_stack_slave = NULL;
-        frog->fr_stack_master = NULL;
-    }
-
-    // Remove the stack slave.
-    if (frog->fr_stack_slave != NULL) {
-        frog->fr_stack_slave->fr_stack_master = NULL;
-        frog->fr_stack_slave = NULL;
-    }
+    // mono21400 somehow figured this out.
+    // I have no idea why this makes the code match, but it does.
+    // It swaps register v0 with v1, which is the temporary place "camera" is kept.
+    if (x)
+      x = !x;
 
     // Determine the allowed jump height.
     if ((jump_type & FROG_JUMP_SUPER)) {
@@ -1071,6 +1124,8 @@ MR_VOID JumpFrog(FROG* frog, MR_LONG jump_direction, MR_ULONG jump_type, MR_LONG
                     frog->fr_target_pos.vy = form_height;
                     frog->fr_target_pos.vz = (frog->fr_entity_grid_z << WORLD_SHIFT) + form->fo_zofs + 0x80;
                     goto jump_if_possible;
+                } else if (!(gs_flags & GRID_SQUARE_BOUNCE_WALL_N)) {
+                    goto movement_failure;
                 }
             }
 
@@ -1110,6 +1165,7 @@ MR_VOID JumpFrog(FROG* frog, MR_LONG jump_direction, MR_ULONG jump_type, MR_LONG
             grid_square = &Grid_squares[grid_stack->gs_index];
             while (squares--) {
                 if (!(grid_square->gs_flags & GRID_SQUARE_USABLE)) {
+                    movement_failure:
                     // The square is not usable, play the "OUCH" animation. (Animation played if you try to hop into a wall.)
                     FrogRequestAnimation(frog, FROG_ANIMATION_OUCH, 0, 0);
                     frog->fr_entity_grid_x = original_entity_grid_x;
@@ -1311,7 +1367,7 @@ MR_VOID JumpFrog(FROG* frog, MR_LONG jump_direction, MR_ULONG jump_type, MR_LONG
                     frog->fr_old_direction = frog->fr_direction;
                     frog->fr_direction = new_direction;
                     FrogRequestAnimation(frog, FROG_ANIMATION_OUCH, 0, 0);
-                    goto jump_if_possible;
+                    return;
                 }
             } else {
                 // There are no grid squares in the target stack, so it's jumping out of the world.
@@ -1337,6 +1393,16 @@ found_grid_square:
     }
     
 jump_if_possible:
+    if (frog->fr_stack_master != NULL) {
+        frog->fr_stack_master->fr_stack_slave = NULL;
+        frog->fr_stack_master = NULL;
+    }
+    
+    if (frog->fr_stack_slave != NULL) {
+        frog->fr_stack_slave->fr_stack_master = NULL;
+        frog->fr_stack_slave = NULL;
+    }
+
     if (actually_moved != TRUE)
         return; // No jump should occur, get outta here.
 
@@ -1348,12 +1414,12 @@ jump_if_possible:
         MRSNDPlaySound(SFX_GEN_FROG_SUPER_HOP, NULL, 0, 0);
         FrogRequestAnimation(frog, FROG_ANIMATION_SUPERJUMP, 0, 0);
         AddFrogScore(frog, SCORE_10, NULL);
-        DisplayHUDHelp(frog->fr_frog_id, 0);
+        DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_SUPERJUMP, 0, TRUE);
         frog->fr_trail->ef_flags |= EFFECT_RESET;
         ((TRAIL*)frog->fr_trail->ef_extra)->tr_rgb = ((TRAIL_RGB_START + TRAIL_RGB_MAX) >> 1);
         ((TRAIL*)frog->fr_trail->ef_extra)->tr_timer = 26;
     } else {
-        MRSNDPlaySound(SFX_GEN_FROG_HOP, NULL, 0, (Game_timer & 3) << 7);
+        MRSNDPlaySound(SFX_GEN_FROG_HOP, NULL, 0, (MRFrame_number & 3) << 7);
         
         if (frog->fr_powerup_flags & FROG_POWERUP_QUICK_JUMP) {
             FrogRequestAnimation(frog, FROG_ANIMATION_SUPERHOP, 0, 0);
@@ -1369,9 +1435,6 @@ jump_if_possible:
                 FrogRequestAnimation(frog, FROG_ANIMATION_HOP, 0, 0);
                 AddFrogScore(frog, SCORE_5, NULL);
             }
-        } else if ((frog->fr_flags & FROG_JUMP_FROM_ENTITY) && !(frog->fr_flags & FROG_JUMP_TO_ENTITY) && old_direction == (frog->fr_direction - 2)) {
-            FrogRequestAnimation(frog, FROG_ANIMATION_BACKFLIP, 0, 0);
-            AddFrogScore(frog, SCORE_5, NULL);
         } else {
             FrogRequestAnimation(frog, FROG_ANIMATION_HOP, 0, 0);
             AddFrogScore(frog, SCORE_5, NULL);
@@ -1454,6 +1517,7 @@ block_173_1:
 *
 *	FUNCTION	The update hook run when the frog is stationary
 *	MATCH		https://decomp.me/scratch/Wi789 (By Kneesnap & an unknown helper who didn't sign in)
+*				https://decomp.me/scratch/8G7qt (By Kneesnap & ethteck)
 *
 *	INPUTS		frog		-	pointer to the frog
 *				mode		-	the current game mode
@@ -1461,6 +1525,7 @@ block_173_1:
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	01.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1509,6 +1574,13 @@ MR_VOID FrogModeControlStationary(FROG* frog, MR_ULONG mode) {
                     break;
                 case FROG_DIRECTION_W:
                     if (MR_CHECK_PAD_HELD(frog->fr_input_id, frog->fr_control_method->fc_left_control)) {
+                        input = *key_ptr;
+                        frog->fr_buffered_input_count++;
+                        goto loop_end;
+                    }
+                    break;
+                case FROG_DIRECTION_SUPER_JUMP:
+                    if (MR_CHECK_PAD_HELD(frog->fr_input_id, frog->fr_control_method->fc_superjump_control)) {
                         input = *key_ptr;
                         frog->fr_buffered_input_count++;
                         goto loop_end;
@@ -1576,70 +1648,56 @@ MR_VOID FrogModeControlStationary(FROG* frog, MR_ULONG mode) {
             input = *Demo_data_input_ptr++;
 
         // Rotate the camera clockwise if the button is pressed.
-#ifdef BUILD_49
-		if (frog->fr_mode == FROG_MODE_STATIONARY) {
-#endif
-			if ((input & FROG_DIRECTION_CAMERA_CLOCKWISE) && ((camera->ca_zone == NULL) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_direction < 0) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_flags & ZONE_FLAG_SEMIFORCED))) {
-#ifdef BUILD_49
-				frog->fr_mode = FROG_MODE_WAIT_FOR_CAMERA;
-#else
-				if (frog->fr_mode == FROG_MODE_STATIONARY) 
-					frog->fr_mode = FROG_MODE_WAIT_FOR_CAMERA;
-#endif
+        if ((input & FROG_DIRECTION_CAMERA_CLOCKWISE) && ((camera->ca_zone == NULL) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_direction < 0) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_flags & ZONE_FLAG_SEMIFORCED))) {
+            if (frog->fr_mode == FROG_MODE_STATIONARY || frog->fr_mode == FROG_MODE_STACK_MASTER)
+                frog->fr_mode = FROG_MODE_WAIT_FOR_CAMERA;
             
-				camera->ca_twist_counter = 1;
-				camera->ca_twist_quadrants = 1;
-				camera->ca_move_timer = CAMERA_TWIST_TIME;
-				if (frog->fr_cam_zone != NULL) {
-					if (frog->fr_entity != NULL) {
-						ProjectMatrixOntoWorldXZ(frog->fr_entity->en_live_entity->le_lwtrans, &MRTemp_matrix);
-						MRMulMatrixABC(&camera->ca_mod_matrix, &MRTemp_matrix, &matrix);
-						i = (GetWorldYQuadrantFromMatrix(&matrix) + 1) & 3;
-					} else {
-						i = (GetWorldYQuadrantFromMatrix(&camera->ca_mod_matrix) + 1) & 3;
-					}
+            camera->ca_twist_counter = 1;
+            camera->ca_twist_quadrants = 1;
+            camera->ca_move_timer = CAMERA_TWIST_TIME;
+            if (frog->fr_cam_zone != NULL) {
+                if (frog->fr_entity != NULL) {
+                    ProjectMatrixOntoWorldXZ(frog->fr_entity->en_live_entity->le_lwtrans, &MRTemp_matrix);
+                    MRMulMatrixABC(&camera->ca_mod_matrix, &MRTemp_matrix, &matrix);
+                    i = (GetWorldYQuadrantFromMatrix(&matrix) + 1) & 3;
+                } else {
+                    i = (GetWorldYQuadrantFromMatrix(&camera->ca_mod_matrix) + 1) & 3;
+                }
 
-					MR_COPY_SVEC(&camera->ca_next_source_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_source_ofs_n);
-					MR_COPY_SVEC(&camera->ca_next_target_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_target_ofs_n);
-				} else {
-					CAMERA_SET_DEFAULT_NEXT_SOURCE_OFS;
-					CAMERA_SET_DEFAULT_NEXT_TARGET_OFS;
-				}
-				return;
-			}
+                MR_COPY_SVEC(&camera->ca_next_source_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_source_ofs_n);
+                MR_COPY_SVEC(&camera->ca_next_target_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_target_ofs_n);
+            } else {
+                CAMERA_SET_DEFAULT_NEXT_SOURCE_OFS;
+                CAMERA_SET_DEFAULT_NEXT_TARGET_OFS;
+            }
+            return;
+        }
 
-			// Rotate the camera counter-clockwise if the button is pressed.
-			if ((input & FROG_DIRECTION_CAMERA_ANTICLOCKWISE) && ((camera->ca_zone == NULL) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_direction < 0) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_flags & ZONE_FLAG_SEMIFORCED))) {
-#ifdef BUILD_49
-				frog->fr_mode = FROG_MODE_WAIT_FOR_CAMERA;
-#else
-				if (frog->fr_mode == FROG_MODE_STATIONARY) 
-					frog->fr_mode = FROG_MODE_WAIT_FOR_CAMERA;
-#endif
+        // Rotate the camera counter-clockwise if the button is pressed.
+        if ((input & FROG_DIRECTION_CAMERA_ANTICLOCKWISE) && ((camera->ca_zone == NULL) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_direction < 0) || (((ZONE_CAMERA*)(camera->ca_zone + 1))->zc_flags & ZONE_FLAG_SEMIFORCED))) {
+            if (frog->fr_mode == FROG_MODE_STATIONARY || frog->fr_mode == FROG_MODE_STACK_MASTER)
+                frog->fr_mode = FROG_MODE_WAIT_FOR_CAMERA;
             
-				camera->ca_twist_counter = -1;
-				camera->ca_twist_quadrants = 1;
-				camera->ca_move_timer = CAMERA_TWIST_TIME;
-				if (frog->fr_cam_zone != NULL) {
-					if (frog->fr_entity != NULL) {
-						ProjectMatrixOntoWorldXZ(frog->fr_entity->en_live_entity->le_lwtrans, &MRTemp_matrix);
-						MRMulMatrixABC(&camera->ca_mod_matrix, &MRTemp_matrix, &matrix);
-						i = (GetWorldYQuadrantFromMatrix(&matrix) - 1) & 3;
-					} else {
-						i = (GetWorldYQuadrantFromMatrix(&camera->ca_mod_matrix) - 1) & 3;
-					}
+            camera->ca_twist_counter = -1;
+            camera->ca_twist_quadrants = 1;
+            camera->ca_move_timer = CAMERA_TWIST_TIME;
+            if (frog->fr_cam_zone != NULL) {
+                if (frog->fr_entity != NULL) {
+                    ProjectMatrixOntoWorldXZ(frog->fr_entity->en_live_entity->le_lwtrans, &MRTemp_matrix);
+                    MRMulMatrixABC(&camera->ca_mod_matrix, &MRTemp_matrix, &matrix);
+                    i = (GetWorldYQuadrantFromMatrix(&matrix) - 1) & 3;
+                } else {
+                    i = (GetWorldYQuadrantFromMatrix(&camera->ca_mod_matrix) - 1) & 3;
+                }
 
-					MR_COPY_SVEC(&camera->ca_next_source_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_source_ofs_n);
-					MR_COPY_SVEC(&camera->ca_next_target_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_target_ofs_n);
-				} else {
-					CAMERA_SET_DEFAULT_NEXT_SOURCE_OFS;
-					CAMERA_SET_DEFAULT_NEXT_TARGET_OFS;
-				}
-				return;
-			}
-#ifdef BUILD_49
-		}
-#endif
+                MR_COPY_SVEC(&camera->ca_next_source_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_source_ofs_n);
+                MR_COPY_SVEC(&camera->ca_next_target_ofs, &(((ZONE_CAMERA*)&camera->ca_zone[i + 1]))->zc_target_ofs_n);
+            } else {
+                CAMERA_SET_DEFAULT_NEXT_SOURCE_OFS;
+                CAMERA_SET_DEFAULT_NEXT_TARGET_OFS;
+            }
+            return;
+        }
 
         // Activate the player's tongue if the button is pressed.
         if ((input & FROG_DIRECTION_TONGUE) && (frog->fr_tongue != NULL) && (frog->fr_tongue->ef_flags & (TONGUE_FLAG_MOVING_IN | TONGUE_FLAG_GRABBING))) {
@@ -1647,11 +1705,12 @@ MR_VOID FrogModeControlStationary(FROG* frog, MR_ULONG mode) {
             tongue_target = FrogGetNearestTongueTarget(frog);
             if (tongue_target != NULL) {
                 StartTongue(frog->fr_tongue, tongue_target);
+                DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_TONGUE, 0, TRUE);
             } else {
                 StartTongue(frog->fr_tongue, NULL);
+                DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_TONGUE, 0, TRUE);
             }
             
-            DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_TONGUE);
             MRSNDPlaySound(SFX_GEN_FROG_SLURP, NULL, 0, 0);
         }
     }
@@ -1801,6 +1860,7 @@ MR_ULONG FrogModeMovementCentring(FROG* frog, MR_ULONG mode, MR_ULONG* react_fla
 *
 *	FUNCTION	The movement update hook called while the frog is hitting a checkpoint. 
 *	MATCH		https://decomp.me/scratch/SCbXg (By Kneesnap)
+*				https://decomp.me/scratch/oCOTN (By Kneesnap)
 *
 *	INPUTS		frog		-	pointer to the frog
 *				mode		-	the current game mode
@@ -1811,6 +1871,7 @@ MR_ULONG FrogModeMovementCentring(FROG* frog, MR_ULONG mode, MR_ULONG* react_fla
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	01.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1824,8 +1885,12 @@ MR_ULONG FrogModeMovementHitCheckpoint(FROG* frog, MR_ULONG mode, MR_ULONG* reac
         if (frog->fr_count != 0) {
             if (--frog->fr_count == 0) {
                 if (Game_mode != GAME_MODE_MULTI_COMPLETE) {
-                    ResetFrog(frog, frog->fr_start_grid_x, frog->fr_start_grid_z, GAME_MODE_LEVEL_FAST_START);
-                    ResetCamera(&Cameras[frog->fr_frog_id]);
+                    if (frog->fr_flags & FROG_ACTIVE) {
+                        ResetFrog(frog, frog->fr_start_grid_x, frog->fr_start_grid_z, GAME_MODE_LEVEL_FAST_START);
+                        ResetCamera(&Cameras[frog->fr_frog_id]);
+                    } else {
+                        frog->fr_mode = FROG_MODE_NO_CONTROL;
+                    }
                 } else {
                     frog->fr_flags &= ~FROG_CONTROL_ACTIVE;
                 }
@@ -1840,7 +1905,7 @@ MR_ULONG FrogModeMovementHitCheckpoint(FROG* frog, MR_ULONG mode, MR_ULONG* reac
                     MRRot_matrix_Y.m[0][2] = sin;
                     MRRot_matrix_Y.m[2][0] = -sin;
                     MRRot_matrix_Y.m[2][2] = cos;
-                    live_entity->le_lwtrans->t[1] -= 20;
+                    live_entity->le_lwtrans->t[1] -= 30;
                     MRMulMatrixABB(&MRRot_matrix_Y, live_entity->le_lwtrans);
                 }
             }
@@ -1859,6 +1924,54 @@ MR_ULONG FrogModeMovementHitCheckpoint(FROG* frog, MR_ULONG mode, MR_ULONG* reac
 }
 
 /******************************************************************************
+*%%%% FrogUpdateFreefall
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_ULONG	FrogUpdateFreefall(
+*								FROG*		frog,
+*
+*	FUNCTION	Called to update freefall. 
+*	MATCH		https://decomp.me/scratch/cS5pY (By Kneesnap)
+*
+*	INPUTS		frog		-	pointer to the frog
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	01.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
+*
+*%%%**************************************************************************/
+
+MR_VOID FrogUpdateFreefall(FROG* frog) {
+    MR_VEC vec;
+    LIVE_ENTITY* live_entity;
+
+    frog->fr_velocity.vy += SYSTEM_GRAVITY;
+    if (((frog->fr_flags & (FROG_FREEFALL_NO_ANIMATION | FROG_FREEFALL)) == (FROG_FREEFALL_NO_ANIMATION | FROG_FREEFALL)) && (frog->fr_lwtrans->t[1] - frog->fr_old_y) >= 0) {
+        if ((Game_map >= LEVEL_SKY1) && (Game_map <= LEVEL_SKY_MULTI_PLAYER)) {
+            FrogRequestAnimation(frog, FROG_ANIMATION_FREEFALL, 0, 0);
+        } else {
+            FrogRequestAnimation(frog, FROG_ANIMATION_FALLING, 0, 0);
+        }
+        
+        frog->fr_flags &= ~FROG_FREEFALL_NO_ANIMATION;
+    }
+    
+    if ((frog->fr_entity != NULL) && !(frog->fr_flags & FROG_JUMP_TO_LAND)) {
+        frog->fr_entity_ofs.vx += frog->fr_velocity.vx;
+        frog->fr_entity_ofs.vz += frog->fr_velocity.vz;
+        live_entity = frog->fr_entity->en_live_entity;
+        MRApplyMatrixVEC(live_entity->le_lwtrans, &frog->fr_entity_ofs, &vec);
+        frog->fr_pos.vx = (live_entity->le_lwtrans->t[0] << 16) + vec.vx;
+        frog->fr_pos.vy += frog->fr_velocity.vy;
+        frog->fr_pos.vz = (live_entity->le_lwtrans->t[2] << 16) + vec.vz;
+    } else {
+        frog->fr_pos.vx += frog->fr_velocity.vx;
+        frog->fr_pos.vy += frog->fr_velocity.vy;
+        frog->fr_pos.vz += frog->fr_velocity.vz;
+    }
+}
+
+/******************************************************************************
 *%%%% FrogModeMovementJumping
 *------------------------------------------------------------------------------
 *
@@ -1869,6 +1982,7 @@ MR_ULONG FrogModeMovementHitCheckpoint(FROG* frog, MR_ULONG mode, MR_ULONG* reac
 *
 *	FUNCTION	The movement update hook called while the frog is jumping. 
 *	MATCH		https://decomp.me/scratch/Q62No (By Kneesnap)
+*				https://decomp.me/scratch/91c0Y	(By Kneesnap)
 *
 *	INPUTS		frog		-	pointer to the frog
 *				mode		-	the current game mode
@@ -1879,6 +1993,7 @@ MR_ULONG FrogModeMovementHitCheckpoint(FROG* frog, MR_ULONG mode, MR_ULONG* reac
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	02.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1935,7 +2050,7 @@ MR_ULONG FrogModeMovementJumping(FROG* frog, MR_ULONG mode, MR_ULONG* react_flag
                     // Apply reaction.
                     flags = (FROG_MOVEMENT_CALLBACK_UPDATE_POS | FROG_MOVEMENT_CALLBACK_UPDATE_OLD_POS | FROG_MOVEMENT_CALLBACK_REACT_WITH_FLAGS); 
                     if (!(gs_flags & GRID_SQUARE_SOFT)) {
-                        FrogReactToFallDistance(frog, frog->fr_lwtrans->t[1] - frog->fr_old_y);
+                        FrogReactToFallDistance(frog, frog->fr_lwtrans->t[1] - frog->fr_old_y, *react_flags);
                     } else {
                         frog->fr_mode = FROG_MODE_STATIONARY;
                         FrogRequestAnimation(frog, FROG_ANIMATION_PANT, 0, 0); 
@@ -1946,17 +2061,8 @@ MR_ULONG FrogModeMovementJumping(FROG* frog, MR_ULONG mode, MR_ULONG* react_flag
 
                 // If the frog is not jumping to land, use the entity to calculate pos.
                 if (!(frog->fr_flags & FROG_JUMP_TO_LAND)) {
-                    frog->fr_entity_ofs.vx = frog->fr_target_pos.vx << 16;
-                    frog->fr_entity_ofs.vy = frog->fr_target_pos.vy << 16;
-                    frog->fr_entity_ofs.vz = frog->fr_target_pos.vz << 16;
-                    entity = frog->fr_entity->en_live_entity;
-                    svec.vx = frog->fr_entity_ofs.vx >> 16;
-                    svec.vy = frog->fr_entity_ofs.vy >> 16;
-                    svec.vz = frog->fr_entity_ofs.vz >> 16;
-                    MRApplyMatrix(entity->le_lwtrans, &svec, &vec);
-                    frog->fr_pos.vx = (vec.vx + entity->le_lwtrans->t[0]) << 16;
-                    frog->fr_pos.vy = (vec.vy + entity->le_lwtrans->t[1]) << 16;
-                    frog->fr_pos.vz = (vec.vz + entity->le_lwtrans->t[2]) << 16;
+                    FrogUpdateFreefall(frog);
+                    flags |= FROG_MOVEMENT_CALLBACK_UPDATE_POS;
                     goto block_15;
                 } else {
                     goto block_12;
@@ -2020,31 +2126,7 @@ set_grid_square:
                 flags |= FROG_MOVEMENT_CALLBACK_UPDATE_OLD_POS;
             }
         } else {
-            frog->fr_velocity.vy += SYSTEM_GRAVITY;
-
-            // Enter free-fall.
-            if (((frog->fr_flags & (FROG_FREEFALL_NO_ANIMATION | FROG_FREEFALL)) == (FROG_FREEFALL_NO_ANIMATION | FROG_FREEFALL)) && ((frog->fr_lwtrans->t[1] - frog->fr_old_y) >= 0)) {
-                if ((Game_map - LEVEL_SKY1) < MAX_LEVELS_PER_WORLD) {
-                    FrogRequestAnimation(frog, FROG_ANIMATION_FREEFALL, 0, 0);
-                } else {
-                    FrogRequestAnimation(frog, FROG_ANIMATION_FALLING, 0, 0);
-                }
-
-                frog->fr_flags &= ~FROG_FREEFALL_NO_ANIMATION;
-            }
-            
-            if ((frog->fr_entity != NULL) && !(frog->fr_flags & FROG_JUMP_TO_LAND)) {
-                frog->fr_entity_ofs.vx += frog->fr_velocity.vx;
-                frog->fr_entity_ofs.vz += frog->fr_velocity.vz;
-                entity = frog->fr_entity->en_live_entity;
-                MRApplyMatrixVEC(entity->le_lwtrans, &frog->fr_entity_ofs, &vec);
-                frog->fr_pos.vx = (entity->le_lwtrans->t[0] << 16) + vec.vx;
-                frog->fr_pos.vy += frog->fr_velocity.vy;
-                frog->fr_pos.vz = (entity->le_lwtrans->t[2] << 16) + vec.vz;
-            } else {
-                MR_ADD_VEC(&frog->fr_pos, &frog->fr_velocity);
-            }
-            
+            FrogUpdateFreefall(frog);
             flags |= FROG_MOVEMENT_CALLBACK_UPDATE_POS;
         }
     }
@@ -2063,6 +2145,7 @@ set_grid_square:
 *
 *	FUNCTION	The movement update hook called while the frog is dying. 
 *	MATCH		https://decomp.me/scratch/WT0s0 (By Kneesnap)
+*				https://decomp.me/scratch/z1Vgp	(By Kneesnap)
 *
 *	INPUTS		frog		-	pointer to the frog
 *				mode		-	the current game mode
@@ -2073,6 +2156,7 @@ set_grid_square:
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	01.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2099,19 +2183,29 @@ MR_ULONG FrogModeMovementDying(FROG* frog, MR_ULONG mode, MR_ULONG* react_flags)
     }
 
     // When the movement finishes.
-    if (--frog->fr_count == 0) {
-        if (Game_total_players > 1) { // Multiplayer
+    if (--frog->fr_death_count == 0) {
+        if (Game_total_players > GAME_MAX_HIGH_POLY_PLAYERS) { // Multiplayer
             frog->fr_flags &= ~FROG_CONTROL_ACTIVE;
-            ResetFrog(frog, frog->fr_start_grid_x, frog->fr_start_grid_z, GAME_MODE_LEVEL_PLAY);
-            ResetCamera(&Cameras[frog->fr_frog_id]);
+            if (frog->fr_flags & FROG_ACTIVE) {
+                ResetFrog(frog, frog->fr_start_grid_x, frog->fr_start_grid_z, GAME_MODE_LEVEL_PLAY);
+                ResetCamera(&Cameras[frog->fr_frog_id]);
+            } else {
+                frog->fr_mode = FROG_MODE_NO_CONTROL;
+            }
         } else { // Singleplayer
             frog->fr_flags &= ~FROG_CONTROL_ACTIVE;
             if (frog->fr_lives == 0)
                 frog->fr_flags &= ~FROG_ACTIVE;
             
-            if ((Game_mode == GAME_MODE_END_OF_GAME) && (frog->fr_lives != 0)) {
-                LevelEnd();
-                LevelStart(GAME_MODE_LEVEL_PLAY);
+            if (Game_mode == GAME_MODE_END_OF_GAME) {
+                if (frog->fr_lives == 0) {
+                    MRFreeMem(Game_mode_data);
+                    Game_mode_data = NULL;
+                    SetGameMainloopMode(GAME_MODE_SINGLE_FAILED);
+                } else {
+                    LevelEnd();
+                    LevelStart(GAME_MODE_LEVEL_PLAY);
+                }
             } else {
                 SetGameMainloopMode(GAME_MODE_SINGLE_FROG_DIED);
             }
@@ -2122,10 +2216,29 @@ MR_ULONG FrogModeMovementDying(FROG* frog, MR_ULONG mode, MR_ULONG* react_flags)
     if ((frog->fr_death_equate == FROG_ANIMATION_MOWN) || (frog->fr_death_equate == FROG_ANIMATION_BITTEN)) {
         flags = 0;
     } else {
-        flags |= FROG_MOVEMENT_CALLBACK_UPDATE_MATRIX;
-        frog->fr_pos.vx += frog->fr_velocity.vx;
-        frog->fr_pos.vy += frog->fr_velocity.vy;
-        frog->fr_pos.vz += frog->fr_velocity.vz;
+        if ((frog->fr_entity != NULL) && (frog->fr_entity->en_live_entity == NULL)) {
+            frog->fr_entity = NULL;
+            frog->fr_count = 0;
+            frog->fr_flags &= ~FROG_LANDED_ON_LAND_CLEAR_MASK;
+        }
+        
+        if (frog->fr_count != 0) {
+            FrogModeMovementJumping(frog, mode, react_flags);
+            frog->fr_mode = FROG_MODE_DYING;
+            flags |= FROG_MOVEMENT_CALLBACK_UPDATE_OLD_POS;
+        } else {
+            frog->fr_pos.vx += frog->fr_velocity.vx;
+            frog->fr_pos.vy += frog->fr_velocity.vy;
+            frog->fr_pos.vz += frog->fr_velocity.vz;
+            flags |= FROG_MOVEMENT_CALLBACK_UPDATE_MATRIX;
+
+            // Webs cavern has special logic for handling velocity (Probably related to webs)
+            if (Game_map == LEVEL_CAVES3) {
+                frog->fr_velocity.vx = frog->fr_velocity.vx * 14 >> 4;
+                frog->fr_velocity.vy = frog->fr_velocity.vy * 14 >> 4;
+                frog->fr_velocity.vz = frog->fr_velocity.vz * 14 >> 4;
+            }
+        }
     }
 
     return flags;
@@ -2173,12 +2286,14 @@ MR_ULONG FrogModeMovementStunned(FROG* frog, MR_ULONG mode, MR_ULONG* react_flag
 *
 *	FUNCTION	Handles the frog landing on land
 *	MATCH		https://decomp.me/scratch/4fZKI (By Kneesnap)
+*				https://decomp.me/scratch/PP6JY (By Kneesnap)
 *
 *	INPUTS		frog		-	pointer to the frog
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	02.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2199,7 +2314,7 @@ MR_VOID FrogLandedOnLand(FROG* frog) {
     
     frog->fr_y = frog->fr_pos.vy >> 16;
     if (!(frog->fr_grid_square->gs_flags & GRID_SQUARE_SOFT)) {
-        FrogReactToFallDistance(frog, frog->fr_y - frog->fr_old_y);
+        FrogReactToFallDistance(frog, frog->fr_y - frog->fr_old_y, frog->fr_grid_square->gs_flags);
     } else {
         frog->fr_mode = FROG_MODE_STATIONARY;
         FrogRequestAnimation(frog, FROG_ANIMATION_PANT, 0, 0);
@@ -2226,10 +2341,12 @@ MR_VOID FrogLandedOnLand(FROG* frog) {
 *
 *	SYNOPSIS	MR_VOID	FrogReactToFallDistance(
 *						FROG*	frog,
-*						MR_LONG	distance)
+*						MR_LONG	distance,
+*						MR_USHORT react_flags)
 *
 *	FUNCTION	Reacts to falling a specified distance
 *	MATCH		https://decomp.me/scratch/Tox8o (By Kneesnap)
+*				https://decomp.me/scratch/AUzFn	(By Kneesnap)
 *
 *	INPUTS		frog		-	pointer to the frog
 *				distance	-	the distance the frog fell
@@ -2237,10 +2354,16 @@ MR_VOID FrogLandedOnLand(FROG* frog) {
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	02.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
-MR_VOID FrogReactToFallDistance(FROG* frog, MR_LONG distance) {
+MR_VOID FrogReactToFallDistance(FROG* frog, MR_LONG distance, MR_USHORT react_flags) {
+    MR_VEC vec;
+    MR_OBJECT* sprite;
+    MR_LONG i;
+    MR_OT** local_ot_ptr;
+    
     if (distance <= FROG_FREEFALL_SAFE_HEIGHT) {
         frog->fr_mode = FROG_MODE_STATIONARY;
         FrogRequestAnimation(frog, FROG_ANIMATION_PANT, 0, 0);
@@ -2252,8 +2375,46 @@ MR_VOID FrogReactToFallDistance(FROG* frog, MR_LONG distance) {
         ShakeCamera(&Cameras[frog->fr_frog_id], MR_OBJ_STATIC, frog->fr_count, CAMERA_SHAKE_FREQ_Y);
     } else {
         frog->fr_mode = FROG_MODE_STATIONARY;
-        if (Game_map_theme == THEME_VOL) {
-            FrogKill(frog, FROG_ANIMATION_DROWN, NULL);
+        if (react_flags & GRID_SQUARE_DEADLY) {
+            if (Game_map_theme == THEME_FOR) {
+                MRSNDPlaySound(SFX_GEN_FROG_THUD, NULL, 0, 0);
+                FrogKill(frog, FROG_ANIMATION_FLOP, NULL);
+            } else {
+                MR_SET_VEC(&vec, 0, 1<<16, 0);
+                FrogKill(frog, FROG_ANIMATION_DROWN, &vec);
+            }
+        } else if (react_flags & GRID_SQUARE_POPDEATH) {
+            FrogKill(frog, FROG_ANIMATION_POP, NULL);
+        } else if (react_flags & GRID_SQUARE_WATER) {
+            MR_SET_VEC(&vec, 0, 1<<16, 0);
+            FrogKill(frog, FROG_ANIMATION_DROWN, &vec);
+
+            // Create water bubble particle for drowning
+            MR_INIT_MAT(&Frog_splash_matrix);
+            MR_COPY_VEC(&Frog_splash_matrix.t, &frog->fr_lwtrans->t);
+            sprite = MRCreate3DSprite((MR_FRAME*)&Frog_splash_matrix, MR_OBJ_STATIC, &FrogSplashAnimList);
+            sprite->ob_extra.ob_extra_3dsprite->sp_core.sc_flags |= MR_SPF_IN_XZ_PLANE;
+            sprite->ob_extra.ob_extra_3dsprite->sp_core.sc_ot_offset = -0x10; 
+            GameAddObjectToViewports(sprite);
+            if (frog->fr_particle_api_item == NULL)
+                frog->fr_particle_api_item = CreateParticleEffect(frog, FROG_PARTICLE_WATER_BUBBLE, 0);
+                    
+            MRSNDPlaySound(SFX_GEN_FROG_DROWN2, NULL, 0, 0);
+
+#ifdef PSX
+		//Only on suburbia and original
+		if ((Game_map_theme == THEME_ORG) || (Game_map_theme == THEME_SUB))
+			{
+			// Set frog to have a LARGE ot position, so he appears below the env_map.
+			i = Game_total_viewports;
+			local_ot_ptr = frog->fr_ot;
+			while(i--)
+				{
+				local_ot_ptr[0]->ot_flags |= MR_OT_FORCE_BACK;
+				local_ot_ptr++;
+				}
+			}
+#endif
         } else {
             FrogKill(frog, FROG_ANIMATION_SQUISHED, NULL);
         }
@@ -2269,12 +2430,14 @@ MR_VOID FrogReactToFallDistance(FROG* frog, MR_LONG distance) {
 *
 *	FUNCTION	Updates visual effects for the frog.
 *	MATCH		https://decomp.me/scratch/rG7nV (By Kneesnap)
+*				https://decomp.me/scratch/h71DW	(By Kneesnap)
 *
 *	INPUTS		frog		-	pointer to the frog
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	02.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2286,7 +2449,7 @@ MR_VOID UpdateFrogEffects(FROG* frog) {
     // Update the shadow displayed under the frog to show at the right position & show the right texture.
     shadow_effect = frog->fr_shadow;
     if (shadow_effect != NULL) {
-        if (frog->fr_entity == NULL && (frog->fr_mode != FROG_MODE_DYING) && (frog->fr_mode != FROGUSER_MODE_CHECKPOINT_COLLECTED) && ((frog->fr_mode != FROG_MODE_JUMPING) || (frog->fr_flags & FROG_JUMP_TO_LAND))) {
+        if (frog->fr_entity == NULL && (frog->fr_flags & FROG_ACTIVE) && (frog->fr_mode != FROG_MODE_DYING) && (frog->fr_mode != FROGUSER_MODE_CHECKPOINT_COLLECTED) && ((frog->fr_mode != FROG_MODE_JUMPING) || (frog->fr_flags & FROG_JUMP_TO_LAND)) && (Game_mode != GAME_MODE_SINGLE_COMPLETE)) {
             shadow = shadow_effect->ef_extra;
             if (frog->fr_mode == FROG_MODE_JUMPING && !(frog->fr_flags & FROG_JUMP_ON_SPOT)) {
                 if (frog->fr_flags & FROG_SUPERJUMP) {
@@ -2477,12 +2640,14 @@ ENTITY* FrogGetNearestTongueTarget(FROG* frog) {
 *
 *	FUNCTION	Updates the frog's translation matrix
 *	MATCH		https://decomp.me/scratch/JowxA (By Kneesnap)
+*				https://decomp.me/scratch/fiwfW	(By Kneesnap)
 *
 *	INPUTS		frog		-	pointer to the frog
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	02.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (PSX Retail)
 *
 *%%%**************************************************************************/
 
@@ -2496,8 +2661,10 @@ MR_VOID UpdateFrogMatrix(FROG* frog) {
     MR_MAT* matrix;
 
     if (frog->fr_flags & FROG_ON_ENTITY) {
-        matrix = frog->fr_entity->en_live_entity->le_lwtrans;
-        MRMulMatrixABC(matrix, &frog->fr_entity_transform, frog->fr_lwtrans);
+		if (frog->fr_entity->en_live_entity != NULL) {
+		    matrix = frog->fr_entity->en_live_entity->le_lwtrans;
+		    MRMulMatrixABC(matrix, &frog->fr_entity_transform, frog->fr_lwtrans);
+		}
     } else if (frog->fr_flags & FROG_FREEFALL) {
         vec1.vx = -frog->fr_lwtrans->m[0][1];
         vec1.vy = -frog->fr_lwtrans->m[1][1];
@@ -2611,6 +2778,7 @@ MR_VOID FrogSetScaling(FROG* frog, MR_LONG max_scale, MR_LONG scale_up_time, MR_
 *
 *	FUNCTION	Handle collection of a checkpoint entity
 *	MATCH		https://decomp.me/scratch/m9N5z (By Kneesnap)
+*				https://decomp.me/scratch/fpIap	(By Kneesnap)
 *
 *	INPUTS		frog				-	pointer to the frog
 *				checkpoint_entity	-	pointer to the collected checkpoint entity
@@ -2618,6 +2786,7 @@ MR_VOID FrogSetScaling(FROG* frog, MR_LONG max_scale, MR_LONG scale_up_time, MR_
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	02.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2629,24 +2798,17 @@ MR_VOID FrogCollectCheckPoint(FROG* frog, ENTITY* checkpoint_entity) {
     MR_LONG entity_type;
     MR_LONG checkpoint_id;
     GEN_CHECKPOINT_DATA* checkpoint;
-	
-	entity_type = ENTITY_GET_FORM_BOOK(checkpoint_entity)->fb_entity_type;
-	
-#ifdef BUILD_49
-    XAControl(XACOM_PAUSE, 0);
-    Game_pausing_xa = TRUE;
-    LiveEntityChangeVolume(0, 0);
-#endif
 
+    entity_type = ENTITY_GET_FORM_BOOK(checkpoint_entity)->fb_entity_type;
+    if ((frog->fr_flags & FROG_MUST_DIE) || (frog->fr_mode == FROG_MODE_DYING))
+        return;
     
     if (entity_type == ENTITY_TYPE_GEN_GOLD_FROG) {
         FrogCollectGoldFrog(frog, checkpoint_entity);
     } else {
-#ifndef BUILD_49
-        XAControl(XACOM_PAUSE, 0);
+        DampenMusicVolumeTemporarily();
         Game_pausing_xa = TRUE;
         LiveEntityChangeVolume(0, 0);
-#endif
         checkpoint_id = checkpoint_entity->en_form_book_id & 0x7FFF;
         if (checkpoint_id >= GEN_MAX_CHECKPOINTS)
             checkpoint_id -= 11; // The offset in formlib to the multiplayer models.
@@ -2662,14 +2824,23 @@ MR_VOID FrogCollectCheckPoint(FROG* frog, ENTITY* checkpoint_entity) {
         // Update checkpoint data.
         checkpoint = &Checkpoint_data[checkpoint_id];
         checkpoint->cp_frog_collected_id = frog->fr_frog_id;
-        checkpoint->cp_time = (Game_map_time - Game_map_timer);
+        checkpoint->cp_time = Game_map_timer_decimalised;
         if (Game_total_players == 1) // Singleplayer
             checkpoint->cp_flags |= GEN_CHECKPOINT_NO_HUD_UPDATE;
 
         // Add score.
         AddFrogScore(frog, SCORE_500, 0);
-        if (Sel_mode == 0)
-            Frog_time_data[checkpoint_id] = ((Game_map_time * 30) - Game_map_timer) / 30;
+        if (Sel_mode == 0) {
+            // Round up
+            while (Game_map_timer_decimalised != 0 && (Game_map_timer_decimalised != (Game_map_timer_decimalised / 30) * 30))
+                Game_map_timer_decimalised++;
+            
+             if (Game_map_timer_decimalised >= 2971) {
+                Frog_time_data[checkpoint_id] = 99;
+            } else {
+                Frog_time_data[checkpoint_id] = (Game_map_timer_decimalised) / 30;
+            }
+        }
 
         // Play collection sound.
         if ((Checkpoints != GEN_ALL_CHECKPOINTS) || (Game_total_players == 1))
@@ -2683,7 +2854,7 @@ MR_VOID FrogCollectCheckPoint(FROG* frog, ENTITY* checkpoint_entity) {
             FrogRequestAnimation(frog, FROG_ANIMATION_COMPLETE, 0, 0);
             if ((Checkpoints == GEN_ALL_CHECKPOINTS) || (GameGetMultiplayerFrogCheckpointData(checkpoint_count, &max_checkpoints, &num_winning_frogs), (max_checkpoints == 3))) {
                 SetGameMainloopMode(GAME_MODE_MULTI_COMPLETE);
-                XAControl(XACOM_PAUSE, 0);
+                DampenMusicVolumeTemporarily();
                 Game_pausing_xa = TRUE;
             } else {
                 ((MR_OBJECT*)(Checkpoint_data[Checkpoint_last_collected].cp_entity->en_live_entity->le_api_item0))->ob_flags |= MR_OBJ_NO_DISPLAY;
@@ -2703,11 +2874,7 @@ MR_VOID FrogCollectCheckPoint(FROG* frog, ENTITY* checkpoint_entity) {
         FROG_KILL_PARTICLE_EFFECT(frog);
 
     // Setup checkpoint camera behavior.
-#ifdef BUILD_49
-    if (((camera = &Cameras[frog->fr_frog_id], (camera->ca_zone == NULL)) || !(((ZONE_CAMERA*) (camera->ca_zone + 1))->zc_flags & ZONE_FLAG_CHECKPOINT))) {
-#else
     if ((entity_type != ENTITY_TYPE_GEN_GOLD_FROG) && ((camera = &Cameras[frog->fr_frog_id], (camera->ca_zone == NULL)) || !(((ZONE_CAMERA*) (camera->ca_zone + 1))->zc_flags & ZONE_FLAG_CHECKPOINT))) {
-#endif
         camera = &Cameras[frog->fr_frog_id];
         camera->ca_next_source_ofs.vx = CAMERA_FROG_CHECKPOINT_SOURCE_OFS_X;
         camera->ca_next_source_ofs.vy = CAMERA_FROG_CHECKPOINT_SOURCE_OFS_Y;
@@ -2760,12 +2927,14 @@ MR_VOID FrogCollectGoldFrog(FROG* frog, ENTITY* checkpoint) {
 *
 *	FUNCTION	Updates the frog's croak
 *	MATCH		https://decomp.me/scratch/KeCQC (By Kneesnap)
+*				https://decomp.me/scratch/x9yIH	(By Kneesnap)
 *
 *	INPUTS		frog		-	pointer to the frog
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	02.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2782,8 +2951,8 @@ MR_VOID FrogUpdateCroak(FROG* frog) {
     if (!(Game_flags & GAME_FLAG_DEMO_RUNNING)) {
         switch (frog->fr_croak_mode) {
         case FROG_CROAK_NONE:
-            if ((Cheat_control_toggle == FALSE) && (frog->fr_flags & FROG_CONTROL_ACTIVE) && MR_CHECK_PAD_PRESSED(frog->fr_input_id, frog->fr_control_method->fc_croak_control)) {
-                DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_CROAK);
+            if ((Cheat_control_toggle == FALSE) && (frog->fr_flags & FROG_CONTROL_ACTIVE) && (frog->fr_mode != FROG_MODE_HIT_CHECKPOINT) && MR_CHECK_PAD_PRESSED(frog->fr_input_id, frog->fr_control_method->fc_croak_control)) {
+                DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_CROAK, 0, TRUE);
                 if (Game_total_players <= GAME_MAX_HIGH_POLY_PLAYERS) { // High-poly
                     MRAnimEnvSingleSetPartFlags((MR_ANIM_ENV* ) frog->fr_api_item, THROAT, MR_ANIM_PART_DISPLAY); 
                     frog->fr_croak_mode = FROG_CROAK_INFLATE;
@@ -2808,7 +2977,7 @@ MR_VOID FrogUpdateCroak(FROG* frog) {
                         svec.vz = frog->fr_lwtrans->t[2] - curr_frog->fr_lwtrans->t[2];
                         MRApplyMatrix(&matrix, &svec, &vec);
                         
-                        if ((MR_ULONG) (vec.vz + 319) < 319 && abs(vec.vx) < -vec.vz && (curr_frog->fr_mode == FROG_MODE_STATIONARY)) {
+                        if ((MR_ULONG) (vec.vz + 319) < 319 && (abs(vec.vx) + 20) < -vec.vz && (curr_frog->fr_mode == FROG_MODE_STATIONARY)) {
                             JumpFrogOnSpot(curr_frog, 12);
                             MRSNDPlaySound(SFX_GEN_FROG_SCARED, NULL, 0, 0);
                         }
@@ -2821,7 +2990,7 @@ MR_VOID FrogUpdateCroak(FROG* frog) {
             croak_timer = --frog->fr_croak_timer;
             Map_light_max_r2 += frog->fr_croak_rate;
             Map_light_min_r2 += frog->fr_croak_rate;
-            frog->fr_croak_scale = (((FROG_CROAK_INFLATE_TIME - croak_timer) * 0xE00) / FROG_CROAK_INFLATE_TIME) + FROG_CROAK_MIN_SCALE; // TODO: Magic number.
+            frog->fr_croak_scale = (((FROG_CROAK_INFLATE_TIME - croak_timer) * 0xA00) / FROG_CROAK_INFLATE_TIME) + FROG_CROAK_MIN_SCALE;
             
             if (frog->fr_croak_timer == 0) {
                 frog->fr_croak_mode = FROG_CROAK_HOLD;
@@ -2838,7 +3007,7 @@ MR_VOID FrogUpdateCroak(FROG* frog) {
             croak_timer = --frog->fr_croak_timer;
             Map_light_max_r2 -= frog->fr_croak_rate;
             Map_light_min_r2 -= frog->fr_croak_rate;
-            frog->fr_croak_scale = ((croak_timer * 0xE00) / FROG_CROAK_DEFLATE_TIME) + FROG_CROAK_MIN_SCALE; // TODO: Magic number.
+            frog->fr_croak_scale = ((croak_timer * 0xA00) / FROG_CROAK_DEFLATE_TIME) + FROG_CROAK_MIN_SCALE;
             
             if (frog->fr_croak_timer == 0) {
                 frog->fr_croak_mode = FROG_CROAK_NONE;
@@ -2881,6 +3050,7 @@ MR_VOID FrogUpdateCroak(FROG* frog) {
 *
 *	FUNCTION	Gets the nearest checkpoint to the frog
 *	MATCH		https://decomp.me/scratch/rO6rW (By Kneesnap)
+*				https://decomp.me/scratch/4IdAn	(By Kneesnap)
 *
 *	INPUTS		frog		-	pointer to the frog
 *
@@ -2889,6 +3059,7 @@ MR_VOID FrogUpdateCroak(FROG* frog) {
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	02.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2907,13 +3078,14 @@ ENTITY* FrogGetNearestCheckpoint(FROG* frog) {
     for (i = 0; i < GEN_MAX_CHECKPOINTS; i++) {
         if (Checkpoint_data[i].cp_frog_collected_id == -1) {
             entity = Checkpoint_data[i].cp_entity;
-
-            MR_SUB_VEC_ABC(((GEN_CHECKPOINT*)(entity + 1))->cp_matrix.t, (MR_VEC*)frog->fr_lwtrans->t, &pos_offset); // pos_offset = checkpoint->cp_matrix->t - frog->fr_lwtrans->t
-            temp_distance = MR_VEC_MOD_SQR(&pos_offset);
-            if (temp_distance < closest_distance) {
-                result = entity;
-                closest_distance = temp_distance;
-            }
+            if (entity != NULL) {
+				MR_SUB_VEC_ABC(((GEN_CHECKPOINT*)(entity + 1))->cp_matrix.t, (MR_VEC*)frog->fr_lwtrans->t, &pos_offset); // pos_offset = checkpoint->cp_matrix->t - frog->fr_lwtrans->t
+				temp_distance = MR_VEC_MOD_SQR(&pos_offset);
+				if (temp_distance < closest_distance) {
+					result = entity;
+					closest_distance = temp_distance;
+				}
+			}
         }
     }
 
@@ -2944,6 +3116,7 @@ ENTITY* FrogGetNearestCheckpoint(FROG* frog) {
 *
 *	FUNCTION	Kill the provided frog (And enter the death process)
 *	MATCH		https://decomp.me/scratch/nn5Ez (By Kneesnap)
+*				https://decomp.me/scratch/4IdAn	(By Kneesnap)
 *
 *	INPUTS		frog		-	pointer to the frog
 *				animation	-	death animation to enact
@@ -2952,6 +3125,7 @@ ENTITY* FrogGetNearestCheckpoint(FROG* frog) {
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	02.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2964,6 +3138,17 @@ MR_VOID FrogKill(FROG* frog, MR_ULONG animation, MR_VEC* velocity) {
     
     if ((frog->fr_mode != FROG_MODE_DYING) && (frog->fr_mode != FROG_MODE_HIT_CHECKPOINT) && (Cheat_collision_toggle == FALSE)) {
         if (!(frog->fr_flags & FROG_MUST_DIE) && (frog->fr_mode != FROG_MODE_DYING)) {
+			// Unlink from frog stack
+			if (frog->fr_stack_master != NULL) {
+                frog->fr_stack_master->fr_stack_slave = NULL;
+                frog->fr_stack_master = NULL;
+            }
+
+            if (frog->fr_stack_slave != NULL) {
+                frog->fr_stack_slave->fr_stack_master = NULL;
+                frog->fr_stack_slave = NULL;
+            }
+			
             frog->fr_flags &= ~FROG_CONTROL_ACTIVE;
             Cameras[frog->fr_frog_id].ca_mode = CAMERA_MODE_FIXED;
 
@@ -3001,18 +3186,14 @@ MR_VOID FrogKill(FROG* frog, MR_ULONG animation, MR_VEC* velocity) {
             }
 
             // Create explosion pgen.
-            if (velocity) {
+            if (velocity != NULL) {
                 MR_COPY_VEC(&frog->fr_velocity, velocity);
-            } else {
+            } else if ((frog->fr_mode != FROG_MODE_JUMPING) || !(frog->fr_flags & FROG_JUMP_TO_LAND)) {
                 MR_CLEAR_VEC(&frog->fr_velocity);
             }
 
             // Create smoke particle FX on death.
-#ifdef BUILD_49
-            if ((Game_map_theme == THEME_VOL) && (animation == FROG_ANIMATION_DROWN)) {
-#else
             if ((Game_map_theme == THEME_VOL) && ((animation == FROG_ANIMATION_DROWN) || (animation == FROG_ANIMATION_FLOP))) {
-#endif
                 if (frog->fr_particle_api_item == NULL) {
                     colour.vx = 0;
                     colour.vy = -80;
@@ -3021,11 +3202,7 @@ MR_VOID FrogKill(FROG* frog, MR_ULONG animation, MR_VEC* velocity) {
                 }
                 
                 SetFrogScaleColours(frog, 24, 0, 0);
-#ifdef BUILD_49
-                FrogRequestAnimation(frog, FROG_ANIMATION_FLOP, 0, 0);
-#else
                 FrogRequestAnimation(frog, FROG_ANIMATION_DROWN, 0, 0);
-#endif
             }
         }
     }
@@ -3039,6 +3216,7 @@ MR_VOID FrogKill(FROG* frog, MR_ULONG animation, MR_VEC* velocity) {
 *							FROG*	frog)
 *	FUNCTION	This is a hook run when the frog is jumping to buffer input
 *	MATCH		https://decomp.me/scratch/N3wGo (By Kneesnap & sonicdcer)
+*				https://decomp.me/scratch/etORm	(By Kneesnap)
 *
 *	INPUTS		frog		-	pointer to single environment
 *				mode		-	index of part within model
@@ -3046,13 +3224,20 @@ MR_VOID FrogKill(FROG* frog, MR_ULONG animation, MR_VEC* velocity) {
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.10.23	Kneesnap		Byte-matching decompilation from PSX Build 50.
+*	02.11.23	Kneesnap		Byte-matching decompilation from PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID FrogModeControlJumping(FROG* frog, MR_ULONG mode) {
-    CAMERA* camera = &Cameras[frog->fr_frog_id];
+    CAMERA* camera;
     MR_LONG buffered_key_count;
     MR_LONG key_dir;
+	ENTITY* target;
+	
+	if (Game_flags & GAME_FLAG_DEMO_RUNNING)
+        return;
+	
+	camera = &Cameras[frog->fr_frog_id];
 
     // Find the direction to buffer with the key
     key_dir = FROG_DIRECTION_NO_INPUT;
@@ -3064,15 +3249,35 @@ MR_VOID FrogModeControlJumping(FROG* frog, MR_ULONG mode) {
         key_dir = FROG_DIRECTION_S;
     } else if (MR_CHECK_PAD_PRESSED(frog->fr_input_id, frog->fr_control_method->fc_left_control)) {
         key_dir = FROG_DIRECTION_W;
+    } else if (MR_CHECK_PAD_PRESSED(frog->fr_input_id, frog->fr_control_method->fc_superjump_control)) {
+        key_dir = FROG_DIRECTION_SUPER_JUMP;
     }
-    
-    if (key_dir != FROG_DIRECTION_NO_INPUT) {
-        // Rotate direction along with entity or camera.
-        if (frog->fr_flags & FROG_ON_ENTITY) {
-            key_dir = key_dir - frog->fr_entity_angle;
+	
+    // Apply tongue
+    if (MR_CHECK_PAD_PRESSED(frog->fr_input_id, frog->fr_control_method->fc_tongue_control) && (frog->fr_tongue != NULL) && (frog->fr_tongue->ef_flags & (EFFECT_NO_DISPLAY | EFFECT_NO_UPDATE))) {
+        frog->fr_no_input_timer = 0;
+        target = FrogGetNearestTongueTarget(frog);
+        if (target != NULL) {
+            StartTongue(frog->fr_tongue, target);
+			DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_TONGUE, 0, TRUE);
         } else {
-            key_dir = (key_dir - camera->ca_frog_controller_directions[0]) & 3;
+            StartTongue(frog->fr_tongue, NULL);
+			DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_TONGUE, 0, TRUE);
         }
+        
+        MRSNDPlaySound(SFX_GEN_FROG_SLURP, NULL, 0, 0);
+    }
+
+    // Buffer input
+    if (key_dir != FROG_DIRECTION_NO_INPUT) {
+		if (key_dir != FROG_DIRECTION_SUPER_JUMP) {
+			// Rotate direction along with entity or camera.
+			if (frog->fr_flags & FROG_ON_ENTITY) {
+				key_dir = key_dir - frog->fr_entity_angle;
+			} else {
+				key_dir = (key_dir - camera->ca_frog_controller_directions[0]) & 3;
+			}
+		}
 
         // Buffer the movement keypress.
         buffered_key_count = frog->fr_num_buffered_keys;
@@ -3531,10 +3736,10 @@ MR_VOID UpdateFrogCameraZone(FROG* frog) {
         if ((frog->fr_cam_zone_region == NULL) || (CheckCoordsInZoneRegion(frog->fr_grid_x, frog->fr_grid_z, frog->fr_cam_zone_region) == 0)) {
             frog->fr_cam_zone_region = CheckCoordsInZone(frog->fr_grid_x, frog->fr_grid_z, frog->fr_cam_zone);
             if (frog->fr_cam_zone_region == NULL)
-                CheckCoordsInZones(frog->fr_grid_x, frog->fr_grid_z, 0, &frog->fr_cam_zone, &frog->fr_cam_zone_region);
+                CheckCoordsInZones(frog->fr_grid_x, frog->fr_grid_z, ZONE_TYPE_CAMERA, &frog->fr_cam_zone, &frog->fr_cam_zone_region);
         }
     } else {
-        CheckCoordsInZones(frog->fr_grid_x, frog->fr_grid_z, 0, &frog->fr_cam_zone, &frog->fr_cam_zone_region);
+        CheckCoordsInZones(frog->fr_grid_x, frog->fr_grid_z, ZONE_TYPE_CAMERA, &frog->fr_cam_zone, &frog->fr_cam_zone_region);
     }
 }
 

@@ -216,7 +216,9 @@ extern	MR_VOID			ENTSTRUpdateMovingMOF(LIVE_ENTITY*);
 extern	MR_VOID			ENTSTRUpdateMovingPlatformMOF(LIVE_ENTITY*);
 
 extern	MR_VOID			ENTSTRCreateDynamicMOF(LIVE_ENTITY*);
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 extern	MR_VOID			ENTSTRUpdateDynamicMOF(LIVE_ENTITY*);
+#endif
 extern	MR_VOID			ENTSTRKillDynamicMOF(LIVE_ENTITY*);
 
 extern	MR_VOID			ENTSTRCreateMovingSprite(LIVE_ENTITY*);
@@ -247,14 +249,20 @@ extern	MR_VOID			ResetEntities(MR_VOID);
 
 extern	MR_LONG			DistanceToFrogger(LIVE_ENTITY*, MR_BYTE, MR_LONG);
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 extern	MR_VOID			InitPrims(MR_PGEN_INST*);
 extern	MR_VOID			UpdateGenerator(MR_OBJECT*);
+#endif
 extern	MR_VOID			CreateParticle(MR_OBJECT*);
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 extern	MR_VOID			DisplayPrims(MR_PGEN_INST*, MR_VIEWPORT*);
+#endif
 
 // Animation functions
 extern	MR_VOID			LiveEntitySetAction(LIVE_ENTITY*, MR_ULONG);
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 extern	MR_ANIM_ENV* 	LiveEntityCreateAnimationEnvironment(LIVE_ENTITY*, MR_MOF*);
+#endif
 extern	MR_BOOL			LiveEntityCheckAnimationFinished(LIVE_ENTITY*);
 extern	MR_SHORT		LiveEntityGetAction(LIVE_ENTITY* live_entity);
 extern	MR_VOID			LiveEntitySetCel(LIVE_ENTITY*, MR_SHORT);

@@ -40,7 +40,7 @@
 
 #define	NUM_GAME_OVER_UNITS					2						// Number of units until game over over (used by level complete)
 #define	NUM_GAME_OVER_TICKS					NUM_OPTION_TICKS		// Number of ticks or frames per unit (used by level complete)
-#define	GAME_OVER_DURATION					(30 * 4)				// Duration of game over (from start of fade)
+#define	GAME_OVER_DURATION					105						// Duration of game over (from start of fade)
 #define	GAME_OVER_PREDELAY					(30 * 2)				// Duration of game over (before start of fade)
 
 #define	MAX_NUM_HIGH_SCORE_INITIALS			3						// Maximum number of initials the player can enter
@@ -193,6 +193,8 @@ enum
 	OPTION_TEXT_SELECT3,		
 	OPTION_TEXT_SELECT4,
 	OPTION_TEXT_SELECT5,
+	OPTION_TEXT_SELECT6,
+	OPTION_TEXT_SELECT7,
 	OPTION_TEXT_LOADING,		
 	OPTION_TEXT_INSERT_PAD,		
 	OPTION_TEXT_START,			
@@ -240,6 +242,8 @@ enum
 	OPTION_TEXT_NOW_LOADING,
 	OPTION_TEXT_NOW_FORMATTING,
 	OPTION_TEXT_NOW_CHECKING,
+	OPTION_TEXT_SEC,
+	OPTION_TEXT_PLAY_OFF,
 
 	OPTION_TEXT_TOTAL
 	};
@@ -365,7 +369,7 @@ struct __opt_level_complete
 	MR_2DSPRITE*		Level_complete_total_time_text;
 	MR_2DSPRITE*		Level_complete_total_time[4];
 	MR_2DSPRITE*		Level_complete_total_score_text;
-	MR_2DSPRITE*		Level_complete_total_score[5];
+	MR_2DSPRITE*		Level_complete_total_score[6];
 	MR_BOOL				Level_complete_next_level;
 	MR_2DSPRITE*		Level_complete_next_level_text;
 	MR_2DSPRITE*		Level_complete_next_level_des;
@@ -385,6 +389,10 @@ struct __opt_level_complete
 //-----------------------------------------------------------------------------
 
 extern	MR_USHORT		Main_options_status;					// Status of operation for main options screen
+
+extern	MR_2DSPRITE*	Start_ptr;
+extern	MR_2DSPRITE*	Race_ptr;
+extern	MR_2DSPRITE*	Options_ptr;
 
 extern	MR_ULONG		Game_language;							// Current language
 extern	MR_ULONG		Opt_resource_files[];					// Language Resource file to load.
@@ -432,12 +440,20 @@ extern	MR_STRPTR		Option_network_play_text_tag;
 extern	MR_ULONG		Option_network_play_number_players;
 #endif
 
+extern	MR_2DSPRITE*		Gameover_title_sprite_ptr;
+extern	MR_2DSPRITE*		Playagain_pa_sprite_ptr;
+extern	MR_2DSPRITE*		Playagain_cc_sprite_ptr;
+extern	MR_2DSPRITE*		Playagain_ex_sprite_ptr;
+extern	OPT_LEVEL_COMPLETE	Level_complete;
+
+
 extern	MR_ULONG		Num_demo_levels_seen;
 extern	MR_BOOL			Options_music_playing;
 
 extern	MR_ULONG		Option_number;					// Number of option currently selected
 extern	MR_BOOL			Game_demo_loading;
 extern	MR_BOOL			Game_over_no_new_sound;
+extern	MR_BOOL			Main_menu_fast_camera;
 
 //-----------------------------------------------------------------------------
 //	Prototypes

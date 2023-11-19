@@ -1,33 +1,31 @@
 ![Frogger Logo](/logo.png)
 # Frogger He's Back (PlayStation)
 This repository contains a modified source backup of Frogger (1997), commonly called Frogger: He's Back.  
-The source backup appears to be from September 3, 1997. However, it seems to contain changes not seen in PSX Build 50b (Closest prototype build), so the code is likely somewhere between build 50 and build 51.  
-It may be close to the September 4th PC Prototype too.  
-The changes applied to the code are to make it compileable, replace the missing FROG.C file, and to make byte-accurate matches to known builds.  
+The source backup appears to be from September 3, 1997, less than 3 weeks before the retail NTSC version.  
+However, the code has been modified (via a matching decompilation project) to perfectly byte-match the retail version of the game.  
+In other words, this repository can builds an exact copy of the game executable found on a playable game CD. (As in, every single byte matches exactly.)  
 
 **Developer:** Milennium Interactive (Defunct)  
 **Publisher:** Hasbro Interactive (Sorta Defunct)   
 
 ## What versions does this build?
-Currently, it builds a perfect match for:  
- - `PSX Build 49` (SHA1 Hash: `0996e989b9c9c5702b8cb02cfc157db1136b0f72`)  
+Currently, this repository is capable of building exact matches for:  
+ - `PSX Build 49 (September 3 1997)` (SHA1 Hash: `0996e989b9c9c5702b8cb02cfc157db1136b0f72`)  
+ - `PSX Build 71 (Retail US / NTSC)` (SHA1 Hash: `05cbe0ece8f267970ad9c1aabca2a2a7ec6bbcd6`)  
  
-**What build is this code?**  
-The code in this repository started as a backup from September 4 1997, just under 3 weeks before the final build of the game.  
-Some of the changes for build 50 were present, but others hadn't been made yet.  
-That code backup may have been some kind of experiment for performance, as it contains performance related changes that aren't seen it any other builds of the game.  
-However, because code of the final version is preferable, a decompilation project is underway to make this repository compile the final version of the game.  
+NOTE: PSX Build 49 is buildable by switching to the `psx-build49` branch, which contains the code before the retail version was byte-matched.  
 
 **PSX Version Only:**  
-This contains only the PSX version code. The PC version relied upon proprietary libraries which were not included.
+This contains only the PSX version code. The PC version relied upon proprietary libraries which were not included.  
 If those libraries were reverse engineered (they have debug symbols), it would likely be possible to compile the PC version, or at least a prototype version.  
 Unfortunately, the PC version received two months of extra development after the PSX version was complete, likely to improve network multiplayer, compatibility, performance, and to add support for low poly mode.  
 None of that work is present in this backup, and not many details are know about PC version differences anyways.  
+This code could be ported to PC, but such an effort has not been attempted.  
 
 ## How to compile & run?
 After downloading / cloning this repository, double-click `compile.bat`.  
 It will tell you what to do, and you will need to run it again after doing what it asks.  
-If you follow the instructions, it will build an executable with the SHA1 hash shown above.  
+By following the instructions, it will build an executable with the SHA1 hash shown above as well as a playable CD image.  
 
 ## How is this repository organized?  
 As closely to the original organization used by the developers as possible.  
@@ -50,8 +48,9 @@ Atari Interactive (formerly Hasbro Interactive) has explicitly stated they no lo
 Because Hasbro Interactive was the owner of the game assets (source code, textures, 3D models, etc) and has denied ownership, it is believed that the contents of this repository no longer a have a legal owner.  
 However, this is unknown. If there is somehow an owner, Highway Frogs is interested in purchasing all development material and the rights (excluding the likely expired license to use the Frogger brand) from the game.  
 
-## Special Thanks
+## Credits & Special Thanks
+ - [Highway Frogs](https://highwayfrogs.net/) for recreating missing code and byte-matching / decompiling code from the final version    
  - [decomp.me](https://decomp.me) & Ethan for helping ensure the decompilation tools  
- - [sonicdcer](https://github.com/sonicdcer) for helping create a decomp environment, and helping match a couple functions  
- - [pixel-stuck](https://github.com/pixel-stuck), [mono21400](https://github.com/Mc-muffin), [petrie911](https://github.com/petrie911), and potentially more who helped decomp/match certain functions.  
+ - [sonicdcer](https://github.com/sonicdcer) for helping create a decomp environment, and helping match functions  
+ - [pixel-stuck](https://github.com/pixel-stuck), [mono21400](https://github.com/Mc-muffin), [petrie911](https://github.com/petrie911), and potentially more who helped decomp/match functions.  
  - The [PSXDev](https://psxdev.net/) community for archiving a lot of the PSX tools necessary to do something like this.  

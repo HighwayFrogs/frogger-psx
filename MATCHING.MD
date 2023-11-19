@@ -1,8 +1,16 @@
-# Matching
-This document details information about the process of moving from the source code backup to a compileable retail version of the game.  
+# Matching  
+The source code backup was not in a usable/compileable state in the form it was obtained, but this repository builds the retail version of the game.  
+This document details the steps taken to turn the source code backup from where it started to its current state.  
 
-## Matching PSX Build 49
-The first order of business is to match the closest prototype build. Luckily, we have both a prototype build (PSX Build 49) made less than 24 hours before the code backup, and another prototype build (PSX Build 50) made less than 24 hours after the code backup.  
+## 1) Compilation & Organization  
+Getting the game to compile first involved getting a SDK setup. Information on how the SDK was setup is available in the [SDK Folder](/sdk/).  
+Of the missing source files, [frogvram.c](/vlo/frogvram.c) and [frogvram.h](/vlo/frogvram.h) were probably the hardest, due to issues described [here](/vlo/README.MD).  
+The next hardest file was [FROG.C](/source/FROG.C) which was completely missing, but re-creating using decompilation techniques.  
+The only other remaining file was [frogpsx.h](/merge/frogpsx.h), which was possible to re-generate easily by using [FrogLord](https://github.com/Kneesnap/FrogLord).  
+At this point, it was only a matter of tying everything together in order to make the game compile.  
+
+## 2) Matching PSX Build 49
+The first order of business was to match the closest prototype build. Luckily, we have both a prototype build (PSX Build 49) made less than 24 hours before the code backup, and another prototype build (PSX Build 50) made less than 24 hours after the code backup.  
 That means we have a VERY high degree of accuracy in terms of knowing what this code backup contains.  
 It was chosen to initially match PSX Build 49, since it seemed to be less work to match PSX Build 49 than PSX Build 50.  
 Matching the closest build is important because it confirmed my suspicion that this code backup contained changes never seen in any build of the game, which should be disabled.  
@@ -69,6 +77,11 @@ Here are a list of files both modified and unmodified to build PSX Build 49, fro
 1997-04-23 09:20 ZONE.C
 ```
 
-## Matching Retail
-After matching PSX Build 49, it's time to match retail.  
-Have not done this yet, TODO: Report back once this is done.  
+## 3) Matching PSX Build 71 (Final Build)
+After matching PSX Build 49, it was time to match the retail version.  
+The same decompilation techniques used to match PSX Build 49 were then used again but to match PSX Build 71 instead, which was the version shipped buyable on US store shelves.  
+
+## Misc Decomp Notes
+ - Bad function signatures can cause weird behavior with function arguments. [Example](https://decomp.me/scratch/91c0Y) change MR_USHORT to MR_USHORT* in FrogReactToFallDistance's signature.
+ - Register switching fixed via weird if statement `if (x) x = !x;`, an example can be seen in [FROG.C](/source/FROG.C).  
+ - do {} while (0) can often fix register swaps too.

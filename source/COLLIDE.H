@@ -89,6 +89,8 @@ struct __coll_visibility_data
 //	Externs
 //-----------------------------------------------------------------------------
 
+extern	MR_ULONG		FrogSplashAnimList[];
+
 //-----------------------------------------------------------------------------
 //	Prototypes
 //-----------------------------------------------------------------------------
@@ -111,6 +113,7 @@ extern	MR_LONG		VisibilityCollisionCheck(MR_MAT*, MR_VEC*, COLL_VISIBILITY_INFO*
 extern	MR_BOOL		ValidForm(MR_ULONG*, MR_ULONG, MR_ULONG);
 extern	MR_LONG		SnapFrogRotationToMatrix(FROG*, MR_MAT*, MR_MAT*);
 extern	MR_VOID		SnapFrogToMatrix(FROG*, MR_MAT*);
+extern	MR_VOID		SnapFrogToOtherFrog(FROG*, FROG*, MR_MAT*);
 
 #endif	//__COLLIDE_H
 

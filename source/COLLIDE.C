@@ -72,6 +72,7 @@ MR_ULONG	FrogSplashAnimList[]=
 *						FROG*	frog)
 *
 *	FUNCTION	Handle collision of frog with entities
+*	MATCHES		https://decomp.me/scratch/Qnduk	(By Kneesnap)
 *
 *	INPUTS		frog	-	ptr to FROG
 *
@@ -89,6 +90,7 @@ MR_ULONG	FrogSplashAnimList[]=
 *	03.08.97	Martin Kift		Reworked the forbid-entity code to fix bug.
 *	20.08.97	Tim Closs		Changed fcoords check to <,> rather than <=,>=
 *	21.08.97	Gary Richards	Added large OT if dying in water.
+*	02.11.23	Kneesnap		Byte-matched this function to PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -170,10 +172,14 @@ MR_VOID	CollideFrog(FROG*	frog)
 		MR_CLEAR_VEC(&frog->fr_velocity);
 
 		// Kill the frog
-		MR_SET_VEC(&vec, 0, 5<<16, 0);
+		MR_SET_VEC(&vec, 0, 1<<16, 0);
 		FrogKill(frog, FROG_ANIMATION_DROWN, &vec);
 
-		sprite_ptr = MRCreate3DSprite((MR_FRAME*)frog->fr_lwtrans, MR_OBJ_STATIC, FrogSplashAnimList);
+		// Create the sprite
+		MR_INIT_MAT(&Frog_splash_matrix);
+		MR_COPY_VEC(&Frog_splash_matrix.t, &frog->fr_lwtrans->t);
+
+		sprite_ptr = MRCreate3DSprite((MR_FRAME*)&Frog_splash_matrix, MR_OBJ_STATIC, FrogSplashAnimList);
 		sprite_ptr->ob_extra.ob_extra_sp_core->sc_flags 	|= MR_SPF_IN_XZ_PLANE;
 		sprite_ptr->ob_extra.ob_extra_sp_core->sc_ot_offset = -0x10;
 		GameAddObjectToViewports(sprite_ptr);
@@ -182,7 +188,7 @@ MR_VOID	CollideFrog(FROG*	frog)
 		if (!frog->fr_particle_api_item)
 			frog->fr_particle_api_item = CreateParticleEffect(frog, FROG_PARTICLE_WATER_BUBBLE, NULL);
 
-		if (Game_map_theme == THEME_SKY)
+		if (Game_map_theme == THEME_SKY || Game_map_theme == THEME_CAV)
 			// Play SFX when hitting floor.
 			MRSNDPlaySound(SFX_GEN_FROG_HIT_GROUND, NULL, 0, 0);
 		else
@@ -505,6 +511,7 @@ MR_BOOL CollideFrogWithCollPrims(	FROG*			frog,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	15.05.97	Martin Kift		Created
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -564,7 +571,7 @@ MR_VOID	ReactFrogWithCollPrim(	FROG*			frog,
 				// Drown ...
 				case FORM_DEATH_DROWN:
 					// Do drown animation
-					MR_SET_VEC(&vec, 0, 5<<16, 0);
+					MR_SET_VEC(&vec, 0, 1<<16, 0);
 					FrogKill(frog, FROG_ANIMATION_DROWN, &vec);
 					break;
 
@@ -629,6 +636,7 @@ MR_VOID	ReactFrogWithCollPrim(	FROG*			frog,
 *
 *	FUNCTION	Frog has landed on a grid square (land or FORM).  React
 *				according to flags
+*	MATCH		https://decomp.me/scratch/05XOg (By Kneesnap)
 *
 *	INPUTS		frog	-	frog to react
 *				flags	-	flags for reaction type
@@ -638,6 +646,7 @@ MR_VOID	ReactFrogWithCollPrim(	FROG*			frog,
 *	02.05.97	Tim Closs		Created
 *	28.07.97	Martin Kift		Added particle and water code
 *	21.08.97	Gary Richards	Added large ot offset for when dying in water.
+*	02.11.23	Kneesnap		Byte-matched this function to PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -678,26 +687,38 @@ MR_VOID	ReactFrogWithGridFlags(	FROG*		frog,
 		if (flags & GRID_SQUARE_DEADLY)
 			{
 			// Kill frog
-			MR_SET_VEC(&vec, 0, 5<<16, 0);
-			FrogKill(frog, FROG_ANIMATION_DROWN, &vec);
+			if (Game_map_theme == THEME_FOR)
+				{
+				FrogKill(frog, FROG_ANIMATION_FLOP, NULL);
+				}
+			else
+				{
+				MR_SET_VEC(&vec, 0, 1<<16, 0);
+				FrogKill(frog, FROG_ANIMATION_DROWN, &vec);
+				}
+			
+			MRSNDPlaySound(SFX_GEN_FROG_HIT_GROUND, NULL, 0, 0);
 			return;
 			}
 		if (flags & GRID_SQUARE_POPDEATH)
 			{
 			// Kill frog
 			FrogKill(frog, FROG_ANIMATION_POP, NULL);
+			MRSNDPlaySound(SFX_GEN_FROG_EXPLODE, NULL, 0, 0);
 			return;
 			}
 		if (flags & GRID_SQUARE_WATER)
 			{
 			// Kill frog
-			MR_SET_VEC(&vec, 0, 5<<16, 0);
+			MR_SET_VEC(&vec, 0, 1<<16, 0);
 			FrogKill(frog, FROG_ANIMATION_DROWN, &vec);
 		
 			// Clear velocity to stop it falling
 //			MR_CLEAR_VEC(&frog->fr_velocity);
 
-			sprite_ptr = MRCreate3DSprite((MR_FRAME*)frog->fr_lwtrans, MR_OBJ_STATIC, FrogSplashAnimList);
+			MR_INIT_MAT(&Frog_splash_matrix);
+			MR_COPY_VEC(&Frog_splash_matrix.t, &frog->fr_lwtrans->t);
+			sprite_ptr = MRCreate3DSprite((MR_FRAME*)&Frog_splash_matrix, MR_OBJ_STATIC, FrogSplashAnimList);
 			sprite_ptr->ob_extra.ob_extra_sp_core->sc_flags 	|= MR_SPF_IN_XZ_PLANE;
 			sprite_ptr->ob_extra.ob_extra_sp_core->sc_ot_offset = -0x10;
 			GameAddObjectToViewports(sprite_ptr);
@@ -767,6 +788,7 @@ MR_VOID	ReactFrogWithGridFlags(	FROG*		frog,
 *						MR_MAT*			entity_transmatrix)
 *
 *	FUNCTION	Frog has collided with form - effect reaction
+*	MATCH		https://decomp.me/scratch/jUcpe	(By Kneesnap)
 *
 *	INPUTS		frog				-	ptr to FROG
 *				form				-	ptr to FORM
@@ -782,6 +804,7 @@ MR_VOID	ReactFrogWithGridFlags(	FROG*		frog,
 *	10.05.97	Martin Kift		Added entity->frog hit flag code...
 *	21.05.97	Martin Kift		Updated check point code.
 *	15.07.97	Martin Kift		Fixed soft landing code.
+*	03.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -796,13 +819,14 @@ MR_VOID	ReactFrogWithForm(	FROG*			frog,
 	LIVE_ENTITY*	live_entity;
 	MR_VEC			vec;
 	MR_SVEC			svec;
-	MR_LONG			height, x, z, l;
+	MR_LONG			height, x, z, i;
 	MR_USHORT		flags;
-	CAMERA*			camera;
 	FORM_BOOK*		form_book;
+	CAMERA*			camera;
 	MR_BOOL			frog_centring;
 	MR_MAT			ent_proj_mat;
 	MR_MAT			ent_proj_mat_trans;
+	FROG*		   temp_frog;
 
 	live_entity = entity->en_live_entity;
 	camera		= &Cameras[frog->fr_frog_id];
@@ -881,13 +905,27 @@ MR_VOID	ReactFrogWithForm(	FROG*			frog,
 			if	((MR_SQR(live_entity->le_lwtrans->m[0][2]) + MR_SQR(live_entity->le_lwtrans->m[2][2])) < COLLIDE_ENTITY_TOO_VERTICAL_EPSILON2)
 				return;
 
+			// Update frog stacking
+			temp_frog = Frogs;
+			i = Game_total_players;
+			while (i--)
+				{
+					if ((temp_frog != frog) && (temp_frog->fr_entity != NULL) && (temp_frog->fr_entity == entity) && (temp_frog->fr_mode != FROG_MODE_NO_CONTROL) && (temp_frog->fr_entity_grid_x == x) && (temp_frog->fr_entity_grid_z == z))
+						{
+						MRTransposeMatrix(temp_frog->fr_lwtrans, &ent_proj_mat);
+						SnapFrogToOtherFrog(frog, temp_frog, &ent_proj_mat);
+						return;
+						}
+					temp_frog++;
+				}
+
 			// Only do alignment if we are NOT jumping across a single entity?
 			if (!(frog->fr_flags & FROG_JUMP_TO_ENTITY) ||
 				!(frog->fr_flags & FROG_JUMP_FROM_ENTITY))
 				{
 				// Consider height we have fallen
 				if (!(flags & GRID_SQUARE_SOFT))
-					FrogReactToFallDistance(frog, frog->fr_lwtrans->t[1] - frog->fr_old_y);
+					FrogReactToFallDistance(frog, frog->fr_lwtrans->t[1] - frog->fr_old_y, flags);
 				else
 					{
 					// Frog is OK
@@ -961,11 +999,11 @@ MR_VOID	ReactFrogWithForm(	FROG*			frog,
 					svec.vx 				= frog->fr_target_pos.vx - (frog->fr_entity_ofs.vx >> 16);
 					svec.vy 				= frog->fr_target_pos.vy - (frog->fr_entity_ofs.vy >> 16);
 					svec.vz 				= frog->fr_target_pos.vz - (frog->fr_entity_ofs.vz >> 16);
-					l 						= MR_SVEC_MOD(&svec);					 
+					i 						= MR_SVEC_MOD(&svec);
 	
 					frog->fr_mode			= FROG_MODE_CENTRING;
 	
-					frog->fr_count			= (l / FROG_CENTRING_SPEED) + 1;
+					frog->fr_count			= (i / FROG_CENTRING_SPEED) + 1;
 					frog->fr_velocity.vx 	= (svec.vx << 16) / frog->fr_count;
 					frog->fr_velocity.vy 	= (svec.vy << 16) / frog->fr_count;
 					frog->fr_velocity.vz 	= (svec.vz << 16) / frog->fr_count;
@@ -1099,7 +1137,7 @@ MR_VOID	ReactFrogWithForm(	FROG*			frog,
 				// Drown ...
 				case FORM_DEATH_DROWN:
 					// Do drown animation
-					MR_SET_VEC(&vec, 0, 5<<16, 0);
+					MR_SET_VEC(&vec, 0, 1<<16, 0);
 					FrogKill(frog, FROG_ANIMATION_DROWN, &vec);
 					break;
 
@@ -1112,7 +1150,10 @@ MR_VOID	ReactFrogWithForm(	FROG*			frog,
 				// Flop ...
 				case FORM_DEATH_FLOP:
 					// Do flop animation
-					FrogKill(frog, FROG_ANIMATION_FLOP, NULL);
+					if (Game_map == LEVEL_CAVES3)
+						FrogKill(frog, FROG_ANIMATION_FLOP, &frog->fr_velocity);
+					else
+						FrogKill(frog, FROG_ANIMATION_FLOP, NULL);
 					frog->fr_shadow->ef_flags |= EFFECT_NO_DISPLAY;
 					break;
 
@@ -1174,6 +1215,7 @@ MR_VOID	ReactFrogWithForm(	FROG*			frog,
 }
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% CollideEntity
 *------------------------------------------------------------------------------
@@ -1197,6 +1239,7 @@ MR_VOID	ReactFrogWithForm(	FROG*			frog,
 *	03.06.97	Martin Kift		Recoded to remove params and do a move expansive
 *								check for entities in surrounding grid squares,
 *								also moved most of code out to single entity func.
+*	03.11.23	Kneesnap		Disabled as part of byte-matching PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1248,6 +1291,7 @@ MR_BOOL	CollideEntity(LIVE_ENTITY*	live_entity,
 	// No collision
 	return FALSE;
 }
+#endif
 
 
 /******************************************************************************
@@ -1355,6 +1399,7 @@ MR_BOOL	CollideEntityWithEntity(LIVE_ENTITY*	live_entity,
 *						FROG*	frog)
 *
 *	FUNCTION	Collide frog with other frogs
+*	MATCH		https://decomp.me/scratch/5CnCD	(By Kneesnap)
 *
 *	INPUTS		frog	-	ptr to FROG to collide
 *
@@ -1364,23 +1409,15 @@ MR_BOOL	CollideEntityWithEntity(LIVE_ENTITY*	live_entity,
 *	-------		----------		------
 *	09.06.97	Tim Closs		Created
 *	26.06.97	Tim Closs		Completely revised
+*	03.11.23	Kneesnap		Decompiled a byte match to PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	CollideFrogWithFrogs(FROG*	frog)
 {
 	FROG*		frog_b;
-	FROG*		frog_s;
 	MR_LONG		i;
-	MR_SVEC		svec;
-	MR_VEC		vec;
 	MR_MAT		transpose;
-	MR_MAT		entity_transmatrix;
-	CAMERA*		camera;
-	FORM_BOOK*	form_book;
-	MR_MAT		ent_proj_mat;
-	MR_MAT		ent_proj_mat_trans;
-
 
 	if	(
 		(frog->fr_stack_slave == NULL) &&
@@ -1389,130 +1426,21 @@ MR_VOID	CollideFrogWithFrogs(FROG*	frog)
 		{
 		frog_b 	= Frogs;
 		i		= Game_total_players;
-		camera 	= &Cameras[frog->fr_frog_id];
 
 		while(i--)
 			{
 			// Look for collision with a slave
 			if	(
 				(frog_b != frog) &&
-				(frog_b->fr_mode != FROG_MODE_JUMPING)
+				(frog_b->fr_mode - 1 > FROG_MODE_JUMPING) &&
+				(frog_b->fr_mode != FROG_MODE_NO_CONTROL) &&
+				!(frog_b->fr_flags & FROG_MUST_DIE)
 				)
 				{
 				MRTransposeMatrix(frog_b->fr_lwtrans, &transpose);
 				if (CheckFrogStackCollision(frog, frog_b, &transpose) == TRUE)
 					{
-					// Move to top of stack
-					while(frog_b->fr_stack_master)
-						frog_b = frog_b->fr_stack_master;
-
-					// frog_b is now top of stack we have collided with
-					frog->fr_stack_slave	= frog_b;
-					frog_b->fr_stack_master	= frog;
-					frog->fr_flags			&= ~FROG_LANDED_ON_LAND_CLEAR_MASK;
-
-					if (frog_b->fr_flags & FROG_ON_ENTITY)
-						{
-						form_book 	= ENTITY_GET_FORM_BOOK(frog_b->fr_entity);
-						MRTransposeMatrix(frog_b->fr_entity->en_live_entity->le_lwtrans, &entity_transmatrix);
-						if (!(form_book->fb_flags & FORM_BOOK_FROG_NO_ROTATION_SNAPPING))
-							{
-							// Make frog master 90 degree rotation about slave entity matrix
-							frog->fr_old_direction	= frog->fr_direction;
-							frog->fr_direction		= SnapFrogRotationToMatrix(frog, frog_b->fr_entity->en_live_entity->le_lwtrans, &entity_transmatrix);
-							}
-
-						if (!(form_book->fb_flags & FORM_BOOK_FROG_NO_ENTITY_ANGLE))
-							{			
-							// Work out which direction, relative to the entity, that UP will take us
-							MR_SVEC_EQUALS_VEC(&svec, &camera->ca_direction_vectors[FROG_DIRECTION_N]);
-							MRApplyMatrix(&entity_transmatrix, &svec, &vec);
-							if (vec.vz >= 0x800)
-								{
-								// UP will take us (local N) on entity
-								frog->fr_entity_angle = FROG_DIRECTION_N;
-								}
-							else
-							if (vec.vz < -0x800)
-								{
-								// UP will take us (local N) on entity
-								frog->fr_entity_angle = FROG_DIRECTION_S;
-								}
-							else
-							if (vec.vx >= 0x800)
-								{
-								// UP will take us (local E) on entity
-								frog->fr_entity_angle = FROG_DIRECTION_E;
-								}
-							else
-								{
-								// UP will take us (local W) on entity
-								frog->fr_entity_angle = FROG_DIRECTION_W;
-								}
-							}
-						}
-					else
-						{
-						// Make frog master 90 degree rotation about slave matrix
-						SnapFrogRotationToMatrix(frog, frog_b->fr_lwtrans, &transpose);
-						}
-
-					// Store (master lwtrans / slave lwtrans)
-					MRMulMatrixABC(frog->fr_lwtrans, &transpose, &frog->fr_stack_mod_matrix);
-
-					if (frog_b->fr_flags & FROG_ON_ENTITY)
-						{
-						// Slave is on entity: master must be set up to be on entity also
-						frog->fr_flags	|= FROG_ON_ENTITY;
-
-						MR_COPY_VEC(&frog->fr_entity_ofs, &frog_b->fr_entity_ofs);
-						frog->fr_entity_grid_x	= frog_b->fr_entity_grid_x;
-						frog->fr_entity_grid_z	= frog_b->fr_entity_grid_z;
-						MRMulMatrixABC(&frog->fr_stack_mod_matrix, &frog_b->fr_entity_transform, &frog->fr_entity_transform);
-
-						// If we are currently applying a camera mod to an entity, new mod should be:
-						// (Camera_mod * old_entity) / (new_entity)
-						if (frog->fr_entity)
-							{
-							if (frog->fr_entity != frog_b->fr_entity)
-								{
-								// (Camera_mod) = (Camera_mod * old_entity(projected))
-								ProjectMatrixOntoWorldXZ(frog->fr_entity->en_live_entity->le_lwtrans, &ent_proj_mat);
-								MRMulMatrixABA(&camera->ca_mod_matrix, &ent_proj_mat);
-		
-								// (Camera_mod) = (Camera_mod / new_entity(projected)trans)
-								ProjectMatrixOntoWorldXZ(frog_b->fr_entity->en_live_entity->le_lwtrans, &ent_proj_mat);
-								MRTransposeMatrix(&ent_proj_mat, &ent_proj_mat_trans);
-								MRMulMatrixABA(&camera->ca_mod_matrix, &ent_proj_mat_trans);
-
-//								MRMulMatrixABA(&camera->ca_mod_matrix, frog->fr_entity->en_live_entity->le_lwtrans);
-//								MRMulMatrixABA(&camera->ca_mod_matrix, &entity_transmatrix);
-								}
-							}
-						else
-							{
-							// (Camera_mod) = (Camera_mod / new_entity(projected)trans)
-							ProjectMatrixOntoWorldXZ(frog_b->fr_entity->en_live_entity->le_lwtrans, &ent_proj_mat);
-							MRTransposeMatrix(&ent_proj_mat, &ent_proj_mat_trans);
-							MRMulMatrixABA(&camera->ca_mod_matrix, &ent_proj_mat_trans);
-
-//							MRMulMatrixABA(&camera->ca_mod_matrix, &entity_transmatrix);
-							}
-						frog->fr_entity	= frog_b->fr_entity;
-						}
-
-					frog->fr_mode = FROG_MODE_STACK_MASTER;
-
-					// Find the bottom slave, and set up the squash count
-					frog_s = frog_b;
-					while(frog_s->fr_stack_slave)
-						frog_s = frog_s->fr_stack_slave;
-					frog_s->fr_stack_count = FROG_STACK_SQUASH_TIME - 1;
-
-					UpdateFrogStackMaster(frog_b, frog_s);
-
-					// Play squish sound/anims
-					MRSNDPlaySound(SFX_GEN_FROG_COLL_STACK, NULL, 0, 0);
+					SnapFrogToOtherFrog(frog, frog_b, &transpose);
 					return;
 					}
 				}
@@ -1532,6 +1460,7 @@ MR_VOID	CollideFrogWithFrogs(FROG*	frog)
 *									MR_MAT*	frog_b_transpose)
 *
 *	FUNCTION	Check if frog_a is in collision with frog_b
+*	MATCH		https://decomp.me/scratch/3RP5c	(By Kneesnap)
 *
 *	INPUTS		frog_a				-	ptr to FROG a
 *				frog_b				-	ptr to FROG b
@@ -1542,6 +1471,7 @@ MR_VOID	CollideFrogWithFrogs(FROG*	frog)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	24.06.97	Tim Closs		Created
+*	03.11.23	Kneesnap		Decompiled a byte match to PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1566,11 +1496,7 @@ MR_BOOL	CheckFrogStackCollision(FROG*	frog_a,
 
 	// vec is vector from frog_b origin to frog_a origin in frog_b frame
 	if	(
-#ifdef BUILD_49
-		(vec.vy > -(FROG_STACK_COLLISION_HEIGHT)) &&
-#else
-		(vec.vy >= -(FROG_STACK_COLLISION_HEIGHT + 10)) &&
-#endif
+		(abs(vec.vy) <= (FROG_STACK_COLLISION_HEIGHT + 10)) &&
 		(abs(vec.vx) < 0x40) &&
 		(abs(vec.vz) < 0x40)
 		)
@@ -1773,7 +1699,7 @@ MR_LONG	VisibilityCollisionCheck(	MR_MAT*					matrix,
 			if (live_entity = entity->en_live_entity)
 				{
 				// Is this an entity we should be checking?
-		        if (ValidForm(vis_info->form_ids_ptr, vis_info->num_forms, entity->en_form_book_id))
+				if (ValidForm(vis_info->form_ids_ptr, vis_info->num_forms, entity->en_form_book_id))
 					{
 					// dont continue if no collision has been requested
 					if (!(entity->en_flags & ENTITY_NO_COLLISION))
@@ -1969,4 +1895,163 @@ MR_VOID	SnapFrogToMatrix(	FROG*	frog,
 	MRNormaliseVEC(&vec_x, &vec_x);
 	WriteAxesAsMatrix(frog->fr_lwtrans, &vec_x, &vec_y, &vec_z);
 }
+
+/******************************************************************************
+*%%%% SnapFrogToOtherFrog
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID SnapFrogToOtherFrog(
+*								FROG*	frog_a,
+*								FROG*	frog_b,
+*								MR_MAT*	transpose)
+*
+*	FUNCTION	Snaps one frog to another frog, as part of a frog stack
+*	MATCH		https://decomp.me/scratch/DS9MA	(By Kneesnap & mono21400)
+*
+*	INPUTS		frog_a				-	ptr to FROG a
+*				frog_b				-	ptr to FROG b
+*				frog_b_transpose	-	ptr to transpose of frog_b->fr_lwtrans
+
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	03.11.23	Kneesnap		Byte-matched from PSX Build 71. (Retail NTSC)
+*
+*%%%**************************************************************************/
+
+MR_VOID SnapFrogToOtherFrog(	FROG*	frog_a,
+								FROG*	frog_b,
+								MR_MAT* frog_b_transpose)
+{
+	FROG*		frog_s;
+	MR_MAT		ent_proj_mat;
+	MR_MAT		ent_proj_mat_trans;
+	MR_MAT		entity_transmatrix;
+	MR_SVEC		svec;
+	MR_VEC		vec;
+	CAMERA*		camera;
+	FORM_BOOK*	form_book;
+
+	camera 	= &Cameras[frog_a->fr_frog_id];
+	
+	while(frog_b->fr_stack_master)
+		frog_b = frog_b->fr_stack_master;
+
+	// frog_b is now top of stack we have collided with
+	frog_a->fr_stack_slave	= frog_b;
+	frog_b->fr_stack_master	= frog_a;
+	frog_a->fr_flags			&= ~FROG_LANDED_ON_LAND_CLEAR_MASK;
+
+	if (frog_a->fr_entity != NULL)
+		{
+		ProjectMatrixOntoWorldXZ(frog_a->fr_entity->en_live_entity->le_lwtrans, &MRTemp_matrix);
+		MRMulMatrixABA(&camera->ca_mod_matrix, &MRTemp_matrix);
+		frog_a->fr_entity = NULL;
+		}
+
+	if (frog_b->fr_flags & FROG_ON_ENTITY)
+		{
+		form_book 	= ENTITY_GET_FORM_BOOK(frog_b->fr_entity);
+		MRTransposeMatrix(frog_b->fr_entity->en_live_entity->le_lwtrans, &entity_transmatrix);
+		if (!(form_book->fb_flags & FORM_BOOK_FROG_NO_ROTATION_SNAPPING))
+			{
+			// Make frog master 90 degree rotation about slave entity matrix
+			frog_a->fr_old_direction	= frog_a->fr_direction;
+			frog_a->fr_direction		= SnapFrogRotationToMatrix(frog_a, frog_b->fr_entity->en_live_entity->le_lwtrans, &entity_transmatrix);
+			}
+
+		if (!(form_book->fb_flags & FORM_BOOK_FROG_NO_ENTITY_ANGLE))
+			{
+			//frog_a->fr_old_direction = frog_a->fr_direction;
+			// Work out which direction, relative to the entity, that UP will take us
+			MR_SVEC_EQUALS_VEC(&svec, &camera->ca_direction_vectors[FROG_DIRECTION_N]);
+			MRApplyMatrix(&entity_transmatrix, &svec, &vec);
+			if (vec.vz >= 0x800)
+				{
+				// UP will take us (local N) on entity
+				frog_a->fr_entity_angle = FROG_DIRECTION_N;
+				}
+			else
+			if (vec.vz < -0x800)
+				{
+				// UP will take us (local N) on entity
+				frog_a->fr_entity_angle = FROG_DIRECTION_S;
+				}
+			else
+			if (vec.vx >= 0x800)
+				{
+				// UP will take us (local E) on entity
+				frog_a->fr_entity_angle = FROG_DIRECTION_E;
+				}
+			else
+				{
+				// UP will take us (local W) on entity
+				frog_a->fr_entity_angle = FROG_DIRECTION_W;
+				}
+			}
+		}
+	else
+		{
+		// Make frog master 90 degree rotation about slave matrix
+		SnapFrogRotationToMatrix(frog_a, frog_b->fr_lwtrans, frog_b_transpose);
+		}
+
+	// Store (master lwtrans / slave lwtrans)
+	MRMulMatrixABC(frog_a->fr_lwtrans, frog_b_transpose, &frog_a->fr_stack_mod_matrix);
+
+	if (frog_b->fr_flags & FROG_ON_ENTITY)
+		{
+		// Slave is on entity: master must be set up to be on entity also
+		frog_a->fr_flags	|= FROG_ON_ENTITY;
+
+		MR_COPY_VEC(&frog_a->fr_entity_ofs, &frog_b->fr_entity_ofs);
+		frog_a->fr_entity_grid_x	= frog_b->fr_entity_grid_x;
+		frog_a->fr_entity_grid_z	= frog_b->fr_entity_grid_z;
+		MRMulMatrixABC(&frog_a->fr_stack_mod_matrix, &frog_b->fr_entity_transform, &frog_a->fr_entity_transform);
+
+		// If we are currently applying a camera mod to an entity, new mod should be:
+		// (Camera_mod * old_entity) / (new_entity)
+		if (frog_a->fr_entity)
+			{
+			if (frog_a->fr_entity != frog_b->fr_entity)
+				{
+				// (Camera_mod) = (Camera_mod * old_entity(projected))
+				ProjectMatrixOntoWorldXZ(frog_a->fr_entity->en_live_entity->le_lwtrans, &ent_proj_mat);
+				MRMulMatrixABA(&camera->ca_mod_matrix, &ent_proj_mat);
+		
+				// (Camera_mod) = (Camera_mod / new_entity(projected)trans)
+				ProjectMatrixOntoWorldXZ(frog_b->fr_entity->en_live_entity->le_lwtrans, &ent_proj_mat);
+				MRTransposeMatrix(&ent_proj_mat, &ent_proj_mat_trans);
+				MRMulMatrixABA(&camera->ca_mod_matrix, &ent_proj_mat_trans);
+
+//				MRMulMatrixABA(&camera->ca_mod_matrix, frog->fr_entity->en_live_entity->le_lwtrans);
+//				MRMulMatrixABA(&camera->ca_mod_matrix, &entity_transmatrix);
+				}
+			}
+		else
+			{
+			// (Camera_mod) = (Camera_mod / new_entity(projected)trans)
+			ProjectMatrixOntoWorldXZ(frog_b->fr_entity->en_live_entity->le_lwtrans, &ent_proj_mat);
+			MRTransposeMatrix(&ent_proj_mat, &ent_proj_mat_trans);
+			MRMulMatrixABA(&camera->ca_mod_matrix, &ent_proj_mat_trans);
+
+//			MRMulMatrixABA(&camera->ca_mod_matrix, &entity_transmatrix);
+			}
+		frog_a->fr_entity	= frog_b->fr_entity;
+		}
+
+	frog_a->fr_mode = FROG_MODE_STACK_MASTER;
+	frog_a->fr_old_y = frog_a->fr_y = frog_a->fr_lwtrans->t[1];
+
+	// Find the bottom slave, and set up the squash count
+	frog_s = frog_b;
+	while(frog_s->fr_stack_slave)
+		frog_s = frog_s->fr_stack_slave;
+	frog_s->fr_stack_count = FROG_STACK_SQUASH_TIME - 1;
+
+	UpdateFrogStackMaster(frog_b, frog_s);
+
+	// Play squish sound/anims
+	MRSNDPlaySound(SFX_GEN_FROG_COLL_STACK, NULL, 0, 0);
+}
+
 

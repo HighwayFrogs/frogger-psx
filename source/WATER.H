@@ -51,8 +51,10 @@ typedef struct __fg_pgen_extra
 
 extern 	MR_VOID		WaterInitialiseSinOffsetsTable(MR_VOID);
 extern 	MR_VOID		WaterWibbleVertices(MR_SVEC**, MR_LONG);
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 extern 	MR_VOID		WaterGetSinCosOffsets(MR_SHORT*, MR_SHORT*);
 extern	MR_OBJECT* 	WaterCreateSurfaceIndication(MR_VIEWPORT*, MR_VOID*	);
+#endif
 
 
 #endif

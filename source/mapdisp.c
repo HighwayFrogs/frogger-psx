@@ -100,6 +100,8 @@ MAP_WIBBLE_WATER	Map_wibble_water;
 *
 *	FUNCTION	Initialise map display stuff
 *
+*	MATCH		https://decomp.me/scratch/RLYIK	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	14.04.97	Tim Closs		Created
@@ -107,6 +109,7 @@ MAP_WIBBLE_WATER	Map_wibble_water;
 *	20.06.97	Gary Richards	Took out the 'Set Light pools' sets cause they
 *								are not needed. (They screw-up the caves light.)
 *	28.07.97	Martin Kift		Added poly group memory alloc code
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -202,10 +205,10 @@ MR_VOID	InitialiseMapDisplay(MR_VOID)
 								MR_COPY16(poly_ft4->u3, texture->te_u3);
 								break;
 							case 1:
-								MR_COPY16(poly_ft4->u0, texture->te_u1);
-								MR_COPY16(poly_ft4->u1, texture->te_u3);
-								MR_COPY16(poly_ft4->u2, texture->te_u0);
-								MR_COPY16(poly_ft4->u3, texture->te_u2);
+								MR_COPY16(poly_ft4->u0, texture->te_u2);
+								MR_COPY16(poly_ft4->u1, texture->te_u0);
+								MR_COPY16(poly_ft4->u2, texture->te_u3);
+								MR_COPY16(poly_ft4->u3, texture->te_u1);
 								break;
 							case 2:
 								MR_COPY16(poly_ft4->u0, texture->te_u3);
@@ -214,10 +217,10 @@ MR_VOID	InitialiseMapDisplay(MR_VOID)
 								MR_COPY16(poly_ft4->u3, texture->te_u0);
 								break;
 							case 3:
-								MR_COPY16(poly_ft4->u0, texture->te_u2);
-								MR_COPY16(poly_ft4->u1, texture->te_u0);
-								MR_COPY16(poly_ft4->u2, texture->te_u3);
-								MR_COPY16(poly_ft4->u3, texture->te_u1);
+								MR_COPY16(poly_ft4->u0, texture->te_u1);
+								MR_COPY16(poly_ft4->u1, texture->te_u3);
+								MR_COPY16(poly_ft4->u2, texture->te_u0);
+								MR_COPY16(poly_ft4->u3, texture->te_u2);
 								break;
 							}								
 #ifdef PSX

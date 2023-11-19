@@ -214,7 +214,7 @@ FORM_BOOK	Form_library_cav[] =
 		ENTITY_TYPE_MOVING,			//CAV_SPIDER,
 		0,
 		SCRIPT_CAV_SPIDER,
-		0,
+		FORM_BOOK_THICK_FORM,
 		NULL,
 		0,
 		FORM_DEATH_FLOP,
@@ -324,7 +324,7 @@ FORM_BOOK	Form_library_cav[] =
 		},
 		{
 		// cav_racesnail
-		ENTITY_TYPE_CAV_RACE_SNAIL,
+		ENTITY_TYPE_MOVING,
 		14,
 		},
 	};
@@ -349,7 +349,7 @@ FORM_BOOK	Form_library_des[] =
 		ENTITY_TYPE_MOVING,
 		1+DESERT_WAD_OFFSET,
 		SCRIPT_DES_LIZARD,
-		NULL,
+		FORM_BOOK_THICK_FORM,
 		NULL,
 		0,
 		FORM_DEATH_FLOP
@@ -382,7 +382,7 @@ FORM_BOOK	Form_library_des[] =
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// des_tumbleweed
@@ -393,7 +393,7 @@ FORM_BOOK	Form_library_des[] =
 		// des_falling_rock
 		ENTITY_TYPE_DES_FALLING_ROCK,
 		6+DESERT_WAD_OFFSET,
-		NULL,
+		SCRIPT_DES_FALLING_ROCK,
 		FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH,
 		NULL,
 		0,
@@ -531,7 +531,7 @@ FORM_BOOK	Form_library_des[] =
 		ENTITY_TYPE_STATIC,
 		1+DESERT_WAD_OFFSET,
 		NULL,	
-		FORM_BOOK_FLAG_NO_MODEL,
+		FORM_BOOK_FLAG_NO_COLOUR_FADE | FORM_BOOK_FLAG_NO_MODEL,
 		},
 		{
 		// des_bird1
@@ -541,7 +541,7 @@ FORM_BOOK	Form_library_des[] =
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// des_bird2
@@ -551,7 +551,7 @@ FORM_BOOK	Form_library_des[] =
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// des_stat_cactus3
@@ -598,7 +598,7 @@ FORM_BOOK	Form_library_des[] =
 		ENTITY_TYPE_STATIC,
 		1+DESERT_WAD_OFFSET,
 		0,							//SCRIPT_DES_LIZARD_NOISE,
-		FORM_BOOK_FLAG_NO_MODEL,
+		FORM_BOOK_FLAG_NO_COLOUR_FADE | FORM_BOOK_FLAG_NO_MODEL,
 		0,
 		0,
 		FORM_DEATH_FLOP,
@@ -622,7 +622,7 @@ FORM_BOOK	Form_library_des[] =
 		FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// des_rollingrock
@@ -649,7 +649,7 @@ FORM_BOOK	Form_library_for[] =
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// for_jay
@@ -659,7 +659,7 @@ FORM_BOOK	Form_library_for[] =
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// for_fallingleaves
@@ -681,7 +681,7 @@ FORM_BOOK	Form_library_for[] =
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// for_owl
@@ -697,7 +697,7 @@ FORM_BOOK	Form_library_for[] =
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// for_hive
@@ -857,7 +857,7 @@ FORM_BOOK	Form_library_for[] =
 		ENTITY_TYPE_STATIC,
 		PROJECT_MAX_THEME_MOFS + 14,	// Uses the Gen Block.
 		SCRIPT_FOR_RIVER_NOISE,
-		FORM_BOOK_FLAG_NO_MODEL,
+		FORM_BOOK_FLAG_NO_COLOUR_FADE | FORM_BOOK_FLAG_NO_MODEL,
 		},
 	};
 
@@ -868,19 +868,19 @@ FORM_BOOK	Form_library_jun[] =
 	{
 		{
 		// arn_falling_tree
-                ENTITY_TYPE_STATIC,
+		ENTITY_TYPE_STATIC,
 		0+JUNGLE_WAD_OFFSET,
 		NULL,
 		},
 		{
 		// arn_scorpion
-                ENTITY_TYPE_MOVING,
+		ENTITY_TYPE_MOVING,
 		0+JUNGLE_WAD_OFFSET,
 		NULL,
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// arn_stat_boulder
@@ -976,7 +976,7 @@ FORM_BOOK	Form_library_jun[] =
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// jun_flamingo
@@ -1018,6 +1018,8 @@ FORM_BOOK	Form_library_jun[] =
 		// jun_plant
 		ENTITY_TYPE_JUN_PLANT,
 		18+JUNGLE_WAD_OFFSET,
+		0,
+		FORM_BOOK_RESET_ON_FROG_DEATH | FORM_BOOK_RESET_ON_CHECKPOINT,
 		},
 		{
 		// jun_piranha
@@ -1029,7 +1031,7 @@ FORM_BOOK	Form_library_jun[] =
 		// jun_rhino
 		ENTITY_TYPE_MOVING,
 		20+JUNGLE_WAD_OFFSET,
-		SCRIPT_JUN_SCORPION,
+		SCRIPT_JUN_RHINO,
 		NULL,
 		NULL,
 		0,
@@ -1037,13 +1039,13 @@ FORM_BOOK	Form_library_jun[] =
 		},
 		{
 		// jun_scorpion
-		ENTITY_TYPE_MOVING,
+		ENTITY_TYPE_JUN_SCORPION,
 		0+JUNGLE_WAD_OFFSET,
 		SCRIPT_JUN_SCORPION,
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// jun_stat_treecoc2
@@ -1124,11 +1126,15 @@ FORM_BOOK	Form_library_jun[] =
 		// jun_turtle
 		ENTITY_TYPE_MOVING,
 		36+JUNGLE_WAD_OFFSET,
+		0,
+		FORM_BOOK_RESET_ON_FROG_DEATH | FORM_BOOK_RESET_ON_CHECKPOINT,
 		},
 		{
 		// jun_log
 		ENTITY_TYPE_MOVING,
 		37+JUNGLE_WAD_OFFSET,
+		0,
+		FORM_BOOK_RESET_ON_FROG_DEATH | FORM_BOOK_RESET_ON_CHECKPOINT,
 		},
 		{
 		// jun_ropebridge
@@ -1142,10 +1148,10 @@ FORM_BOOK	Form_library_jun[] =
 		ENTITY_TYPE_MOVING,
 		39+JUNGLE_WAD_OFFSET,
 		SCRIPT_JUN_CROCODILE,
-		NULL,
+		FORM_BOOK_RESET_ON_FROG_DEATH | FORM_BOOK_RESET_ON_CHECKPOINT,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// jun_hippo
@@ -1181,6 +1187,7 @@ FORM_BOOK	Form_library_jun[] =
 		ENTITY_TYPE_MOVING,
 		45+JUNGLE_WAD_OFFSET,		// no model at the moment, use turtle
 		SCRIPT_JUN_FLOATING_TREE,
+		FORM_BOOK_RESET_ON_FROG_DEATH | FORM_BOOK_RESET_ON_CHECKPOINT,
 		},
 		{
 		// jun_ropebridge2
@@ -1204,7 +1211,7 @@ FORM_BOOK	Form_library_jun[] =
 		ENTITY_TYPE_STATIC,
 		NULL,
 		SCRIPT_JUN_WATER_NOISE,
-		FORM_BOOK_FLAG_NO_MODEL,
+		FORM_BOOK_FLAG_NO_COLOUR_FADE | FORM_BOOK_FLAG_NO_MODEL,
 		},
 		{
 		// JUN_OUTRO
@@ -1299,31 +1306,31 @@ FORM_BOOK	Form_library_org[] =
 		ENTITY_TYPE_MOVING,
 		3,
 		SCRIPT_LOG_SPLASH,
-		FORM_BOOK_FROG_NO_CENTRING_Z,
+		FORM_BOOK_FROG_NO_CENTRING_Z | FORM_BOOK_THICK_FORM,
 		},
 		{
 		// org_log_medium
 		ENTITY_TYPE_MOVING,
 		4,
 		SCRIPT_LOG_SPLASH,
-		FORM_BOOK_FROG_NO_CENTRING_Z,
+		FORM_BOOK_FROG_NO_CENTRING_Z | FORM_BOOK_THICK_FORM,
 		},
 		{
 		// org_log_large
 		ENTITY_TYPE_MOVING,
 		5,
 		SCRIPT_LOG_SPLASH,
-		FORM_BOOK_FROG_NO_CENTRING_Z,
+		FORM_BOOK_FROG_NO_CENTRING_Z | FORM_BOOK_THICK_FORM,
 		},
 		{
 		// org_snake
 		ENTITY_TYPE_MOVING,
 		6,
 		SCRIPT_ORG_SNAKE,
-		0,
+		FORM_BOOK_THICK_FORM,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// org_lorry
@@ -1363,7 +1370,7 @@ FORM_BOOK	Form_library_org[] =
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// org_home_frog
@@ -1376,6 +1383,10 @@ FORM_BOOK	Form_library_org[] =
 		12,
 		NULL,
 		FORM_BOOK_FLAG_NO_MODEL,
+		NULL,
+		NULL,
+		NULL,
+		&OrgFlyCallBack,
 		},
 		{
 		// org_beaver
@@ -1385,7 +1396,7 @@ FORM_BOOK	Form_library_org[] =
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// org_babyfrog
@@ -1399,10 +1410,10 @@ FORM_BOOK	Form_library_org[] =
 		ENTITY_TYPE_ORG_CROC_HEAD,
 		15,
 		NULL,
-		FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH,
+		FORM_BOOK_THICK_FORM | FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// org_logsnake
@@ -1412,39 +1423,42 @@ FORM_BOOK	Form_library_org[] =
 		0,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// org_roadnoise
-		ENTITY_TYPE_STATIC,
+		ENTITY_TYPE_STATIC_NOISE,
 		0,
 		SCRIPT_ORG_ROAD_NOISE,
-		FORM_BOOK_FLAG_NO_MODEL,
+		FORM_BOOK_FLAG_NO_COLOUR_FADE | FORM_BOOK_FLAG_NO_MODEL,
 		},
 		{						   
 		// org_rivernoise
-		ENTITY_TYPE_STATIC,
+		ENTITY_TYPE_STATIC_NOISE,
 		0,
 		SCRIPT_ORG_WATER_NOISE,
-		FORM_BOOK_FLAG_NO_MODEL,
+		FORM_BOOK_FLAG_NO_COLOUR_FADE | FORM_BOOK_FLAG_NO_MODEL,
 		},
 		{
 		// org_turtle
 		ENTITY_TYPE_SUB_TURTLE,
 		16,
-		SCRIPT_TURTLE,	
+		SCRIPT_TURTLE,
+		FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH
 		},
 		{
 		// org_turtle2
 		ENTITY_TYPE_SUB_TURTLE,
 		17,
 		SCRIPT_TURTLE,
+		FORM_BOOK_THICK_FORM | FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH
 		},
 		{
 		// org_turtle3
 		ENTITY_TYPE_SUB_TURTLE,
 		18,
-		SCRIPT_TURTLE,	
+		SCRIPT_TURTLE,
+		FORM_BOOK_THICK_FORM | FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH
 		},
 		{
 		// org_stat_nettles
@@ -1478,24 +1492,24 @@ FORM_BOOK	Form_library_org[] =
 //----------
 // THEME_ARN
 //----------
-FORM_BOOK	Form_library_arn[] =
-	{
-		{
-		// arn_stat_dog
-		ENTITY_TYPE_STATIC,
-		0,
-		},
-		{
-		// arn_stat_dog2
-		ENTITY_TYPE_STATIC,
-		1,
-		},
-		{
-		// arn_stat_frog
-		ENTITY_TYPE_STATIC,
-		2,
-		},
-	};
+//FORM_BOOK	Form_library_arn[] =
+//	{
+//		{
+//		// arn_stat_dog
+//		ENTITY_TYPE_STATIC,
+//		0,
+//		},
+//		{
+//		// arn_stat_dog2
+//		ENTITY_TYPE_STATIC,
+//		1,
+//		},
+//		{
+//		// arn_stat_frog
+//		ENTITY_TYPE_STATIC,
+//		2,
+//		},
+//	};
 
 //----------
 // THEME_SWP
@@ -1524,7 +1538,7 @@ FORM_BOOK	Form_library_swp[] =
 		0,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// swp_stat_mound
@@ -1658,15 +1672,16 @@ FORM_BOOK	Form_library_swp[] =
 		ENTITY_TYPE_SWP_CRUSHER,
 		21,
 		NULL,
-		NULL,
+		FORM_BOOK_THICK_FORM,
 		&SwpCrusherCallback,
 		NULL,
 		FORM_DEATH_SQUISHED,
 		},
 		{
 		// swp_stat_weir
-		ENTITY_TYPE_STATIC,
+		ENTITY_TYPE_SWP_STAT_WEIR,
 		22,
+		SCRIPT_SWP_WEIR_ROTATE,
 		},
 		{
 		// swp_squirt
@@ -1715,7 +1730,7 @@ FORM_BOOK	Form_library_swp[] =
 		0,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// swp_stat_waste_barrel
@@ -1748,7 +1763,7 @@ FORM_BOOK	Form_library_swp[] =
 		ENTITY_TYPE_SWP_CRUSHER,
 		34,
 		NULL,
-		NULL,
+		FORM_BOOK_THICK_FORM,
 		&SwpCrusherCallback,
 		0,
 		FORM_DEATH_SQUISHED,
@@ -1768,10 +1783,24 @@ FORM_BOOK	Form_library_swp[] =
 		},
 		{						   
 		// swp_water_noise
-		ENTITY_TYPE_STATIC,
+		ENTITY_TYPE_STATIC_NOISE,
 		0,
 		SCRIPT_SWP_WATER_NOISE,
-		FORM_BOOK_FLAG_NO_MODEL,
+		FORM_BOOK_FLAG_NO_COLOUR_FADE | FORM_BOOK_FLAG_NO_MODEL,
+		},
+		// swp_weir_noise
+		{
+		ENTITY_TYPE_STATIC_NOISE,
+		0,
+		SCRIPT_SWP_WEIR_NOISE,
+		FORM_BOOK_FLAG_NO_COLOUR_FADE | FORM_BOOK_FLAG_NO_MODEL,
+		},
+		// swp_recycle_bin_noise
+		{
+		ENTITY_TYPE_STATIC_NOISE,
+		0,
+		SCRIPT_SWP_RECYCLE_BIN_NOISE,
+		FORM_BOOK_FLAG_NO_COLOUR_FADE | FORM_BOOK_FLAG_NO_MODEL,
 		},
 	};
 
@@ -1828,7 +1857,7 @@ FORM_BOOK	Form_library_sky[] =
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// sky_bird3
@@ -1873,7 +1902,7 @@ FORM_BOOK	Form_library_sky[] =
 		ENTITY_TYPE_DYNAMIC,
 		13,
 		SCRIPT_SKY_HELIUM_BALLOON_WAITING,
-		FORM_BOOK_FROG_NO_ROTATION_SNAPPING | FORM_BOOK_FROG_NO_ENTITY_ANGLE | FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH,
+		FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH,
 		},
 		{
 		// sky_biplane_banner1
@@ -1904,7 +1933,7 @@ FORM_BOOK	Form_library_sky[] =
 		},
 		{
 		// sky_hawk
-		ENTITY_TYPE_STATIC,
+		ENTITY_TYPE_DYNAMIC,
 		18,
 		SCRIPT_SKY_BIRD,
 		FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH,
@@ -1914,7 +1943,7 @@ FORM_BOOK	Form_library_sky[] =
 		},
 		{
 		// sky_birdhawk
-		ENTITY_TYPE_STATIC,
+		ENTITY_TYPE_DYNAMIC,
 		19,
 		SCRIPT_SKY_BIRD,
 		FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH,
@@ -1943,7 +1972,7 @@ FORM_BOOK	Form_library_sky[] =
 		// sky_cloudplatform
 		ENTITY_TYPE_MOVING,
 		15,
-		NULL,
+		SCRIPT_SKY_CLOUDPLATFORM,
 		FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH,
 		},
 		{
@@ -2022,7 +2051,7 @@ FORM_BOOK	Form_library_sub[] =
 		},
 		{
 		// sub_lillypad
-		ENTITY_TYPE_STATIC,
+		ENTITY_TYPE_DYNAMIC,
 		10,
 		SCRIPT_SUB_LILLY_PAD,
 		FORM_BOOK_FROG_NO_ROTATION_SNAPPING | FORM_BOOK_FROG_NO_ENTITY_ANGLE | FORM_BOOK_THICK_FORM,
@@ -2035,7 +2064,7 @@ FORM_BOOK	Form_library_sub[] =
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// sub_stat_start_jetty - $km - Acutally references the lillypad model
@@ -2179,7 +2208,7 @@ FORM_BOOK	Form_library_sub[] =
 		ENTITY_TYPE_DYNAMIC,							// Which is an immortal MATRIX.
 		30,	// dummy, no MOF
 		0,
-		FORM_BOOK_FLAG_NO_MODEL,
+		FORM_BOOK_FLAG_NO_COLOUR_FADE | FORM_BOOK_FLAG_NO_MODEL,
 		},
 		{
 		// sub_butterfly2
@@ -2283,7 +2312,7 @@ FORM_BOOK	Form_library_sub[] =
 		0,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// sub_crocodile
@@ -2293,7 +2322,7 @@ FORM_BOOK	Form_library_sub[] =
 		NULL,
 		NULL,
 		0,
-		FORM_DEATH_BITTEN,
+		FORM_DEATH_FLOP,
 		},
 		{
 		// sub_small_bird
@@ -2316,17 +2345,17 @@ FORM_BOOK	Form_library_sub[] =
 		},
 		{
 		// sub_road_noise
-		ENTITY_TYPE_STATIC,
+		ENTITY_TYPE_STATIC_NOISE,
 		15,
 		SCRIPT_SUB_ROAD_NOISE,
-		FORM_BOOK_FLAG_NO_MODEL,
+		FORM_BOOK_FLAG_NO_COLOUR_FADE | FORM_BOOK_FLAG_NO_MODEL,
 		},
 		{						   
 		// sub_water_noise
-		ENTITY_TYPE_STATIC,
+		ENTITY_TYPE_STATIC_NOISE,
 		23,
 		SCRIPT_SUB_WATER_NOISE,
-		FORM_BOOK_FLAG_NO_MODEL,
+		FORM_BOOK_FLAG_NO_COLOUR_FADE | FORM_BOOK_FLAG_NO_MODEL,
 		},
 		{
 		// sub_car_blue
@@ -2473,28 +2502,28 @@ FORM_BOOK	Form_library_vol[] =
 		ENTITY_TYPE_MOVING,
 		4+VOLCANO_WAD_OFFSET,
 		NULL,
-		FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH,
+		FORM_BOOK_THICK_FORM | FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH,
 		},
 		{
 		// vol_platform2
 		ENTITY_TYPE_MOVING_PLATFORM,
 		5+VOLCANO_WAD_OFFSET,
 		NULL,
-		FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH,
+		FORM_BOOK_THICK_FORM | FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH,
 		},
 		{
 		// vol_falling_platform (21)
 		ENTITY_TYPE_VOL_FALLING_PLATFORM,
 		6+VOLCANO_WAD_OFFSET,
 		NULL,
-		FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH | FORM_BOOK_THICK_FORM,
+		FORM_BOOK_THICK_FORM | FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH | FORM_BOOK_THICK_FORM,
 		},
 		{
 		// vol_mechanism,
 		ENTITY_TYPE_DYNAMIC,
 		7+VOLCANO_WAD_OFFSET,
 		SCRIPT_VOL_MECHANISM,
-		NULL,
+		FORM_BOOK_RESET_ON_CHECKPOINT | FORM_BOOK_RESET_ON_FROG_DEATH,
 		NULL,
 		0,
 		FORM_DEATH_SQUISHED,
@@ -2520,7 +2549,7 @@ FORM_BOOK	Form_library_vol[] =
 		ENTITY_TYPE_MOVING,
 		10+VOLCANO_WAD_OFFSET,
 		SCRIPT_VOL_SPINNER,
-		NULL,
+		FORM_BOOK_THICK_FORM,
 		NULL,
 		0,
 		FORM_DEATH_SQUISHED,
@@ -2538,7 +2567,7 @@ FORM_BOOK	Form_library_vol[] =
 		ENTITY_TYPE_STATIC,
 		11+VOLCANO_WAD_OFFSET,
 		SCRIPT_VOL_COG_NOISE,
-		FORM_BOOK_FLAG_NO_MODEL,
+		FORM_BOOK_FLAG_NO_COLOUR_FADE | FORM_BOOK_FLAG_NO_MODEL,
 		},
 		{
 		// vol_platform3
@@ -2552,6 +2581,6 @@ FORM_BOOK	Form_library_vol[] =
 		ENTITY_TYPE_STATIC,
 		10+VOLCANO_WAD_OFFSET,
 		SCRIPT_VOL_LAVA_NOISE,
-		FORM_BOOK_FLAG_NO_MODEL,
+		FORM_BOOK_FLAG_NO_COLOUR_FADE | FORM_BOOK_FLAG_NO_MODEL,
 		},
 	};

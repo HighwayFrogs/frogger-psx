@@ -273,6 +273,7 @@ extern	MR_VOID		OptionsLoadSaveData(MR_VOID);
 #else			// PSX Specific code ----------------------------------------
 extern	MR_ULONG	OptionsLoadSaveData(MR_ULONG);
 #endif			// WIN95
+extern	MR_ULONG	OptionsLoadSaveDataHeader(MR_ULONG);
 
 extern	MR_VOID		SaveStartup(MR_VOID);
 extern	MR_VOID		SaveUpdate(MR_VOID);
@@ -296,6 +297,7 @@ extern	MR_VOID 	LSKillMemoryCards(MR_VOID);
 #endif
 
 extern	MR_VOID		DecodeSaveData(MR_VOID);
+extern	MR_VOID		DecodeSaveDataHeader(MR_VOID);
 extern	MR_VOID		EncodeSaveData(MR_VOID);
 
 #endif	//__LOADSAVE_H

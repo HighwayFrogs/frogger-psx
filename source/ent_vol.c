@@ -72,6 +72,29 @@ MR_LONG		script_vol_mechanism[] =
 	ENTSCR_ENDLOOP,
 	ENTSCR_RESTART,
 	};
+	
+// https://decomp.me/scratch/Stkrk (By Kneesnap) Seems unused, and unfinished.
+MR_VOID ScriptCBVolMechanism(LIVE_ENTITY* live_entity)
+{
+	ENTITY*		entity;
+	MR_MAT*		map_data; // It is unknown whatever data structure originally held map data, however this makes sense.
+	MR_LONG		i;
+
+	entity = live_entity->le_entity;
+	map_data = (MR_MAT*)(entity + 1);
+	
+	if (!(entity->en_flags & ENTITY_NO_DISPLAY) && (live_entity->le_flags & LIVE_ENTITY_CARRIES_FROG))
+		{		
+		if (abs(live_entity->le_lwtrans->t[1] - map_data->t[1]) < 0x20)
+			{
+			for (i=0; i<4; i++)
+				{
+				if (live_entity->le_flags & (LIVE_ENTITY_CARRIES_FROG_0 << i))
+					FrogKill(&Frogs[i], FROG_ANIMATION_SQUISHED, NULL);
+				}
+			}
+		}
+}
 
 /******************************************************************************
 *%%%% ENTSTRVolCreateFallingPlatform
@@ -304,6 +327,7 @@ MR_VOID	ENTSTRVolCreateColourTrigger(LIVE_ENTITY* live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Update a trigger entity
+*	MATCH		https://decomp.me/scratch/yGQHF	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to update
 *
@@ -311,6 +335,7 @@ MR_VOID	ENTSTRVolCreateColourTrigger(LIVE_ENTITY* live_entity)
 *	-------		----------		------
 *	28.07.97	Martin Kift		Created
 *	05.08.97	Gary Richards	Added to reset moving platforms after death.
+*	06.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -376,7 +401,7 @@ MR_VOID	ENTSTRVolUpdateColourTrigger(LIVE_ENTITY* live_entity)
 		}
 
 	// VOL_SWITCH_FLAG_NO_FROG_CONTACT is only reset if frog was in contact with switch last frame
-	if (rt_trigger->ct_flags & VOL_SWITCH_FLAG_NO_FROG_CONTACT)
+	if (!rt_trigger->ct_forbid_timer && (rt_trigger->ct_flags & VOL_SWITCH_FLAG_NO_FROG_CONTACT))
 		{
 		switch (rt_trigger->ct_state)
 			{
@@ -424,6 +449,7 @@ MR_VOID	ENTSTRVolUpdateColourTrigger(LIVE_ENTITY* live_entity)
 *	28.07.97	Martin Kift		Created
 *	12.08.97	Gary Richards	Fixed bug where we get TWO hits to the entity, 
 *								which turns it ON/OFF instantly. 
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -459,14 +485,14 @@ MR_VOID VolColourTriggerEntityCallback(	MR_VOID*	void_frog,
 		case VOL_SWITCH_ON_DOWN:
 		case VOL_SWITCH_OFF_DOWN:
 			// Nudge frog up above land
-			frog->fr_lwtrans->t[1] = frog->fr_y - 0x30;
+			frog->fr_lwtrans->t[1] = frog->fr_y - 0x20;
 			return;
 
 		case VOL_SWITCH_ON_UP:
 			MRAnimEnvFlipbookSetAction((MR_ANIM_ENV*)live_entity->le_api_item0, VOL_SWITCH_ACTION_DOWN);
 			((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags |= MR_ANIM_ENV_STEP;
 			rt_trigger->ct_state 		= VOL_SWITCH_OFF_DOWN;
-			rt_trigger->ct_forbid_timer	= VOL_SWITCH_FORBID_TIME;
+			rt_trigger->ct_forbid_timer	= VOL_SWITCH_FORBID_TIME - 2;
 
 			// Set texture on switch to 'off'
 			MRMeshAnimatedPolysSetCels(((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_extra.ae_extra_env_flipbook->ae_object->ob_extra.ob_extra_mesh, 0);
@@ -476,7 +502,7 @@ MR_VOID VolColourTriggerEntityCallback(	MR_VOID*	void_frog,
 			MRAnimEnvFlipbookSetAction((MR_ANIM_ENV*)live_entity->le_api_item0, VOL_SWITCH_ACTION_DOWN);
 			((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags |= MR_ANIM_ENV_STEP;
 			rt_trigger->ct_state 		= VOL_SWITCH_ON_DOWN;
-			rt_trigger->ct_forbid_timer	= VOL_SWITCH_FORBID_TIME;
+			rt_trigger->ct_forbid_timer	= VOL_SWITCH_FORBID_TIME - 2;
 
 			// Set texture on switch to 'on'
 			MRMeshAnimatedPolysSetCels(((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_extra.ae_extra_env_flipbook->ae_object->ob_extra.ob_extra_mesh, 1);
@@ -581,7 +607,7 @@ MR_LONG		script_vol_cog_noise[] =
 	ENTSCR_PREPARE_REGISTERS,		sizeof(MR_MAT),			2,
 	ENTSCR_SETLOOP,
 									// SFX										   
-	ENTSCR_PLAY_MOVING_SOUND,		SFX_IND_COGS,			//    MIN				MAX.
+	ENTSCR_PLAY_MOVING_SOUND,		SFX_IND_COGS,			//	MIN				MAX.
 									ENTSCR_REGISTERS,		ENTSCR_REGISTER_0, ENTSCR_REGISTER_1,
 	ENTSCR_ENDLOOP,
 	ENTSCR_RESTART,
@@ -596,7 +622,7 @@ MR_LONG		script_vol_lava_noise[] =
 	ENTSCR_PREPARE_REGISTERS,		sizeof(MR_MAT),			2,
 	ENTSCR_SETLOOP,
 									// SFX										   
-	ENTSCR_PLAY_MOVING_SOUND,		SFX_IND_LAVA,			//    MIN				MAX.
+	ENTSCR_PLAY_MOVING_SOUND,		SFX_IND_LAVA,			//	MIN				MAX.
 									ENTSCR_REGISTERS,		ENTSCR_REGISTER_0, ENTSCR_REGISTER_1,
 	ENTSCR_ENDLOOP,
 	ENTSCR_RESTART,

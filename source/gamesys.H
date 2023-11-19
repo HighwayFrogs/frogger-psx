@@ -209,6 +209,9 @@ enum	{
 		GAME_END_SEQUENCE_FROG_EXITING,
 		GAME_END_SEQUENCE_FADE_SCREEN,
 		GAME_END_SEQUENCE_END,
+		GAME_END_SEQUENCE_UNUSED1,
+		GAME_END_SEQUENCE_UNUSED2,
+		GAME_END_SEQUENCE_UNUSED3,
 		};
 
 enum	{
@@ -234,9 +237,6 @@ typedef struct __game_over_multiplayer			GAME_OVER_MULTIPLAYER;
 
 struct __game_over_multiplayer
 	{
-	MR_2DSPRITE*				go_played_text;
-	MR_2DSPRITE*				go_won_text;
-	MR_2DSPRITE*				go_lost_text;
 	MR_VOID*					go_played_number[2];
 	MR_VOID*					go_won_number[2];
 	MR_VOID*					go_lost_number[2];
@@ -289,11 +289,8 @@ extern	MR_ULONG		Game_border_colours[];
 
 // System
 extern	MR_VEC			Game_x_axis_pos;
-extern	MR_VEC			Game_x_axis_neg;
 extern	MR_VEC			Game_y_axis_pos;
-extern	MR_VEC			Game_y_axis_neg;
 extern	MR_VEC			Game_z_axis_pos;
-extern	MR_VEC			Game_z_axis_neg;
 
 // Main game
 extern	MR_ULONG		Game_mode;						
@@ -302,6 +299,7 @@ extern	MR_ULONG		Game_timer;
 extern	MR_ULONG		Game_flags;
 extern	MR_ULONG		Game_start_timer;
 extern	MR_FRAC16		Game_map_timer_speed;
+extern	MR_LONG			Game_map_timer_decimalised;
 extern	MR_FRAC16		Game_map_timer_frac;
 extern	MR_UBYTE		Game_map_timer_flags;
 extern	MR_LONG			Game_map_timer;
@@ -323,8 +321,15 @@ extern	MR_ULONG		Game_map_theme;
 extern	MR_ULONG		Game_total_players;
 extern	MR_ULONG		Game_total_viewports;
 
+// Primitives
+extern	POLY_F4			Game_prim_f[2];
+extern	POLY_FT3		Game_prim_ft[2];
+
 // Fonts
 extern	MR_FONT_INFO*	Game_font_infos[];
+
+// End of game text pos
+extern	MR_XY			Multiplayer_end_of_game_text_pos[4][4];
 
 // mainloop callbacks
 extern	MR_VOID			(*Game_mainloop_setup_functions[])(MR_VOID);
@@ -333,6 +338,11 @@ extern	MR_VOID			(*Game_mainloop_update_functions[])(MR_VOID);
 // ASync loading.
 extern	MR_LONG			Game_start_mode;
 
+// Sprites
+extern	MR_2DSPRITE*	Game_over_Multiplayer_won_text[4];
+extern	MR_2DSPRITE*	Game_over_Multiplayer_played_text[4];
+extern	MR_2DSPRITE*	Game_over_Multiplayer_lost_text[4];
+
 //-----------------------------------------------------------------------------
 //	Prototypes
 //-----------------------------------------------------------------------------
@@ -340,7 +350,7 @@ extern	MR_LONG			Game_start_mode;
 extern	MR_VOID			GameColdInitialise(MR_VOID);
 extern	MR_VOID			GameInitialise(MR_VOID);
 extern	MR_VOID			GameStart(MR_VOID);
-extern	MR_VOID			GameEnd(MR_VOID);
+extern	MR_VOID			GameEnd(MR_BOOL);
 extern	MR_VOID			LevelStart(MR_ULONG);
 extern	MR_VOID			LevelEnd(MR_VOID);
 
@@ -388,6 +398,8 @@ extern	MR_VOID			GameClearRender(MR_VOID);
 extern	MR_VOID			GameUpdateWin95(MR_VOID);
 extern	MR_VOID			GameNetworkSync(MR_VOID);
 #endif
+
+extern	MR_VOID			KillMultiplayerCheckpoints(MR_VOID);
 
 extern	MR_BOOL			GameHasThemeBeenCompleted(MR_LONG);
 extern	MR_VOID			GameUpdateControllers(MR_VOID);

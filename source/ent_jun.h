@@ -28,7 +28,7 @@ enum	{
 		};
 
 #define	JUN_PLANT_HIT_DISTANCE						(256+100)		// 50 + plus one grid square
-#define GAME_END_GOLD_FROG_DELAY					(2*30)
+#define GAME_END_GOLD_FROG_DELAY					(30)
 #define GAME_END_MAX_PLINTHS						(8)
 #define GAME_END_MAX_PLINTH_RAISE_TIME				(2*30)
 #define GAME_END_MAX_PLINTH_RAISE_DISTANCE			(256*2)
@@ -90,6 +90,7 @@ struct __jun_rt_plant
 	{
 	MR_SHORT		jp_mode;				// plant mode (snapping, delaying, etc)
 	MR_SHORT		jp_timer;				// timer
+	MR_LONG			jp_snap_timer;			// snap cooldown
 	};	// JUN_RT_PLANT
 
 struct	__jun_rope_bridge
@@ -115,7 +116,7 @@ struct __jun_outro_targets
 struct	__jun_outro_entity
 	{
 	MR_MAT					oe_matrix;
-	JUN_OUTRO_TARGETS		oe_targets[10];
+	JUN_OUTRO_TARGETS		oe_targets[11];
 	}; // JUN_OUTRO_ENTITY
 
 struct __jun_outro_data
@@ -147,6 +148,7 @@ struct __jun_outro_rt_gold_frog
 	MR_VEC					op_velocity;				// Velocity
 	MR_VEC					op_target;					// Target position
 	MR_LONG					op_direction;				// Direction
+	MR_OBJECT*				op_object;
 	}; // JUN_OUTRO_RT_GOLD_FROG
 
 //-----------------------------------------------------------------------------
@@ -186,6 +188,7 @@ extern	MR_VOID			ENTSTRJunCreateRopeBridge(LIVE_ENTITY*);
 extern	MR_VOID			ENTSTRJunUpdateRopeBridge(LIVE_ENTITY*);
 						
 extern	MR_VOID			ENTSTRJunCreateHippo(LIVE_ENTITY*);
+extern	MR_VOID			ScriptCBJunHippoDive(LIVE_ENTITY*);
 extern	MR_VOID			ScriptCBJunHippoHit(LIVE_ENTITY*);
 extern	MR_VOID			ScriptCBJunPiranaha(LIVE_ENTITY*);
 						
@@ -201,11 +204,13 @@ extern	MR_VOID			ENTSTRJunKillStatue(LIVE_ENTITY*);
 						
 extern	MR_VOID			ENTSTRJunCreateOutroDoor(LIVE_ENTITY*);
 
-extern	MR_VOID			JunJumpGoldFrog(LIVE_ENTITY*, MR_LONG);
+extern	MR_VOID			JunJumpGoldFrog(LIVE_ENTITY*, MR_LONG, MR_LONG);
 extern	LIVE_ENTITY*	JunFindEntity(MR_LONG, MR_LONG);
 
 extern	MR_VOID			ENTSTRJunCreateBouncyMushroom(LIVE_ENTITY*);
 extern	MR_VOID			ENTSTRJunUpdateBouncyMushroom(LIVE_ENTITY*);
 extern	MR_VOID			ENTSTRJunKillBouncyMushroom(LIVE_ENTITY*);
+
+extern	MR_VOID			ENTSTRJunCreateScorpion(LIVE_ENTITY*);
 
 #endif	//__ENT_JUN_H

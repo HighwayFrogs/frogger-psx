@@ -63,7 +63,9 @@ extern	POLY_F4		Map_view_debug_polys[2][MAP_MAX_POLY_GROUPS];
 
 extern	MR_VOID		InitialiseMapView(MR_VOID);
 extern	MR_VOID		CreateMapViewList(MR_ULONG);
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 extern	MR_VOID		MapViewDrawPixel(MR_LONG, MR_LONG);
+#endif
 extern	MR_VOID		MapViewDrawLine(MR_LONG, MR_LONG, MR_LONG, MR_LONG);
 
 // Debug

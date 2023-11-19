@@ -1257,18 +1257,12 @@ MR_VOID	MRRemoveMeshInstanceFromViewportPhysically(	MR_MESH_INST*	mesh_inst,
 	if	(mesh_inst->mi_next_node)
 		mesh_inst->mi_next_node->mi_prev_node = mesh_inst->mi_prev_node;
 
-#ifdef BUILD_49
-	// Kill the mesh if there are no more instances hanging around
-	if (!(--mesh_inst->mi_object->ob_vp_inst_count))
-		MRKillMesh(mesh_inst->mi_object);
-#else
 	// Kill the mesh if there are no more instances hanging around
 	if (mesh_inst->mi_kill_timer == 0)
 		{
 		if (!(--mesh_inst->mi_object->ob_vp_inst_count))
 			MRKillMesh(mesh_inst->mi_object);
 		}
-#endif
 
 	// Free memory for instance structure
 	MRFreeMem(mesh_inst);
@@ -1328,11 +1322,7 @@ MR_VOID	MRRemove3DSpriteInstanceFromViewport(	MR_3DSPRITE_INST*	sprite_inst,
 MR_VOID	MRRemove3DSpriteInstanceFromViewportPhysically(	MR_3DSPRITE_INST*	sprite_inst,
 							 							MR_VIEWPORT*		viewport)
 {
-#ifdef BUILD_49
-	MR_USHORT	flags;
-#else
-	MR_USHORT	flags = NULL;
-#endif
+	MR_USHORT	flags = 0;
 
 	MR_ASSERT(sprite_inst != NULL);
 	MR_ASSERT(viewport != NULL);
@@ -1342,13 +1332,6 @@ MR_VOID	MRRemove3DSpriteInstanceFromViewportPhysically(	MR_3DSPRITE_INST*	sprite
 	if	(sprite_inst->si_next_node)
 		sprite_inst->si_next_node->si_prev_node = sprite_inst->si_prev_node;
 
-#ifdef BUILD_49
-	flags = sprite_inst->si_object->ob_flags;
-
-	// Kill sprite if there are no more instances...
-	if (!(--sprite_inst->si_object->ob_vp_inst_count))
-		MRKill3DSprite(sprite_inst->si_object);
-#else
 	// Kill sprite if there are no more instances...
 	if (sprite_inst->si_kill_timer == 0)
 		{
@@ -1356,7 +1339,6 @@ MR_VOID	MRRemove3DSpriteInstanceFromViewportPhysically(	MR_3DSPRITE_INST*	sprite
 		if (!(--sprite_inst->si_object->ob_vp_inst_count))
 			MRKill3DSprite(sprite_inst->si_object);
 		}
-#endif
 
 #ifdef MR_MEMFIXED_3DSPRITE
 	if (!(flags & MR_OBJ_MEMFIXED_WITH_INSTS))
@@ -1420,11 +1402,7 @@ MR_VOID	MRRemovePgenInstanceFromViewport(	MR_PGEN_INST*	pgen_inst,
 MR_VOID	MRRemovePgenInstanceFromViewportPhysically(	MR_PGEN_INST*	pgen_inst,
 							 						MR_VIEWPORT*	viewport)
 {
-#ifdef BUILD_49
-	MR_USHORT	flags;
-#else
 	MR_USHORT	flags = 0;
-#endif
 
 	MR_ASSERT(pgen_inst != NULL);
 	MR_ASSERT(viewport != NULL);
@@ -1436,11 +1414,6 @@ MR_VOID	MRRemovePgenInstanceFromViewportPhysically(	MR_PGEN_INST*	pgen_inst,
 
 	flags = pgen_inst->pi_object->ob_flags;
 
-#ifdef BUILD_49
-	// Kill pgen if there are no more instances...
-	if (!(--pgen_inst->pi_object->ob_vp_inst_count))
-		MRKillPgen(pgen_inst->pi_object);
-#else
 	// Kill pgen if there are no more instances...
 	if (pgen_inst->pi_kill_timer == 0)
 		{
@@ -1448,8 +1421,10 @@ MR_VOID	MRRemovePgenInstanceFromViewportPhysically(	MR_PGEN_INST*	pgen_inst,
 		if (!(--pgen_inst->pi_object->ob_vp_inst_count))
 			MRKillPgen(pgen_inst->pi_object);
 		}
-#endif
 
+#ifdef MR_MEMFIXED_PGEN
+	if (!(flags & MR_OBJ_MEMFIXED_WITH_INSTS))
+#endif
 	// Free memory for instance structure
 	MRFreeMem(pgen_inst);
 }
@@ -1539,6 +1514,8 @@ MR_VOID	MRRemoveTextAreaFromViewportPhysically(	MR_TEXT_AREA*	textarea,
 *	FUNCTION	Renders all objects linked to the specified viewport, calling
 *				object specific display routines
 *
+*	MATCH		https://decomp.me/scratch/0x2oI	(By Kneesnap)
+*
 *	INPUTS		vp			-	Pointer to a the MR_VIEWPORT to render
 *
 *	CHANGED		PROGRAMMER		REASON
@@ -1550,6 +1527,7 @@ MR_VOID	MRRemoveTextAreaFromViewportPhysically(	MR_TEXT_AREA*	textarea,
 *	26.02.97	Tim Closs		Mesh instances now have prims in one allocation
 *	06.06.97	Dean Ashton		Fixed bug to do with anim environment instance removal
 *								(was removing mesh instances too early!)
+*	13.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1788,12 +1766,6 @@ MR_VOID	MRRenderViewport(MR_VIEWPORT* vp)
 				sp3dinst_prev_ptr = sp3dinst_ptr->si_prev_node;
 
 				flags = sp3dinst_ptr->si_object->ob_flags;
-				if (!(--sp3dinst_ptr->si_object->ob_vp_inst_count))
-					{
-					// Physically kill sprite object
-					MRKill3DSprite(sp3dinst_ptr->si_object);
-					}
-
 #ifdef MR_MEMFIXED_3DSPRITE
 				if (!(flags & MR_OBJ_MEMFIXED_WITH_INSTS))
 #endif
@@ -1808,7 +1780,13 @@ MR_VOID	MRRenderViewport(MR_VIEWPORT* vp)
 				{
 				// 3D sprite is flagged as 'destroy by display', ie. each time we are asked to display
 				// an instance, decrease the object's count by 1 and destroy when 0
+				sp3dinst_ptr->si_object->ob_vp_inst_count--;
 				sp3dinst_ptr->si_kill_timer = 2;
+				if (!sp3dinst_ptr->si_object->ob_vp_inst_count)
+					{
+					// Physically kill sprite object
+					MRKill3DSprite(sp3dinst_ptr->si_object);
+					}
 				}
 			else
 				{
@@ -1897,12 +1875,6 @@ MR_VOID	MRRenderViewport(MR_VIEWPORT* vp)
 				pgeninst_prev_ptr = pgeninst_ptr->pi_prev_node;
 
 				flags = pgeninst_ptr->pi_object->ob_flags;
-				if (!(--pgeninst_ptr->pi_object->ob_vp_inst_count))
-					{
-					// Physically kill pgen object
-					MRKillPgen(pgeninst_ptr->pi_object);
-					}
-
 #ifdef MR_MEMFIXED_PGEN
 				if (!(flags & MR_OBJ_MEMFIXED_WITH_INSTS))
 #endif
@@ -1917,7 +1889,13 @@ MR_VOID	MRRenderViewport(MR_VIEWPORT* vp)
 				{
 				// pgen is flagged as 'destroy by display', ie. each time we are asked to display
 				// an instance, decrease the object's count by 1 and destroy when 0
+				pgeninst_ptr->pi_object->ob_vp_inst_count--;
 				pgeninst_ptr->pi_kill_timer = 2;
+				if (!pgeninst_ptr->pi_object->ob_vp_inst_count)
+					{
+					// Physically kill pgen object
+					MRKillPgen(pgeninst_ptr->pi_object);
+					}
 				}
 			else
 				{

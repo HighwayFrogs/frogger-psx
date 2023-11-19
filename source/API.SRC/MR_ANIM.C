@@ -423,6 +423,7 @@ MR_VOID	MRAnimPatchMOFTranslucency(MR_MOF* mof_ptr, MR_BOOL add_trans)
 *	20.08.97	Dean Ashton		At the request of Tim, it's now possible for animations
 *								with local OT's to be inserted at the back of the global
 *								OT.
+*	13.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -922,8 +923,6 @@ MR_VOID	MRAnimDisplayMeshInstance(	MR_MESH_INST*	mesh_inst_ptr,
 					mesh_param.p_prims = prims;
 					if (!render_flags)
 						MRDisplayMeshPolys_F3(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq);
-					else
-						MRSpecialDisplayMeshPolys_F3(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq, render_flags);
 					mem			=	mesh_param.p_mem_ptr;
 					prim_ptr	=	mesh_param.p_prim_ptr;	
 					prims		=	mesh_param.p_prims;
@@ -933,8 +932,6 @@ MR_VOID	MRAnimDisplayMeshInstance(	MR_MESH_INST*	mesh_inst_ptr,
 					mesh_param.p_prims = prims;
 					if (!render_flags)
 						MRDisplayMeshPolys_F4(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq);
-					else
-						MRSpecialDisplayMeshPolys_F4(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq, render_flags);
 					mem			=	mesh_param.p_mem_ptr;
 					prim_ptr	=	mesh_param.p_prim_ptr;	
 					prims		=	mesh_param.p_prims;
@@ -944,8 +941,6 @@ MR_VOID	MRAnimDisplayMeshInstance(	MR_MESH_INST*	mesh_inst_ptr,
 					mesh_param.p_prims = prims;
 					if (!render_flags)
 						MRDisplayMeshPolys_FT3(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq);
-					else		
-						MRSpecialDisplayMeshPolys_FT3(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq, render_flags);
 					mem			=	mesh_param.p_mem_ptr;
 					prim_ptr	=	mesh_param.p_prim_ptr;	
 					prims		=	mesh_param.p_prims;
@@ -955,8 +950,6 @@ MR_VOID	MRAnimDisplayMeshInstance(	MR_MESH_INST*	mesh_inst_ptr,
 					mesh_param.p_prims = prims;
 					if (!render_flags)
 						MRDisplayMeshPolys_FT4(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq);
-					else
-						MRSpecialDisplayMeshPolys_FT4(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq, render_flags);
 					mem			=	mesh_param.p_mem_ptr;
 					prim_ptr 	=	mesh_param.p_prim_ptr;	
 					prims		=	mesh_param.p_prims;
@@ -966,8 +959,6 @@ MR_VOID	MRAnimDisplayMeshInstance(	MR_MESH_INST*	mesh_inst_ptr,
 					mesh_param.p_prims = prims;
 					if (!render_flags)
 						MRDisplayMeshPolys_G3(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq);
-					else
-						MRSpecialDisplayMeshPolys_G3(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq, render_flags);
 					mem			=	mesh_param.p_mem_ptr;
 					prim_ptr 	=	mesh_param.p_prim_ptr;	
 					prims		=	mesh_param.p_prims;
@@ -977,8 +968,6 @@ MR_VOID	MRAnimDisplayMeshInstance(	MR_MESH_INST*	mesh_inst_ptr,
 					mesh_param.p_prims = prims;
 					if (!render_flags)
 						MRDisplayMeshPolys_G4(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq);
-					else
-						MRSpecialDisplayMeshPolys_G4(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq, render_flags);
 					mem			=	mesh_param.p_mem_ptr;
 					prim_ptr 	=	mesh_param.p_prim_ptr;	
 					prims		=	mesh_param.p_prims;
@@ -988,8 +977,6 @@ MR_VOID	MRAnimDisplayMeshInstance(	MR_MESH_INST*	mesh_inst_ptr,
 					mesh_param.p_prims = prims;
 					if (!render_flags)
 						MRDisplayMeshPolys_GT3(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq);
-					else
-						MRSpecialDisplayMeshPolys_GT3(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq, render_flags);
 					mem			=	mesh_param.p_mem_ptr;
 					prim_ptr 	=	mesh_param.p_prim_ptr;	
 					prims		=	mesh_param.p_prims;
@@ -999,8 +986,6 @@ MR_VOID	MRAnimDisplayMeshInstance(	MR_MESH_INST*	mesh_inst_ptr,
 					mesh_param.p_prims = prims;
 					if (!render_flags)
 						MRDisplayMeshPolys_GT4(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq);
-					else
-						MRSpecialDisplayMeshPolys_GT4(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq, render_flags);
 					mem			=	mesh_param.p_mem_ptr;
 					prim_ptr 	=	mesh_param.p_prim_ptr;	
 					prims		=	mesh_param.p_prims;
@@ -1010,8 +995,6 @@ MR_VOID	MRAnimDisplayMeshInstance(	MR_MESH_INST*	mesh_inst_ptr,
 					mesh_param.p_prims = prims;
 					if (!render_flags)
 						MRDisplayMeshPolys_E3(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq);
-					else
-						MRSpecialDisplayMeshPolys_E3(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq, render_flags);
 					mem			=	mesh_param.p_mem_ptr;
 					prim_ptr 	=	mesh_param.p_prim_ptr;	
 					prims		=	mesh_param.p_prims;
@@ -1021,8 +1004,6 @@ MR_VOID	MRAnimDisplayMeshInstance(	MR_MESH_INST*	mesh_inst_ptr,
 					mesh_param.p_prims = prims;
 					if (!render_flags)
 						MRDisplayMeshPolys_E4(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq);
-					else
-						MRSpecialDisplayMeshPolys_E4(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq, render_flags);
 					mem			=	mesh_param.p_mem_ptr;
 					prim_ptr 	=	mesh_param.p_prim_ptr;	
 					prims		=	mesh_param.p_prims;
@@ -1032,8 +1013,6 @@ MR_VOID	MRAnimDisplayMeshInstance(	MR_MESH_INST*	mesh_inst_ptr,
 					mesh_param.p_prims = prims;
 					if (!render_flags)
 						MRDisplayMeshPolys_GE3(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq);
-					else
-						MRSpecialDisplayMeshPolys_GE3(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq, render_flags);
 					mem			=	mesh_param.p_mem_ptr;
 					prim_ptr 	=	mesh_param.p_prim_ptr;	
 					prims		=	mesh_param.p_prims;
@@ -1043,8 +1022,6 @@ MR_VOID	MRAnimDisplayMeshInstance(	MR_MESH_INST*	mesh_inst_ptr,
 					mesh_param.p_prims = prims;
 					if (!render_flags)
 						MRDisplayMeshPolys_GE4(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq);
-					else
-						MRSpecialDisplayMeshPolys_GE4(vert_ptr, norm_ptr, prim_ptr, mem, &mesh_param, dm_light_dpq, render_flags);
 					mem			=	mesh_param.p_mem_ptr;
 					prim_ptr 	=	mesh_param.p_prim_ptr;	
 					prims		=	mesh_param.p_prims;

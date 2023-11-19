@@ -15,6 +15,7 @@
 
 #include "mr_all.h"
 #include "entity.h"
+#include "hud.h"
 
 
 //-----------------------------------------------------------------------------
@@ -74,10 +75,12 @@ enum	{
 		ORG_CROC_HEAD_WAITING,
 		ORG_CROC_HEAD_APPEARING,
 		ORG_CROC_HEAD_APPEARED,
+		ORG_CROC_HEAD_RESET,
 		};
 
 #define	ORG_CROC_HEAD_APPEAR_TIME			(60)
 #define	ORG_CROC_HEAD_APPEARING_TIME		(60)
+#define	ORG_CROC_HEAD_RESET_TIME			(60)
 #define	ORG_CROC_HEAD_DISAPPEAR_TIME		(120)
 #define	ORG_CROC_HEAD_FRAMES				(20)
 
@@ -160,6 +163,8 @@ struct __org_rt_baby_frog
 	MR_USHORT				bf_direction;			// Direction of movement
 	MR_UBYTE				bf_mode;				// Baby frog mode
 	MR_UBYTE				bf_search_count;		// Baby frog mode
+	MR_OBJECT*				bf_gold_frog_glow_pgen;	// Gold frog glow pgen
+	HUD_ITEM*				bf_gold_frog_script;	// Gold frog HUD script
 	};		// ORG_BABY_FROG
 
 struct __org_beaver_data
@@ -229,8 +234,8 @@ extern	MR_LONG		script_org_bull_dozer_sfx[];
 extern	MR_LONG		script_log_splash[];
 
 extern	MR_LONG		script_org_crocodile[];
-extern	MR_LONG		script_org_bonus_fly_collected[];
-extern	MR_LONG		script_org_bonus_fly[];
+//extern	MR_LONG		script_org_bonus_fly_collected[];
+//extern	MR_LONG		script_org_bonus_fly[];
 extern	MR_LONG		script_org_road_noise[];
 extern	MR_LONG		script_org_water_noise[];
 extern	MR_LONG		script_turtle[];
@@ -248,6 +253,7 @@ extern	MR_VOID ENTSTROrgUpdateLogSnake(LIVE_ENTITY*);
 extern	MR_VOID ENTSTROrgKillLogSnake(LIVE_ENTITY*);
 extern	MR_VOID ENTSTROrgCreateBabyFrog(LIVE_ENTITY*);
 extern	MR_VOID ENTSTROrgUpdateBabyFrog(LIVE_ENTITY*);
+extern	MR_VOID	ENTSTROrgKillBabyFrog(LIVE_ENTITY* live_entity);
 extern	MR_VOID	ScriptCBFrogTrafficSplat(LIVE_ENTITY*);
 extern	MR_VOID	ScriptCBLogSplash(LIVE_ENTITY*);
 extern	MR_VOID	ScriptCBHitTurtle(LIVE_ENTITY*);
@@ -265,5 +271,6 @@ extern	MR_VOID	ENTSTROrgKillCrocHead(LIVE_ENTITY*);
 
 extern	MR_BOOL	ENTSTROrgChooseRandomCheckPoint(LIVE_ENTITY*, MR_ULONG*, MR_SVEC*);
 extern	MR_VOID	ENTSTROrgResetCrocHead(LIVE_ENTITY*, ENTITY*, ORG_RT_CROC_HEAD*);
+extern	MR_VOID	OrgFlyCallBack(MR_VOID*, MR_VOID*, MR_VOID*);
 
 #endif	//__ENT_ORG_H

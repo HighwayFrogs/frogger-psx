@@ -69,16 +69,17 @@ enum	{
 #define GEN_CHECKPOINT_IS_COVERED			(1<<0)			// Check point already covered by another entity
 
 // Gold frog defines						
-#define GEN_GOLD_FROG_1						(1<<0)
-#define GEN_GOLD_FROG_2						(1<<0)
-#define GEN_GOLD_FROG_3						(1<<0)
-#define GEN_GOLD_FROG_4						(1<<0)
-#define GEN_GOLD_FROG_5						(1<<0)
-#define GEN_GOLD_FROG_6						(1<<0)
-#define GEN_GOLD_FROG_7						(1<<0)
-#define GEN_GOLD_FROG_8						(1<<0)
+#define GEN_GOLD_FROG_1						(1<<THEME_CAV)
+#define GEN_GOLD_FROG_2						(1<<THEME_DES)
+#define GEN_GOLD_FROG_3						(1<<THEME_FOR)
+#define GEN_GOLD_FROG_4						(1<<THEME_JUN)
+#define GEN_GOLD_FROG_5						(1<<THEME_ORG)
+#define GEN_GOLD_FROG_6						(1<<THEME_SWP)
+#define GEN_GOLD_FROG_7						(1<<THEME_SKY)
+#define GEN_GOLD_FROG_8						(1<<THEME_SUB)
+#define GEN_GOLD_FROG_9						(1<<THEME_VOL)
 
-#define GEN_ALL_GOLD_FROGS					(GEN_GOLD_FROG_1 | GEN_GOLD_FROG_2 | GEN_GOLD_FROG_3 | GEN_GOLD_FROG_4 | GEN_GOLD_FROG_5 | GEN_GOLD_FROG_6 | GEN_GOLD_FROG_7 | GEN_GOLD_FROG_8)
+#define GEN_ALL_GOLD_FROGS					(GEN_GOLD_FROG_1 | GEN_GOLD_FROG_2 | GEN_GOLD_FROG_3 | GEN_GOLD_FROG_4 | GEN_GOLD_FROG_5 | GEN_GOLD_FROG_6 | GEN_GOLD_FROG_7 | GEN_GOLD_FROG_8 | GEN_GOLD_FROG_9)
 
 // Modes of operation for Checkpoints
 enum
@@ -121,6 +122,7 @@ struct	__gen_checkpoint
 struct __gen_checkpoint_data
 	{
 	MR_LONG			cp_flags;					// Various flags
+	MR_ULONG		cp_id;						// Id of the checkpoint
 	MR_LONG			cp_frog_collected_id;		// Id of frog that hit checkpoint
 	MR_SVEC			cp_position;				// Position of check point in world
 	MR_ULONG		cp_time;					// Time taken to get to check point
@@ -128,7 +130,7 @@ struct __gen_checkpoint_data
 	MR_ULONG		cp_user_data;				// User data, used by entities for various purposes
 	MR_ULONG		cp_croak_mode;				// eg. FROG_CROAK_NONE
 	MR_ULONG		cp_croak_timer;				// counts down to 0 in each mode
-
+	MR_MAT			cp_matrix;
 	};	// GEN_CHECKPOINT_DATA
 
 

@@ -57,16 +57,6 @@ LIVE_ENTITY		Live_entity_root;
 LIVE_ENTITY*	Live_entity_root_ptr;
 
 
-MR_ULONG		Static_mesh_specials_resource_id[]=
-	{
-	0,
-	};
-
-MR_ULONG		Anim_mesh_specials_resource_id[]=
-	{
-	0,
-	};
-
 MR_ULONG*		Entity_special_sprite_animlists[] =
 	{
 	NULL,
@@ -583,6 +573,7 @@ MR_VOID	ENTSTRCreateStationaryMOF(LIVE_ENTITY*	live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Kill a stationary MOF (static or animated)
+*	MATCH		https://decomp.me/scratch/6zlrl	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to kill
 *
@@ -591,6 +582,7 @@ MR_VOID	ENTSTRCreateStationaryMOF(LIVE_ENTITY*	live_entity)
 *	16.04.97	Tim Closs		Created
 *	24.04.97	Martin Kift		Renamed
 *	24.04.97	Martin Kift		Recoded to cope with animated and static mofs
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -635,14 +627,11 @@ MR_VOID	ENTSTRKillStationaryMOF(LIVE_ENTITY*	live_entity)
 			}
 #endif
 
-		if (!(live_entity->le_entity->en_flags & ENTITY_NO_DISPLAY))
+		if (live_entity->le_api_item0)
 			{
 			// Animated entity, need to kill it
 			MRAnimEnvDestroyByDisplay((MR_ANIM_ENV*)live_entity->le_api_item0);
-
-#ifdef MR_DEBUG
 			live_entity->le_api_item0 = NULL;
-#endif
 			}
 		}
 	else
@@ -662,10 +651,7 @@ MR_VOID	ENTSTRKillStationaryMOF(LIVE_ENTITY*	live_entity)
 		if (live_entity->le_api_item0)
 			{
 			((MR_OBJECT*)live_entity->le_api_item0)->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY;
-
-#ifdef MR_DEBUG
 			live_entity->le_api_item0 = NULL;
-#endif
 			}
 		}
 }
@@ -736,6 +722,7 @@ MR_VOID	ENTSTRCreateDynamicMOF(LIVE_ENTITY*	live_entity)
 }
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% ENTSTRUpdateDynamicMOF
 *------------------------------------------------------------------------------
@@ -751,10 +738,11 @@ MR_VOID	ENTSTRCreateDynamicMOF(LIVE_ENTITY*	live_entity)
 *	-------		----------		------
 *	13.05.97	Martin Kift		Created
 *	29.05.97	Martin Kift		Added colour stuff...
+*	30.10.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
-MR_VOID	ENTSTRUpdateDynamicMOF(LIVE_ENTITY*	live_entity)
+static MR_VOID	ENTSTRUpdateDynamicMOF(LIVE_ENTITY*	live_entity)
 {
 	ENTSTR_DYNAMIC*		entity_type;
 	ENTITY*				entity;
@@ -764,6 +752,7 @@ MR_VOID	ENTSTRUpdateDynamicMOF(LIVE_ENTITY*	live_entity)
 
 	MR_COPY_VEC((MR_VEC*)live_entity->le_lwtrans->t, (MR_VEC*)entity_type->et_matrix.t);
 }
+#endif
 
 
 /******************************************************************************
@@ -774,41 +763,37 @@ MR_VOID	ENTSTRUpdateDynamicMOF(LIVE_ENTITY*	live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Kill a dynamic MOF (static or animated)
+*	MATCH		https://decomp.me/scratch/1lmMS (By Kneesnap)
 *
 *	INPUTS		live_entity	-	to kill
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	01.05.97	Martin Kift		Created
+*	30.10.23	Kneesnap		Rewritten to byte-match PSX Build 71.
 *
 *%%%**************************************************************************/
 
 MR_VOID	ENTSTRKillDynamicMOF(LIVE_ENTITY*	live_entity)
 {
+	if (!live_entity->le_api_item0)
+		return;
+	
 	// Is this entity a static or animated one?
 	if (live_entity->le_flags & LIVE_ENTITY_ANIMATED)
 		{
-		if (!(live_entity->le_entity->en_flags & ENTITY_NO_DISPLAY))
-			{
-			// Animated entity, need to kill it
-			MRAnimEnvDestroyByDisplay((MR_ANIM_ENV*)live_entity->le_api_item0);
-#ifdef MR_DEBUG
-			live_entity->le_api_item0 = NULL;
-#endif
-			}
+		// Animated entity, need to kill it
+		MRAnimEnvDestroyByDisplay((MR_ANIM_ENV*)live_entity->le_api_item0);
+		live_entity->le_api_item0 = NULL;
 		}
 	else
 		{
-		if (!(live_entity->le_entity->en_flags & ENTITY_NO_DISPLAY))
-			{
-			// Static entity
-			((MR_OBJECT*)live_entity->le_api_item0)->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY;
-#ifdef MR_DEBUG
-			live_entity->le_api_item0 = NULL;
-#endif
-			}
+		// Static entity
+		((MR_OBJECT*)live_entity->le_api_item0)->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY;
+		live_entity->le_api_item0 = NULL;
 		}
 }
+
 
 
 /******************************************************************************
@@ -929,6 +914,7 @@ MR_VOID	ENTSTRCreateMovingMOF(LIVE_ENTITY*	live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Kill a moving MOF
+*	MATCH		https://decomp.me/scratch/cyB4S (By Kneesnap)
 *
 *	INPUTS		live_entity	-	to kill
 *
@@ -936,6 +922,7 @@ MR_VOID	ENTSTRCreateMovingMOF(LIVE_ENTITY*	live_entity)
 *	-------		----------		------
 *	19.04.97	Tim Closs		Created
 *	24.04.97	Martin Kift		Recoded to cope with animated and static mofs
+*	30.10.23	Kneesnap		Byte-matched PSX Build 71
 *
 *%%%**************************************************************************/
 
@@ -979,12 +966,10 @@ MR_VOID	ENTSTRKillMovingMOF(LIVE_ENTITY*	live_entity)
 #endif
 
 		// Animated entity
-		if (!(live_entity->le_entity->en_flags & ENTITY_NO_DISPLAY))
+		if (live_entity->le_api_item0 != NULL)
 			{
 			MRAnimEnvDestroyByDisplay((MR_ANIM_ENV*)live_entity->le_api_item0);
-#ifdef MR_DEBUG
 			live_entity->le_api_item0 = NULL;
-#endif
 			}
 		}
 	else
@@ -998,19 +983,16 @@ MR_VOID	ENTSTRKillMovingMOF(LIVE_ENTITY*	live_entity)
 			}
 #endif
 		// Static entity
-		if (!(live_entity->le_entity->en_flags & ENTITY_NO_DISPLAY))
+		if (live_entity->le_api_item0 != NULL)
 			{
 			((MR_OBJECT*)live_entity->le_api_item0)->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY;
-#ifdef MR_DEBUG
 			live_entity->le_api_item0 = NULL;
-#endif
 			}
 		}
 
 	// $wb - Moved to KillLiveEntity()
 //	KillLiveEntitySpecials(live_entity);
 }
-
 
 /******************************************************************************
 *%%%% ENTSTRUpdateMovingMOF
@@ -2196,12 +2178,14 @@ MR_VOID	LinkEntities(MR_VOID)
 *	FUNCTION	Runs through all map entities, resetting them (this is called
 *				on game restart) if they are IMMORTAL. This is because they 
 *				may have deviated from their initial positions.
+*	MATCH		https://decomp.me/scratch/xjGMG	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	22.05.97	Martin Kift		Created
 *	30.05.97	Martin Kift		Recoded to work better.
 *	20.08.97	Martin Kift		Added code to re-enable bonus time flies
+*	03.11.23	Kneesnap		Matched the function to PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2236,17 +2220,23 @@ MR_VOID ResetEntities(MR_VOID)
 			if (Game_reset_flags & GAME_RESET_CHECKPOINT_COLLECTED)
 				{
 				if (form_book->fb_flags & FORM_BOOK_RESET_ON_CHECKPOINT)
+					{
 					KillLiveEntity(entity->en_live_entity);
+					}
 				}
-			else 
-			if (Game_reset_flags & GAME_RESET_FROGS_DEAD)
+			else if (Game_reset_flags & GAME_RESET_FROGS_DEAD)
 				{
 				if (form_book->fb_flags & FORM_BOOK_RESET_ON_FROG_DEATH)
+					{
 					KillLiveEntity(entity->en_live_entity);
+					}
 				}
 			else
+				{
 				KillLiveEntity(entity->en_live_entity);
+				}
 			}
+			
 
 		entity_pptr++;
 		}
@@ -2267,13 +2257,15 @@ MR_VOID ResetEntities(MR_VOID)
 		if (!entity->en_live_entity)
 			{
 			if (entity_book->eb_flags & ENTITY_BOOK_IMMORTAL)
+				{
 				CreateLiveEntity(entity);
+				}
 			else
 				{
 //				// only on sky themes, reset time flies
 //				if (Game_map_theme == THEME_SKY)
 //					{
-					form_book = ENTITY_GET_FORM_BOOK(entity);
+					do { form_book = ENTITY_GET_FORM_BOOK(entity); } while (0);
 					if (form_book->fb_entity_type == ENTITY_TYPE_BONUS_FLY)
 						{
 						bonus_fly	= (GEN_BONUS_FLY*)(entity + 1);
@@ -2282,9 +2274,11 @@ MR_VOID ResetEntities(MR_VOID)
 							(bonus_fly->bf_type <= GEN_FLY_MAX)
 							)
 							{
-							entity->en_flags &= ~ENTITY_HIDDEN;
+							entity->en_flags &= ~(ENTITY_HIDDEN | ENTITY_NO_DISPLAY | ENTITY_NO_MOVEMENT);
+							CreateLiveEntity(entity);
 							}
 						}
+					
 //					}
 				}
 			}
@@ -2601,6 +2595,7 @@ MR_VOID TriggerEntityCallback(	MR_VOID*	void_frog,
 	frog->fr_flags			|= FROG_JUMP_FROM_COLLPRIM;
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% InitPrims
 *------------------------------------------------------------------------------
@@ -2619,6 +2614,7 @@ MR_VOID TriggerEntityCallback(	MR_VOID*	void_frog,
 *	-------		----------		------
 *	03.03.97	Julian Rex		Created
 *	24.06.97	William Bell	Recreated for new frogger attachment system
+*	30.10.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2683,6 +2679,7 @@ MR_VOID InitPrims(MR_PGEN_INST* pGen_inst)
 *	-------		----------		------
 *	03.03.97	Julian Rex		Created
 *	24.06.97	William Bell	Recreated for new frogger attachment system
+*	30.10.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2751,6 +2748,7 @@ MR_VOID UpdateGenerator(MR_OBJECT* pbubble_gen)
 	}
 
 }
+#endif
 
 /******************************************************************************
 *%%%% CreateParticle
@@ -2807,6 +2805,7 @@ MR_VOID CreateParticle(MR_OBJECT* bubble_gen)
 
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% DisplayPrims
 *------------------------------------------------------------------------------
@@ -2827,6 +2826,7 @@ MR_VOID CreateParticle(MR_OBJECT* bubble_gen)
 *	-------		----------		------
 *	03.03.97	Julian Rex		Created
 *	24.06.97	William Bell	Recreated for new frogger attachment system
+*	30.10.23	Kneesnap		Disabled as part of byte-matching decompilation from PSX Build 71 (Retail NTSC).
 *
 *%%%**************************************************************************/
 
@@ -2924,6 +2924,7 @@ MR_VOID DisplayPrims(MR_PGEN_INST* pgen_inst, MR_VIEWPORT* viewport_ptr)
 		lprim_count--;
 		}
 }
+#endif
 
 
 /******************************************************************************
@@ -3027,6 +3028,7 @@ MR_VOID LiveEntitySetCel(	LIVE_ENTITY*	live_entity,
 		MRAnimEnvSingleSetCel((MR_ANIM_ENV*)live_entity->le_api_item0, cel);
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% LiveEntityCreateAnimationEnvironment
 *------------------------------------------------------------------------------
@@ -3046,6 +3048,7 @@ MR_VOID LiveEntitySetCel(	LIVE_ENTITY*	live_entity,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	03.07.97	Martin Kift		Created
+*	30.10.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -3065,6 +3068,7 @@ MR_ANIM_ENV* LiveEntityCreateAnimationEnvironment(	LIVE_ENTITY*	live_entity,
 		return MRAnimEnvSingleCreateWhole((MR_ANIM_HEADER*)mof, 0, MR_OBJ_STATIC, (MR_FRAME*)(live_entity->le_lwtrans));
 		}
 }
+#endif
 
 
 /******************************************************************************

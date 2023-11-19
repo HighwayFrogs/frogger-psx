@@ -88,6 +88,7 @@ MR_VOID	InitialiseScoreSprites(MR_VOID)
 *											MR_VIEWPORT*	vp)
 *
 *	FUNCTION	Create a score sprite
+*	MATCH		https://decomp.me/scratch/hcRc6	(By Kneesnap)
 *
 *	INPUTS		x	  	-	viewport x to start at
 *				y	  	-	viewport y to start at
@@ -99,6 +100,7 @@ MR_VOID	InitialiseScoreSprites(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	08.05.97	Tim Closs		Created
+*	08.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -130,7 +132,7 @@ SCORE_SPRITE*	CreateScoreSprite(	MR_SHORT		x,
 	sprite->ss_xy.x		= x;
 	sprite->ss_xy.y		= y;
 	sprite->ss_timer	= SCORE_SPRITE_LIFETIME;
-//	MR_SET32(sprite->ss_colour, 0x808080);
+	MR_SET32(sprite->ss_colour, 0x808080);
 
 	// Note: in Vorg, the score sprites are stored with transparency mode 0: this changed to mode 1 when fading down
 
@@ -208,6 +210,45 @@ MR_VOID	UpdateScoreSprites(MR_VOID)
 		}
 }
 
+/******************************************************************************
+*%%%% KillScoreSprites
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	KillScoreSprites(MR_VOID)
+*
+*	FUNCTION	Kills all active score sprites.
+*	MATCH		https://decomp.me/scratch/ndNxF (By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	24.10.23	Kneesnap		Byte-matching decompilation from PSX Build 71 (Retail NTSC).
+*
+*%%%**************************************************************************/
+
+MR_VOID KillScoreSprites(MR_VOID) {
+	SCORE_SPRITE*	sprite;
+	SCORE_SPRITE*	sprite_prev;
+
+	sprite = Score_sprite_root_ptr;
+	while(sprite = sprite->ss_next)
+		{
+		if (sprite->ss_timer != 0)
+			{
+			// Kill score sprite
+			MRKill2DSprite(sprite->ss_2dsprite);
+
+			// Remove structure from linked list
+			sprite_prev = sprite->ss_prev;
+			sprite->ss_prev->ss_next = sprite->ss_next;
+			if (sprite->ss_next != NULL)
+				sprite->ss_next->ss_prev = sprite->ss_prev;
+
+			// Free structure memory
+			MRFreeMem(sprite);
+			sprite = sprite_prev;
+			}
+		}
+}
 
 /******************************************************************************
 *%%%% AddFrogScore
@@ -220,6 +261,7 @@ MR_VOID	UpdateScoreSprites(MR_VOID)
 *
 *	FUNCTION	High level function to increase a frog's score and create a
 *				score sprite if necessary
+*	MATCH		https://decomp.me/scratch/IsnYP	(By Kneesnap)
 *
 *	INPUTS		frog		-	ptr to frog
 *				score_id	-	score equate (eg. SCORE_50)
@@ -227,6 +269,7 @@ MR_VOID	UpdateScoreSprites(MR_VOID)
 *								NULL, use frog's lwtrans
 *
 *	RESULT		sprite		-	ptr to SCORE_SPRITE created, or NULL
+*	08.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
@@ -245,8 +288,8 @@ SCORE_SPRITE*	AddFrogScore(	FROG*		frog,
 	MR_XY				xy;
 	MR_TEXTURE*			texture;
 	MR_SVEC				svec;
-	TONGUE*				tongue;
-	CAV_FAT_FIRE_FLY*	fire_fly;
+//	TONGUE*				tongue;
+//	CAV_FAT_FIRE_FLY*	fire_fly;
 
 	MR_ASSERT(frog);
 
@@ -270,8 +313,8 @@ SCORE_SPRITE*	AddFrogScore(	FROG*		frog,
 		// Yes ... add the time.
 		ADD_FROG_TIME(frog,score_book->sb_value);
 		// Check we've not gone over the MAX.
-		if (Game_map_timer > ( Game_map_time * 30 )	)
-			Game_map_timer = Game_map_time * 30;
+		if (Game_map_timer > HUD_ITEM_TIMER_MAX_TIME)
+			Game_map_timer = HUD_ITEM_TIMER_MAX_TIME;
 		}
 	// Was this a reduce score bonus
 	else if (score_book->sb_flags & SCORE_FLAG_REDUCE_SCORE )
@@ -302,24 +345,33 @@ SCORE_SPRITE*	AddFrogScore(	FROG*		frog,
 		switch (score_book->sb_value)
 			{
 			// -------------------------------------
+			case FROG_POWERUP_TIMER_SPEED:
+			MRSNDPlaySound(SFX_GEN_EXTRA_LIFE, NULL, 0, 1 << 7 );
+			DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_LOSE_TIME, 1, 0);
+				break;
+			// -------------------------------------
 			case FROG_POWERUP_AUTO_HOP:
 			frog->fr_auto_hop_timer = POWERUP_AUTO_HOP_TIME ;
 			MRSNDPlaySound(SFX_GEN_EXTRA_LIFE, NULL, 0, 1 << 7 );
+			DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_AUTO_HOP, 1, 0);
 				break;
 			// -------------------------------------
 			case FROG_POWERUP_SUPER_TONGUE:
 			frog->fr_super_tongue_timer = POWERUP_SUPER_TONGUE_TIME ;
 			MRSNDPlaySound(SFX_GEN_EXTRA_LIFE, NULL, 0, 2 << 7 );
+			DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_SUPER_TONGUE, 1, 0);
 				break;
 			// -------------------------------------
 			case FROG_POWERUP_QUICK_JUMP:
 			frog->fr_quick_jump_timer = POWERUP_QUICK_JUMP_TIME ;
 			MRSNDPlaySound(SFX_GEN_EXTRA_LIFE, NULL, 0, 3 << 7 );
+			DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_QUICK_JUMP, 1, 0);
 				break;
 			// This was taken out because it was causing lots of problems.
 			case FROG_POWERUP_SUPER_LIGHT:
 				// Yes ... add light level
 				ADD_FROG_LIGHT(frog,score_book);
+				DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_SUPER_LIGHT, 1, 0);
 //				tongue = (TONGUE*)(frog->fr_tongue->ef_extra);
 //				fire_fly = (CAV_FAT_FIRE_FLY*)(tongue->to_target + 1);
 //				// Let's copy where we would like the Frog to go.

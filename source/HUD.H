@@ -54,8 +54,14 @@ enum	{
 		HUD_ITEM_HELP_INFINITE_LIVES_OFF,
 		HUD_ITEM_HELP_POLYGON_WARNING,
 		HUD_ITEM_HELP_ALL_LEVELS_OPEN,
+		HUD_ITEM_HELP_ALL_ZONES_OPEN,
 		HUD_ITEM_HELP_COLLECT_CHECKPOINT,
 		HUD_ITEM_HELP_COLLECT_GOLDFROG,
+		HUD_ITEM_HELP_SUPER_TONGUE,
+		HUD_ITEM_HELP_AUTO_HOP,
+		HUD_ITEM_HELP_QUICK_JUMP,
+		HUD_ITEM_HELP_SUPER_LIGHT,
+		HUD_ITEM_HELP_LOSE_TIME,
 		HUD_ITEM_HELP_TOTAL,
 		};
 
@@ -118,6 +124,7 @@ struct	__hud_item
 	MR_UBYTE*	hi_polys[2];	// double-buffered specific poly ptrs
 	MR_VOID*	hi_api_0;		// eg. MR_OBJECT* or MR_TEXT_AREA*
 	MR_VOID*	hi_api_1;		// eg. MR_OBJECT* or MR_TEXT_AREA*
+	MR_VOID*	hi_api_2;		// eg. MR_OBJECT* or MR_TEXT_AREA*
 	};	// HUD_ITEM
 
 struct __hud_checkpoint_anim_info
@@ -168,7 +175,8 @@ extern	MR_VOID			UpdateHUDScript(HUD_ITEM*, MR_ULONG);
 extern	MR_VOID			ResetHUDScript(HUD_ITEM*);
 extern	MR_VOID			KillHUDScript(HUD_ITEM*);
 
-extern	MR_VOID			DisplayHUDHelp(MR_ULONG, MR_ULONG);
+// This function probably doesn't have a prototype defined in the original, since functions that call it treat the last argument as a MR_LONG (the default type used if there is no prototype)
+//extern	MR_VOID			DisplayHUDHelp(MR_ULONG, MR_ULONG, MR_BOOL, MR_USHORT);
 
 extern	MR_VOID			HUDGetDigits(MR_ULONG, MR_ULONG*, MR_ULONG*, MR_ULONG*);
 

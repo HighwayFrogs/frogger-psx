@@ -41,8 +41,8 @@ enum 	{
 
 enum 	{
 		FOREST_HEDGEHOG_RUNNING,
-		FOREST_HEDGEHOG_PREPARE_TO_ROLL,
 		FOREST_HEDGEHOG_ROLLING,
+		FOREST_HEDGEHOG_PREPARE_TO_ROLL,
 		FOREST_HEDGEHOG_PREPARE_TO_RUN,
 		};
 
@@ -220,7 +220,7 @@ struct __forest_rt_hedgehog
 //	Externs
 //-----------------------------------------------------------------------------
 
-extern MR_ULONG					Forest_swarm_animlist[];
+//extern MR_ULONG					Forest_swarm_animlist[];
 extern MR_ULONG					Forest_swarm_collide_forms[];
 extern COLL_VISIBILITY_INFO		Forest_swarm_vis_info;
 extern COLL_VISIBILITY_DATA		Forest_swarm_vis_data[];

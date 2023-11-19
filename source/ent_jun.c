@@ -18,6 +18,7 @@
 #include "ent_org.h"
 #include "sound.h"
 #include "gen_gold.h"
+#include "particle.h"
 
 MR_LONG		Jun_outro_gold_frog_jumps[9][13] =
 	{
@@ -44,12 +45,14 @@ MR_LONG		Jun_outro_frog_jumps[13] =
 *	SYNOPSIS	MR_VOID	ENTSTRJunCreatePlant(LIVE_ENTITY* live_entity)
 *
 *	FUNCTION	Create a jungle snapping plant
+*	MATCH		https://decomp.me/scratch/2tutP	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	11.07.97	Martin Kift		Created
+*	05.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -71,6 +74,7 @@ MR_VOID	ENTSTRJunCreatePlant(LIVE_ENTITY*	live_entity)
 	// set up runtime
 	plant->jp_mode	= 0;
 	plant->jp_timer	= 0;
+	plant->jp_snap_timer = 0;
 
 	// Set first cel for animation
 	LiveEntitySetCel(live_entity, 0);
@@ -87,12 +91,14 @@ MR_VOID	ENTSTRJunCreatePlant(LIVE_ENTITY*	live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Update a jungle plant
+*	MATCH		https://decomp.me/scratch/ncage	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	11.07.97	Martin Kift		Created
+*	05.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -132,6 +138,7 @@ MR_VOID	ENTSTRJunUpdatePlant(LIVE_ENTITY* live_entity)
 				plant->jp_mode	= JUN_PLANT_SNAPPING;
 				// Play SFX for Plant Snapping. (If close enough!)
 				PlaySoundDistance(live_entity, SFX_JUN_PLANT_SNAP, 30);
+				plant->jp_snap_timer = 15;
 				}
 			break;
 
@@ -142,6 +149,16 @@ MR_VOID	ENTSTRJunUpdatePlant(LIVE_ENTITY* live_entity)
 				plant->jp_mode	= JUN_PLANT_DELAY_AFTER_SNAPPING;
 				plant->jp_timer	= plant_map_data->jp_snap_delay;
 				}
+
+			if (!plant->jp_snap_timer)
+				{
+				// Play SFX for Plant Snapping. (If close enough!)
+				PlaySoundDistance(live_entity, SFX_JUN_PLANT_SNAP, 30);
+				plant->jp_snap_timer = 15;
+				}
+			else
+				plant->jp_snap_timer--;
+			
 			break;
 
 		case JUN_PLANT_DELAY_AFTER_SNAPPING:
@@ -149,9 +166,19 @@ MR_VOID	ENTSTRJunUpdatePlant(LIVE_ENTITY* live_entity)
 				{
 				// Set first cel for animation
 				LiveEntitySetCel(live_entity, 0);
-
+				((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags &= ~MR_ANIM_ENV_STEP;
 				plant->jp_mode	= JUN_PLANT_WAITING;
 				}
+
+			if (!plant->jp_snap_timer)
+				{
+				// Play SFX for Plant Snapping. (If close enough!)
+				PlaySoundDistance(live_entity, SFX_JUN_PLANT_SNAP, 30);
+				plant->jp_snap_timer = 15;
+				}
+			else
+				plant->jp_snap_timer--;
+			
 			break;
 		}
 }
@@ -346,7 +373,7 @@ MR_LONG		script_jun_hippo[] =
 	{
 	ENTSCR_PREPARE_REGISTERS,			sizeof(PATH_INFO),				3,
 	ENTSCR_SET_ENTITY_TYPE,				ENTSCR_ENTITY_TYPE_PATH,
-	ENTSCR_REGISTER_CALLBACK,			ENTSCR_CALLBACK_1,				SCRIPT_CB_DIVE_COLOUR_CHANGE,	ENTSCR_NO_CONDITION,	ENTSCR_CALLBACK_ALWAYS,
+	ENTSCR_REGISTER_CALLBACK,			ENTSCR_CALLBACK_1,				SCRIPT_CB_JUN_HIPPO_DIVE,		ENTSCR_NO_CONDITION,	ENTSCR_CALLBACK_ALWAYS,
 	ENTSCR_REGISTER_CALLBACK,			ENTSCR_CALLBACK_2,				SCRIPT_CB_JUN_HIPPO_HIT,		ENTSCR_HIT_FROG,		ENTSCR_CALLBACK_ONCE,
 
 	ENTSCR_SETLOOP,
@@ -357,7 +384,7 @@ MR_LONG		script_jun_hippo[] =
 		ENTSCR_WAIT_UNTIL_TIMER,			ENTSCR_REGISTERS,			ENTSCR_REGISTER_0,
 
 		// Deviate through set distance (and speed), waiting for deviation to finish
-		ENTSCR_DEVIATE,						ENTSCR_NO_REGISTERS,		ENTSCR_COORD_Y,		0x80, 0x8<<8, -1,
+		ENTSCR_DEVIATE,						ENTSCR_NO_REGISTERS,		ENTSCR_COORD_Y,		0xc0, 0x8<<8, -1,
 
 		//ENTSCR_PLAY_SOUND,					SFX_JUB_HIPPO_SPLASH,
 		ENTSCR_CREATE_3D_SPRITE,			0,
@@ -370,7 +397,7 @@ MR_LONG		script_jun_hippo[] =
 		ENTSCR_WAIT_UNTIL_TIMER,			ENTSCR_REGISTERS,			ENTSCR_REGISTER_1,
 
 		// Deviate through set distance (and speed), waiting for deviation to finish, play splash at end!
-		ENTSCR_DEVIATE,						ENTSCR_NO_REGISTERS,		ENTSCR_COORD_Y,		0, -0x8<<8, -1,
+		ENTSCR_DEVIATE,						ENTSCR_NO_REGISTERS,		ENTSCR_COORD_Y,		0, -0x0c<<8, -1,
 
 		ENTSCR_WAIT_DEVIATED,		
 		//ENTSCR_PLAY_SOUND,					SFX_JUN_HIPPO_SPLASH,
@@ -399,6 +426,67 @@ MR_LONG		script_jun_hippo_sfx[] =
 	ENTSCR_RESTART,
 	};
 
+
+//------------------------------------------------------------------------------------------------
+// Match: https://decomp.me/scratch/XCIEk (By Kneesnap), PSX Build 71 (Retail NTSC)
+MR_VOID	ScriptCBJunHippoDive(LIVE_ENTITY* live_entity)
+{
+	MR_LONG				height;
+	MR_LONG				path_height;
+	MR_LONG				col_r, col_g, col_b;
+	MR_LONG				frog_id;
+
+	if (!(live_entity->le_entity->en_flags & ENTITY_NO_DISPLAY))
+		{
+		// If the entity is going off screen, then don't set the no-screen-fade
+		// flag, since this overrides the fade to black code. In fact, if offscreen
+		// don't really bother doing any colour stuff at all
+		if 	(
+			(live_entity->le_lwtrans->t[0] < Fade_top_left_pos.vx) ||
+			(live_entity->le_lwtrans->t[0] > Fade_bottom_right_pos.vx) ||
+			(live_entity->le_lwtrans->t[2] < Fade_bottom_right_pos.vz) ||
+			(live_entity->le_lwtrans->t[2] > Fade_top_left_pos.vz)
+			)
+			{
+			live_entity->le_flags &= ~(LIVE_ENTITY_NO_SCREEN_FADE);
+			}
+		else
+			{
+			live_entity->le_flags |= (LIVE_ENTITY_NO_SCREEN_FADE);
+
+			// Find the distance from the path in Y.
+			path_height = live_entity->le_entity->en_path_runner->pr_position.vy;
+			height 		= path_height - live_entity->le_lwtrans->t[1];
+				
+			col_r	= MIN(0xC0 + (height), 0xFF);		// Decrease the Red. (Neg is into the map)
+			col_g	= MIN(0xC0 + (height), 0xFF);		// Decrease the Green. (Only halve the green)
+			col_b	= MIN(0xBF - (height), 0xFF);		// Increase the Blue.
+
+			// Ensure fade code respects the values we have set
+			SetLiveEntityScaleColours(live_entity, col_r, col_g, col_b);
+			SetLiveEntityCustomAmbient(live_entity, 0x40, 0x40, 0xc0);
+			}
+
+		// If turtle has reached max depth (hard coded value) then kill any safe frog
+		// Look at whether we have a safe frog, and kill it if we are below certain depth
+		if (live_entity->le_flags & LIVE_ENTITY_CARRIES_FROG)
+			{
+			if ((live_entity->le_lwtrans->t[1] - live_entity->le_entity->en_path_runner->pr_position.vy) >= 0x80)
+				{				
+				frog_id = 0;
+				while (frog_id < 4)
+					{
+					if (live_entity->le_flags & (LIVE_ENTITY_CARRIES_FROG_0 << frog_id))
+						{
+						FrogKill(&Frogs[frog_id], FROG_ANIMATION_DROWN, NULL);
+						live_entity->le_flags &= ~(LIVE_ENTITY_CARRIES_FROG_0 << frog_id);
+						}
+					frog_id++;
+					}
+				}
+			}
+		}
+}
 
 //------------------------------------------------------------------------------------------------
 MR_VOID	ScriptCBJunHippoHit(LIVE_ENTITY* live_entity)
@@ -483,7 +571,10 @@ MR_LONG		script_jun_scorpion[] =
 // Wait to randomly trigger the Rhino Growl
 MR_LONG		script_jun_rhino[] =
 	{
+	ENTSCR_REGISTER_CALLBACK,	ENTSCR_CALLBACK_1,	SCRIPT_CB_FROG_TRAFFIC_SPLAT,	ENTSCR_HIT_FROG,	ENTSCR_CALLBACK_ONCE,
 	ENTSCR_SETLOOP,
+		ENTSCR_PLAY_MOVING_SOUND,		SFX_JUN_RHINO_RUMBLE,		
+										ENTSCR_NO_REGISTERS,	1024,		2048,
 		ENTSCR_SCRIPT_IF,		ENTSCR_NEW_SCRIPT,		ENTSCR_RANDOM,		SCRIPT_JUN_RHINO_SFX,	4,
 	ENTSCR_SET_TIMER,			ENTSCR_NO_REGISTERS,		0,
 	ENTSCR_WAIT_UNTIL_TIMER,	ENTSCR_NO_REGISTERS,		20,
@@ -543,6 +634,7 @@ MR_VOID	ScriptCBJunPiranaha(LIVE_ENTITY* live_entity)
 }
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% ENTSTRJunCreateOutroDoor
 *------------------------------------------------------------------------------
@@ -557,6 +649,7 @@ MR_VOID	ScriptCBJunPiranaha(LIVE_ENTITY* live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	31.07.97	Martin Kift		Created
+*	05.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -586,6 +679,7 @@ MR_VOID	ENTSTRJunCreateOutroDoor(LIVE_ENTITY*	live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	31.07.97	Martin Kift		Created
+*	05.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -594,6 +688,7 @@ MR_VOID	ENTSTRJunCreateStatue(LIVE_ENTITY*	live_entity)
 	// Create mof, and pause its animation
 	ENTSTRCreateStationaryMOF(live_entity);
 }
+#endif
 
 
 /******************************************************************************
@@ -674,40 +769,56 @@ MR_VOID	ENTSTRJunCreatePlinth(LIVE_ENTITY*	live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Create a gold frog
+*	MATCH		https://decomp.me/scratch/flKmh	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	31.07.97	Martin Kift		Created
+*	05.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	ENTSTRJunCreateGoldFrog(LIVE_ENTITY*	live_entity)
 {
 	JUN_OUTRO_RT_GOLD_FROG*	frog;
+	MR_SVEC					svec;
 
 	live_entity->le_entity->en_flags &= ~ENTITY_NO_DISPLAY;
 	ENTSTRCreateStationaryMOF(live_entity);
-	live_entity->le_entity->en_flags |= ENTITY_NO_DISPLAY;
 
 	// setup runtime
 	frog				= (JUN_OUTRO_RT_GOLD_FROG*)live_entity->le_specific;
 	frog->op_counter	= 0;
 	frog->op_mode		= JUN_GOLD_FROG_SITTING;
+	frog->op_object		= NULL;
 
 	// make it vanish
 	MR_ASSERT (live_entity->le_api_item0);
 	MR_ASSERT (live_entity->le_flags & LIVE_ENTITY_ANIMATED);
 	MR_ASSERT (live_entity->le_flags & LIVE_ENTITY_FLIPBOOK);
-		
-	((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_extra.ae_extra_env_flipbook->ae_object->ob_flags |= MR_OBJ_NO_DISPLAY;
-	((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags &= ~MR_ANIM_ENV_DISPLAY;
 
+	// default animation
 	LiveEntitySetAction(live_entity, GEN_GOLD_FROG_BACKFLIP);
-	((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags &= ~MR_ANIM_ENV_STEP;
-
-	live_entity->le_entity->en_flags |= ENTITY_NO_DISPLAY;
+	
+	if (((JUN_OUTRO_FROGPLINTH_DATA*)(live_entity->le_entity + 1))->op_id != GAME_END_MAX_PLINTHS)
+		{
+		((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_extra.ae_extra_env_flipbook->ae_object->ob_flags |= MR_OBJ_NO_DISPLAY;
+		((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags &= ~MR_ANIM_ENV_DISPLAY;
+		((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags &= ~MR_ANIM_ENV_STEP;
+		live_entity->le_entity->en_flags |= ENTITY_NO_DISPLAY;
+		}
+	else
+		{
+		LiveEntitySetAction(live_entity, GEN_GOLD_FROG_EXCITED);
+		if (frog->op_object == NULL)
+			{
+			MR_SET_SVEC(&svec, 0, -100, 30);
+			frog->op_object = MRCreatePgen(&PGIN_gold_frog_glow, (MR_FRAME*)live_entity->le_lwtrans, MR_OBJ_STATIC, &svec);
+			GameAddObjectToViewports(frog->op_object);
+			}
+		}
 }
 
 /******************************************************************************
@@ -772,17 +883,30 @@ MR_VOID	ENTSTRJunUpdateGoldFrog(LIVE_ENTITY*	live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Kill a gold frog
+*	MATCH		https://decomp.me/scratch/8ZZMu	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	31.07.97	Martin Kift		Created
+*	05.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	ENTSTRJunKillGoldFrog(LIVE_ENTITY*	live_entity)
 {
+	JUN_OUTRO_RT_GOLD_FROG*	frog;
+
+	// Hide api item
+	if (live_entity->le_api_item0 != NULL)
+		live_entity->le_entity->en_flags &= ~ENTITY_NO_DISPLAY;
+
+	// Kill pgen object
+	frog = (JUN_OUTRO_RT_GOLD_FROG*)live_entity->le_specific;
+	if (frog->op_object)
+		frog->op_object->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY;
+	
 	ENTSTRKillStationaryMOF(live_entity);
 }
 
@@ -792,25 +916,31 @@ MR_VOID	ENTSTRJunKillGoldFrog(LIVE_ENTITY*	live_entity)
 *
 *	SYNOPSIS	MR_VOID	JunJumpGoldFrog(
 *						LIVE_ENTITY*	live_entity,
-*						MR_LONG			jump_dir)
+*						MR_LONG			jump_dir,
+*						MR_SHORT		jump_time)
 *
 *	FUNCTION	Jumps a gold frog
+*	MATCH		https://decomp.me/scratch/ileyM	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	31.07.97	Martin Kift		Created
+*	05.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	JunJumpGoldFrog(	LIVE_ENTITY*	live_entity,
-							MR_LONG			jump_dir)
+							MR_LONG			jump_dir,
+							MR_LONG			jump_time)
 {
 	JUN_OUTRO_RT_GOLD_FROG*		frog;
 	MR_LONG						grid_x, grid_z, s, u, y1;
 	GRID_STACK*					grid_stack;
 	GRID_SQUARE*				grid_square;
+
+	MRSNDPlaySound(SFX_GEN_BABY_FROG_HOP, NULL, 0, 0); 
 
 	// Jump the gold frog
 	frog			= (JUN_OUTRO_RT_GOLD_FROG*)live_entity->le_specific;
@@ -851,7 +981,7 @@ MR_VOID	JunJumpGoldFrog(	LIVE_ENTITY*	live_entity,
 				frog->op_target.vy		= y1;
 				frog->op_target.vz		= (grid_z << 8) + Grid_base_z + 0x80;
 
-				frog->op_counter		= 6;
+				frog->op_counter		= jump_time;
 				y1						-= live_entity->le_lwtrans->t[1];
 				u  						= ((y1 << 16) / (frog->op_counter + 1)) - ((SYSTEM_GRAVITY * (frog->op_counter + 1)) >> 1);
 				
@@ -946,6 +1076,7 @@ MR_VOID	ENTSTRJunCreateBouncyMushroom(LIVE_ENTITY*	live_entity)
 	((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_flags |= MR_ANIM_ENV_ONE_SHOT;
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% ENTSTRJunUpdateBouncyMushroom
 *------------------------------------------------------------------------------
@@ -960,6 +1091,7 @@ MR_VOID	ENTSTRJunCreateBouncyMushroom(LIVE_ENTITY*	live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	14.08.97	William Bell	Created
+*	05.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -985,6 +1117,7 @@ MR_VOID	ENTSTRJunUpdateBouncyMushroom(LIVE_ENTITY*	live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	14.08.97	William Bell	Created
+*	05.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -992,4 +1125,29 @@ MR_VOID	ENTSTRJunKillBouncyMushroom(LIVE_ENTITY*	live_entity)
 {
 	// Kill normal static
 	ENTSTRKillStationaryMOF(live_entity);
+}
+#endif
+
+
+/******************************************************************************
+*%%%% ENTSTRJunCreateScorpion
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	ENTSTRJunCreateScorpion(
+*						LIVE_ENTITY*	live_entity)
+*
+*	FUNCTION	Creates a scorpion entity
+*
+*	INPUTS		live_entity	-	to create
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	05.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
+*
+*%%%**************************************************************************/
+
+MR_VOID ENTSTRJunCreateScorpion(LIVE_ENTITY*	live_entity)
+{
+	ENTSTRCreateMovingMOF(live_entity);
+	MRAnimEnvSingleCreateLWTransforms((MR_ANIM_ENV* ) live_entity->le_api_item0);
 }

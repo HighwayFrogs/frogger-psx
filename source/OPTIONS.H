@@ -139,5 +139,15 @@ extern	MR_VOID		OptionUpdateSpcores(MR_VOID);
 extern	MR_VOID		KillOptionsForStream(MR_VOID);
 extern	MR_VOID 	CreateOptionsAfterStream(MR_VOID);
 
+// Added by Knee when matching build 71. Only some have been included, since it's clear the calls to some of them were done without function signatures (Because it treats values as 32-bit integers which aren't)
+extern	MR_VOID		SetupOptionTextSprites(MR_VOID);
+extern	MR_VOID		SetupMultiplayerGameOverTextSprites(MR_VOID);
+extern	MR_VOID		KillOptionsTextSprites(MR_VOID);
+extern	MR_VOID		KillGameOverTextSprites(MR_VOID);
+extern	MR_VOID 	KillOptionsTextSprites(MR_VOID);
+//extern	MR_VOID		UpdateSpriteDisplay(MR_2DSPRITE *sprite, MR_TEXTURE *texture, MR_SHORT x, MR_SHORT y);
+extern	MR_VOID		MakeSpriteVisible(MR_2DSPRITE *sprite);
+extern	MR_VOID		MakeSpriteInvisible(MR_2DSPRITE *sprite);
+
 #endif		//__OPTIONS_H
 

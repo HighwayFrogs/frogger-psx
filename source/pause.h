@@ -74,12 +74,18 @@ extern	MR_ULONG		Game_paused_selection;
 extern	MR_VOID			GamePause(MR_VOID);
 extern	MR_VOID			InitialiseHiddenMenu(MR_VOID);
 extern	MR_VOID			DeInitialiseHiddenMenu(MR_VOID);
+extern	MR_VOID			UpdateControllerInputFlags(MR_VOID);
 extern	MR_VOID			CheckJoyPadStillPresent(MR_VOID);
 extern	MR_VOID 		GamePauseAddPrim(MR_VOID);
 extern	MR_VOID 		GamePauseCreateFadePoly(MR_VOID);
 extern	MR_VOID			InitialiseHiddenQuitMenu(MR_VOID);
 extern	MR_VOID 		GameSelectReset(MR_VOID);
 extern	MR_VOID 		GameCheatModeCheck(MR_VOID);
+
+extern	MR_VOID			GameCheatModeToggleInfiniteLives(MR_VOID);
+extern	MR_VOID			GameCheatModeUnlockAllZones(MR_VOID);
+extern	MR_VOID			GameCheatModeUnlockAllLevels(MR_VOID);
+extern	MR_VOID			GameCheatModeUnlockLevelZone(MR_ULONG level_id);
 
 #endif		//__PAUSE_H
 

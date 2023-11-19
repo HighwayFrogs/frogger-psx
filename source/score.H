@@ -54,7 +54,7 @@ enum	{
 		ADD_AUTO_HOP,
 		};
 
-#define	SCORE_SPRITE_LIFETIME				30
+#define	SCORE_SPRITE_LIFETIME				45
 
 // Score flags
 #define	SCORE_FLAG_SCORE				(1<<0)		// this gives us points
@@ -136,6 +136,7 @@ struct	__score_book
 extern	MR_VOID			InitialiseScoreSprites(MR_VOID);
 extern	SCORE_SPRITE*	CreateScoreSprite(MR_SHORT,	MR_SHORT, MR_TEXTURE*, MR_VIEWPORT*);
 extern	MR_VOID			UpdateScoreSprites(MR_VOID);
+extern	MR_VOID			KillScoreSprites(MR_VOID);
 extern	SCORE_SPRITE*	AddFrogScore(FROG*, MR_ULONG, MR_MAT*);
 extern	MR_VOID			AddFrogPoints(FROG*, MR_LONG);
 

@@ -37,6 +37,7 @@ MR_TEXTURE*			LS_message_texture_ptr;									// Ptr to message texture
 MR_2DSPRITE*		LS_title_sprite_ptr;									// Ptr to generic title sprite
 MR_2DSPRITE*		LS_selection_sprite_ptr[MAX_NUM_SELECTIONS];			// Ptr to generic selection sprites
 MR_2DSPRITE*		LS_message_sprite_ptr;									// Ptr to generic message sprite
+MR_2DSPRITE*		LS_user_prompt_controls_sprite_ptr;
 
 MR_XY				LS_title_sprite_pos;									// Position of generic title sprite
 MR_XY				LS_selection_sprite_pos[MAX_NUM_SELECTIONS];			// Positions of selection sprites
@@ -95,6 +96,8 @@ MR_BOOL			Game1_present;			// Flag to indicate whether game 1 available
 
 MR_USHORT	Load_status;					// Status of operation for load screen
 MR_USHORT	Save_status;					// Status of operation for save screen
+
+MR_2DSPRITE*	LSunformatted_sprite;
 
 CONTROL_OPTIONS	Load_data;					// Load data!!!
 CONTROL_OPTIONS	Save_data;					// Save data!!!
@@ -561,6 +564,58 @@ MR_ULONG OptionsLoadSaveData(MR_ULONG ld_card_no)
 
 }
 
+/******************************************************************************
+*%%%% OptionsLoadSaveData
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_ULONG	OptionsLoadSaveDataHeader(
+*											MR_ULONG ld_card_no)
+*
+*	FUNCTION	Loads save data from memory card.
+*	MATCH		https://decomp.me/scratch/HcnlI	(By Kneesnap)
+*
+*	INPUTS		ld_card_no			- Number of card to load from.
+*
+*	RETURN		MR_ULONG			- Status of load
+*
+*	NOTES		This is for PSX only, hence the ifdef above.
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
+*
+*%%%**************************************************************************/
+
+MR_ULONG OptionsLoadSaveDataHeader(MR_ULONG ld_card_no)
+{
+
+	// Load save data into Load_data structure!!!
+#ifdef	PSX_CARD
+
+	// Locals
+	MR_ULONG		load_status;
+
+	MRDisablePollhost();
+	load_status = Card_load_file((MR_UBYTE*)&Load_data,sizeof(Load_data),ld_card_no);
+	MREnablePollhost();
+
+	// Load ok ?
+	if ( load_status == CLG_LOAD_OK )
+		// Yes ... decode save data
+		DecodeSaveDataHeader();
+
+	// Return status of load
+	return load_status;
+
+#else
+
+	// Return load ok!
+	return CLG_LOAD_OK;
+
+#endif	// PSX_CARD
+
+}
+
 #endif	// WIN95
 
 
@@ -597,10 +652,12 @@ MR_VOID SaveStartup(MR_VOID)
 *	SYNOPSIS	MR_VOID	SaveUpdate(MR_VOID)
 *
 *	FUNCTION	Update code for Save screen.
+*	MATCH		https://decomp.me/scratch/fh2GH	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	08.07.97	William Bell	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -611,6 +668,7 @@ MR_VOID	SaveUpdate(MR_VOID)
 
 	MR_ULONG	save_status;
 	MR_ULONG	format_status;
+	MR_TEXTURE*	texture;
 
 	// Move camera
 	HSUpdateScrollyCamera();
@@ -704,7 +762,7 @@ MR_VOID	SaveUpdate(MR_VOID)
 
 			LS_selection_texture_ptrs[1]	= Options_text_textures[OPTION_TEXT_NO][Game_language];
 			LS_selection_sprite_pos[1].x 	= ((Game_display_width>>2)*3)-(LS_selection_texture_ptrs[1]->te_w>>1);
-			LS_selection_sprite_pos[1].y 	= (Game_display_height>>1)+64;
+			LS_selection_sprite_pos[1].y 	= LS_selection_sprite_pos[0].y;
 
 			LS_num_selections 	= 2;
 			LS_selection_dir 	= LS_SELECT_DIR_LEFT_AND_RIGHT;
@@ -1103,8 +1161,9 @@ MR_VOID	SaveUpdate(MR_VOID)
 			LS_exit_mode 		= 0;
 
 			// Go on to update
-			LS_save_mode 		= LS_SAVE_MODE_OVERWRITE_UPDATE;
-
+			LSSelect();
+			LS_selection		= 1;
+			LS_save_mode		= LS_SAVE_MODE_OVERWRITE_UPDATE;
 			break;
 
 		// Update "overwrite?" selection ------------------------------------
@@ -1161,6 +1220,10 @@ MR_VOID	SaveUpdate(MR_VOID)
 			LS_select_mode 		= LS_SELECT_MODE_INIT;
 			LS_exit_mode 		= 0;
 
+			// Create sprite
+			texture = Options_text_textures[OPTION_TEXT_UNFORMATTED][Game_language];
+			LSunformatted_sprite = MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), (Game_display_height>>1) - (texture->te_h+64), Option_viewport_ptr, texture, NULL);
+
 			// Call dummy selection to initialise
 			LSSelect();
 
@@ -1169,7 +1232,6 @@ MR_VOID	SaveUpdate(MR_VOID)
 
 			// Go on to update
 			LS_save_mode 		= LS_SAVE_MODE_FORMAT_UPDATE;
-
 			break;
 
 		// Update format ----------------------------------------------------
@@ -1181,6 +1243,8 @@ MR_VOID	SaveUpdate(MR_VOID)
 			// Has selection been made ?
 			if ( LS_exit_mode )
 				{
+				MRKill2DSprite(LSunformatted_sprite);
+				
 				// Did player quit ?
 				if ( LS_selection == -1 )
 					{
@@ -1454,6 +1518,7 @@ MR_VOID LoadStartup(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	08.07.97	William Bell	Created
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1563,7 +1628,7 @@ MR_VOID	LoadUpdate(MR_VOID)
 		case LS_LOAD_MODE_SURE_INIT:
 
 			// Set up sure selection
-			LS_title_texture_ptr 	= Options_text_textures[OPTION_TEXT_LOAD_HS_SM][Game_language];
+			LS_title_texture_ptr 	= Options_text_textures[OPTION_TEXT_LOAD_HS][Game_language];
 			LS_title_sprite_pos.x 	= (Game_display_width>>1)-(LS_title_texture_ptr->te_w>>1);
 			LS_title_sprite_pos.y 	= (Game_display_height>>1)-64;
 
@@ -2142,6 +2207,7 @@ MR_VOID LoadShutdown(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	08.07.97	William Bell	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2150,6 +2216,7 @@ MR_VOID CheckStartup(MR_VOID)
 
 #ifdef PSX_MODE_NTSC
 	// Load options resources
+	LoadGenericWad(0);
 	LoadOptionsResources();
 #endif
 
@@ -2165,10 +2232,12 @@ MR_VOID CheckStartup(MR_VOID)
 *	SYNOPSIS	MR_VOID	CheckUpdate(MR_VOID)
 *
 *	FUNCTION	Update code for check save screen.
+*	MATCH		https://decomp.me/scratch/BntxC	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	08.07.97	William Bell	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2229,6 +2298,22 @@ MR_VOID	CheckUpdate(MR_VOID)
 
 			// Get status of cards
 			OptionsGetCardStatus();
+			if (Game0_present || Game1_present)
+				{
+				// Is game 0 present
+				if (Game0_present)
+					{
+					// Yes ... load game 0 header
+					OptionsLoadSaveDataHeader(0);
+					}
+				else
+					{
+					// No ... load game 1 header
+					OptionsLoadSaveDataHeader(1);
+					}
+				}
+				
+				
 
 			// Kill message
 			LSMessage();
@@ -2308,7 +2393,7 @@ MR_VOID	CheckUpdate(MR_VOID)
 		case LS_CHECK_MODE_SURE_INIT:
 
 			// Set up sure selection
-			LS_title_texture_ptr 	= Options_text_textures[OPTION_TEXT_LOAD_HS_SM][Game_language];
+			LS_title_texture_ptr 	= Options_text_textures[OPTION_TEXT_LOAD_HS][Game_language];
 			LS_title_sprite_pos.x	= (Game_display_width>>1)-(LS_title_texture_ptr->te_w>>1);
 			LS_title_sprite_pos.y	= (Game_display_height>>1)-64;
 
@@ -2371,7 +2456,7 @@ MR_VOID	CheckUpdate(MR_VOID)
 					// No ... go on to load
 					LS_check_mode = LS_CHECK_MODE_LOAD_INIT;
 					// Is card 0 present
-					if ( Card0_present == TRUE )
+					if ( Game0_present == TRUE )
 						{
 						// Yes ... set card number
 						LS_card_number = 0;
@@ -2846,16 +2931,19 @@ MR_VOID CheckShutdown(MR_VOID)
 *	SYNOPSIS	MR_VOID	LSSelect(MR_VOID)
 *
 *	FUNCTION	Load/Save generic selection screen.
+*	MATCH		https://decomp.me/scratch/3hwje	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	08.07.97	William Bell	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID LSSelect(MR_VOID)
 {
 	MR_LONG	i;
+	MR_TEXTURE* texture;
 
 
 	// According to mode of operation do ...
@@ -2865,8 +2953,13 @@ MR_VOID LSSelect(MR_VOID)
 		// Initialise selection screen --------------------------------------
 		case LS_SELECT_MODE_INIT:
 
+			OptionClearSpcores();
+
 			// Create title sprite
 			LS_title_sprite_ptr = MRCreate2DSprite(LS_title_sprite_pos.x, LS_title_sprite_pos.y, Option_viewport_ptr, LS_title_texture_ptr, NULL);
+
+			texture = Options_text_textures[OPTION_TEXT_SELECT6][Game_language];
+			LS_user_prompt_controls_sprite_ptr = MRCreate2DSprite((Game_display_width>>1) - (texture->te_w>>1), (Game_display_height-texture->te_h)-24, Option_viewport_ptr, texture, NULL);
 
 			// Loop once for each selection
 			for(i = 0; i < LS_num_selections; i++)
@@ -2881,6 +2974,7 @@ MR_VOID LSSelect(MR_VOID)
 				}
 
 			// Are we in "up and down & left and right" mode ?
+			Option_spcore_ptrs[i] = NULL;
 			if ( LS_selection_dir == LS_SELECT_DIR_UP_AND_DOWN_AND_RIGHT_AND_LEFT )
 				{
 				// Yes ... set up Option_spcore_ptrs
@@ -3024,8 +3118,11 @@ MR_VOID LSSelect(MR_VOID)
 		// Shut down selection screen ---------------------------------------
 		case LS_SELECT_MODE_EXIT:
 
+			OptionClearSpcores();
+			
 			// Kill title sprite
 			MRKill2DSprite(LS_title_sprite_ptr);
+			MRKill2DSprite(LS_user_prompt_controls_sprite_ptr);
 
 			// Kill selection sprites
 			for(i = 0; i < LS_num_selections; i++)
@@ -3258,6 +3355,7 @@ MR_VOID LSUpdateMemoryCards(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	21.08.97	William Bell	Created
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -3278,7 +3376,7 @@ MR_VOID LSKillMemoryCards(MR_VOID)
 
 	// Destroy all models
 	for (i = 0; i < 2; i++)
-		LS_extras_object_ptr[i]->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY;
+		LS_extras_object_ptr[i]->ob_flags |= MR_OBJ_DESTROY_BY_DISPLAY | MR_OBJ_NO_DISPLAY;
 
 	// Clear flashing text
 	OptionClearSpcores();
@@ -3295,9 +3393,12 @@ MR_VOID LSKillMemoryCards(MR_VOID)
 *	FUNCTION	Moves information from save data structure "Load_data" into Frogger's
 *				main variables.
 *
+*	MATCH		https://decomp.me/scratch/W3Aln
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	30.07.97	William Bell	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -3311,7 +3412,6 @@ MR_VOID DecodeSaveData(MR_VOID)
 	// Decode main options
 	Music_volume = Load_data.co_music_volume;
 	Sound_volume = Load_data.co_sound_volume;
-	Game_language = Load_data.co_language;
 
 	// Decode controller configurations
 
@@ -3333,7 +3433,7 @@ MR_VOID DecodeSaveData(MR_VOID)
 	memcpy(&Level_high_scores[0][0],&Load_data.co_level_high_scores[0][0],sizeof(HIGH_SCORE_ENTRY)*60*3);
 
 	// Decode game status
-	level_ptr = &Sel_arcade_levels[0];
+	level_ptr = Sel_arcade_levels;
 	i = 0;
 	while ( level_ptr->li_library_id != -1 )
 		{
@@ -3347,6 +3447,75 @@ MR_VOID DecodeSaveData(MR_VOID)
 	// Decode gold frog status
 	Gold_frogs = Load_data.co_number_of_golden_frogs;
 
+	// Apply JUN2 to JUN1 if the player has beaten JUN1
+	if (Load_data.co_number_of_golden_frogs & GEN_GOLD_FROG_4)
+		{
+		level_ptr = Sel_arcade_levels;
+		while (level_ptr->li_library_id != -1)
+			{
+			if (level_ptr->li_library_id == LEVEL_JUNGLE1)
+				{
+				level_ptr->li_library_id = LEVEL_JUNGLE2;
+				return;
+				}
+			level_ptr++;
+			}
+		}
+	else
+		{
+		level_ptr = Sel_arcade_levels;
+		while (level_ptr->li_library_id != -1)
+			{
+			if (level_ptr->li_library_id == LEVEL_JUNGLE2)
+				{
+				level_ptr->li_library_id = LEVEL_JUNGLE1;
+				return;
+				}
+			level_ptr++;
+			}
+		}
+
+}
+
+/******************************************************************************
+*%%%% DecodeSaveDataHeader
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	DecodeSaveDataHeader(MR_VOID)
+*
+*	FUNCTION	Moves information from save data structure "Load_data" into Frogger's
+*				main variables.
+*
+*	MATCH		https://decomp.me/scratch/hcM2O	(By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
+*
+*%%%**************************************************************************/
+
+MR_VOID DecodeSaveDataHeader(MR_VOID)
+{
+
+	// Decode main options
+	Music_volume = Load_data.co_music_volume;
+	Sound_volume = Load_data.co_sound_volume;
+
+	// Decode controller configurations
+
+#ifdef WIN95	// Windows Specific code ------------------------------------
+
+
+
+#else			// PSX Specific code ----------------------------------------
+
+	Frog_current_control_methods[0] = Load_data.co_pad0_control_config;
+	Frog_current_control_methods[1] = Load_data.co_pad1_control_config;
+	Frog_current_control_methods[2] = Load_data.co_pad2_control_config;
+	Frog_current_control_methods[3] = Load_data.co_pad3_control_config;
+
+#endif			// End of Specific code -------------------------------------
+
 }
 
 /******************************************************************************
@@ -3358,9 +3527,12 @@ MR_VOID DecodeSaveData(MR_VOID)
 *	FUNCTION	Moves information from main variables into save data structure 
 *				"Soad_data".
 *
+*	MATCH		https://decomp.me/scratch/NScbT	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	30.07.97	William Bell	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -3374,7 +3546,19 @@ MR_VOID EncodeSaveData(MR_VOID)
 	// Encode main options
 	Save_data.co_music_volume = Music_volume;
 	Save_data.co_sound_volume = Sound_volume;
-	Save_data.co_language = Game_language;
+
+	// Unlock JUN2.
+	level_ptr = Sel_arcade_levels;
+	while (level_ptr->li_library_id != -1)
+		{
+		if (level_ptr->li_library_id == LEVEL_JUNGLE2)
+			{
+			SelectSetLevelFlags(LEVEL_JUNGLE2, SEL_LF_ZONEACCESSIBLE | SEL_LF_SELECTABLE | SEL_LF_COMPLETED);
+			break;
+			}
+
+		level_ptr++;
+		}
 
 	// Encode controller configurations
 

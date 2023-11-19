@@ -27,7 +27,7 @@ MR_LONG			Grid_zlen;					// z length of grid square
 GRID_STACK*		Grid_stacks;				// ptr to array of (xnum * znum) GRID_STACKs
 GRID_SQUARE*	Grid_squares;				// ptr to array of GRID_SQUAREs
 
-MR_LONG			Grid_square_offsets[4];		// offset between adjacent grid squares
+//MR_LONG			Grid_square_offsets[4];		// offset between adjacent grid squares
 	
 
 /******************************************************************************
@@ -158,6 +158,7 @@ MR_LONG	GetGridSquareHeight(GRID_SQUARE*	grid_square)
 }
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% GetGridSquareNormals
 *------------------------------------------------------------------------------
@@ -179,12 +180,13 @@ MR_LONG	GetGridSquareHeight(GRID_SQUARE*	grid_square)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	19.04.97	Tim Closs		Created
+*	02.11.23	Kneesnap		Disabled as part of an effort to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	GetGridSquareNormals(	GRID_SQUARE*	grid_square,
-								MR_VEC*			normal0,
-								MR_VEC*			normal1)
+										MR_VEC*			normal0,
+										MR_VEC*			normal1)
 {
 	MR_VEC		edge0;
 	MR_VEC		edge1;
@@ -243,7 +245,7 @@ MR_VOID	GetGridSquareNormals(	GRID_SQUARE*	grid_square,
 		MR_CLEAR_VEC(normal1);
 	MRNormaliseVEC(normal1, normal1);
 }
-
+#endif
 
 /******************************************************************************
 *%%%% GetGridSquareAverageNormal
@@ -332,7 +334,7 @@ MR_VOID	GetGridSquareAverageNormal(	GRID_SQUARE*	grid_square,
 		}
 }
 
-
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% GetHeightFromWorldXZAndGridSquare
 *------------------------------------------------------------------------------
@@ -354,6 +356,7 @@ MR_VOID	GetGridSquareAverageNormal(	GRID_SQUARE*	grid_square,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	20.06.97	Tim Closs		Created
+*	02.11.23	Kneesnap		Disabled as part of an effort to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -420,6 +423,7 @@ MR_LONG	GetHeightFromWorldXZAndGridSquare(	MR_LONG			x,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	20.06.97	Tim Closs		Created
+*	02.11.23	Kneesnap		Disabled as part of an effort to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -472,6 +476,7 @@ MR_LONG	GetHeightFromWorldXZ(	MR_LONG	x,
 
 	return(y);
 }
+#endif
 
 
 /******************************************************************************
@@ -578,7 +583,7 @@ MR_LONG	GetHeightFromWorldXYZ(	MR_LONG			x,
 	return(height);
 }
 
-
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% GetGridInfoFromWorldXZAndGridSquare
 *------------------------------------------------------------------------------
@@ -600,6 +605,7 @@ MR_LONG	GetHeightFromWorldXYZ(	MR_LONG			x,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	20.06.97	Tim Closs		Created
+*	02.11.23	Kneesnap		Disabled as part of an effort to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -658,6 +664,7 @@ MR_VOID	GetGridInfoFromWorldXZAndGridSquare(MR_LONG			x,
 	MRNormaliseVEC(&xslope, &grid_info->gi_xslope);
 	MRNormaliseVEC(&zslope, &grid_info->gi_zslope);
 }
+#endif
 
 
 /******************************************************************************
@@ -748,6 +755,7 @@ MR_VOID	GetGridInfoFromWorldXZ(	MR_LONG		x,
 }
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% GetGridInfoFromWorldXYZ
 *------------------------------------------------------------------------------
@@ -772,6 +780,7 @@ MR_VOID	GetGridInfoFromWorldXZ(	MR_LONG		x,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	04.07.97	Tim Closs		Created
+*	02.11.23	Kneesnap		Disabled as part of an effort to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -858,6 +867,7 @@ MR_VOID	GetGridInfoFromWorldXYZ(MR_LONG		x,
 	MRNormaliseVEC(&xslope, &grid_info->gi_xslope);
 	MRNormaliseVEC(&zslope, &grid_info->gi_zslope);
 }
+#endif
 
 /******************************************************************************
 *%%%% GetNextGridLineIntersectionInit
@@ -921,6 +931,7 @@ MR_VOID GetNextGridLineIntersectionInit(MR_SVEC*			start,
 *
 *	FUNCTION:	Returns the next landscape tile that 3d line has intersected or 
 *				null if none found	
+*	MATCHES:	https://decomp.me/scratch/AV4Hc (By Kneesnap)
 *
 *	INPUTS		start		-	start pos (vector)
 *				end			-	end pos (vector)
@@ -931,6 +942,7 @@ MR_VOID GetNextGridLineIntersectionInit(MR_SVEC*			start,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	22.07.97	Martin Kift		Created 
+*	02.11.23	Kneesnap		Decompiled a byte-match to PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -947,7 +959,11 @@ MR_XY GetNextTileInteresectingLine(GRID_LINE_INTER*	gl_inter)
 			gl_inter->tile.y		= GET_GRID_Z_FROM_WORLD_Z(gl_inter->curr_pos.vz);
 			gl_inter->last_tile.x	= gl_inter->tile.x;
 			gl_inter->last_tile.y	= gl_inter->tile.y;
-			gl_inter->mode			= LI_MODE_PROCESS;
+			if (gl_inter->num_steps != 1) {
+				gl_inter->mode		= LI_MODE_PROCESS;
+			} else {
+				gl_inter->mode		= LI_MODE_DONE;
+			}
 			break;
 
 		//----------------------------------------------------------------------
@@ -1016,7 +1032,7 @@ MR_XY GetNextTileInteresectingLine(GRID_LINE_INTER*	gl_inter)
 						gl_inter->tile.y		= gl_inter->last_tile.y;				
 
 						// store last tile
-						gl_inter->last_tile.x	= gl_inter->tile.x;  
+						gl_inter->last_tile.x	= gl_inter->tile.x;
 						break;
 						}
 					else 

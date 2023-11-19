@@ -19,7 +19,7 @@
 //-----------------------------------------------------------------------------
 //	Defines
 //-----------------------------------------------------------------------------
-#define	FROG_TEX_ANIMATION
+//#define	FROG_TEX_ANIMATION
 
 // FROG_ANIM_INFO flags
 #define	FROG_ANIM_ACTIVE				(1<<0)		// Script is active

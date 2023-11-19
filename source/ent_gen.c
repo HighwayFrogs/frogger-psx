@@ -243,12 +243,14 @@ GEN_GOLD_FROG_DATA		Gold_frog_data;				// Data for gold frog collected (can only
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Create a BONUS_FLY
+*	MATCH		https://decomp.me/scratch/4CZWU	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	19.05.97	Tim Closs		Created
+*	05.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -288,6 +290,7 @@ MR_VOID	ENTSTRGenCreateBonusFly(LIVE_ENTITY*	live_entity)
 
 	// We need the light bonus NOT to be effected by the lights.
 	live_entity->le_flags |= LIVE_ENTITY_NO_COLOUR_FADE;
+	live_entity->le_flags &= ~LIVE_ENTITY_TARGETTED;
 
 
 	// create 3d sound for each of the flies. (Hopefully taking NO voices until active!)
@@ -319,6 +322,7 @@ MR_VOID	ENTSTRGenCreateBonusFly(LIVE_ENTITY*	live_entity)
 *	-------		----------		------
 *	19.05.97	Tim Closs		Updated
 *	14.08.97	Gary Richards	Added moving sound + pitch bend.
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -334,7 +338,7 @@ MR_VOID	ENTSTRGenUpdateBonusFly(LIVE_ENTITY*	live_entity)
 	if (!(entity->en_flags & ENTITY_NO_MOVEMENT))
 		{
 		// Bob fly up and down
-		i 								= (((entity->en_unique_id & 7) << 7) + (Game_timer << 8)) & 0xfff;
+		i 								= (((entity->en_unique_id & 7) << 7) + ((MR_USHORT)MRFrame_number << 6)) & 0xfff;
 
 //		live_entity->le_lwtrans->t[1] 	= ((ENTSTR_STATIC*)(entity + 1))->et_matrix.t[1] + (rsin(i) >> 5);
 		// Make fly move only in upper half of previous wave
@@ -352,7 +356,7 @@ MR_VOID	ENTSTRGenUpdateBonusFly(LIVE_ENTITY*	live_entity)
 			standard_pitch = (GEN_FLY_CENTER_PITCH - (rand()&15));			// +/- 8 around a center pitch of 64.
 			standard_pitch += ((rand()&0x3) * GEN_FLY_PITCH_MOD);
 			// Grab position with Sin table.	
-			pitch_bend = standard_pitch - ((rsin((Game_timer << GEN_FLY_SIN_SPEED))) >> GEN_FLY_SHIFT);	
+			pitch_bend = standard_pitch - ((rsin((MRFrame_number << GEN_FLY_SIN_SPEED))) >> GEN_FLY_SHIFT);	
 		
 			MRSNDPitchBend(voice_id,pitch_bend);
 			}
@@ -390,10 +394,12 @@ MR_VOID	ENTSTRGenKillBonusFly(LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Initialises the check point arrays, clearing collected flags
 *				and suchlike...
+*	MATCH		https://decomp.me/scratch/Eshlx	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	21.05.97	Martin Kift		Created
+*	05.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -412,6 +418,7 @@ MR_VOID InitialiseCheckPoints(MR_VOID)
 		{
 		data->cp_frog_collected_id 	= -1;
 		data->cp_time				= 0;
+		data->cp_entity				= NULL;
 
 		// Croak
 		data->cp_croak_mode			= FROG_CROAK_NONE;
@@ -440,15 +447,21 @@ MR_VOID InitialiseCheckPoints(MR_VOID)
 	
 			c = ((GEN_CHECKPOINT*)(entity + 1))->cp_id;
 
-			Checkpoint_data[c].cp_entity = entity;
-			MR_SVEC_EQUALS_VEC(&Checkpoint_data[c].cp_position, (MR_VEC*)((GEN_CHECKPOINT*)(entity + 1))->cp_matrix.t);
-
 			// Init user data, and flags
+			Checkpoint_data[c].cp_entity = entity;
+			Checkpoint_data[c].cp_id = c;
+			MR_SVEC_EQUALS_VEC(&Checkpoint_data[c].cp_position, (MR_VEC*)((GEN_CHECKPOINT*)(entity + 1))->cp_matrix.t);
+			MR_COPY_MAT(&Checkpoint_data[c].cp_matrix, &((GEN_CHECKPOINT*)(entity + 1))->cp_matrix);
+			MR_COPY_VEC(&Checkpoint_data[c].cp_matrix.t, (MR_VEC*)((GEN_CHECKPOINT*)(entity + 1))->cp_matrix.t);
 			Checkpoint_data[c].cp_user_data = 0;
 			Checkpoint_data[c].cp_flags		= 0;			
 			}	
 		entity_pptr++;
 		}
+
+	// Setup gold frog data
+	Gold_frog_data.gf_frog_collected_id = -1;
+	Gold_frog_data.gf_entity = NULL;
 }
 
 
@@ -461,6 +474,7 @@ MR_VOID InitialiseCheckPoints(MR_VOID)
 *
 *	FUNCTION	Create a checkpoint. Most of the hard work is handled by
 *				ENTSTRCreateStationaryMOF()
+*	MATCH		https://decomp.me/scratch/rcK3y	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
@@ -470,6 +484,7 @@ MR_VOID InitialiseCheckPoints(MR_VOID)
 *	-------		----------		------
 *	21.05.97	Martin Kift		Updated
 *   01.06.97	Gary Richards	Only create CheckPoints that have NOT been collected.
+*	05.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -494,6 +509,7 @@ MR_VOID	ENTSTRGenCreateCheckPoint(LIVE_ENTITY*	live_entity)
 	if (data->cp_frog_collected_id == -1)
 		{
 		// Create baby frog animation
+		entity->en_flags &= ~(ENTITY_NO_COLLISION | ENTITY_NO_DISPLAY | ENTITY_HIDDEN);
 		ENTSTRCreateStationaryMOF(live_entity);
 
 		// if animated model, set action
@@ -544,7 +560,10 @@ MR_VOID	ENTSTRGenCreateCheckPoint(LIVE_ENTITY*	live_entity)
 			}
 		}
 	else
+		{
 		data->cp_entity = NULL;
+		entity->en_flags |= (ENTITY_NO_COLLISION | ENTITY_NO_DISPLAY | ENTITY_HIDDEN);
+		}
 }
 
 
@@ -667,6 +686,7 @@ MR_VOID	ENTSTRGenUpdateCheckPoint(LIVE_ENTITY*	live_entity)
 *	-------		----------		------
 *	21.05.97	Martin Kift		Updated
 *	01.06.97	Gary Richards	Don't kill a CheckPoint that doesn't exist.
+*	05.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -698,6 +718,7 @@ MR_VOID	ENTSTRGenKillCheckPoint(LIVE_ENTITY* live_entity)
 *
 *	FUNCTION	Create a Multipoint. Most of the hard work is handled by
 *				ENTSTRCreateStationaryMOF() This is a check used in Multi-player.
+*	MATCH		https://decomp.me/scratch/DQCgx	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
@@ -724,20 +745,30 @@ MR_VOID	ENTSTRGenCreateMultiPoint(LIVE_ENTITY*	live_entity)
 	// create entity (Only if not collected)
 	if (data->cp_frog_collected_id == -1)
 		{
+		// Store entity
+		data->cp_entity = entity;
+		
 		// Create baby frog animation
+		entity->en_flags &= ~(ENTITY_NO_COLLISION | ENTITY_NO_DISPLAY | ENTITY_HIDDEN);
 		ENTSTRCreateStationaryMOF(live_entity);
 
 		// store position of this checkpoint, maybe including other things
+		//
+		MR_COPY_MAT(&((GEN_CHECKPOINT*)(data->cp_entity + 1))->cp_matrix, &data->cp_matrix);
+		MR_COPY_VEC(&((GEN_CHECKPOINT*)(data->cp_entity + 1))->cp_matrix.t, (MR_VEC*)data->cp_matrix.t);
 		MR_SVEC_EQUALS_VEC(&data->cp_position, (MR_VEC*)live_entity->le_lwtrans->t);
 
-		// Store entity
-		data->cp_entity = live_entity->le_entity;
+		((MR_ANIM_ENV*)live_entity->le_api_item0)->ae_extra.ae_extra_env_flipbook->ae_object->ob_flags &= ~MR_OBJ_NO_DISPLAY;
 		}
 	else
+		{
 		data->cp_entity = NULL;
+		entity->en_flags |= (ENTITY_NO_COLLISION | ENTITY_NO_DISPLAY | ENTITY_HIDDEN);
+		}
 }
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% ENTSTRGenUpdateMultiPoint
 *------------------------------------------------------------------------------
@@ -752,6 +783,7 @@ MR_VOID	ENTSTRGenCreateMultiPoint(LIVE_ENTITY*	live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	24.06.97	Gary Richards	Created
+*	05.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -768,6 +800,7 @@ MR_VOID	ENTSTRGenUpdateMultiPoint(LIVE_ENTITY*	live_entity)
 	MR_ASSERT (checkpoint->cp_id < GEN_MAX_CHECKPOINTS);
 	data = &Checkpoint_data[checkpoint->cp_id];
 }
+#endif
 
 /******************************************************************************
 *%%%% ENTSTRGenKillMultiPoint
@@ -815,6 +848,7 @@ MR_VOID	ENTSTRGenKillMultiPoint(LIVE_ENTITY* live_entity)
 *								MR_VOID*		coll_check)
 *
 *	FUNCTION	This is the callback for gen blocks, which push the frog.
+*	MATCH		https://decomp.me/scratch/RsQf0	(By Kneesnap)
 *
 *	INPUTS		frog		-	ptr to frog (VOID* for convenience on prototype)
 *				live_entity	-	ptr to live entity that was collide with
@@ -823,6 +857,7 @@ MR_VOID	ENTSTRGenKillMultiPoint(LIVE_ENTITY* live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	02.07.97	Martin Kift		Created
+*	05.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -838,6 +873,14 @@ MR_VOID GenBlockCollPrimCallback(	MR_VOID*	void_frog,
 	FORM*			form;
 
 	frog = (FROG*)void_frog;
+
+	if (frog->fr_mode != FROG_MODE_STATIONARY)
+		{
+		FrogKill(frog, FROG_ANIMATION_SQUISHED, 0);
+		frog->fr_count = 0;
+		MR_CLEAR_VEC(&frog->fr_velocity);
+		return;
+		}
 
 	// only reset the frogs position if its not dead... obvious really
 	if (frog->fr_flags & FROG_ACTIVE)
@@ -857,7 +900,6 @@ MR_VOID GenBlockCollPrimCallback(	MR_VOID*	void_frog,
 			MRApplyMatrix(&mat, &svec, &vec);
 		
 			frog->fr_entity_ofs.vx = vec.vx << 16;
-			frog->fr_entity_ofs.vy = vec.vy << 16;
 			frog->fr_entity_ofs.vz = vec.vz << 16;
 
 			// work out entity offset grid
@@ -886,33 +928,33 @@ MR_VOID GenBlockCollPrimCallback(	MR_VOID*	void_frog,
 *
 *	SYNOPSIS	MR_VOID GenButterFlyCallback(	
 *								MR_VOID*		frog,
-*								MR_VOID*		live_entity,
+*								MR_VOID*		entity,
 *								MR_VOID*		void_null)
 *
 *	FUNCTION	This is the callback for the Desert butterfly.
+*	MATCH		https://decomp.me/scratch/u18Ry	(By Kneesnap)
 *
 *	INPUTS		frog		-	ptr to frog (VOID* for convenience on prototype)
-*				live_entity	-	ptr to live entity that was collide with
+*				entity		-	ptr to entity that was collide with
 *				void_null	-	
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	07.07.97	Gary Richards	Created
+*	05.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID GenButterFlyCallBack(	MR_VOID*	void_frog,
-								MR_VOID*	void_live_entity,
+								MR_VOID*	void_entity,
 								MR_VOID*	void_null)
 {
 	FROG*				frog;
-	LIVE_ENTITY*		live_entity;
 	ENTSTR_BUTTERFLY*	butterfly;
 	ENTITY*				entity;
 
 	frog 		= (FROG*)void_frog;
-	live_entity = (LIVE_ENTITY*)void_live_entity;
-	entity 		= live_entity->le_entity;
+	entity = (ENTITY*)void_entity;
 	butterfly	= (ENTSTR_BUTTERFLY*)(entity + 1);
 
 	// Add the score to the Frog.
@@ -1230,6 +1272,7 @@ MR_VOID GenBlockWaterFallCollPrimCallback(	MR_VOID*	void_frog,
 *	FUNCTION	This is the callback for gen blocks, which removes Frogger from 
 *				his entity and makes him fall earthwards. (Used on industrial to stop
 *				Frogger from 'jumping' through platforms he shouldn't.)
+*	MATCH		https://decomp.me/scratch/pP2Y0	(By Kneesnap)
 *
 *	INPUTS		frog		-	ptr to frog (VOID* for convenience on prototype)
 *				live_entity	-	ptr to live entity that was collide with
@@ -1238,6 +1281,7 @@ MR_VOID GenBlockWaterFallCollPrimCallback(	MR_VOID*	void_frog,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	21.08.97	Gary Richards	Created
+*	06.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1250,7 +1294,7 @@ MR_VOID GenBlockFallCollPrimCallback(	MR_VOID*	void_frog,
 
 	GRID_STACK*		grid_stack;
 	GRID_SQUARE*	grid_square;
-	MR_LONG			s;
+	MR_LONG			s, grid_x, grid_z;
 
 	frog		= (FROG*)void_frog;
 	live_entity = (LIVE_ENTITY*)void_live_entity;
@@ -1261,13 +1305,34 @@ MR_VOID GenBlockFallCollPrimCallback(	MR_VOID*	void_frog,
 		// If on caves map, make frog fall more subtley
 		if (Game_map_theme == THEME_CAV)
 			{
-			frog->fr_entity			= NULL;											
-			frog->fr_mode			= FROG_MODE_JUMPING;				
-			frog->fr_flags			&= ~FROG_LANDED_ON_LAND_CLEAR_MASK;	
-			frog->fr_count			= 0xffff;						
-			frog->fr_forbid_entity	= live_entity->le_entity;
-			frog->fr_velocity.vx >>= 1;
-			frog->fr_velocity.vz >>= 1;
+			grid_x		= GET_GRID_X_FROM_WORLD_X(frog->fr_lwtrans->t[0]);
+			grid_z		= GET_GRID_Z_FROM_WORLD_Z(frog->fr_lwtrans->t[2]);
+
+			grid_stack	= Grid_stacks + (grid_z * Grid_xnum) + grid_x;
+			if (s = grid_stack->gs_numsquares)
+				{
+				grid_square = &Grid_squares[grid_stack->gs_index];
+				while (s--)
+					{
+					if (grid_square->gs_flags & GRID_SQUARE_DEADLY)
+						{
+						frog->fr_entity			= NULL;
+						frog->fr_mode			= FROG_MODE_JUMPING;
+						frog->fr_flags			&= ~FROG_LANDED_ON_LAND_CLEAR_MASK;
+						frog->fr_grid_square	= grid_square;
+						frog->fr_grid_x			= grid_z;
+						frog->fr_grid_z			= grid_z;
+						frog->fr_count			= 0xffff;
+						frog->fr_forbid_entity	= live_entity->le_entity;
+						frog->fr_velocity.vx >>= 1;
+						frog->fr_velocity.vz >>= 1;
+						frog->fr_flags |= FROG_JUMP_FROM_COLLPRIM;
+						frog->fr_flags |= FROG_FREEFALL;
+						return;
+						}
+					grid_square++;
+					}
+				}
 			}
 		else
 			{

@@ -113,6 +113,7 @@ enum
 	DES_CRACK_WAITING_FOR_HITS,
 	DES_CRACK_WAITING_TO_FALL,
 	DES_CRACK_FALLING,
+	DES_CRACK_FINISHED,
 	};
 
 #define	DES_CRACK_NUM_ANIM_TEXTURES	(3)
@@ -273,10 +274,8 @@ struct __des_rt_crack
 	MR_USHORT		cr_current_wait;			// Before it falls.
 	MR_UBYTE		cr_state;					// What are we doing??
 	MR_UBYTE		cr_num_hits;				// How many times have we been hit??
-#ifndef BUILD_49
 	MR_LONG			cr_vel_y;					// y velocity (16:16)
 	MR_LONG			cr_y;						// y position (16:16)
-#endif
 	};	// DES_RT_CRACK
 
 struct	__des_crack
@@ -296,6 +295,7 @@ struct	__des_crack
 
 extern	MR_LONG	script_des_vulture[];
 extern	MR_LONG	script_des_vulture_sfx[];
+extern	MR_LONG	script_des_falling_rock[];
 extern	MR_LONG	script_des_bison[];
 extern	MR_LONG	script_des_bison_sfx[];
 extern	MR_LONG	script_des_rolling_rock[];

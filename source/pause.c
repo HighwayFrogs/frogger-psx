@@ -43,6 +43,8 @@ MR_LONG			Select_mode						  = SELECT_MODE_WAITING;
 MR_LONG			Game_select_player 				  = -1;		
 MR_LONG			Select_timer					  = 2 * (FRAMES_PER_SECOND >> 2);
 
+MR_USHORT		Cached_states[8];
+
 /******************************************************************************
 *%%%% GameSelectReset
 *------------------------------------------------------------------------------
@@ -50,10 +52,12 @@ MR_LONG			Select_timer					  = 2 * (FRAMES_PER_SECOND >> 2);
 *	SYNOPSIS	MR_VOID	GameSelectReset(MR_VOID)
 *
 *	FUNCTION	Handle in game select reset mode.
+*	MATCH		https://decomp.me/scratch/61XAM	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	15.08.97	Gary Richards	Created.
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 MR_VOID GameSelectReset(MR_VOID)
@@ -78,10 +82,8 @@ MR_VOID GameSelectReset(MR_VOID)
 				Select_mode = SELECT_MODE_INIT;
 				// Store the player number that PAUSED the Game.
 				Game_select_player = frog->fr_input_id;
-				// Can we have 2 seconds on the clock please?
-				Select_timer = 2 * (FRAMES_PER_SECOND >> 2);
-				// Better have an audio response.
-				MRSNDPlaySound(SFX_GEN_FROG_HOP, NULL, 0, 0);
+				// Can we have 1 second on the clock please?
+				Select_timer = FRAMES_PER_SECOND;
 				}
 			frog++;											   
 			}
@@ -89,7 +91,7 @@ MR_VOID GameSelectReset(MR_VOID)
 		// --------------------------------------------------------
 		case SELECT_MODE_INIT:
 			// Is select still being pressed??
-			if ( MR_CHECK_PAD_HELD(frog->fr_input_id, FRR_SELECT) )
+			if ( MR_CHECK_PAD_HELD(Game_select_player, FRR_SELECT) )
 				{
 				// If so wait for START to be pressed.
 				if ( MR_CHECK_PAD_PRESSED(Game_select_player, FRR_START) )
@@ -108,11 +110,14 @@ MR_VOID GameSelectReset(MR_VOID)
 		// --------------------------------------------------------
 		case SELECT_MODE_COUNTING:
 			// Is select still being pressed??
-			if ( MR_CHECK_PAD_HELD(Game_select_player, (FRR_SELECT | FRR_START)) )
+			if ( MR_CHECK_PAD_HELD(Game_select_player, FRR_SELECT) && MR_CHECK_PAD_HELD(Game_select_player, FRR_START) )
 				{
 				// Wait for timer to get to zero.
 				if (Select_timer-- == 0)
+					{
 					Option_page_request = OPTIONS_PAGE_GAME_OVER;
+					Option_number = 2;
+					}
 				}
 			else
 				{
@@ -131,11 +136,13 @@ MR_VOID GameSelectReset(MR_VOID)
 *	SYNOPSIS	MR_VOID	GamePause(MR_VOID)
 *
 *	FUNCTION	Handle in game pause mode.
+*	MATCH		https://decomp.me/scratch/aRo6w	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	21.07.97	William Bell	Created
 *	14.08.97	Gary Richards	Re-wrote to conform to SONY standards.
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 MR_VOID GamePause(MR_VOID)
@@ -168,8 +175,9 @@ MR_VOID GamePause(MR_VOID)
 				while(loop--)
 					{
 					// Did we press Start, without holding Select.
-					if ( (MR_CHECK_PAD_PRESSED(frog->fr_input_id, FRR_START)) &&
-						 (!(MR_CHECK_PAD_HELD(frog->fr_input_id, FRR_SELECT)))  )
+					if ((frog->fr_flags & FROG_ACTIVE) && 
+						(MR_CHECK_PAD_PRESSED(frog->fr_input_id, FRR_START)) &&
+						(!(MR_CHECK_PAD_HELD(frog->fr_input_id, FRR_SELECT))))
 						{
 //						MRShowMem("GamePause");
 
@@ -205,6 +213,7 @@ MR_VOID GamePause(MR_VOID)
 			// Initial sound volume defaults.
 			Pause_volume = Sound_volume;
 			OptionClearSpcores();
+			Option_spcore_ptrs[1] = NULL;
 			Option_spcore_ptrs[0] = (MR_SP_CORE*)Game_paused_pause_sprite_ptr;
 			Option_spcore_index   = Game_paused_selection;		// So pause flashes at start.
 
@@ -268,140 +277,157 @@ MR_VOID GamePause(MR_VOID)
 				// Audio response to the button press.
 				MRSNDPlaySound(SFX_GEN_FROG_HOP, NULL, 0, 0);
 				}
-
-			// Check for any cheat mode presses.
-			GameCheatModeCheck();
-
-			// Display Hidden Menu, according to mode set.
-			switch ( Pause_hidden_menu_mode )
+			else
 				{
-				// ------------------------------------------------------------------------------------
-				case HIDDEN_MENU_WAITING:
-					// If Select is pressed in PAUSE Mode display hidden Menu allowing a reset to title.
-					// Start Pressed to Un-Paused.
-					if ( MR_CHECK_PAD_RELEASED(Game_paused_player,FRR_SELECT) )
-						{
-						InitialiseHiddenMenu();
-						}
-					break;
-				// ------------------------------------------------------------------------------------
-				case HIDDEN_MENU_CONTINUE:
-					if ( MR_CHECK_PAD_PRESSED(Game_paused_player,FRR_DOWN) )
-						{
-						// Yes ... last selection ?
-						if ( Pause_hidden_selection < (MAX_HIDDEN_MENU_ITEMS - 1) )
-							{
-							Pause_hidden_selection++;	// Down one.
-							// Audio response to the button press.
-							MRSNDPlaySound(SFX_GEN_FROG_HOP, NULL, 0, 0);
-							}
-						}
-	
-					if ( MR_CHECK_PAD_PRESSED(Game_paused_player,FRR_UP) )
-						{
-						// Check we are NOT at the Top.
-						if ( Pause_hidden_selection > 0 )
-							{
-							Pause_hidden_selection--;		// Up one.
-							// Audio response to the button press.
-							MRSNDPlaySound(SFX_GEN_FROG_HOP, NULL, 0, 0);
-							}
-						}
-	
-					if ( MR_CHECK_PAD_RELEASED(Game_paused_player,FRR_CROSS) )
-						{
-						// Act on currently selected menu options.
-						switch (Pause_hidden_selection)
-							{
-							// ------------------------------------------------
-							// Continue back to game.
-							case HIDDEN_MENU_CONTINUE_SELECTED:
-								Game_paused_selection = HIDDEN_MENU_CONTINUE_SELECTED;
-								Pause_mode = PAUSE_MODE_KILL_SPRITES;
-								// Audio response to the button press.
-								MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
-								break;
-							// ------------------------------------------------
-							case HIDDEN_MENU_QUIT_SELECTED:
-								// Off to display YES/NO.
-								Pause_hidden_menu_mode = HIDDEN_MENU_QUIT;
-								InitialiseHiddenQuitMenu();
-								// Audio response to the button press.
-								MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
-								break;
-							// ------------------------------------------------
-							}
-						}
-					// Display the new sprite 'n' things.
-					Option_spcore_index   = ( Pause_hidden_selection + 1);		// So continue/quit flashes.
-					break;
-				// ------------------------------------------------------------------------------------									
-				case HIDDEN_MENU_QUIT:
-					if ( MR_CHECK_PAD_PRESSED(Game_paused_player,FRR_LEFT) )
-						{
-						// Yes ... last selection ?
-						if ( Pause_hidden_quit_selection < (MAX_HIDDEN_MENU_QUIT_ITEMS - 1) )
-							{
-							Pause_hidden_quit_selection++;	// Down one.
-							// Audio response to the button press.
-							MRSNDPlaySound(SFX_GEN_FROG_HOP, NULL, 0, 0);
-							}
-						}
-	
-					if ( MR_CHECK_PAD_PRESSED(Game_paused_player,FRR_RIGHT) )
-						{
-						// Check we are NOT at the Top.
-						if ( Pause_hidden_quit_selection > 0 )
-							{
-							Pause_hidden_quit_selection--;		// Up one.
-							// Audio response to the button press.
-							MRSNDPlaySound(SFX_GEN_FROG_HOP, NULL, 0, 0);
-							}
-						}
-	
-					if ( MR_CHECK_PAD_RELEASED(Game_paused_player,FRR_CROSS) )
-						{
-						// Act on currently selected menu options.
-						switch (Pause_hidden_quit_selection)
-							{
-							// ------------------------------------------------
-							// Quit NO back to game.
-							case HIDDEN_MENU_QUIT_NO:
-								Game_paused_selection = HIDDEN_MENU_CONTINUE_SELECTED;
-								Pause_mode = PAUSE_MODE_KILL_SPRITES;
-								// Audio response to the button press.
-								MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
-								break;
-							// ------------------------------------------------
-							case HIDDEN_MENU_QUIT_YES:
-								// Quit the Game..... GAME OVER!
-								Game_paused_selection = HIDDEN_MENU_QUIT_SELECTED;
+				if ( MR_CHECK_PAD_PRESSED(Game_paused_player,FRR_GREEN) && Pause_hidden_menu_mode)
+					{
+					DeInitialiseHiddenMenu();
+					Option_spcore_index = 0;
+					}
 
-								// Set option number ( in case we are in multiplayer mode )
-								Option_number = 2;
+				if (Sel_mode == SEL_MODE_ARCADE)
+					{
+					// Check for any cheat mode presses.
+					GameCheatModeCheck();
+					}
 
-								// Flag all hiscores as invalid
-								New_high_score = 0;
-								for(i = 0; i < 60; i++)
-									{
-									New_high_scores[i] = 0;
-									}
+				
 
-								// Audio response to the button press.
-								MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
-
-								// Kill sprites and get out now
-								MRKill2DSprite(Game_paused_pause_sprite_ptr);
-								DeInitialiseHiddenMenu();
-								Pause_mode = PAUSE_MODE_DEINIT;
-								break;
-							// ------------------------------------------------
+				// Display Hidden Menu, according to mode set.
+				switch ( Pause_hidden_menu_mode )
+					{
+					// ------------------------------------------------------------------------------------
+					case HIDDEN_MENU_WAITING:
+						// If Select is pressed in PAUSE Mode display hidden Menu allowing a reset to title.
+						// Start Pressed to Un-Paused.
+						if ( MR_CHECK_PAD_RELEASED(Game_paused_player,FRR_SELECT) )
+							{
+							InitialiseHiddenMenu();
+							MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
 							}
-						}
-					// Display the new sprite 'n' things.
-					Option_spcore_index   = ( Pause_hidden_quit_selection + 3);		// So yes/no flashes.
-					break;
-				// ------------------------------------------------------------------------------------									
+						break;
+					// ------------------------------------------------------------------------------------
+					case HIDDEN_MENU_CONTINUE:
+						if ( MR_CHECK_PAD_PRESSED(Game_paused_player,FRR_DOWN) )
+							{
+							// Yes ... last selection ?
+							if ( Pause_hidden_selection < (MAX_HIDDEN_MENU_ITEMS - 1) )
+								{
+								Pause_hidden_selection++;	// Down one.
+								// Audio response to the button press.
+								MRSNDPlaySound(SFX_GEN_FROG_HOP, NULL, 0, 0);
+								}
+							}
+
+						if ( MR_CHECK_PAD_PRESSED(Game_paused_player,FRR_UP) )
+							{
+							// Check we are NOT at the Top.
+							if ( Pause_hidden_selection > 0 )
+								{
+								Pause_hidden_selection--;		// Up one.
+								// Audio response to the button press.
+								MRSNDPlaySound(SFX_GEN_FROG_HOP, NULL, 0, 0);
+								}
+							}
+	
+						if ( MR_CHECK_PAD_RELEASED(Game_paused_player,FRR_CROSS) )
+							{
+							// Act on currently selected menu options.
+							switch (Pause_hidden_selection)
+								{
+								// ------------------------------------------------
+								// Continue back to game.
+								case HIDDEN_MENU_CONTINUE_SELECTED:
+									Game_paused_selection = HIDDEN_MENU_CONTINUE_SELECTED;
+									Pause_mode = PAUSE_MODE_KILL_SPRITES;
+									// Audio response to the button press.
+									MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
+									break;
+								// ------------------------------------------------
+								case HIDDEN_MENU_QUIT_SELECTED:
+									// Off to display YES/NO.
+									Pause_hidden_menu_mode = HIDDEN_MENU_QUIT;
+									InitialiseHiddenQuitMenu();
+									// Audio response to the button press.
+									MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
+									break;
+								// ------------------------------------------------
+								}
+							}
+						// Display the new sprite 'n' things.
+						Option_spcore_index   = ( Pause_hidden_selection + 1);		// So continue/quit flashes.
+						break;
+					// ------------------------------------------------------------------------------------									
+					case HIDDEN_MENU_QUIT:
+						if ( MR_CHECK_PAD_PRESSED(Game_paused_player,FRR_LEFT) )
+							{
+							// Yes ... last selection ?
+							if ( Pause_hidden_quit_selection < (MAX_HIDDEN_MENU_QUIT_ITEMS - 1) )
+								{
+								Pause_hidden_quit_selection++;	// Down one.
+								// Audio response to the button press.
+								MRSNDPlaySound(SFX_GEN_FROG_HOP, NULL, 0, 0);
+								}
+							}
+	
+						if ( MR_CHECK_PAD_PRESSED(Game_paused_player,FRR_RIGHT) )
+							{
+							// Check we are NOT at the Top.
+							if ( Pause_hidden_quit_selection > 0 )
+								{
+								Pause_hidden_quit_selection--;		// Up one.
+								// Audio response to the button press.
+								MRSNDPlaySound(SFX_GEN_FROG_HOP, NULL, 0, 0);
+								}
+							}
+	
+						if ( MR_CHECK_PAD_RELEASED(Game_paused_player,FRR_CROSS) )
+							{
+							// Act on currently selected menu options.
+							switch (Pause_hidden_quit_selection)
+								{
+								// ------------------------------------------------
+								// Quit NO back to game.
+								case HIDDEN_MENU_QUIT_NO:
+									Game_paused_selection = HIDDEN_MENU_CONTINUE_SELECTED;
+									Pause_mode = PAUSE_MODE_KILL_SPRITES;
+									// Audio response to the button press.
+									MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
+									break;
+								// ------------------------------------------------
+								case HIDDEN_MENU_QUIT_YES:
+									// Quit the Game..... GAME OVER!
+									Game_paused_selection = HIDDEN_MENU_QUIT_SELECTED;
+
+									// Set option number ( in case we are in multiplayer mode )
+									Option_number = 2;
+
+									// Flag all hiscores as invalid
+									New_high_score = 0;
+									for(i = 0; i < 60; i++)
+										{
+										New_high_scores[i] = 0;
+										}
+
+									// Audio response to the button press.
+									MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
+
+									// Kill sprites and get out now
+									MRKill2DSprite(Game_paused_pause_sprite_ptr);
+									Game_paused_pause_sprite_ptr = NULL;
+									XAControl(XACOM_RESUME, 0);
+									OptionClearSpcores();
+									DeInitialiseHiddenMenu();
+									Pause_mode = PAUSE_MODE_DEINIT;
+									break;
+								// ------------------------------------------------
+								}
+							}
+						// Display the new sprite 'n' things.
+						Option_spcore_index   = ( Pause_hidden_quit_selection + 3);		// So yes/no flashes.
+						break;
+					// ------------------------------------------------------------------------------------									
+					}
 				}
 
 			GamePauseAddPrim();
@@ -413,6 +439,7 @@ MR_VOID GamePause(MR_VOID)
 		case PAUSE_MODE_KILL_SPRITES:
 			// Kill "paused" sprite
 			MRKill2DSprite(Game_paused_pause_sprite_ptr);
+			Game_paused_pause_sprite_ptr = NULL;
 			// Kill any hidden Menu Sprites that may be left around.
 			DeInitialiseHiddenMenu();
 			// Go on to next mode.
@@ -504,8 +531,10 @@ MR_ULONG		Sequence[] =
 #ifndef	PSX_MASTER
 	{ FRR_CIRCLE, FRR_CIRCLE, FRR_TRIANGLE, FRR_SQUARE, FR_ANY_BUTTON, -1 };
 #else
-	{ FRR_TRIANGLE, FRR_LEFT, 	FRR_RIGHT, 			FRR_UP, FRR_DOWN, FRR_LEFT_1, FRR_RIGHT_2,
-	  FRR_SQUARE,	FRR_CIRCLE, FRR_ANY_BUTTON, -1 };
+	{ FRR_RIGHT,	FRR_SQUARE,	FRR_TRIANGLE,	FRR_SQUARE,	FRR_TRIANGLE,	-2,
+	  FRR_RIGHT_1,	FRR_LEFT_1,	FRR_RIGHT_1,	FRR_LEFT_1, 				-3,
+	  FRR_TRIANGLE,	FRR_SQUARE,								 				-4,
+	  -1 };
 #endif
 
 MR_ULONG*		c_ptr = Sequence;
@@ -521,6 +550,7 @@ MR_ULONG*		c_ptr = Sequence;
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	15.08.97	Gary Richards	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 MR_VOID	InitialiseHiddenMenu(MR_VOID)
@@ -539,6 +569,7 @@ MR_VOID	InitialiseHiddenMenu(MR_VOID)
 	Pause_hidden_selection = HIDDEN_MENU_CONTINUE_SELECTED;
 	Option_spcore_ptrs[1] = (MR_SP_CORE*)Game_paused_continue_sprite_ptr;
 	Option_spcore_ptrs[2] = (MR_SP_CORE*)Game_paused_quit_sprite_ptr;
+	Option_spcore_ptrs[3] = NULL;
 }
 
 
@@ -553,6 +584,7 @@ MR_VOID	InitialiseHiddenMenu(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	15.08.97	Gary Richards	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 MR_VOID	InitialiseHiddenQuitMenu(MR_VOID)
@@ -570,6 +602,7 @@ MR_VOID	InitialiseHiddenQuitMenu(MR_VOID)
 	Pause_hidden_quit_selection	= HIDDEN_MENU_QUIT_NO;
 	Option_spcore_ptrs[3] = (MR_SP_CORE*)Game_paused_quit_yes_sprite_ptr;
 	Option_spcore_ptrs[4] = (MR_SP_CORE*)Game_paused_quit_no_sprite_ptr;
+	Option_spcore_ptrs[5] = NULL;
 }
 
 /******************************************************************************
@@ -619,6 +652,30 @@ MR_VOID	DeInitialiseHiddenMenu(MR_VOID)
 }
 
 /******************************************************************************
+*%%%% UpdateControllerInputFlags
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	UpdateControllerInputFlags(MR_VOID)
+*
+*	FUNCTION	Used to update the controller input flags
+*	MATCH		https://decomp.me/scratch/w5Vx6	(By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	12.08.97	Gary Richards	Created
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
+*
+*%%%**************************************************************************/
+
+MR_VOID UpdateControllerInputFlags(MR_VOID)
+{
+    MR_ULONG i;
+
+    for (i=0; i<8; i++)
+        Cached_states[i] = MRInput[i].in_flags;
+}
+
+/******************************************************************************
 *%%%% CheckJoyPadStillPresent
 *------------------------------------------------------------------------------
 *
@@ -627,9 +684,12 @@ MR_VOID	DeInitialiseHiddenMenu(MR_VOID)
 *	FUNCTION	Used to check that no joypads have been removed, if so throws the 
 *				game into Pause Mode.
 *
+*	MATCH		https://decomp.me/scratch/TWMJQ	(By Kneesnap)
+*
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	12.08.97	Gary Richards	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -638,24 +698,22 @@ MR_VOID	CheckJoyPadStillPresent(MR_VOID)
 	FROG*		frog;
 	MR_LONG		loop;
 	MR_TEXTURE*	texture;
+	MR_BOOL		show_warning;
 
 	// Handle control and movement
 	frog	= &Frogs[0];
 	loop	= Game_total_players;
 	texture	= NULL;		
 
+	show_warning = FALSE;
 	while(loop--)
 		{
 		// Check to see if the current controller has been removed
-		if (MR_IS_CONTROLLER_TYPE(frog->fr_input_id, MRIF_TYPE_NONE))
+		if (MRInput[frog->fr_input_id].in_flags != Cached_states[frog->fr_input_id])
 			{
-			// Check we are not already displaying the Sprite.
-			if (Game_paused_insert_pad_sprite_ptr == NULL)
-				{
-				// Create "Insert Controller" sprite
-				texture = Options_text_textures[OPTION_TEXT_INSERT_PAD][Game_language];
-				Game_paused_insert_pad_sprite_ptr = MRCreate2DSprite((Game_display_width>>1)-(texture->te_w>>1),(Game_display_height>>1)-48,Option_viewport_ptr,texture,NULL);
-				}
+
+			// Someone unplugged their controller
+			show_warning = TRUE;
 
 			// Check that game is not ALREADY pause.
 			if (!(Game_flags & GAME_FLAG_PAUSED))
@@ -668,16 +726,29 @@ MR_VOID	CheckJoyPadStillPresent(MR_VOID)
 				Game_paused_player = frog->fr_input_id;
 				}
 			}
-		else
-			{
-			// Kill "insert_pad" sprite
-			if (Game_paused_insert_pad_sprite_ptr != NULL)
-				{
-				MRKill2DSprite(Game_paused_insert_pad_sprite_ptr);
-				Game_paused_insert_pad_sprite_ptr = NULL;
-				}
-			}
 		frog++;
+		}
+
+	if (show_warning == TRUE)
+		{
+		if (Game_paused_insert_pad_sprite_ptr == NULL)
+			{
+			texture = Options_text_textures[OPTION_TEXT_INSERT_PAD][Game_language];
+			Game_paused_insert_pad_sprite_ptr = MRCreate2DSprite((Game_display_width>>1) - (texture->te_w >> 1),
+																 (Game_display_height>>1)-48,
+																 Option_viewport_ptr,
+																 texture,
+																 NULL);
+			}
+		}
+	else
+		{
+		// Kill "insert_pad" sprite
+		if (Game_paused_insert_pad_sprite_ptr != NULL)
+			{
+			MRKill2DSprite(Game_paused_insert_pad_sprite_ptr);
+			Game_paused_insert_pad_sprite_ptr = NULL;
+			}
 		}
 	
 }
@@ -759,162 +830,194 @@ MR_VOID GamePauseCreateFadePoly(MR_VOID)
 *	SYNOPSIS	MR_VOID	GameCheatModeCheck(MR_VOID)
 *
 *	FUNCTION	Searches for Cheat Mode and acts occordling.
-*				Last Button Sequence Toggles the CHEAT.
 *
-*				SQUARE is Timer On/Off
-*
-*				CIRCLE is Entity Collision On/Off
-*
-*				CROSS is Infinite lives On/Off
-*
-*				L1 collects all checkpoints.
-*
-*				R1 collects Gold Frog from this THEME.
+*	MATCH		https://decomp.me/scratch/G3U0W	(By Kneesnap & Gillou68310)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	18.08.97	Gary Richards	Created
+*	13.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID GameCheatModeCheck(MR_VOID)
 {
 
-	// Locals
-#ifdef PSX_RELEASE
-	SEL_LEVEL_INFO*		sel_level_info_ptr;
-#endif
-
 	// Check too see if ANY buttons where pressed.
-	if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FR_ANY_BUTTON))
+	if (!MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FR_ANY_BUTTON))
+		return;
+
+	if ((*c_ptr == -2) || (*c_ptr == -3) || (*c_ptr == -4))
 		{
-		// A button was pressed, check to see if it's one we want.
-		if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], *c_ptr))
-			{
-			c_ptr++;			// On to next.
-			// Check to see if we have got to the end of the string.
-			if (*c_ptr == -1)
-				{
-				// Play Croak to indicate successfull.
-				MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
-				Cheat_control_toggle   		= TRUE;
-				c_ptr = Sequence;
-				}
+		if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_CROSS) && (*c_ptr == -2))
+			{ 
+			GameCheatModeToggleInfiniteLives();
+			c_ptr = Sequence;
+			return;
 			}
-		else
+		else if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_CIRCLE) && (*c_ptr == -3))
 			{
-			// Not one we want, so reset the sequence.
-			c_ptr = Sequence;		// Reset if a button is missed.
-			Cheat_control_toggle   = FALSE;
+			GameCheatModeUnlockAllZones();
+			c_ptr = Sequence;
+			return;
 			}
+		else if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_DOWN) && (*c_ptr == -4))
+			{
+			GameCheatModeUnlockAllLevels();
+			c_ptr = Sequence;
+			return;
+			}
+		
+		c_ptr++;
 		}
 
-	// We are in CHEAT MODE, so lets processes these controls.
-	if (Cheat_control_toggle == TRUE)
+	// A button was pressed, check to see if it's one we want.
+	if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], *c_ptr))
+		c_ptr++;
+	else
 		{
-
-#ifndef PSX_RELEASE
-			if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_SQUARE))
-				{
-				if (Cheat_collision_toggle == TRUE)
-					{
-					DisplayHUDHelp(0, HUD_ITEM_HELP_COLLISION_ON);
-					Hud_item_help_flags[0][HUD_ITEM_HELP_COLLISION_ON]	= 0;
-					Cheat_collision_toggle = FALSE;
-					Cheat_control_toggle   = FALSE;
-					}
-				else
-					{
-					DisplayHUDHelp(0, HUD_ITEM_HELP_COLLISION_OFF);
-					Hud_item_help_flags[0][HUD_ITEM_HELP_COLLISION_OFF]	= 0;
-					Cheat_collision_toggle = TRUE;			// Collision Cheat ON.
-					Cheat_control_toggle   = FALSE;
-					}
-				}
-
-#else
-			if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_SQUARE))
-				{
-				// Display help text
-				DisplayHUDHelp(0, HUD_ITEM_HELP_ALL_LEVELS_OPEN);
-				// Open levels
-				sel_level_info_ptr = &Sel_arcade_levels[0];
-				while ( sel_level_info_ptr->li_library_id != -1 )
-					{
-					// Open level
-					SelectSetLevelFlags(sel_level_info_ptr->li_library_id,	SEL_LF_SELECTABLE | SEL_LF_ZONEACCESSIBLE);
-					// Next level
-					sel_level_info_ptr++;
-					}
-				// Clear cheat flag
-				Cheat_control_toggle   = FALSE;
-				}
-#endif
-
-			// Collect all checkpoints.
-			if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_LEFT_1))
-				{
-				DisplayHUDHelp(0, HUD_ITEM_HELP_COLLECT_CHECKPOINT);
-				Hud_item_help_flags[0][HUD_ITEM_HELP_COLLECT_CHECKPOINT] = 0;
-				// We've just collected all the checkpoints.
-				Checkpoints |= (1<<0);
-				Checkpoints |= (1<<1);
-				Checkpoints |= (1<<2);
-				Checkpoints |= (1<<3);
-				Checkpoints |= (1<<4);
-				Cheat_control_toggle   = FALSE;
-				}
-
-			// Collect Gold Frog.
-			if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_RIGHT_1))
-				{
-				DisplayHUDHelp(0, HUD_ITEM_HELP_COLLECT_GOLDFROG);
-				Hud_item_help_flags[0][HUD_ITEM_HELP_COLLECT_GOLDFROG] = 0;
-				// Collect Gold Frog from this level.
-				Gold_frogs			|= (1<<Game_map_theme);
-				Gold_frogs_current	|= (1<<Game_map_theme);
-				Gold_frog_data.gf_frog_collected_id = Frogs[0].fr_frog_id;
-				Cheat_control_toggle   = FALSE;
-				}
-
-			if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_CIRCLE))
-				{
-				if (Cheat_time_toggle == TRUE)
-					{
-					DisplayHUDHelp(0, HUD_ITEM_HELP_TIMER_ON);
-					Hud_item_help_flags[0][HUD_ITEM_HELP_TIMER_ON] = 0;
-					Cheat_time_toggle 	  = FALSE;				// Time Cheat OFF.
-					Cheat_control_toggle  = FALSE;
-					}
-				else
-					{
-					DisplayHUDHelp(0, HUD_ITEM_HELP_TIMER_OFF);
-					Hud_item_help_flags[0][HUD_ITEM_HELP_TIMER_OFF]	= 0;
-					Cheat_time_toggle 	 = TRUE;				// Time Cheat ON.
-					Cheat_control_toggle = FALSE;
-					}
-				}
-
-			if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_CROSS))
-				{
-				if (Cheat_infinite_lives_toggle == TRUE)
-					{
-					DisplayHUDHelp(0, HUD_ITEM_HELP_INFINITE_LIVES_OFF);					
-					Hud_item_help_flags[0][HUD_ITEM_HELP_INFINITE_LIVES_OFF]	= 0;
-					Cheat_infinite_lives_toggle = FALSE;		// Infinite Cheat OFF.
-					Cheat_control_toggle   		= FALSE;
-					}
-				else
-					{															
-					DisplayHUDHelp(0, HUD_ITEM_HELP_INFINITE_LIVES_ON);					
-					Hud_item_help_flags[0][HUD_ITEM_HELP_INFINITE_LIVES_ON] = 0;
-					Cheat_infinite_lives_toggle = TRUE;			// Infinite Cheat ON.
-					Cheat_control_toggle   		= FALSE;
-					}
-				}
+		// Not one we want, so reset the sequence.
+		c_ptr = Sequence;
 		}
 }
 
+/******************************************************************************
+*%%%% GameCheatModeToggleInfiniteLives(MR_VOID)
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	GameCheatModeToggleInfiniteLives(MR_VOID)
+*
+*	FUNCTION	Toggles the infinite lives cheat.
+*
+*	MATCH		https://decomp.me/scratch/1ZwiO	(By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
+*
+*%%%**************************************************************************/
 
+MR_VOID GameCheatModeToggleInfiniteLives(MR_VOID)
+{
+	MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
+	if (Cheat_infinite_lives_toggle == TRUE)
+		{
+		DisplayHUDHelp(0, HUD_ITEM_HELP_INFINITE_LIVES_OFF, 0, TRUE);
+		Hud_item_help_flags[0][HUD_ITEM_HELP_INFINITE_LIVES_OFF] = 0;
+		Cheat_infinite_lives_toggle = FALSE;
+		}
+	else
+		{
+		DisplayHUDHelp(0, HUD_ITEM_HELP_INFINITE_LIVES_ON, 0, TRUE);
+		Hud_item_help_flags[0][HUD_ITEM_HELP_INFINITE_LIVES_ON] = 0;
+		Cheat_infinite_lives_toggle = TRUE;
+		}
+}
+
+/******************************************************************************
+*%%%% GameCheatModeUnlockAllZones(MR_VOID)
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	GameCheatModeUnlockAllZones(MR_VOID)
+*
+*	FUNCTION	Unlocks all zones on the level stack.
+*
+*	MATCH		https://decomp.me/scratch/2Dqo3	(By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
+*
+*%%%**************************************************************************/
+
+MR_VOID GameCheatModeUnlockAllZones(MR_VOID)
+{
+	MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
+	DisplayHUDHelp(0, HUD_ITEM_HELP_ALL_ZONES_OPEN, 0, TRUE);
+
+	// Unlock cave
+	SelectSetLevelFlags(LEVEL_CAVES1, (SEL_LF_ZONEACCESSIBLE | SEL_LF_SELECTABLE));
+	GameCheatModeUnlockLevelZone(LEVEL_CAVES3);
+	GameCheatModeUnlockLevelZone(LEVEL_CAVES4);
+
+	// Unlock sky
+	SelectSetLevelFlags(LEVEL_SKY1, (SEL_LF_ZONEACCESSIBLE | SEL_LF_SELECTABLE));
+	GameCheatModeUnlockLevelZone(LEVEL_SKY2);
+	GameCheatModeUnlockLevelZone(LEVEL_SKY3);
+	GameCheatModeUnlockLevelZone(LEVEL_SKY4);
+
+	// Unlock sewer
+	SelectSetLevelFlags(LEVEL_SWAMP1, (SEL_LF_ZONEACCESSIBLE | SEL_LF_SELECTABLE));
+	GameCheatModeUnlockLevelZone(LEVEL_SWAMP2);
+	GameCheatModeUnlockLevelZone(LEVEL_SWAMP3);
+	GameCheatModeUnlockLevelZone(LEVEL_SWAMP4);
+	GameCheatModeUnlockLevelZone(LEVEL_SWAMP5);
+
+	// Unlock desert
+	SelectSetLevelFlags(LEVEL_DESERT1, (SEL_LF_ZONEACCESSIBLE | SEL_LF_SELECTABLE));
+	GameCheatModeUnlockLevelZone(LEVEL_DESERT2);
+	GameCheatModeUnlockLevelZone(LEVEL_DESERT3);
+	GameCheatModeUnlockLevelZone(LEVEL_DESERT4);
+	GameCheatModeUnlockLevelZone(LEVEL_DESERT5);
+
+	// Unlock jungle
+	SelectSetLevelFlags(LEVEL_JUNGLE1, (SEL_LF_ZONEACCESSIBLE | SEL_LF_SELECTABLE));
+}
+
+/******************************************************************************
+*%%%% GameCheatModeUnlockAllLevels(MR_VOID)
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	GameCheatModeUnlockAllLevels(MR_VOID)
+*
+*	FUNCTION	Unlocks all levels on the level stack.
+*
+*	MATCH		https://decomp.me/scratch/p7fQ1	(By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
+*
+*%%%**************************************************************************/
+
+MR_VOID GameCheatModeUnlockAllLevels(MR_VOID)
+{
+	SEL_LEVEL_INFO* sel_level_info_ptr;
+
+	// Show info and play sound
+	MRSNDPlaySound(SFX_GEN_FROG_CROAK, NULL, 0, 0);
+	DisplayHUDHelp(0, HUD_ITEM_HELP_ALL_LEVELS_OPEN, 0, TRUE);
+
+	// Unlock levels
+	sel_level_info_ptr = Sel_arcade_levels;
+	while (sel_level_info_ptr->li_library_id != -1)
+		{
+		SelectSetLevelFlags(sel_level_info_ptr->li_library_id, SelectGetLevelFlags(sel_level_info_ptr->li_library_id) | SEL_LF_ZONEACCESSIBLE | SEL_LF_SELECTABLE);
+		sel_level_info_ptr++;
+		}
+}
+
+/******************************************************************************
+*%%%% GameModeCheatUnlockLevelZone(MR_ULONG)
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	GameCheatModeUnlockLevelZone(
+											MR_ULONG	level_id)
+*
+*	FUNCTION	Marks a level as having its zone unlocked.
+*
+*	MATCH		https://decomp.me/scratch/jaaYv	(By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	13.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
+*
+*%%%**************************************************************************/
+
+MR_VOID GameCheatModeUnlockLevelZone(MR_ULONG level_id)
+{
+	if (!(SelectGetLevelFlags(level_id) & SEL_LF_SELECTABLE))
+		SelectSetLevelFlags(level_id, SEL_LF_ZONEACCESSIBLE);
+}
 													  
 

@@ -68,8 +68,8 @@ ENTITY_BOOK	Entity_library[] =
 		},
 		{
 		// ENTITY_TYPE_DES_THERMAL
-		ENTSTRDesCreateThermal,
-		ENTSTRDesUpdateThermal,
+		ENTSTRCreateMovingMOF,
+		ENTSTRUpdateMovingMOF,
 		ENTSTRKillMovingMOF,
 		ENTITY_BOOK_PATH_RUNNER,
 		sizeof(DESERT_RT_THERMAL),
@@ -158,7 +158,7 @@ ENTITY_BOOK	Entity_library[] =
 		// ENTITY_TYPE_ORG_BABY_FROG
 		ENTSTROrgCreateBabyFrog,
 		ENTSTROrgUpdateBabyFrog,
-		ENTSTRKillDynamicMOF,
+		ENTSTROrgKillBabyFrog,
 		ENTITY_BOOK_IMMORTAL,
 		sizeof(ORG_RT_BABY_FROG),
 		},
@@ -237,7 +237,7 @@ ENTITY_BOOK	Entity_library[] =
 		{
 		// ENTITY_TYPE_MULTIPOINT
 		ENTSTRGenCreateMultiPoint,
-		ENTSTRGenUpdateMultiPoint,
+		NULL,
 		ENTSTRGenKillMultiPoint,
 		ENTITY_BOOK_STATIC,
 		NULL,
@@ -260,24 +260,16 @@ ENTITY_BOOK	Entity_library[] =
 		},
 		{
 		// ENTITY_TYPE_CAV_RACE_SNAIL
-		ENTSTRCavCreateRaceSnail,
-		ENTSTRCavUpdateRaceSnail,
+		ENTSTRCreateMovingMOF,
+		ENTSTRUpdateMovingMOF,
 		ENTSTRKillMovingMOF,
 		ENTITY_BOOK_PATH_RUNNER,
-		sizeof(CAVES_RT_RACE_SNAIL),
-		},
-		{
-		// ENTITY_TYPE_FALLING_LEAF
-		ENTSTRForCreateFallingLeaf,
-		ENTSTRForUpdateFallingLeaf,
-		ENTSTRKillMovingMOF,
-		ENTITY_BOOK_PATH_RUNNER,
-		sizeof(FOREST_RT_FALLING_LEAF),
+		8,
 		},
 		{
 		// ENTITY_TYPE_SWAYING_BRANCH
-		ENTSTRForCreateSwayingBranch,
-		ENTSTRForUpdateSwayingBranch,
+		ENTSTRCreateDynamicMOF,
+		NULL,
 		ENTSTRKillDynamicMOF,
 		ENTITY_BOOK_IMMORTAL,
 		sizeof(FOREST_RT_SWAYING_BRANCH),
@@ -294,7 +286,7 @@ ENTITY_BOOK	Entity_library[] =
 		// ENTITY_TYPE_SQUIRREL
 		ENTSTRForCreateSquirrel,
 		ENTSTRForUpdateSquirrel,
-		ENTSTRForKillSquirrel,
+		ENTSTRKillMovingMOF,
 		ENTITY_BOOK_PATH_RUNNER|ENTITY_BOOK_IMMORTAL,
 		sizeof(FOREST_RT_SQUIRREL),
 		},
@@ -400,7 +392,7 @@ ENTITY_BOOK	Entity_library[] =
 		ENTSTRGenCreateGoldFrog,
 		ENTSTRGenUpdateGoldFrog,
 		ENTSTRGenKillGoldFrog,
-		ENTITY_BOOK_STATIC  | ENTITY_BOOK_IMMORTAL,
+		ENTITY_BOOK_IMMORTAL,
 		sizeof(GEN_RT_GOLD_FROG),
 		},
 		{
@@ -421,7 +413,7 @@ ENTITY_BOOK	Entity_library[] =
 		},
 		{
 		// ENTITY_TYPE_JUN_OUTRO_DOOR
-		ENTSTRJunCreateOutroDoor,
+		ENTSTRCreateStationaryMOF,
 		NULL,
 		ENTSTRKillStationaryMOF,
 		ENTITY_BOOK_IMMORTAL,
@@ -429,7 +421,7 @@ ENTITY_BOOK	Entity_library[] =
 		},
 		{
 		// ENTITY_TYPE_JUN_STATUE
-		ENTSTRJunCreateStatue,
+		ENTSTRCreateStationaryMOF,
 		NULL,
 		ENTSTRKillStationaryMOF,
 		ENTITY_BOOK_IMMORTAL,
@@ -470,16 +462,16 @@ ENTITY_BOOK	Entity_library[] =
 		{
 		// ENTITY_TYPE_SWP_SLUG
 		ENTSTRSwpCreateSlug,
-		ENTSTRSwpUpdateSlug,
-		ENTSTRSwpKillSlug,
+		ENTSTRUpdateMovingMOF,
+		ENTSTRKillMovingMOF,
 		ENTITY_BOOK_PATH_RUNNER|ENTITY_BOOK_IMMORTAL,
 		NULL,
 		},
 		{
 		// ENTITY_TYPE_JUN_BOUNCY_MUSHROOM
 		ENTSTRJunCreateBouncyMushroom,
-		ENTSTRJunUpdateBouncyMushroom,
-		ENTSTRJunKillBouncyMushroom,
+		NULL,
+		ENTSTRKillStationaryMOF,
 		ENTITY_BOOK_STATIC,
 		NULL,
 		},
@@ -497,6 +489,30 @@ ENTITY_BOOK	Entity_library[] =
 		ENTSTRUpdateMovingMOF,
 		ENTSTRKillMovingMOF,
 		ENTITY_BOOK_PATH_RUNNER|ENTITY_BOOK_IMMORTAL,
+		NULL,
+		},
+		{
+		// ENTITY_TYPE_JUN_SCORPION
+		ENTSTRJunCreateScorpion,
+		ENTSTRUpdateMovingMOF,
+		ENTSTRKillMovingMOF,
+		ENTITY_BOOK_PATH_RUNNER,
+		NULL,
+		},
+		{
+		// ENTITY_TYPE_STATIC_NOISE
+		ENTSTRCreateStationaryMOF,
+		NULL,
+		ENTSTRKillStationaryMOF,
+		ENTITY_BOOK_STATIC|ENTITY_BOOK_IMMORTAL,
+		NULL,
+		},
+		{
+		// ENTITY_TYPE_SWP_STAT_WEIR
+		ENTSTRSwpCreateWeir,
+		NULL,
+		ENTSTRKillDynamicMOF,
+		ENTITY_BOOK_STATIC|ENTITY_BOOK_IMMORTAL,
 		NULL,
 		},
 };

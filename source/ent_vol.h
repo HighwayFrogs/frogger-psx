@@ -53,7 +53,7 @@ enum	{
 		VOL_SWITCH_ACTION_UP,
 		};
 
-#define	VOL_SWITCH_FORBID_TIME					4
+#define	VOL_SWITCH_FORBID_TIME					6
 
 
 //-----------------------------------------------------------------------------
@@ -110,6 +110,7 @@ extern	MR_LONG		script_vol_lava_spray[];
 //	Prototypes
 //-----------------------------------------------------------------------------
 
+extern	MR_VOID		ScriptCBVolMechanism(LIVE_ENTITY* live_entity);
 extern	MR_VOID		ENTSTRVolCreateFallingPlatform(LIVE_ENTITY*);
 extern	MR_VOID		ENTSTRVolUpdateFallingPlatform(LIVE_ENTITY*);
 

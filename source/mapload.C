@@ -247,14 +247,12 @@ MR_VOID	InitialiseMap(MR_VOID)
 		map_group->mg_g4_list 			= (MAP_G4*)		(((MR_UBYTE*)map_group->mg_g4_list) 		+ ofs);
 		map_group->mg_gt3_list 			= (MAP_GT3*)	(((MR_UBYTE*)map_group->mg_gt3_list) 		+ ofs);
 		map_group->mg_gt4_list 			= (MAP_GT4*)	(((MR_UBYTE*)map_group->mg_gt4_list) 		+ ofs);
-					
-#ifndef EXPERIMENTAL					
+
 		if (map_group->mg_static_indices)
 			map_group->mg_static_indices = (MR_SHORT*)	(((MR_UBYTE*)map_group->mg_static_indices) 	+ ofs);
 
 		map_group->mg_num_g2			= NULL;
 		map_group->mg_g2_list			= NULL;
-#endif
 
 		map_group->mg_poly_group[0]		= NULL;
 		map_group->mg_poly_group[1]		= NULL;
@@ -417,9 +415,7 @@ MR_VOID	ResolveMapPolys(MR_VOID)
 	MAP_G4*		map_g4;
 	MAP_GT3*	map_gt3;
 	MAP_GT4*	map_gt4;
-#ifndef EXPERIMENTAL
 	MAP_G2*		map_g2;
-#endif
 	MR_LONG		i, ofs;
 	MR_TEXTURE*	texture;
 
@@ -465,7 +461,6 @@ MR_VOID	ResolveMapPolys(MR_VOID)
 			map_g4++;
 			}
 		}
-#ifndef EXPERIMENTAL
 	if (i = Map_graphical_header->gh_poly_header->ph_num_g2)
 		{
 		Map_graphical_header->gh_poly_header->ph_g2_list = (MAP_G2*)(((MR_UBYTE*)Map_graphical_header->gh_poly_header->ph_g2_list) + ofs);
@@ -476,7 +471,6 @@ MR_VOID	ResolveMapPolys(MR_VOID)
 			map_g2++;
 			}
 		}
-#endif
 	if (i = Map_graphical_header->gh_poly_header->ph_num_ft3)
 		{
 		Map_graphical_header->gh_poly_header->ph_ft3_list = (MAP_FT3*)(((MR_UBYTE*)Map_graphical_header->gh_poly_header->ph_ft3_list) + ofs);
@@ -1178,6 +1172,7 @@ MR_VOID	ResolveMapAnimMapPolys(MR_VOID)
 #endif
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% AddVertex
 *------------------------------------------------------------------------------
@@ -1197,6 +1192,7 @@ MR_VOID	ResolveMapAnimMapPolys(MR_VOID)
 *	-------		----------		------
 *	24.07.97	Martin Kift		Created
 *	07.08.97	Martin Kift		Rewrote to be faster
+*	29.10.23	Kneesnap		Disabled as part of byte-matching decompilation from PSX Build 71 (Retail NTSC).
 *
 *%%%**************************************************************************/
 
@@ -1236,6 +1232,7 @@ add_vertex_next:;
 
 #endif //MAP_WATER_WIBBLE
 }
+#endif
 
 /******************************************************************************
 *%%%% MapCreateWibbleWater
@@ -1245,11 +1242,13 @@ add_vertex_next:;
 *
 *	FUNCTION	Set up map water wibble structures, so they can be wibbled to
 *				create a water wibble effect.
+*	MATCH		https://decomp.me/scratch/hvlYf	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	24.07.97	Martin Kift		Created
 *	28.07.97	Gary Richards	Fixed leak.
+*	03.11.23	Kneesnap		Byte-matched to PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1261,6 +1260,7 @@ MR_VOID	MapCreateWibbleWater(MR_VOID)
 	MR_LONG		i, num_vertices, actual_vertices;
 	MR_SVEC**	vertices_pptr;
 	MR_LONG*	vertices;
+	MR_LONG*	vertices_ptr;
 	MR_LONG*	vertices_l_ptr;
 	MR_SVEC**	v_buffer;
 	MR_SVEC**	v_buffer_pptr;
@@ -1273,13 +1273,17 @@ MR_VOID	MapCreateWibbleWater(MR_VOID)
 	// Set default water level.. its important to set it to something very low, since this figure
 	// is used to change the frog base colours to turn him blue... although only in single player
 	// mode
-	Map_water_height	= 1000;	
+	Map_water_height	= 1000;
 
 	// Walk through polys to find our env map ones, which will dictate the water height for this level
 
 	// clear everything
 	Map_wibble_water.ww_num_vertices	= 0;
 	Map_wibble_water.ww_vertices_ptr	= NULL;
+
+	// Abort if there are lots of players.
+	if (Game_total_players > 2)
+		return;
 
 	// Go through once, building up count of each poly type (well the textured ones anyway, since
 	// these are the only ones which can be applied as MAX_OT, hence water river bed textures)
@@ -1323,7 +1327,7 @@ MR_VOID	MapCreateWibbleWater(MR_VOID)
 
 	// Get poly numbers
 	vertices		= (MR_LONG*)MRAllocMem(Map_wibble_water.ww_num_vertices * sizeof (MR_LONG), "Water wibble vertices buffer");
-	num_vertices	= 0;
+	vertices_ptr	= vertices;
 
 	// Copy all vertices out into the alloc'ed work buffer
 	if (i = Map_graphical_header->gh_poly_header->ph_num_ft4)
@@ -1332,7 +1336,32 @@ MR_VOID	MapCreateWibbleWater(MR_VOID)
 		while(i--)
 			{
 			if (map_ft4->mp_flags & MAP_POLY_MAX_OT)
-				AddVertex(vertices, map_ft4->mp_vertices, &num_vertices);
+				{
+				//AddVertex(vertices, map_ft4->mp_vertices, &num_vertices);
+				if (Map_vertices[map_ft4->mp_vertices[0]].pad == 0)
+					{
+					Map_vertices[map_ft4->mp_vertices[0]].pad = 1;
+					*(vertices_ptr++) = map_ft4->mp_vertices[0];
+					}
+	
+				if (Map_vertices[map_ft4->mp_vertices[1]].pad == 0)
+					{
+					Map_vertices[map_ft4->mp_vertices[1]].pad = 1;
+					*(vertices_ptr++) = map_ft4->mp_vertices[1];
+					}
+	
+				if (Map_vertices[map_ft4->mp_vertices[2]].pad == 0)
+					{
+					Map_vertices[map_ft4->mp_vertices[2]].pad = 1;
+					*(vertices_ptr++) = map_ft4->mp_vertices[2];
+					}
+	
+				if (Map_vertices[map_ft4->mp_vertices[3]].pad == 0)
+					{
+					Map_vertices[map_ft4->mp_vertices[3]].pad = 1;
+					*(vertices_ptr++) = map_ft4->mp_vertices[3];
+					}
+				}
 			map_ft4++;
 			}
 		}
@@ -1342,16 +1371,42 @@ MR_VOID	MapCreateWibbleWater(MR_VOID)
 		while(i--)
 			{
 			if (map_gt4->mp_flags & MAP_POLY_MAX_OT)
-				AddVertex(vertices, map_gt4->mp_vertices, &num_vertices);
+				{
+				//AddVertex(vertices, map_gt4->mp_vertices, &num_vertices);
+				if (Map_vertices[map_gt4->mp_vertices[0]].pad == 0)
+					{
+					Map_vertices[map_gt4->mp_vertices[0]].pad = 1;
+					*(vertices_ptr++) = map_gt4->mp_vertices[0];
+					}
+	
+				if (Map_vertices[map_gt4->mp_vertices[1]].pad == 0)
+					{
+					Map_vertices[map_gt4->mp_vertices[1]].pad = 1;
+					*(vertices_ptr++) = map_gt4->mp_vertices[1];
+					}
+	
+				if (Map_vertices[map_gt4->mp_vertices[2]].pad == 0)
+					{
+					Map_vertices[map_gt4->mp_vertices[2]].pad = 1;
+					*(vertices_ptr++) = map_gt4->mp_vertices[2];
+					}
+	
+				if (Map_vertices[map_gt4->mp_vertices[3]].pad == 0)
+					{
+					Map_vertices[map_gt4->mp_vertices[3]].pad = 1;
+					*(vertices_ptr++) = map_gt4->mp_vertices[3];
+					}
+				}
 			map_gt4++;
 			}
 		}	
 
 	// If we have water poly's, sort them out
+	num_vertices = ((MR_ULONG)vertices_ptr - (MR_ULONG)vertices) / sizeof(MR_LONG*);
 	if (!num_vertices)
 		{
 		// Drop out before freeing memory
-		MRFreeMem(vertices);					
+		MRFreeMem(vertices_ptr);					
 		return;
 		}
 
@@ -1442,7 +1497,7 @@ MR_VOID	MapCleanUpWibbleWater(MR_VOID)
 }
 
 
-
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% MapVertexSwap
 *------------------------------------------------------------------------------
@@ -1463,6 +1518,7 @@ MR_VOID	MapCleanUpWibbleWater(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	07.08.97	Martin Kift		Created
+*	30.10.23	Kneesnap		Disabled as part of byte-matching decompilation from PSX Build 71 (Retail NTSC).
 *
 *%%%**************************************************************************/
 
@@ -1505,6 +1561,7 @@ MR_VOID MapVertexSwap(MR_SVEC**		left_vertex_pptr,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	07.08.97	Martin Kift		Created
+*	30.10.23	Kneesnap		Made static as part of byte-matching decompilation from PSX Build 71 (Retail NTSC).
 *
 *%%%**************************************************************************/
 	
@@ -1566,4 +1623,5 @@ MR_VOID MapVerticesSort(	MR_SVEC**	first_vertex_pptr,
 		MapVerticesSort(left_vertex_pptr, last_vertex_pptr, left_distances_ptr, last_distances_ptr);
 
 }
+#endif
 

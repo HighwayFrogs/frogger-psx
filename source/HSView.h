@@ -103,7 +103,7 @@ extern	MR_LONG					High_score_view_flyon_counter;
 extern	MR_LONG					High_score_view_delayed_request;
 
 extern	MR_MAT*					High_score_matrices;
-extern	MR_MOF*					High_score_view_number_model_ptr[];
+//extern	MR_MOF*					High_score_view_number_model_ptr[];
 extern	MR_MAT*					High_score_view_number_matrix_ptr[];
 extern	MR_OBJECT*				High_score_view_number_object_ptr[];
 extern	MR_MAT*					High_score_view_initials_matrix_ptr[];
@@ -128,6 +128,7 @@ extern	MR_VOID		HSViewShutdown(MR_VOID);
 extern	MR_VOID		HSViewUpdate(MR_VOID);
 
 extern	MR_VOID		HSViewUpdate_MODE_SELECTING_automatic(MR_VOID);
+extern	MR_VOID		HSViewUpdate_MODE_SELECTING_automatic_reached_level(MR_VOID);
 extern	MR_VOID		HSViewUpdate_MODE_SHOW_LEVEL_INFO_automatic(MR_VOID);
 
 extern	MR_VOID		HSViewUpdate_MODE_SELECTING_manual(MR_VOID);
@@ -154,7 +155,9 @@ extern	MR_VOID		HSProjectMatricesOntoWaterSurface(MR_MAT*, MR_LONG, MR_MAT*);
 extern	MR_VOID		HSUpdateFrog(MR_VOID);
 extern	MR_VOID		HSUpdateFlying(MR_VOID);
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 extern	MR_VOID		HSViewStoreStackStatus(MR_VOID);
 extern	MR_VOID		HSViewRestoreStackStatus(MR_VOID);
+#endif
 
 #endif	//__HSVIEW_H

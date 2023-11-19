@@ -81,7 +81,7 @@ extern	FROG_PARTICLE	Frog_particle_effects[];
 
 // Effect vertices
 extern	MR_SVEC			Explosion_offsets_octagon[];
-extern	MR_SVEC			Shield_offsets_octagon[];
+//extern	MR_SVEC			Shield_offsets_octagon[];
 
 // Misc
 extern	MR_ULONG		Frog_pop_explosion_colours[];
@@ -93,7 +93,9 @@ extern	MR_ULONG		Frog_pop_explosion_colours[];
 
 // General functions
 extern	MR_VOID			Particle_ft4_prim_init(MR_PGEN_INST*);
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 extern	MR_VOID			Particle_2D_move(MR_OBJECT*);
+#endif
 extern	MR_VOID			Particle_no_geometry_move(MR_OBJECT*);
 
 // Specific functions
@@ -105,7 +107,9 @@ extern	MR_VOID			Frog_pop_explosion_prim_init(MR_PGEN_INST*);
 extern	MR_VOID			Pickup_explosion_disp(MR_PGEN_INST*, MR_VIEWPORT*);
 extern	MR_VOID			Frog_pop_explosion_disp(MR_PGEN_INST*, MR_VIEWPORT*);
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 extern	MR_VOID			Player_shield_prim_init(MR_PGEN_INST*);
+#endif
 extern	MR_VOID			Player_shield_disp(MR_PGEN_INST*, MR_VIEWPORT*);
 
 extern	MR_VOID			Hilite_exhaust_disp(MR_PGEN_INST*, MR_VIEWPORT*);

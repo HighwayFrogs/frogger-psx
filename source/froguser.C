@@ -154,6 +154,7 @@ MR_VOID	FroguserThrowSetup(FROG* frog, MR_ULONG mode)
 	// frog->fr_mode is now FROG_MODE_JUMPING
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% FroguserThrowMovement
 *------------------------------------------------------------------------------
@@ -174,6 +175,7 @@ MR_VOID	FroguserThrowSetup(FROG* frog, MR_ULONG mode)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	20.05.97	Martin Kift		Created
+*	08.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -181,6 +183,7 @@ MR_ULONG FroguserThrowMovement(FROG* frog, MR_ULONG mode, MR_ULONG* grid_flags)
 {
 	return 0;
 }
+#endif
 
 /******************************************************************************
 *%%%% FroguserThermalSetup
@@ -208,6 +211,7 @@ MR_VOID	FroguserThermalSetup(FROG* frog, MR_ULONG mode)
 }
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% FroguserThermalMovement
 *------------------------------------------------------------------------------
@@ -228,6 +232,7 @@ MR_VOID	FroguserThermalSetup(FROG* frog, MR_ULONG mode)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	20.05.97	Martin Kift		Created
+*	08.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -254,6 +259,7 @@ MR_ULONG FroguserThermalMovement(FROG* frog, MR_ULONG mode, MR_ULONG* grid_flags
 	// return no flags
 	return 0;
 }
+#endif
 
 /******************************************************************************
 *%%%% FroguserSlippingLandGridSetup
@@ -264,6 +270,7 @@ MR_ULONG FroguserThermalMovement(FROG* frog, MR_ULONG mode, MR_ULONG* grid_flags
 *									MR_ULONG	mode)
 *
 *	FUNCTION	Setup callback for slipping frog over the landscape.
+*	MATCH		https://decomp.me/scratch/xw6mR	(By Kneesnap)
 *
 *	INPUTS		frog		-	ptr to FROG
 *				mode		-	mode of movement
@@ -278,6 +285,7 @@ MR_ULONG FroguserThermalMovement(FROG* frog, MR_ULONG mode, MR_ULONG* grid_flags
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	20.05.97	Martin Kift		Created
+*	08.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -290,6 +298,8 @@ MR_VOID	FroguserSlippingLandGridSetup(FROG* frog, MR_ULONG mode)
 	MR_LONG			u, y1, grid_x, grid_z, s;
 	MR_VEC			normal, shift_normal;
 	MR_LONG			count;
+	MR_SVEC			svec;
+	MR_VEC			vec;
 
 	// WE have had a slipping request... However, because the frog could have jumped whilst
 	// already slipping, we may be between 2 grid squares... this will result in a wierd jump.
@@ -301,9 +311,13 @@ MR_VOID	FroguserSlippingLandGridSetup(FROG* frog, MR_ULONG mode)
 	dz						= frog->fr_grid_z;
 	grid_square_backup		= frog->fr_grid_square;
 	
+	// calc matrix
+	MR_SET_SVEC(&svec, 0, 0, 25);
+	MRApplyMatrix(frog->fr_lwtrans, &svec, &vec);
+	
 	// calc new data
-	frog->fr_grid_x			= GET_GRID_X_FROM_WORLD_X(frog->fr_lwtrans->t[0]);
-	frog->fr_grid_z			= GET_GRID_Z_FROM_WORLD_Z(frog->fr_lwtrans->t[2]);
+	frog->fr_grid_x			= GET_GRID_X_FROM_WORLD_X(frog->fr_lwtrans->t[0] + vec.vx);
+	frog->fr_grid_z			= GET_GRID_Z_FROM_WORLD_Z(frog->fr_lwtrans->t[2] + vec.vz);
 	frog->fr_grid_square	= NULL;
 
 	grid_stack 				= Grid_stacks + (frog->fr_grid_z * Grid_xnum) + frog->fr_grid_x;
@@ -1430,13 +1444,13 @@ MR_VOID	FroguserSlippingLandNonGridControl(FROG* frog, MR_ULONG mode)
 					{
 					// Set off tongue to get target
 					StartTongue(frog->fr_tongue, entity);
-					DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_TONGUE);
+					DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_TONGUE, 0, TRUE);
 					}
 				else
 					{
 					// Set off tongue to clean eyes
 					StartTongue(frog->fr_tongue, NULL);
-					DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_TONGUE);
+					DisplayHUDHelp(frog->fr_frog_id, HUD_ITEM_HELP_TONGUE, 0, TRUE);
 					}
 				}
 			}
@@ -1551,6 +1565,7 @@ MR_VOID	FroguserSlippingLandNonGridControl(FROG* frog, MR_ULONG mode)
 *									MR_ULONG*	grid_flags)
 *
 *	FUNCTION	Movement callback for slipping frog over the landscape.
+*	MATCH		https://decomp.me/scratch/5WYZv	(By Kneesnap)
 *
 *	INPUTS		frog		-	ptr to FROG
 *				mode		-	mode of movement
@@ -1561,6 +1576,7 @@ MR_VOID	FroguserSlippingLandNonGridControl(FROG* frog, MR_ULONG mode)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	19.06.97	Martin Kift		Created
+*	08.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1628,30 +1644,38 @@ MR_ULONG FroguserSlippingLandNonGridMovement(FROG* frog, MR_ULONG mode, MR_ULONG
 	if 	(frog->fr_velocity.vx > 0)
 		{
 		if (grid_info.gi_xslope.vy < -FROGUSER_SLIP_MAX_SLOPE)
-			frog->fr_velocity.vx = (frog->fr_velocity.vx * 2) / 3;
+			frog->fr_velocity.vx = frog->fr_velocity.vx / 3;
 		}
 	else
 	if (frog->fr_velocity.vx < 0)
 		{
 		if (grid_info.gi_xslope.vy > FROGUSER_SLIP_MAX_SLOPE)
-			frog->fr_velocity.vx = (frog->fr_velocity.vx * 2) / 3;
+			frog->fr_velocity.vx = frog->fr_velocity.vx / 3;
 		}
 	
 	if (frog->fr_velocity.vz > 0)
 		{
 		if (grid_info.gi_zslope.vy < -FROGUSER_SLIP_MAX_SLOPE)
-			frog->fr_velocity.vz = (frog->fr_velocity.vz * 2) / 3;
+			frog->fr_velocity.vz = frog->fr_velocity.vz / 3;
 		}
 	else
 	if (frog->fr_velocity.vz < 0)
 		{
 		if (grid_info.gi_zslope.vy > FROGUSER_SLIP_MAX_SLOPE)
-			frog->fr_velocity.vz = (frog->fr_velocity.vz * 2) / 3;
+			frog->fr_velocity.vz = frog->fr_velocity.vz / 3;
 		}
 
 	// update velocity of the frog
-	frog->fr_velocity.vx = MIN(frog->fr_velocity.vx + (vec.vx << 3), (64<<16));
-	frog->fr_velocity.vz = MIN(frog->fr_velocity.vz + (vec.vz << 3), (64<<16));
+	if (frog->fr_velocity.vx > 0)
+		frog->fr_velocity.vx = MIN(frog->fr_velocity.vx + (vec.vx << 3), 0x500000);
+	else
+		frog->fr_velocity.vx = MAX(frog->fr_velocity.vx + (vec.vx << 3), -0x500000);
+	
+	if (frog->fr_velocity.vz > 0)
+		frog->fr_velocity.vz = MIN(frog->fr_velocity.vz + (vec.vz << 3), 0x500000);
+	else
+		frog->fr_velocity.vz = MAX(frog->fr_velocity.vz + (vec.vz << 3), -0x500000);
+	
 	frog->fr_velocity.vy += (SYSTEM_GRAVITY>>1);		
 
 	// Setup the frog matrix to stand properly on the grid
@@ -1735,6 +1759,19 @@ MR_ULONG FroguserSlippingLandNonGridMovement(FROG* frog, MR_ULONG mode, MR_ULONG
 			if (grid_square->gs_flags & GRID_SQUARE_USABLE)
 				{
 				height = GetGridSquareHeight(grid_square);
+
+				// if popdeath, we are moving towards a jump... only allow if difference
+				// in height is less than a small tolerance...
+				if (grid_square->gs_flags & GRID_SQUARE_POPDEATH)
+					{
+					if (abs(frog->fr_lwtrans->t[1] - height) < FROG_USER_SLIP_MAX_SLIPDEATH_HEIGHT)
+						{
+						// put back old pos...
+						MR_COPY_VEC(&frog->fr_pos, &frog->fr_old_pos);
+						FrogKill(frog, FROG_ANIMATION_SQUISHED, NULL);
+						return flags;
+						}
+					}
 
 				// if deadly AND slippy, we are moving towards a jump... only allow if difference
 				// in height is less than a small tolerance...
@@ -2538,6 +2575,7 @@ MR_ULONG FroguserBounceMovement(FROG* frog, MR_ULONG mode, MR_ULONG* grid_flags)
 *									MR_ULONG	mode)
 *
 *	FUNCTION	Setup callback for frog rolling down cliff face.
+*	MATCH		https://decomp.me/scratch/nCTOK	(By Kneesnap & mono21400)
 *
 *	INPUTS		frog		-	ptr to FROG
 *				mode		-	mode of movement
@@ -2546,6 +2584,7 @@ MR_ULONG FroguserBounceMovement(FROG* frog, MR_ULONG mode, MR_ULONG* grid_flags)
 *	-------		----------		------
 *	30.07.97	Martin Kift		Created
 *	18.08.97	Martin Kift		Updated to fix probs with repeated slipping.
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2554,36 +2593,54 @@ MR_VOID	FroguserCliffRollSetup(	FROG*		frog,
 {
 	GRID_STACK*		grid_stack;
 	GRID_SQUARE*	grid_square;
-	MR_LONG			dx, dz;
 	MR_LONG			y1, grid_x, grid_z, s;
+	MR_VEC			vec, vec_t;
 
-	switch (frog->fr_old_direction)
+	GetGridSquareAverageNormal(frog->fr_grid_square, &vec);
+	if (abs(vec.vx) > abs(vec.vz))
 		{
-		case FROG_DIRECTION_N:
-			dx =  0;
-			dz =  1;
-			break;
-		case FROG_DIRECTION_S:
-			dx =  0;
-			dz = -1;
-			break;
-		case FROG_DIRECTION_E:
-			dx =  1;
-			dz =  0;
-			break;
-		case FROG_DIRECTION_W:
-			dx = -1;
-			dz =  0;
-			break;
-		default:
-			dx =  0;
-			dz =  0;
-			break;
+		if (vec.vx > 0x100)
+			{
+			vec_t.vx = 1;
+			frog->fr_direction = FROG_DIRECTION_E;
+			}
+		else if (vec.vx < -0x100)
+			{
+				vec_t.vx = -1;
+				frog->fr_direction = FROG_DIRECTION_W;
+			}
+		else
+			vec_t.vx = 0;
+		
+		vec_t.vz = 0;
+		}
+	else
+		{
+		if (vec.vz > 0x100)
+			{
+			vec_t.vz = 1;
+			frog->fr_direction = FROG_DIRECTION_N;
+			}
+		else if (vec.vz < -0x100)
+			{
+			vec_t.vz = -1;
+			frog->fr_direction = FROG_DIRECTION_S;
+			}
+		else
+			vec_t.vz = 0;
+		
+		vec_t.vx = 0;
 		}
 
+	if (vec_t.vx + vec_t.vz == 0)
+		{
+		FrogKill(frog, FROG_ANIMATION_SQUISHED, NULL);
+		return;
+		}
+	
 	// work out target grid
-	grid_x		= frog->fr_grid_x + dx;
-	grid_z		= frog->fr_grid_z + dz;
+	grid_x		= vec_t.vx + frog->fr_grid_x;
+	grid_z		= vec_t.vz + frog->fr_grid_z;
 	grid_stack 	= GetGridStack(grid_x, grid_z);
 
 	// look through grid stacks to find a valid one to slide too!
@@ -2605,30 +2662,33 @@ MR_VOID	FroguserCliffRollSetup(	FROG*		frog,
 					}
 
 				y1 = GetGridSquareHeight(grid_square);
-				
+
 				// Found usable grid square to slide too!
-				frog->fr_flags 			&= ~(FROG_JUMP_TO_LAND | FROG_JUMP_TO_ENTITY);
-				frog->fr_grid_x 		= grid_x;
-				frog->fr_grid_z 		= grid_z;
-				frog->fr_grid_square	= grid_square;
-				frog->fr_target_pos.vx	= (frog->fr_grid_x << 8) + Grid_base_x + 0x80;
-				frog->fr_target_pos.vy	= GetGridSquareHeight(grid_square);
-				frog->fr_target_pos.vz	= (frog->fr_grid_z << 8) + Grid_base_z + 0x80;
-				frog->fr_mode			= FROGUSER_MODE_CLIFF_ROLL;
-				frog->fr_flags			&= ~FROG_MUST_DIE;
+				if (frog->fr_lwtrans->t[1] < y1)
+					{
+					frog->fr_flags 			&= ~(FROG_JUMP_TO_LAND | FROG_JUMP_TO_ENTITY);
+					frog->fr_grid_x 		= grid_x;
+					frog->fr_grid_z 		= grid_z;
+					frog->fr_grid_square	= grid_square;
+					frog->fr_target_pos.vx	= (frog->fr_grid_x << 8) + Grid_base_x + 0x80;
+					frog->fr_target_pos.vy	= GetGridSquareHeight(grid_square);
+					frog->fr_target_pos.vz	= (frog->fr_grid_z << 8) + Grid_base_z + 0x80;
+					frog->fr_mode			= FROGUSER_MODE_CLIFF_ROLL;
+					frog->fr_flags			&= ~FROG_MUST_DIE;
 
-				// The count for this slide is based on the steepness of the slope
-				frog->fr_count			= 20;
+					// The count for this slide is based on the steepness of the slope
+					frog->fr_count			= 20;
 
-				// work out velocity, this is currently rather temporary...
-				frog->fr_velocity.vx 	= ((frog->fr_target_pos.vx << 16) - frog->fr_pos.vx) / frog->fr_count;
-				frog->fr_velocity.vy 	= ((frog->fr_target_pos.vy << 16) - frog->fr_pos.vy) / frog->fr_count;
-				frog->fr_velocity.vz 	= ((frog->fr_target_pos.vz << 16) - frog->fr_pos.vz) / frog->fr_count;
+					// work out velocity, this is currently rather temporary...
+					frog->fr_velocity.vx 	= ((frog->fr_target_pos.vx << 16) - frog->fr_pos.vx) / frog->fr_count;
+					frog->fr_velocity.vy 	= ((frog->fr_target_pos.vy << 16) - frog->fr_pos.vy) / frog->fr_count;
+					frog->fr_velocity.vz 	= ((frog->fr_target_pos.vz << 16) - frog->fr_pos.vz) / frog->fr_count;
 
-				FrogRequestAnimation(frog, FROG_ANIMATION_ROLL_REPEATING, 0, 0);
+					FrogRequestAnimation(frog, FROG_ANIMATION_ROLL_REPEATING, 0, 0);
 
-				// return now, and let the update routine do all the work
-				return;
+					// return now, and let the update routine do all the work
+					return;
+					}
 				}
 			grid_square++;
 			}
@@ -2642,7 +2702,7 @@ MR_VOID	FroguserCliffRollSetup(	FROG*		frog,
 		frog->fr_grid_square = NULL;
 		return;
 		}
-
+	
 	// not able to slip, brake out of this user-mode and kill the frog
 	FrogKill(frog, FROG_ANIMATION_SQUISHED, NULL);
 }
@@ -2658,6 +2718,7 @@ MR_VOID	FroguserCliffRollSetup(	FROG*		frog,
 *				MR_ULONG*	grid_flags)
 *
 *	FUNCTION	Movement callback for rolling down cliff over the landscape.
+*	MATCH		https://decomp.me/scratch/YTtN6	(By Kneesnap)
 *
 *	INPUTS		frog		-	ptr to FROG
 *				mode		-	mode of movement
@@ -2668,6 +2729,7 @@ MR_VOID	FroguserCliffRollSetup(	FROG*		frog,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	20.05.97	Martin Kift		Created
+*	10.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2681,8 +2743,9 @@ MR_ULONG FroguserCliffRollMovement(	FROG*		frog,
 	GRID_STACK*		grid_stack;
 	GRID_SQUARE*	grid_square;
 	MR_LONG			y1, s;
-	MR_LONG			dx, dz;
+	MR_LONG			grid_x, grid_z;
 	GRID_INFO		grid_info;
+	MR_VEC			vec_t;
 
 	flags = NULL;
 
@@ -2722,68 +2785,85 @@ MR_ULONG FroguserCliffRollMovement(	FROG*		frog,
 			}
 
 		// We are on a slippy square. Look at slope of this square to see where
-		switch (frog->fr_old_direction)
+		GetGridSquareAverageNormal(frog->fr_grid_square, &normal);
+		if (abs(normal.vx) > abs(normal.vz))
 			{
-			case FROG_DIRECTION_N:
-				dx =  0;
-				dz =  1;
-				break;
-			case FROG_DIRECTION_S:
-				dx =  0;
-				dz = -1;
-				break;
-			case FROG_DIRECTION_E:
-				dx =  1;
-				dz =  0;
-				break;
-			case FROG_DIRECTION_W:
-				dx = -1;
-				dz =  0;
-				break;
-			default:
-				dx =  0;
-				dz =  0;
-				break;
+			if (normal.vx > 0x100)
+				{
+				vec_t.vx = 1;
+				frog->fr_direction = FROG_DIRECTION_E;
+				}
+			else if (normal.vx < -0x100)
+				{
+					vec_t.vx = -1;
+					frog->fr_direction = FROG_DIRECTION_W;
+				}
+			else
+				vec_t.vx = 0;
+		
+			vec_t.vz = 0;
+			}
+		else
+			{
+			if (normal.vz > 0x100)
+				{
+				vec_t.vz = 1;
+				frog->fr_direction = FROG_DIRECTION_N;
+				}
+			else if (normal.vz < -0x100)
+				{
+				vec_t.vz = -1;
+				frog->fr_direction = FROG_DIRECTION_S;
+				}
+			else
+				vec_t.vz = 0;
+		
+			vec_t.vx = 0;
 			}
 
-		// Work out target grid
-		frog->fr_grid_x		= frog->fr_grid_x + dx;
-		frog->fr_grid_z 	= frog->fr_grid_z + dz;
-		grid_stack 			= GetGridStack(frog->fr_grid_x, frog->fr_grid_z);
-
-		// look through grid stacks to find a valid one to slide too!
-		if (s = grid_stack->gs_numsquares)
+		if (vec_t.vx + vec_t.vz != 0)
 			{
-			grid_square = &Grid_squares[grid_stack->gs_index];
-			while(s--)
+			// Work out target grid
+			grid_x		= vec_t.vx + frog->fr_grid_x;
+			grid_z 		= vec_t.vz + frog->fr_grid_z;
+			grid_stack	= GetGridStack(grid_x, grid_z);
+
+			// look through grid stacks to find a valid one to slide too!
+			if (s = grid_stack->gs_numsquares)
 				{
-				if (grid_square->gs_flags & GRID_SQUARE_USABLE)
+				grid_square = &Grid_squares[grid_stack->gs_index];
+				while(s--)
 					{
-					// Is this grid much higher than the existing one? If so we don't want to roll
-					// to it, since we will end up rolling up hill... woo hoo misses.
-					y1 = GetGridSquareHeight(grid_square);
-
-					if ((frog->fr_lwtrans->t[1] - y1) > 0)
+					if (grid_square->gs_flags & GRID_SQUARE_USABLE)
 						{
-						// Found usable grid square (thats downhill) to slide too!
-						frog->fr_flags 			&= ~(FROG_JUMP_TO_LAND | FROG_JUMP_TO_ENTITY);
-						frog->fr_grid_square	= grid_square;
-						frog->fr_target_pos.vx	= (frog->fr_grid_x << 8) + Grid_base_x + 0x80;
-						frog->fr_target_pos.vy	= GetGridSquareHeight(grid_square);
-						frog->fr_target_pos.vz	= (frog->fr_grid_z << 8) + Grid_base_z + 0x80;
+						// Is this grid much higher than the existing one? If so we don't want to roll
+						// to it, since we will end up rolling up hill... woo hoo misses.
+						y1 = GetGridSquareHeight(grid_square);
+
+						if ((frog->fr_lwtrans->t[1] - y1) < 0)
+							{
+							// Found usable grid square (thats downhill) to slide too!
+							frog->fr_grid_x			= grid_x;
+							frog->fr_grid_z			= grid_z;
+							frog->fr_flags 			&= ~(FROG_JUMP_TO_LAND | FROG_JUMP_TO_ENTITY);
+							frog->fr_grid_square	= grid_square;
+							frog->fr_target_pos.vx	= (frog->fr_grid_x << 8) + Grid_base_x + 0x80;
+							frog->fr_target_pos.vy	= GetGridSquareHeight(grid_square);
+							frog->fr_target_pos.vz	= (frog->fr_grid_z << 8) + Grid_base_z + 0x80;
 					
-						// The count for this slide is based on the steepness of the slope
-						frog->fr_count			= 20;
+							// The count for this slide is based on the steepness of the slope
+							frog->fr_count			= 20;
 
-						// work out velocity, this is currently rather temporary...
-						frog->fr_velocity.vx 	= ((frog->fr_target_pos.vx << 16) - frog->fr_pos.vx) / frog->fr_count;
-						frog->fr_velocity.vy 	= ((frog->fr_target_pos.vy << 16) - frog->fr_pos.vy) / frog->fr_count;
-						frog->fr_velocity.vz 	= ((frog->fr_target_pos.vz << 16) - frog->fr_pos.vz) / frog->fr_count;
+							// work out velocity, this is currently rather temporary...
+							frog->fr_velocity.vx 	= ((frog->fr_target_pos.vx << 16) - frog->fr_pos.vx) / frog->fr_count;
+							frog->fr_velocity.vy 	= ((frog->fr_target_pos.vy << 16) - frog->fr_pos.vy) / frog->fr_count;
+							frog->fr_velocity.vz 	= ((frog->fr_target_pos.vz << 16) - frog->fr_pos.vz) / frog->fr_count;
 
-						// return now
-						return NULL;
+							// return now
+							return NULL;
+							}
+						grid_square++;
 						}
-					grid_square++;
 					}
 				}
 			}

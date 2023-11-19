@@ -21,8 +21,9 @@
 PATH_RUNNER		Path_runner_root;
 PATH_RUNNER*	Path_runner_root_ptr;
 
-MR_LONG	Path_spline_fixed_t[5] =
+MR_LONG	Path_spline_fixed_t[6] =
 	{
+	0x200 * 0,
 	0x200 * 0,
 	0x200 * 1,
 	0x200 * 2,
@@ -543,6 +544,7 @@ MR_VOID	EvaluatePathRunnerTotalDistance(PATH_RUNNER*	path_runner)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	19.04.97	Tim Closs		Created
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -619,7 +621,7 @@ MR_LONG	GetSplineParamFromLength(	PATH_SPLINE*	spline,
 	d >>= 13;
 	d >>= 5;		// world shift
 
-	d += Path_spline_fixed_t[i];
+	d += Path_spline_fixed_t[i + 1];
 	return(d);
 }
 

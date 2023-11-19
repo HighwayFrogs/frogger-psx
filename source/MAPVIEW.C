@@ -95,12 +95,14 @@ MR_VOID	InitialiseMapView(MR_VOID)
 *						MR_ULONG	vp_id)
 *
 *	FUNCTION	Create terminated list of map group indices
+*	MATCH		https://decomp.me/scratch/hXlus	(By Kneesnap)
 *
 *	INPUTS		vp_id		-	viewport id
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	15.04.97	Tim Closs		Created
+*	30.10.23	Kneesnap		Byte-matched this function as seen in PSX Build 71 (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -317,7 +319,7 @@ MR_VOID	RenderMapViewDebugDisplay(MR_VOID)
 #endif
 #endif
 
-
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% MapViewDrawPixel
 *------------------------------------------------------------------------------
@@ -334,11 +336,12 @@ MR_VOID	RenderMapViewDebugDisplay(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	15.04.97	Tim Closs		Created
+*	30.10.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	MapViewDrawPixel(	MR_LONG	x,
-							MR_LONG	y)
+									MR_LONG	y)
 {
 	if ((y < 0) || (y >= Map_view_znum))
 		return;
@@ -346,6 +349,7 @@ MR_VOID	MapViewDrawPixel(	MR_LONG	x,
 	Map_view_region_minx[y] = MIN(x, Map_view_region_minx[y]);
 	Map_view_region_maxx[y] = MAX(x, Map_view_region_maxx[y]);
 }
+#endif
 
 
 /******************************************************************************
@@ -373,9 +377,9 @@ MR_VOID	MapViewDrawPixel(	MR_LONG	x,
 *%%%**************************************************************************/
 //
 MR_VOID	MapViewDrawLine(MR_LONG	x0,
-						MR_LONG	z0,
-						MR_LONG	x1,
-						MR_LONG	z1)
+								MR_LONG	z0,
+								MR_LONG	x1,
+								MR_LONG	z1)
 //{
 //	MR_LONG	stepx, stepy;
 //	MR_LONG	stepdx, stepdy;

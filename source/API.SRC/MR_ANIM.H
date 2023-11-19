@@ -192,6 +192,7 @@ typedef struct __mr_anim_cpt_params			MR_ANIM_CPT_PARAMS;
 #define MR_ANIM_ENV_USER_CALLBACK_ACTIVE		(1<<3)		// use user callback 		(if it exists)
 #define MR_ANIM_ENV_STORE_LW_TRANSFORMS			(1<<4)		// store lw transforms		(if they exist)
 #define MR_ANIM_ENV_IMPORTED_TRANSFORMS			(1<<5)		// use imported transforms	(if they exist)
+#define MR_ANIM_ENV_UNKNOWN						(1<<6)		// not sure, this may be a mistake
 
 // Environment part flags
 #define MR_ANIM_PART_DISPLAY					(1<<0)		// display part

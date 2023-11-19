@@ -18,6 +18,8 @@
 #include "gen_frog.h"
 #include "gnm_frog.h"
 
+MR_LONG		Frog_script_if_counter = 0;
+
 
 //-----------------------------------------------------------------------------
 // Main animation script lookup table
@@ -26,14 +28,8 @@ FROG_ANIM	FrogAnimScripts[] = {
 		{
 		//FROG_ANIMATION_AUTOHOP
 		&froganim_scr_autohop[0],
-		NULL,
+		&froganim_m_scr_hop[0],
 		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
-		//FROG_ANIMATION_DEATH
-		&froganim_scr_death[0],
-		NULL,
-		FROG_ANIM_OVERRIDE_PREV_ANIM|FROG_ANIM_DO_NOT_OVERRIDE,
 		},
 		{
 		//FROG_ANIMATION_BACKFLIP
@@ -60,12 +56,6 @@ FROG_ANIM	FrogAnimScripts[] = {
 		FROG_ANIM_OVERRIDE_PREV_ANIM|FROG_ANIM_DO_NOT_OVERRIDE,
 		},
 		{
-		//FROG_ANIMATION_SWIM
-		&froganim_scr_swim[0],
-		NULL,
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
 		//FROG_ANIMATION_STRUGGLE
 		&froganim_scr_struggle[0],
 		NULL,
@@ -76,12 +66,6 @@ FROG_ANIM	FrogAnimScripts[] = {
 		&froganim_scr_falling[0],
 		NULL,
 		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
-		//FROG_ANIMATION_WAIT4
-		&froganim_scr_wait4[0],
-		NULL,
-		FROG_ANIM_QUEUE,
 		},
 		{
 		//FROG_ANIMATION_TRIGGER
@@ -117,7 +101,7 @@ FROG_ANIM	FrogAnimScripts[] = {
 		//FROG_ANIMATION_FLOP
 		&froganim_scr_flop[0],
 		NULL,
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
+		FROG_ANIM_OVERRIDE_PREV_ANIM|FROG_ANIM_DO_NOT_OVERRIDE,
 		},
 		{
 		//FROG_ANIMATION_OUCH
@@ -132,45 +116,15 @@ FROG_ANIM	FrogAnimScripts[] = {
 		FROG_ANIM_QUEUE | FROG_ANIM_RESTORE_AFTER,
 		},
 		{
-		//FROG_ANIMATION_SWIMPANT
-		&froganim_scr_swimpant[0],
-		NULL,
-		FROG_ANIM_QUEUE | FROG_ANIM_RESTORE_AFTER,
-		},
-		{
 		//FROG_ANIMATION_ROLL
 		&froganim_scr_roll[0],
 		&froganim_m_scr_hop[0],		// Multiplayer has no roll, hence do multiplayer HOP instead
 		FROG_ANIM_OVERRIDE_PREV_ANIM,
 		},
 		{
-		//FROG_ANIMATION_LCARTWHEEL
-		&froganim_scr_lcartwheel[0],
-		&froganim_m_scr_hop[0],
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
-		//FROG_ANIMATION_RCARTWHEEL
-		&froganim_scr_rcartwheel[0],
-		&froganim_m_scr_hop[0],
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
-		//FROG_ANIMATION_LEAPFROG
-		&froganim_scr_leapfrog[0],
-		&froganim_m_scr_hop[0],
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
 		//FROG_ANIMATION_HOP
 		&froganim_scr_hop[0],
 		&froganim_m_scr_hop[0],
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
-		//FROG_ANIMATION_START1
-		&froganim_scr_start1[0],
-		NULL,
 		FROG_ANIM_OVERRIDE_PREV_ANIM,
 		},
 		{
@@ -204,12 +158,6 @@ FROG_ANIM	FrogAnimScripts[] = {
 		FROG_ANIM_OVERRIDE_PREV_ANIM,
 		},
 		{
-		//FROG_ANIMATION_SUPERSTART
-		&froganim_scr_superstart[0],
-		NULL,
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
 		//FROG_ANIMATION_SLIP
 		&froganim_scr_slip[0],
 		NULL,
@@ -219,7 +167,7 @@ FROG_ANIM	FrogAnimScripts[] = {
 		//FROG_ANIMATION_POP
 		&froganim_scr_pop[0],
 		NULL,
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
+		FROG_ANIM_OVERRIDE_PREV_ANIM | FROG_ANIM_DO_NOT_OVERRIDE,
 		},
 		{
 		//FROG_ANIMATION_SLIPRIGHT
@@ -234,32 +182,8 @@ FROG_ANIM	FrogAnimScripts[] = {
 		FROG_ANIM_BIN_IF_ANIM_PLAYING,
 		},
 		{
-		//FROG_ANIMATION_HOPLEFT
-		&froganim_scr_hopleft[0],
-		NULL,
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
-		//FROG_ANIMATION_HOPRIGHT
-		&froganim_scr_hopright[0],
-		NULL,
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
 		//FROG_ANIMATION_CRASH
 		&froganim_scr_crash[0],
-		NULL,
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
-		//FROG_ANIMATION_ROLL_REPEATING
-		&froganim_scr_roll_repeating[0],
-		NULL,
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
-		//FROG_ANIMATION_PIPESLIP
-		&froganim_scr_pipeslip[0],
 		NULL,
 		FROG_ANIM_OVERRIDE_PREV_ANIM,
 		},
@@ -269,30 +193,6 @@ FROG_ANIM	FrogAnimScripts[] = {
 		NULL,
 		FROG_ANIM_QUEUE,
 		//FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
-		//FROG_ANIMATION_BOUNCE
-		&froganim_scr_bounce[0],
-		NULL,
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
-		//FROG_ANIMATION_SINK
-		&froganim_scr_sink[0],
-		NULL,
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
-		//FROG_ANIMATION_LEFT
-		&froganim_scr_left[0],
-		NULL,
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
-		},
-		{
-		//FROG_ANIMATION_RIGHT
-		&froganim_scr_right[0],
-		NULL,
-		FROG_ANIM_OVERRIDE_PREV_ANIM,
 		},
 		{
 		//FROG_ANIMATION_LOOKDOWN
@@ -327,6 +227,12 @@ FROG_ANIM	FrogAnimScripts[] = {
 		{
 		//FROG_ANIMATION_MOWN
 		&froganim_scr_mown[0],
+		NULL,
+		FROG_ANIM_OVERRIDE_PREV_ANIM,
+		},
+		{
+		//FROG_ANIMATION_ROLL_REPEATING
+		&froganim_scr_roll_repeating[0],
 		NULL,
 		FROG_ANIM_OVERRIDE_PREV_ANIM,
 		},
@@ -424,48 +330,6 @@ MR_LONG		froganim_scr_wait3[] =
 	};
 
 //------------------------------------------------------------------------------------------------
-// Wait4 script
-//
-MR_LONG		froganim_scr_wait4[] =
-	{
-	FROGSCR_PLAY_ANIM,		FROGSCR_PLAYBACK_ONCE,		0, GEN_FROG_WAIT4,	
-	FROGSCR_WAIT_ANIM_FINISHED,
-	FROGSCR_END,
-	};
-
-//------------------------------------------------------------------------------------------------
-// Start1 script
-//
-MR_LONG		froganim_scr_start1[] =
-	{
-	FROGSCR_PLAY_ANIM,		FROGSCR_PLAYBACK_ONCE,		0, GEN_FROG_START1,	
-	FROGSCR_WAIT_ANIM_FINISHED,
-	FROGSCR_END,
-	};
-
-
-//------------------------------------------------------------------------------------------------
-// lcartwheel script
-//
-MR_LONG		froganim_scr_lcartwheel[] =
-	{
-	FROGSCR_PLAY_ANIM,		FROGSCR_PLAYBACK_ONCE,		0, GEN_FROG_LCARTWHEEL,	
-	FROGSCR_WAIT_ANIM_FINISHED,
-	FROGSCR_END,
-	};
-
-//------------------------------------------------------------------------------------------------
-// rcartwheel script
-//
-MR_LONG		froganim_scr_rcartwheel[] =
-	{
-	FROGSCR_PLAY_ANIM,		FROGSCR_PLAYBACK_ONCE,		0, GEN_FROG_RCARTWHEEL,	
-	FROGSCR_WAIT_ANIM_FINISHED,
-	FROGSCR_END,
-	};
-
-
-//------------------------------------------------------------------------------------------------
 // Hop script
 //
 MR_LONG		froganim_scr_hop[] =
@@ -492,16 +356,6 @@ MR_LONG		froganim_m_scr_hop[] =
 MR_LONG		froganim_scr_backflip[] =
 	{
 	FROGSCR_PLAY_ANIM,		FROGSCR_PLAYBACK_ONCE,			0, GEN_FROG_BACKFLIP,
-	FROGSCR_WAIT_ANIM_FINISHED,
-	FROGSCR_END,
-	};
-
-//------------------------------------------------------------------------------------------------
-// Leap frog script
-//
-MR_LONG		froganim_scr_leapfrog[] =
-	{
-	FROGSCR_PLAY_ANIM,		FROGSCR_PLAYBACK_ONCE,			0, GEN_FROG_LEAPFROG,
 	FROGSCR_WAIT_ANIM_FINISHED,
 	FROGSCR_END,
 	};
@@ -535,17 +389,6 @@ MR_LONG		froganim_scr_timeout[] =
 	FROGSCR_PLAY_ANIM,		FROGSCR_PLAYBACK_ONCE,			0, GEN_FROG_TIMEOUT,
 //	FROGSCR_WAIT_ANIM_FINISHED,
 	FROGSCR_HOLD,
-	};
-
-			
-//------------------------------------------------------------------------------------------------
-// Swim script
-//
-MR_LONG		froganim_scr_swim[] =
-	{
-	FROGSCR_PLAY_ANIM,		FROGSCR_PLAYBACK_ONCE,			0, GEN_FROG_SWIM,
-	FROGSCR_WAIT_ANIM_FINISHED,
-	FROGSCR_END,
 	};
 
 			
@@ -649,21 +492,6 @@ MR_LONG		froganim_scr_ouch[] =
 	};
 
 //------------------------------------------------------------------------------------------------
-// Swim Pant script
-//
-MR_LONG		froganim_scr_swimpant[] =
-	{
-	FROGSCR_PLAY_ANIM,				FROGSCR_PLAYBACK_REPEATING,	0, GEN_FROG_SWIMPANT,
-	FROGSCR_SETLOOP,
-		FROGSCR_PLAY_SCRIPT_IF,		FROGSCR_CONDITION_NO_INPUT,	20, 0,		FROG_ANIMATION_LOOKLEFT,
-																			FROG_ANIMATION_LOOKRIGHT,
-																			FROG_ANIMATION_LOOKUP,
-																			FROG_ANIMATION_LOOKDOWN,
-	FROGSCR_ENDLOOP,
-	FROGSCR_END,
-	};
-
-//------------------------------------------------------------------------------------------------
 // Pant script
 //
 MR_LONG		froganim_scr_pant[] =
@@ -732,16 +560,6 @@ MR_LONG		froganim_scr_superhop[] =
 	};
 
 //------------------------------------------------------------------------------------------------
-// Super start script
-//
-MR_LONG		froganim_scr_superstart[] =
-	{
-	FROGSCR_PLAY_ANIM,				FROGSCR_PLAYBACK_ONCE,		0, GEN_FROG_SUPERSTART,
-	FROGSCR_WAIT_ANIM_FINISHED,
-	FROGSCR_END,
-	};
-
-//------------------------------------------------------------------------------------------------
 // Roll frog  script
 //
 MR_LONG		froganim_scr_roll[] =
@@ -769,17 +587,6 @@ MR_LONG		froganim_scr_slip[] =
 	FROGSCR_WAIT_ANIM_FINISHED,
 	FROGSCR_END,
 	};
-
-//------------------------------------------------------------------------------------------------
-// DEath frog  script
-//
-MR_LONG		froganim_scr_death[] =
-	{
-	FROGSCR_PLAY_ANIM,				FROGSCR_PLAYBACK_ONCE,	0, GEN_FROG_DEATH,
-//	FROGSCR_WAIT_ANIM_FINISHED,
-//	FROGSCR_END,
-	FROGSCR_HOLD,
-	};
 		
 //------------------------------------------------------------------------------------------------
 // FROG_ANIMATION_SLIPRIGHT script
@@ -802,41 +609,11 @@ MR_LONG		froganim_scr_slipleft[] =
 	};
 
 //------------------------------------------------------------------------------------------------
-// FROG_ANIMATION_HOPLEFT script
-//
-MR_LONG		froganim_scr_hopleft[] =
-	{
-	FROGSCR_PLAY_ANIM,				FROGSCR_PLAYBACK_ONCE,	0, GEN_FROG_HOPLEFT,
-	FROGSCR_WAIT_ANIM_FINISHED,
-	FROGSCR_END,
-	};
-
-//------------------------------------------------------------------------------------------------
-// FROG_ANIMATION_HOPRIGHT script
-//
-MR_LONG		froganim_scr_hopright[] =
-	{
-	FROGSCR_PLAY_ANIM,				FROGSCR_PLAYBACK_ONCE,	0, GEN_FROG_HOPRIGHT,
-	FROGSCR_WAIT_ANIM_FINISHED,
-	FROGSCR_END,
-	};
-
-//------------------------------------------------------------------------------------------------
 // FROG_ANIMATION_CRASH script
 //
 MR_LONG		froganim_scr_crash[] =
 	{
 	FROGSCR_PLAY_ANIM,				FROGSCR_PLAYBACK_ONCE,	0, GEN_FROG_CRASH,
-	FROGSCR_WAIT_ANIM_FINISHED,
-	FROGSCR_END,
-	};
-		
-//------------------------------------------------------------------------------------------------
-// FROG_ANIMATION_PIPESLIP script
-//
-MR_LONG		froganim_scr_pipeslip[] =
-	{
-	FROGSCR_PLAY_ANIM,				FROGSCR_PLAYBACK_ONCE,	0, GEN_FROG_PIPESLIP,
 	FROGSCR_WAIT_ANIM_FINISHED,
 	FROGSCR_END,
 	};
@@ -847,47 +624,6 @@ MR_LONG		froganim_scr_pipeslip[] =
 MR_LONG		froganim_scr_phew[] =
 	{
 	FROGSCR_PLAY_ANIM,				FROGSCR_PLAYBACK_ONCE,	0, GEN_FROG_PHEW,
-	FROGSCR_WAIT_ANIM_FINISHED,
-	FROGSCR_END,
-	};
-
-//------------------------------------------------------------------------------------------------
-// FROG_ANIMATION_BOUNCE script
-//
-MR_LONG		froganim_scr_bounce[] =
-	{
-	FROGSCR_PLAY_ANIM,				FROGSCR_PLAYBACK_ONCE,	0, GEN_FROG_BOUNCE,
-	FROGSCR_WAIT_ANIM_FINISHED,
-	FROGSCR_END,
-	};
-
-//------------------------------------------------------------------------------------------------
-// FROG_ANIMATION_SINK script
-//
-MR_LONG		froganim_scr_sink[] =
-	{
-	FROGSCR_PLAY_ANIM,				FROGSCR_PLAYBACK_ONCE,	0, GEN_FROG_SINK,
-	FROGSCR_WAIT_ANIM_FINISHED,
-	FROGSCR_END,
-	};
-
-
-//------------------------------------------------------------------------------------------------
-// FROG_ANIMATION_LEFT script
-//
-MR_LONG		froganim_scr_left[] =
-	{
-	FROGSCR_PLAY_ANIM,				FROGSCR_PLAYBACK_ONCE,	0, GEN_FROG_LEFT,
-	FROGSCR_WAIT_ANIM_FINISHED,
-	FROGSCR_END,
-	};
-
-//------------------------------------------------------------------------------------------------
-// FROG_ANIMATION_RIGHT script
-//
-MR_LONG		froganim_scr_right[] =
-	{
-	FROGSCR_PLAY_ANIM,				FROGSCR_PLAYBACK_ONCE,	0, GEN_FROG_RIGHT,
 	FROGSCR_WAIT_ANIM_FINISHED,
 	FROGSCR_END,
 	};
@@ -1601,6 +1337,7 @@ MR_LONG	FROGSCR_WAIT_ANIM_FINISHED_command(FROG* frog, FROG_ANIM_INFO* frog_anim
 
 //------------------------------------------------------------------------------------------------
 // This function branches to another script, but on a condition
+// Match: https://decomp.me/scratch/QXCFw (By Kneesnap) 12-11-23
 //
 MR_LONG	FROGSCR_PLAY_SCRIPT_IF_command(FROG* frog, FROG_ANIM_INFO* frog_anim_info, MR_LONG* script)
 {
@@ -1617,7 +1354,7 @@ MR_LONG	FROGSCR_PLAY_SCRIPT_IF_command(FROG* frog, FROG_ANIM_INFO* frog_anim_inf
 			if (frog->fr_no_input_timer >= play_anim_if->pai_variable1)
 				{
 				// script is destined to play one of 4 scripts, so pick one
-				random		= rand()%5;
+				random		= rand()&3;
 				script_id	= play_anim_if->pai_script_ids[random];
 
 				MR_ASSERT (script_id < FROG_ANIMATION_MAX);
@@ -1628,21 +1365,32 @@ MR_LONG	FROGSCR_PLAY_SCRIPT_IF_command(FROG* frog, FROG_ANIM_INFO* frog_anim_inf
 				if ((Game_map_theme == THEME_JUN) || (Game_map_theme == THEME_VOL))
 					{
 					// For a change.
-					if (Game_timer & 0x3)
-						// Play requested script
-						FrogRequestAnimation(frog, script_id, 0, 0);
-					else
+					if (Frog_script_if_counter++ == 4)
+						{
 						// Play a different wait for the Industrial & Jungle.
 						FrogRequestAnimation(frog, FROG_ANIMATION_PHEW, 0, 0);
+
+						// reset no input counter
+						Frog_script_if_counter = 0;
+						frog->fr_no_input_timer = 0;
+						}
+					else
+						{
+						// Play requested script
+						FrogRequestAnimation(frog, script_id, 0, 0);
+
+						// reset no input counter
+						frog->fr_no_input_timer = 0;
+						}
 					}
 				else
 					{
 					// Play requested script
 					FrogRequestAnimation(frog, script_id, 0, 0);
-					}
 
-				// reset no input counter
-				frog->fr_no_input_timer = 0;
+					// reset no input counter
+					frog->fr_no_input_timer = 0;
+					}
 				}
 			break;
 		}

@@ -508,30 +508,20 @@ MR_VOID	LoadGenericWad(MR_LONG	mode)
 		if (Game_flags & GAME_FLAG_GENM_WAD_LOADED)
 			{
 			MRUnloadResource(Theme_library[THEME_GEN].tb_multi_model_wad_res_id);
-#ifdef EXPERIMENTAL
-			DeinitialiseModels(1);
-#else
 			MRFreeMem(Frog_model_pieces);
-#endif
 			Game_flags &= ~GAME_FLAG_GENM_WAD_LOADED;
 			}
 		if (!(Game_flags & GAME_FLAG_GEN_WAD_LOADED))
 			{
 			MRLoadResource(Theme_library[THEME_GEN].tb_full_model_wad_res_id);
 			MRProcessResource(Theme_library[THEME_GEN].tb_full_model_wad_res_id);	
-#ifdef BUILD_49
-			InitialiseModels(0);
-			Game_flags |= GAME_FLAG_GEN_WAD_LOADED;
-#endif
 			}
 
-#ifndef BUILD_49
 		// Need to do this every time, because the player 1,2,3 frogs are in options wad, which may have been reloaded
 		// to a different place
 		DeinitialiseModels(0);
 		InitialiseModels(0);
 		Game_flags |= GAME_FLAG_GEN_WAD_LOADED;
-#endif
 		}
 }
 

@@ -20,19 +20,19 @@
 // Globals
 MR_BYTE			Water_sin_offset_table[WATER_SIN_OFFSET_TABLE_SIZE];	// 32 bytes seems fine
 
-MR_ULONG		Water_surface_display_list[]=
-{
-	MR_SPRT_SETSPEED,	8,
-	MR_SPRT_SETSCALE,	50,
-/*	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_surf00,
-	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_surf01,
-	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_surf02,
-	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_surf03,
-	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_surf04,
-	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_surf05,
-	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_surf06,*/
-	MR_SPRT_HALT												
-};
+//MR_ULONG		Water_surface_display_list[]=
+//{
+//	MR_SPRT_SETSPEED,	8,
+//	MR_SPRT_SETSCALE,	50,
+///*	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_surf00,
+//	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_surf01,
+//	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_surf02,
+//	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_surf03,
+//	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_surf04,
+//	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_surf05,
+//	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_surf06,*/
+//	MR_SPRT_HALT												
+//};
 
 
 /******************************************************************************
@@ -135,6 +135,7 @@ MR_VOID	WaterWibbleVertices(	MR_SVEC**	vertices,
 	count++;
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% WaterGetSinCosOffsets
 *------------------------------------------------------------------------------
@@ -149,6 +150,7 @@ MR_VOID	WaterWibbleVertices(	MR_SVEC**	vertices,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	24.07.97	Martin Kift		Created
+*	12.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -187,6 +189,7 @@ MR_VOID	WaterGetSinCosOffsets(	MR_SHORT*	sin,
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	24.07.97	Martin Kift		Created
+*	12.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -209,3 +212,4 @@ MR_OBJECT* WaterCreateSurfaceIndication(MR_VIEWPORT*	viewport,
 
 	return NULL;
 }
+#endif

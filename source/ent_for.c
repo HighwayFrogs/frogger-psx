@@ -21,14 +21,14 @@
 #include "particle.h"
 
 
-MR_ULONG	Forest_swarm_animlist[] =
-	{
-	MR_SPRT_SETSPEED,	1,
-	MR_SPRT_SETSCALE,	(8<<16),
-	MR_SPRT_SETCOUNT,	0,
-	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_for_swarm,
-	MR_SPRT_LOOPBACK
-	};
+//MR_ULONG	Forest_swarm_animlist[] =
+//	{
+//	MR_SPRT_SETSPEED,	1,
+//	MR_SPRT_SETSCALE,	(8<<16),
+//	MR_SPRT_SETCOUNT,	0,
+//	MR_SPRT_SETIMAGE,	(MR_ULONG)&im_for_swarm,
+//	MR_SPRT_LOOPBACK
+//	};
 
 MR_ULONG	Forest_swarm_collide_forms[4] =	
 	{	
@@ -124,6 +124,7 @@ MR_VOID	ENTSTRForCreateHive(LIVE_ENTITY*	live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Update a hive entity
+*	MATCH		https://decomp.me/scratch/eEDVz	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
@@ -132,6 +133,7 @@ MR_VOID	ENTSTRForCreateHive(LIVE_ENTITY*	live_entity)
 *	09.06.97	Martin Kift		Created
 *	03.07.97	Tim Closs		Removed COLL_VISIBILITY_DATA locals to globals
 *	26.07.97	Gary Richards	Added SFX.
+*	06.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -176,7 +178,8 @@ MR_VOID	ENTSTRForUpdateHive(LIVE_ENTITY* live_entity)
 				// is frog active?
 				if	(
 					(frog->fr_flags & FROG_ACTIVE) &&
-					(frog->fr_flags & FROG_CONTROL_ACTIVE)
+					(frog->fr_flags & FROG_CONTROL_ACTIVE) &&
+					(frog->fr_mode != FROG_MODE_NO_CONTROL)
 					)
 					{	
 					// get distance from playing frog(s) to our hive
@@ -228,7 +231,8 @@ MR_VOID	ENTSTRForUpdateHive(LIVE_ENTITY* live_entity)
 			// then stop chasing the poor fellow
 			if	(
 				(frog->fr_mode == FROG_MODE_DYING) || 
-				(frog->fr_mode == FROG_MODE_HIT_CHECKPOINT)
+				(frog->fr_mode == FROG_MODE_HIT_CHECKPOINT) || 
+				(frog->fr_mode == FROG_MODE_NO_CONTROL)
 				)
 				{
 	            hive->hv_state = FOR_ACTION_HIVE_SWARM_RETURNING;
@@ -242,6 +246,7 @@ MR_VOID	ENTSTRForUpdateHive(LIVE_ENTITY* live_entity)
 
 			// Make swarm face frog: rest of matrix will be generated in disdplay code
 			MR_SUB_VEC_ABC((MR_VEC*)frog->fr_lwtrans->t, (MR_VEC*)swarm->sw_matrix.t, &dir_vec);
+			dir_vec.vy = 0;
 			MRNormaliseVEC(&dir_vec, &norm_dir_vec);	
 			swarm->sw_matrix.m[0][2] = (MR_SHORT)norm_dir_vec.vx;
 			swarm->sw_matrix.m[1][2] = (MR_SHORT)norm_dir_vec.vy;
@@ -280,7 +285,7 @@ MR_VOID	ENTSTRForUpdateHive(LIVE_ENTITY* live_entity)
 			frog	= Frogs;
 			while (count--)
 				{
-				if (frog->fr_flags & FROG_ACTIVE)
+				if ((frog->fr_flags & FROG_ACTIVE) && (frog->fr_mode != FROG_MODE_NO_CONTROL))
 					{
 					MR_SUB_VEC_ABC((MR_VEC*)frog->fr_lwtrans->t, (MR_VEC*)swarm->sw_matrix.t, &vec);
 				
@@ -341,7 +346,8 @@ MR_VOID	ENTSTRForUpdateHive(LIVE_ENTITY* live_entity)
 			// then stop chasing the poor fellow
 			if	(
 				(frog->fr_mode == FROG_MODE_DYING) || 
-				(frog->fr_mode == FROG_MODE_HIT_CHECKPOINT)
+				(frog->fr_mode == FROG_MODE_HIT_CHECKPOINT) || 
+				(frog->fr_mode == FROG_MODE_NO_CONTROL)
 				)
 				{
 	            hive->hv_state = FOR_ACTION_HIVE_SWARM_RETURNING;
@@ -481,7 +487,7 @@ MR_VOID	ENTSTRForUpdateHive(LIVE_ENTITY* live_entity)
 		standard_pitch += (num_of_swarms * FOR_SWARM_PITCH_MOD);		// Up a pitch for each swarm.
 
 		// Grab position with Sin table.	
-		pitch_bend		= standard_pitch - ((rsin((Game_timer << FOR_SWARM_SIN_SPEED))) >> FOR_SWARM_SHIFT);	
+		pitch_bend		= standard_pitch - ((rsin((MRFrame_number << FOR_SWARM_SIN_SPEED))) >> FOR_SWARM_SHIFT);	
 
 		MRSNDPitchBend(voice_id,pitch_bend);
 		}
@@ -522,6 +528,7 @@ MR_VOID	ENTSTRForKillHive(LIVE_ENTITY*	live_entity)
 
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% ENTSTRForCreateFallingLeaf
 *------------------------------------------------------------------------------
@@ -536,6 +543,7 @@ MR_VOID	ENTSTRForKillHive(LIVE_ENTITY*	live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	02.07.97	Martin Kift		Created
+*	06.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -578,6 +586,7 @@ MR_VOID	ENTSTRForCreateFallingLeaf(LIVE_ENTITY*	live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.06.97	Martin Kift		Created
+*	06.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -628,6 +637,7 @@ MR_VOID	ENTSTRForUpdateFallingLeaf(LIVE_ENTITY* live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	02.07.97	Martin Kift		Created
+*	06.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -673,6 +683,7 @@ MR_VOID	ENTSTRForCreateSwayingBranch(LIVE_ENTITY*	live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.06.97	Martin Kift		Created
+*	06.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -721,6 +732,7 @@ MR_VOID	ENTSTRForUpdateSwayingBranch(LIVE_ENTITY* live_entity)
 			break;
 		}
 }
+#endif
 
 
 /******************************************************************************
@@ -773,12 +785,14 @@ MR_VOID	ENTSTRForCreateBreakingBranch(LIVE_ENTITY*	live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Update a breaking branch entity
+*	MATCH		https://decomp.me/scratch/u9xUS	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	09.06.97	Martin Kift		Created
+*	06.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -819,6 +833,7 @@ MR_VOID	ENTSTRForUpdateBreakingBranch(LIVE_ENTITY* live_entity)
 				{
 				// mark branch as broken!
 				branch->bb_action = FOREST_BRANCH_BROKEN;
+				MRSNDPlaySound(SFX_FOR_BRANCH_SNAP, NULL, 0, 0);
 
 				// work out the height to fall too
 				grid_x		= GET_GRID_X_FROM_WORLD_X(live_entity->le_lwtrans->t[0]);
@@ -843,6 +858,14 @@ MR_VOID	ENTSTRForUpdateBreakingBranch(LIVE_ENTITY* live_entity)
 					if (frog->fr_entity == live_entity->le_entity)
 						{
 						FROG_FALL(frog);
+						frog->fr_grid_x = GET_GRID_X_FROM_WORLD_X(frog->fr_lwtrans->t[0]);
+						frog->fr_grid_z = GET_GRID_Z_FROM_WORLD_Z(frog->fr_lwtrans->t[2]);
+						grid_stack = Grid_stacks + (frog->fr_grid_z * Grid_xnum) + frog->fr_grid_x;
+						if (grid_stack->gs_numsquares)
+							{
+							frog->fr_grid_square = Grid_squares + grid_stack->gs_index;
+							frog->fr_flags |= FROG_FREEFALL;
+							}
 						}
 					frog++;
 					}
@@ -1027,6 +1050,7 @@ MR_VOID	ENTSTRForUpdateSquirrel(LIVE_ENTITY* live_entity)
 }
 
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% ENTSTRForKillSquirrel
 *------------------------------------------------------------------------------
@@ -1041,6 +1065,7 @@ MR_VOID	ENTSTRForUpdateSquirrel(LIVE_ENTITY* live_entity)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	14.07.97	Martin Kift		Created
+*	06.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1049,6 +1074,7 @@ MR_VOID	ENTSTRForKillSquirrel(LIVE_ENTITY* live_entity)
 	// kill the moving entity
 	ENTSTRKillMovingMOF(live_entity);
 }
+#endif
 
 /******************************************************************************
 *%%%% ENTSTRForCreateHedgehog
@@ -1094,6 +1120,7 @@ MR_VOID	ENTSTRForCreateHedgehog(LIVE_ENTITY*	live_entity)
 *						LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Update a hedgehog entity
+*	MATCH		https://decomp.me/scratch/0DW1g	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	to create
 *
@@ -1102,6 +1129,7 @@ MR_VOID	ENTSTRForCreateHedgehog(LIVE_ENTITY*	live_entity)
 *	09.06.97	Martin Kift		Created
 *	08.07.97	Martin Kift		Changed so that hedgehog resets to run mode
 *								if it reaches end of its path (on reset)
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 

@@ -112,9 +112,10 @@ MR_ULONG		High_score_camera_operation_mode 	= HIGH_SCORE_CAMERA_OPERATION_MODE_S
 
 // Scratch
 MR_ULONG		High_score_view_mode;
+MR_BOOL			High_score_view_automatic_picked_flag;
 
 // High score numbers
-MR_MOF*			High_score_view_number_model_ptr[10];
+//MR_MOF*			High_score_view_number_model_ptr[10];
 MR_MAT*			High_score_view_number_matrix_ptr[10];
 MR_OBJECT*		High_score_view_number_object_ptr[10];
 MR_ANIM_ENV*	High_score_view_number_anim_env_ptr[10];
@@ -146,6 +147,8 @@ MR_ULONG	High_score_view_water_prim_colours[2] =
 MR_2DSPRITE*			HSView_arrow_sprite_ptr[2];
 
 MR_BOOL					HSView_automatic_flag = FALSE;
+MR_2DSPRITE*			HSView_user_prompt_sprite_ptr = NULL;
+MR_ULONG				HSView_automatic_counter = 0;
 
 MR_USHORT				Frog_time_data[5];
 HIGH_SCORE_ENTRY		Frog_score_data[60][4];			// Data as comes from the frog during play
@@ -154,10 +157,10 @@ HIGH_SCORE_ENTRY		Game_high_score[10] =
 	{
 	// Initials			Score
 	{'T','I','M',0,	    250000},
-	{'M','K','Z'+1,0,	225000},
-	{'M','Z'+1,'B',0,	200000},
+	{'M','Z'+1,'B',0,	225000},
+	{'M','K','Z'+1,0,	200000},
 	{'G','C','R',0,		175000},
-	{'J','A','S',0,		150000},
+	{'J','R','E',0,		150000},
 	{'B','Z'+1,'S',0,	125000},
 	{'W','I','L',0,		100000},
 	{'J','O','N',0,		75000},
@@ -194,7 +197,7 @@ HIGH_SCORE_ENTRY		Level_high_scores[60][3]=
 // CAVES 3 (unused)
 		{'E','I','L',0,	4000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
 		{'W','I','L',0,	2000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
-		{'G','A','R',0,	1000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
+		{'G','C','R',0,	1000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
 	},
 	{
 		// Initials		Score	Time1		Time 2		Time 3		Time 4		Time 5
@@ -298,7 +301,7 @@ HIGH_SCORE_ENTRY		Level_high_scores[60][3]=
 		// Initials		Score	Time1		Time 2		Time 3		Time 4		Time 5
 // FOREST M
 		{'A','G','E',0,	4000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
-		{'T','I','N',0,	2000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
+		{'T','I','M',0,	2000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
 		{'J','A','S',0,	1000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
 	},
 	{
@@ -347,8 +350,8 @@ HIGH_SCORE_ENTRY		Level_high_scores[60][3]=
 		// Initials		Score	Time1		Time 2		Time 3		Time 4		Time 5
 // ORIGINAL 1
 		{'B','O','B',0,	4000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
-		{'M','U','R',0,	2000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
-		{'J','A','M',0,	1000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
+		{'M','A','R',0,	2000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
+		{'L','E','E',0,	1000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
 	},
 	{
 		// Initials		Score	Time1		Time 2		Time 3		Time 4		Time 5
@@ -564,14 +567,14 @@ HIGH_SCORE_ENTRY		Level_high_scores[60][3]=
 	{
 		// Initials		Score	Time1		Time 2		Time 3		Time 4		Time 5
 // INDUSTRIAL 1
-		{'J','U','N',0,	4000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
+		{'S','T','U',0,	4000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
 		{'O','R','G',0,	2000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
 		{'S','K','Y',0,	1000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
 	},
 	{
 		// Initials		Score	Time1		Time 2		Time 3		Time 4		Time 5
 // INDUSTRIAL 2
-		{'V','O','L',0,	4000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
+		{'J','O','.',0,	4000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
 		{'I','N','D',0,	2000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
 		{'L','A','R',0,	1000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
 	},
@@ -580,7 +583,7 @@ HIGH_SCORE_ENTRY		Level_high_scores[60][3]=
 // INDUSTRIAL 3
 		{'F','O','R',0,	4000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
 		{'M','A','P',0,	2000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
-		{'X','M','O',0,	1000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
+		{'S','E','C',0,	1000,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0,	(60*1)+0},
 	},
 	{
 		// Initials		Score	Time1		Time 2		Time 3		Time 4		Time 5
@@ -618,6 +621,7 @@ MR_ULONG	Stack_status_flags_store[10*6];
 *	SYNOPSIS	MR_VOID	HSViewStartup(MR_VOID)
 *
 *	FUNCTION	Initalise high score view.  Which is based on Dean's level select.
+*	MATCH		https://decomp.me/scratch/hc5pD	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
@@ -628,6 +632,8 @@ MR_ULONG	Stack_status_flags_store[10*6];
 
 MR_VOID	HSViewStartup(MR_VOID)
 {
+	MR_TEXTURE*	texture;
+	MR_2DSPRITE* sprite;
 //	SEL_LEVEL_INFO*	level_ptr;
 
 	// Load options resources
@@ -635,6 +641,9 @@ MR_VOID	HSViewStartup(MR_VOID)
 
 	// Load GEN wad for frogs
 	LoadGenericWad(0);
+
+	// Play options music
+	PlayOptionsMusic();
 
 	// According to required mode of high score view operation do ...
 	switch ( High_score_operation_mode )
@@ -661,6 +670,16 @@ MR_VOID	HSViewStartup(MR_VOID)
 				}
 
 			// Initialise ---------------------------------------
+			if (From_options == TRUE)
+				{
+				texture = Options_text_textures[OPTION_TEXT_SELECT3][Game_language];
+				HSView_user_prompt_sprite_ptr = MRCreate2DSprite(SEL_STATUS_END_X_POS + SEL_STATUS_WIDTH - texture->te_w - 16, SEL_PROMPT_SPRITE_Y, Option_viewport_ptr, texture, NULL);
+				}
+			else
+				{
+				texture = Options_text_textures[OPTION_TEXT_SKIP_HI_SCORE][Game_language];
+				HSView_user_prompt_sprite_ptr = MRCreate2DSprite(SEL_STATUS_END_X_POS + SEL_STATUS_WIDTH - texture->te_w - 16, SEL_PROMPT_SPRITE_Y, Option_viewport_ptr, texture, NULL);
+				}
 
 			// Set display clear colour
 			MRSetDisplayClearColour(0x00,0x00,0x00);
@@ -704,6 +723,7 @@ MR_VOID	HSViewStartup(MR_VOID)
 			// $da: End
 
 			// Initialise level select ( ready for use to view highscores )
+			High_score_view_automatic_picked_flag = FALSE;
 			SelectLevelStartup();
 
 			if	(
@@ -721,8 +741,8 @@ MR_VOID	HSViewStartup(MR_VOID)
 	if (From_options == TRUE)
 		{
 		// Yes ... create sprites at side of screen
-		HSView_arrow_sprite_ptr[0] = MRCreate2DSprite(32,(Game_display_height>>1)-16,Option_viewport_ptr,&im_opt_arrow,NULL);
-		HSView_arrow_sprite_ptr[0]->sp_core.sc_flags |= MR_SPF_HORIZONTAL_FLIP;
+		HSView_arrow_sprite_ptr[0] = sprite = MRCreate2DSprite(32,(Game_display_height>>1)-16,Option_viewport_ptr,&im_opt_arrow,NULL);
+		sprite->sp_core.sc_flags |= MR_SPF_HORIZONTAL_FLIP;
 		HSView_arrow_sprite_ptr[1] = MRCreate2DSprite(Game_display_width-64,(Game_display_height>>1)-16,Option_viewport_ptr,&im_opt_arrow,NULL);
 
 		// Are we showing logs?
@@ -754,15 +774,25 @@ MR_VOID	HSViewStartup(MR_VOID)
 *	SYNOPSIS	MR_VOID	HSViewShutdown(MR_VOID)
 *
 *	FUNCTION	Shut down high score view.  Which is based on Dean's level select.
+*	MATCH		https://decomp.me/scratch/Zi6lR	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	03.06.97	William Bell	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	HSViewShutdown(MR_VOID)
 {
+
+	// Did we come from options ( ie are we in high score view mode )
+	if ( From_options == TRUE)
+		{
+		// Yes ... kill sprites at side of screen
+		MRKill2DSprite(HSView_arrow_sprite_ptr[0]);
+		MRKill2DSprite(HSView_arrow_sprite_ptr[1]);
+		}
 
 	// According to required mode of high score view operation do ...
 	switch ( High_score_operation_mode )
@@ -773,6 +803,13 @@ MR_VOID	HSViewShutdown(MR_VOID)
 
 			// Reset display clear colour
 			MRSetDisplayClearColour(0x00,0x00,0x00);
+
+			// Kill user prompt sprite
+			if (HSView_user_prompt_sprite_ptr != NULL)
+				{
+				MRKill2DSprite(HSView_user_prompt_sprite_ptr);
+				HSView_user_prompt_sprite_ptr = NULL;
+				}
 
 			// Shut down scrolly high scores
 			HSDeinitialiseScrollyHighScore();
@@ -791,17 +828,12 @@ MR_VOID	HSViewShutdown(MR_VOID)
 			break;
 		}
 
-	// Did we come from options ( ie are we in high score view mode )
-	if ( From_options == TRUE)
-		{
-		// Yes ... kill sprites at side of screen
-		MRKill2DSprite(HSView_arrow_sprite_ptr[0]);
-		MRKill2DSprite(HSView_arrow_sprite_ptr[1]);
-		}
-
 	OptionKill3DSprites();
 
 	// Reset mode
+	if (Option_page_request == OPTIONS_PAGE_OPTIONS)
+		Main_menu_fast_camera = FALSE;
+	
 	High_score_operation_mode 	= New_high_score_operation_mode;
 	HSView_automatic_flag 		= FALSE;
 }
@@ -830,7 +862,7 @@ MR_VOID	HSViewUpdate(MR_VOID)
 	if ( From_options == FALSE )
 		{
 		// No ... viewing after hiscore input
-		if ( MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FR_GO) )
+		if ( MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_TRIANGLE) )
 			{
 			// Yes ... exit now
 			Option_page_request = OPTIONS_PAGE_MAIN_OPTIONS;
@@ -979,6 +1011,7 @@ MR_VOID	HSViewUpdate(MR_VOID)
 *	SYNOPSIS	MR_VOID	HSViewUpdate_MODE_SELECTING_automatic(MR_VOID);
 *
 *	FUNCTION	Performs update when mode is 'SEL_GAME_MODE_SELECTING'
+*	MATCH		https://decomp.me/scratch/Whr8X	(By Kneesnap & Gillou68310)
 *
 *	NOTES		Based very much on Dean's SelectUpdate_MODE_SELECTING.
 *
@@ -987,15 +1020,20 @@ MR_VOID	HSViewUpdate(MR_VOID)
 *	15.05.97	Dean Ashton		Created
 *	22.05.97	Martin Kift		Changed pad press defines to frogger ones.
 *	03.06.97	William Bell	Re-created as HSViewUpdate_MODE_SELECTING.
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
 MR_VOID	HSViewUpdate_MODE_SELECTING_automatic(MR_VOID)
 {
-	SEL_LEVEL_INFO*	level_ptr;
 	MR_BOOL			next_level_flag;
 	MR_TEXTURE*		texture;
 
+
+	// Update sprite texture
+	texture = Options_text_textures[OPTION_TEXT_SKIP_HI_SCORE][Game_language];
+	MRChangeSprite(Sel_user_prompt, texture);
+	Sel_user_prompt->sp_pos.x = SEL_STATUS_END_X_POS + SEL_STATUS_WIDTH - texture->te_w;
 
 	// High score on first level ?
 	if ( ( New_high_scores[LEVEL_ORIGINAL1] == 1 ) || ( New_high_scores[LEVEL_ORIGINAL_MULTI_PLAYER] == 1 ) )
@@ -1003,8 +1041,9 @@ MR_VOID	HSViewUpdate_MODE_SELECTING_automatic(MR_VOID)
 			// Yes ... invalidate data
 			New_high_scores[LEVEL_ORIGINAL1] = 0;
 			New_high_scores[LEVEL_ORIGINAL_MULTI_PLAYER] = 0;
+			HSViewUpdate_MODE_SELECTING_automatic_reached_level();
 		}
-	else
+	else if (High_score_view_automatic_picked_flag == FALSE)
 		{
 		// Find a level with a new high score
 		next_level_flag = FALSE;
@@ -1039,18 +1078,55 @@ MR_VOID	HSViewUpdate_MODE_SELECTING_automatic(MR_VOID)
 			next_level_flag = FALSE;
 
 			// Is this a level with a new high score ?
-			if ( New_high_scores[Sel_work_level_ptr->li_library_id] == 1 )
-				{
-				// Yes ... flag level found
-				next_level_flag = TRUE;
-				}
+			if (Sel_work_level_ptr->li_library_id == LEVEL_JUNGLE2)
+				next_level_flag = -(New_high_scores[LEVEL_JUNGLE1] == 1);
+			else if ( New_high_scores[Sel_work_level_ptr->li_library_id] == 1 )
+				next_level_flag = TRUE; // Yes ... flag level found
 
 			} while ( next_level_flag == FALSE );
 
-		// Set camera position to target position
-		Sel_camera_y						= Sel_target_y;
-		Sel_camera_frame->fr_matrix.t[1]	= Sel_camera_y;
+		High_score_view_automatic_picked_flag = TRUE;
 		}
+	else
+		{
+		if (Sel_target_y > Sel_camera_y)
+			{
+			// Set camera position to target position
+			Sel_camera_y						+= 20;
+			Sel_camera_frame->fr_matrix.t[1]	= Sel_camera_y;
+			}
+		else
+			{
+			if (++HSView_automatic_counter == 10)
+				{
+				HSViewUpdate_MODE_SELECTING_automatic_reached_level();
+				High_score_view_automatic_picked_flag = FALSE;
+				HSView_automatic_counter = 0;
+				}
+			}
+		}
+}
+
+
+/******************************************************************************
+*%%%% HSViewUpdate_MODE_SELECTING_automatic_reached_level
+*------------------------------------------------------------------------------
+*
+*	SYNOPSIS	MR_VOID	HSViewUpdate_MODE_SELECTING_automatic_reached_level(MR_VOID);
+*
+*	FUNCTION	Performs update when the level has been reached
+*	MATCH		https://decomp.me/scratch/r9suv	(By Kneesnap)
+*
+*	CHANGED		PROGRAMMER		REASON
+*	-------		----------		------
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
+*
+*%%%**************************************************************************/
+
+MR_VOID	HSViewUpdate_MODE_SELECTING_automatic_reached_level(MR_VOID)
+{
+	SEL_LEVEL_INFO*	level_ptr;
+	MR_TEXTURE*		texture;
 
 	// Yes ... play sound
 	MRSNDPlaySound(SFX_GEN_FROG_CROAK,NULL,0,0);
@@ -1067,8 +1143,9 @@ MR_VOID	HSViewUpdate_MODE_SELECTING_automatic(MR_VOID)
 	SelectEnableSpinMOF(level_ptr);
 
 	MRChangeSprite(Sel_level_title, level_ptr->li_level_name_texture);
+	Sel_level_title->sp_core.sc_flags &= ~MR_SPF_NO_DISPLAY;
 	
-	texture = Options_text_textures[OPTION_TEXT_SELECT2][Game_language];
+	texture = Options_text_textures[OPTION_TEXT_SKIP_HI_SCORE][Game_language];
 	MRChangeSprite(Sel_user_prompt, texture);
 	Sel_user_prompt->sp_pos.x = SEL_STATUS_END_X_POS + SEL_STATUS_WIDTH - texture->te_w;
 
@@ -1100,6 +1177,7 @@ MR_VOID	HSViewUpdate_MODE_SELECTING_automatic(MR_VOID)
 *	SYNOPSIS	MR_VOID	HSViewUpdate_MODE_SHOW_LEVEL_INFO_automatic(MR_VOID);
 *
 *	FUNCTION	Performs update when mode is 'SEL_GAME_MODE_SHOW_LEVEL_INFO'
+*	MATCH		https://decomp.me/scratch/mcANm	(By Kneesnap)
 *
 *	NOTES		Based very much on Dean's SelectUpdate_MODE_SHOW_LEVEL_INFO.
 *
@@ -1108,6 +1186,7 @@ MR_VOID	HSViewUpdate_MODE_SELECTING_automatic(MR_VOID)
 *	15.05.97	Dean Ashton		Created
 *	22.05.97	Martin Kift		Changed pad press defines to frogger ones.
 *	03.06.97	William Bell	Re-created as HSViewUpdate_MODE_SHOW_LEVEL_INFO
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1144,7 +1223,8 @@ MR_VOID	HSViewUpdate_MODE_SHOW_LEVEL_INFO_automatic(MR_VOID)
 				Sel_game_mode = SEL_GAME_MODE_SELECTING;
 				SelectDisableSpinMOF();
 
-				texture = Options_text_textures[OPTION_TEXT_SELECT1][Game_language];
+				Sel_level_title->sp_core.sc_flags |= MR_SPF_NO_DISPLAY;
+				texture = Options_text_textures[OPTION_TEXT_SKIP_HI_SCORE][Game_language];
 				MRChangeSprite(Sel_user_prompt, texture);
 				Sel_user_prompt->sp_pos.x = SEL_STATUS_END_X_POS + SEL_STATUS_WIDTH - texture->te_w;
 				}
@@ -1199,6 +1279,7 @@ MR_VOID	HSViewUpdate_MODE_SHOW_LEVEL_INFO_automatic(MR_VOID)
 *	SYNOPSIS	MR_VOID	HSViewUpdate_MODE_SELECTING_manual(MR_VOID);
 *
 *	FUNCTION	Performs update when mode is 'SEL_GAME_MODE_SELECTING'
+*	MATCH		https://decomp.me/scratch/xftAe	(By Kneesnap)
 *
 *	NOTES		Based very much on Dean's SelectUpdate_MODE_SELECTING.
 *
@@ -1207,6 +1288,7 @@ MR_VOID	HSViewUpdate_MODE_SHOW_LEVEL_INFO_automatic(MR_VOID)
 *	15.05.97	Dean Ashton		Created
 *	22.05.97	Martin Kift		Changed pad press defines to frogger ones.
 *	03.06.97	William Bell	Re-created as HSViewUpdate_MODE_SELECTING.
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1326,7 +1408,7 @@ MR_VOID	HSViewUpdate_MODE_SELECTING_manual(MR_VOID)
 //				}
 			}
 		else
-		if	(MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FR_GO))
+		if	(MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_CROSS))
 			{
 			level_ptr = Sel_work_level_ptr;
 			if (level_ptr->li_current_z == SEL_LEVEL_SLIDE_DIST)
@@ -1344,6 +1426,7 @@ MR_VOID	HSViewUpdate_MODE_SELECTING_manual(MR_VOID)
 				SelectEnableSpinMOF(level_ptr);
 				MRChangeSprite(Sel_level_title, level_ptr->li_level_name_texture);
 
+				Sel_level_title->sp_core.sc_flags &= ~MR_SPF_NO_DISPLAY;
 				texture = Options_text_textures[OPTION_TEXT_SELECT3][Game_language];
 				MRChangeSprite(Sel_user_prompt, texture);
 				Sel_user_prompt->sp_pos.x = SEL_STATUS_END_X_POS + SEL_STATUS_WIDTH - texture->te_w;
@@ -1368,7 +1451,7 @@ MR_VOID	HSViewUpdate_MODE_SELECTING_manual(MR_VOID)
 				}
 			}
 		else
-		if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_TRIANGLE))
+		if (MR_CHECK_PAD_PRESSED(Frog_input_ports[0], FRR_TRIANGLE | FRR_START))
 			{
 			// DMA: We're leaving the level selection screen, but we didn't select a level
 			//		I suggest you replace the 'OPTIONS_PAGE_EXIT' with an appropriate return page identifier.
@@ -1437,6 +1520,7 @@ MR_VOID	HSViewUpdate_MODE_SELECTING_manual(MR_VOID)
 *	SYNOPSIS	MR_VOID	HSViewUpdate_MODE_SHOW_LEVEL_INFO_manual(MR_VOID);
 *
 *	FUNCTION	Performs update when mode is 'SEL_GAME_MODE_SHOW_LEVEL_INFO'
+*	MATCH		https://decomp.me/scratch/fLXrM	(By Kneesnap)
 *
 *	NOTES		Based very much on Dean's SelectUpdate_MODE_SHOW_LEVEL_INFO.
 *
@@ -1445,6 +1529,7 @@ MR_VOID	HSViewUpdate_MODE_SELECTING_manual(MR_VOID)
 *	15.05.97	Dean Ashton		Created
 *	22.05.97	Martin Kift		Changed pad press defines to frogger ones.
 *	03.06.97	William Bell	Re-created as HSViewUpdate_MODE_SHOW_LEVEL_INFO
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1479,6 +1564,7 @@ MR_VOID	HSViewUpdate_MODE_SHOW_LEVEL_INFO_manual(MR_VOID)
 				// DMA: You could put a sound here for when the spinning mof has returned to its rest position
 
 				Sel_game_mode = SEL_GAME_MODE_SELECTING;
+				Sel_level_title->sp_core.sc_flags |= MR_SPF_NO_DISPLAY;
 				SelectDisableSpinMOF();
 				texture = Options_text_textures[OPTION_TEXT_SELECT1][Game_language];
 				MRChangeSprite(Sel_user_prompt, texture);
@@ -1557,6 +1643,8 @@ MR_VOID	HSViewUpdate_MODE_SHOW_LEVEL_INFO_manual(MR_VOID)
 *	FUNCTION	Builds this levels high score table into the static MR_STRPTRs
 *				used to build the text.
 *
+*	MATCH		https://decomp.me/scratch/3w4Po	(By Kneesnap)
+*
 *	INPUTS		hiscore_table_number		- The number of the table to display
 *
 *				num_entries					- The number of entries to build
@@ -1567,6 +1655,7 @@ MR_VOID	HSViewUpdate_MODE_SHOW_LEVEL_INFO_manual(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	04.06.97	William Bell	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1601,13 +1690,15 @@ MR_VOID HighScoreBuildArcadeTimeTable(MR_ULONG hiscore_table_number,MR_ULONG num
 		text_ptr = *Sel_hiscore_text[entry_count];
 
 		// Blank text
-		for(count = 3; count < 21; count++)
+		for(count = 3; count < 24; count++)
 			*(text_ptr+count) = ' ';
 
 		// Set initials
-		*(text_ptr+3) = hs_entry_ptr->he_initials[0];
-		*(text_ptr+4) = hs_entry_ptr->he_initials[1];
-		*(text_ptr+5) = hs_entry_ptr->he_initials[2];
+		*(text_ptr+3) = '1' + entry_count;
+		*(text_ptr+4) = '.';
+		*(text_ptr+5) = hs_entry_ptr->he_initials[0];
+		*(text_ptr+6) = hs_entry_ptr->he_initials[1];
+		*(text_ptr+7) = hs_entry_ptr->he_initials[2];
 
 		// Calculate time in minutes and seconds
 		total_time = hs_entry_ptr->he_time_to_checkpoint[0] +
@@ -1633,11 +1724,12 @@ MR_VOID HighScoreBuildArcadeTimeTable(MR_ULONG hiscore_table_number,MR_ULONG num
 //		*(text_ptr+8) = (minutes % 10) + 48;
 //		*(text_ptr+7) = (minutes / 10) + 48;
 
-		*(text_ptr+21) = (seconds % 10) + 48;
-		*(text_ptr+20) = (seconds / 10) + 48;
-		*(text_ptr+19) = ':';
-		*(text_ptr+18) = (minutes % 10) + 48;
-		*(text_ptr+17) = (minutes / 10) + 48;
+		*(text_ptr+23) = 's';
+		*(text_ptr+22) = (seconds % 10) + 48;
+		*(text_ptr+21) = (seconds / 10) + 48;
+		*(text_ptr+20) = ':';
+		*(text_ptr+19) = (minutes % 10) + 48;
+		*(text_ptr+18) = (minutes / 10) + 48;
 
 		// Display time to each checkpoint
 
@@ -1650,7 +1742,7 @@ MR_VOID HighScoreBuildArcadeTimeTable(MR_ULONG hiscore_table_number,MR_ULONG num
 			{
 			// Set current score digit
 //			*(text_ptr+13+count) = (score % 10) + 48;
-			*(text_ptr+7+count) = (score % 10) + 48;
+			*(text_ptr+9+count) = (score % 10) + 48;
 			// Adjust total score
 			score /= 10;
 			};
@@ -1660,11 +1752,11 @@ MR_VOID HighScoreBuildArcadeTimeTable(MR_ULONG hiscore_table_number,MR_ULONG num
 			{
 			// Leading zero ?
 //			if ( *(text_ptr+13+count) == '0' )
-			if ( *(text_ptr+7+count) == '0' )
+			if ( *(text_ptr+9+count) == '0' )
 				{
 				// Yes ... space out zero
 //				*(text_ptr+13+count) = ' ';
-				*(text_ptr+7+count) = ' ';
+				*(text_ptr+9+count) = ' ';
 				}
 			else
 				{
@@ -1700,6 +1792,7 @@ MR_VOID HighScoreBuildArcadeTimeTable(MR_ULONG hiscore_table_number,MR_ULONG num
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	04.06.97	William Bell	Created
+*	16.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1724,7 +1817,7 @@ MR_VOID HighScoreBuildRaceScoreTable(MR_ULONG hiscore_table_number,MR_ULONG num_
 		text_ptr = *Sel_hiscore_text[entry_count];
 
 		// Blank text
-		for(count = 3; count < 22; count++)
+		for(count = 3; count < 24; count++)
 			*(text_ptr+count) = ' ';
 
 		// Set initials
@@ -2178,10 +2271,12 @@ MR_VOID HSDeinitialiseWater(MR_VOID)
 *	SYNOPSIS	MR_VOID	HSInitialiseScrollyHighScore(MR_VOID)
 *
 *	FUNCTION	Initialisation for scrolly high score table.
+*	MATCH		https://decomp.me/scratch/dJwob	(By Kneesnap)
 *
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	30.06.97	William Bell	Created
+*	12.11.23	Kneesnap		Byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2197,7 +2292,7 @@ MR_VOID HSInitialiseScrollyHighScore(MR_VOID)
 
 	// Allocate memory for all matrices
 	// (1 frog, 10 numbers, 30 letters, 10 logs)
-	High_score_matrices = MRAllocMem(sizeof(MR_MAT) * (1 + 10 + 30 + 10 + HIGH_SCORE_VIEW_NUM_EXTRAS), "HS matrices");
+	High_score_matrices = MRAllocMem(sizeof(MR_MAT) * (1 + 10 + 30 + 10 + HIGH_SCORE_VIEW_NUM_EXTRAS), "HS matrices 4");
 
 	High_score_view_frog_anim_matrix_ptr 		= High_score_matrices;
 	for (k = 0; k < 10; k++)	
@@ -2275,6 +2370,8 @@ MR_VOID HSInitialiseScrollyHighScore(MR_VOID)
 	High_score_view_frog_sack_scale_matrix.m[2][2] = FROG_CROAK_MIN_SCALE;
 
 	// Attach to game viewports
+	High_score_view_frog_anim_env_ptr->ae_special_flags |= MR_ANIM_ENV_DISPLAY_LIMITED_PARTS;
+	MRAnimEnvSingleClearPartFlags(High_score_view_frog_anim_env_ptr, THROAT, MR_ANIM_ENV_NOT_ACTIVE);
 	MRAnimAddEnvToViewport(High_score_view_frog_anim_env_ptr,Option_viewport_ptr,0);
 	
 	// Use Frogs[0] to store info about frog jumping along numbers
@@ -2398,10 +2495,7 @@ MR_VOID HSInitialiseScrollyHighScore(MR_VOID)
 	HSUpdateScrollyCamera();
 	MRUpdateFrames();
 	MRUpdateViewportRenderMatrices();
-
-#ifdef EXPERIMENTAL
 	MRDisableDisplayClear();
-#endif
 }
 
 
@@ -2448,9 +2542,7 @@ MR_VOID HSDeinitialiseScrollyHighScore(MR_VOID)
 	if (Frogs[0].fr_shadow)
 		Frogs[0].fr_shadow->ef_kill_timer = 2;
 
-#ifdef EXPERIMENTAL
 	MREnableDisplayClear();
-#endif
 }
 
 
@@ -2900,6 +2992,7 @@ MR_VOID	HSUpdateFlying(MR_VOID)
 		}
 }
 
+#ifdef INCLUDE_UNUSED_FUNCTIONS
 /******************************************************************************
 *%%%% HSViewStoreStackStatus
 *------------------------------------------------------------------------------
@@ -2911,6 +3004,7 @@ MR_VOID	HSUpdateFlying(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	20.08.97	William Bell	Created
+*	12.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2944,6 +3038,7 @@ MR_VOID HSViewStoreStackStatus(MR_VOID)
 *	CHANGED		PROGRAMMER		REASON
 *	-------		----------		------
 *	20.08.97	William Bell	Created
+*	12.11.23	Kneesnap		Disabled to byte-match PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -2965,6 +3060,7 @@ MR_VOID HSViewRestoreStackStatus(MR_VOID)
 		}
 
 }
+#endif
 
 #ifdef WIN95
 #pragma warning (default : 4761)

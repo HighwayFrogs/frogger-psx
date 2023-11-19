@@ -56,17 +56,20 @@ extern	MR_LONG		script_sky_jet3[];
 extern	MR_LONG		script_sky_biplane[];
 extern	MR_LONG		script_sky_magical_popping_balloon[];
 extern	MR_LONG		script_sky_magical_popping_balloon_pop[];
+extern	MR_LONG		script_sky_cloudplatform[];
 
 //-----------------------------------------------------------------------------
 //	Prototypes
 //-----------------------------------------------------------------------------
 
+extern	MR_VOID	ScriptCBSkyHomingBird(LIVE_ENTITY* live_entity);
 extern	MR_VOID	ScriptCBSkyBird1Call(LIVE_ENTITY*);
 extern	MR_VOID	ScriptCBSkyBird2Call(LIVE_ENTITY*);
 extern	MR_VOID	ScriptCBSkyBird3Call(LIVE_ENTITY*);
 extern	MR_VOID	ScriptCBSkyBird4Call(LIVE_ENTITY*);
 extern	MR_VOID	ScriptCBSkyFrogHelicopter(LIVE_ENTITY*);
 extern	MR_VOID	ScriptCBSkyHeliumBalloon(LIVE_ENTITY*);
+extern	MR_VOID	ScriptCBSkyBalloon(LIVE_ENTITY* live_entity);
 
 
 #endif	//__ENT_SKY_H

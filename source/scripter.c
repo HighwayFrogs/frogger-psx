@@ -23,6 +23,7 @@
 #include "froganim.h"
 #include "sound.h"
 #include "froguser.h"
+#include "tempopt.h"
 
 MR_LONG		tester = 0;
 
@@ -163,10 +164,12 @@ MR_ULONG	Script_command_lengths[] =	// INCLUDING the token itself
 	1,			//ENTSCR_COLLISION
 	};
 
-//------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------ Match: https://decomp.me/scratch/WcyWg (By Kneesnap)
 MR_LONG	ENTSCR_PLAY_SOUND_command(LIVE_ENTITY* live_entity, SCRIPT_INFO* script_info, MR_LONG* script)
 {
-	MRSNDPlaySound((MR_SHORT)script[0], NULL, 0, 0);
+	if (!Game_over_no_new_sound)
+		MRSNDPlaySound((MR_SHORT)script[0], NULL, 0, 0);
+	
 	script_info->si_script = script + 1;
 	return ENTSCR_RETURN_CONTINUE;
 }
@@ -374,10 +377,10 @@ MR_LONG	ENTSCR_RETURN_PATH_command(LIVE_ENTITY* live_entity, SCRIPT_INFO* script
 }
 
 
-//------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------ Match: https://decomp.me/scratch/YJ07i (By Kneesnap)
 MR_LONG	ENTSCR_PLAY_RNDSOUND_command(LIVE_ENTITY* live_entity, SCRIPT_INFO* script_info, MR_LONG* script)
 {
-	if ( rand()%(MR_SHORT)script[1] == 1 )
+	if ( !Game_over_no_new_sound && rand()%(MR_SHORT)script[1] == 1 )
 		{
 		MRSNDPlaySound((MR_SHORT)script[0], NULL, 0, 0);
 		}
@@ -1126,7 +1129,7 @@ MR_LONG	ENTSCR_SET_ENTITY_TYPE_command(LIVE_ENTITY* live_entity, SCRIPT_INFO* sc
 	return ENTSCR_RETURN_CONTINUE;
 }
 
-//------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------ Match: https://decomp.me/scratch/m3VMU (By Kneesnap)
 MR_LONG	ENTSCR_PLAY_SOUND_DISTANCE_command(LIVE_ENTITY* live_entity, SCRIPT_INFO* script_info, MR_LONG* script)
 {
 	FROG*		frog;
@@ -1185,16 +1188,19 @@ MR_LONG	ENTSCR_PLAY_SOUND_DISTANCE_command(LIVE_ENTITY* live_entity, SCRIPT_INFO
 		}
 
 	// if closest_distance is less than our allowed distance, play required sound effect
-	if (script[0] == ENTSCR_REGISTERS)
+	if (!Game_over_no_new_sound)
 		{
-		if (script_info->si_registers[script[1]] < MR_SQRT(closest_distance))
-			MRSNDPlaySound((MR_SHORT)script_info->si_registers[script[2]], NULL, 0, 0);
-		}
-	else
-		{
-		value = MR_SQRT(closest_distance);
-		if (script[1] > MR_SQRT(closest_distance))
-			MRSNDPlaySound((MR_SHORT)script[2], NULL, 0, 0);
+		if (script[0] == ENTSCR_REGISTERS)
+			{
+			if (script_info->si_registers[script[1]] < MR_SQRT(closest_distance))
+				MRSNDPlaySound((MR_SHORT)script_info->si_registers[script[2]], NULL, 0, 0);
+			}
+		else
+			{
+			value = MR_SQRT(closest_distance);
+			if (script[1] > MR_SQRT(closest_distance))
+				MRSNDPlaySound((MR_SHORT)script[2], NULL, 0, 0);
+			}
 		}
 
 	// move to next command
@@ -1526,6 +1532,7 @@ MR_LONG	ENTSCR_POP_command(LIVE_ENTITY* live_entity, SCRIPT_INFO* script_info, M
 *	SYNOPSIS	MR_VOID	UpdateScriptInfo(LIVE_ENTITY*	live_entity)
 *
 *	FUNCTION	Handles starting and parsing of live entity scripts
+*	MATCH		https://decomp.me/scratch/7eHVw	(By Kneesnap)
 *
 *	INPUTS		live_entity	-	ptr to live entity
 *
@@ -1533,6 +1540,7 @@ MR_LONG	ENTSCR_POP_command(LIVE_ENTITY* live_entity, SCRIPT_INFO* script_info, M
 *	-------		----------		------
 *	01.05.97	Martin Kift		Created
 *	06.05.97	Martin Kift		Added support for relooping of gosub looped scripts
+*	03.11.23	Kneesnap		Byte-matched PSX Build 71. (Retail NTSC)
 *
 *%%%**************************************************************************/
 
@@ -1545,6 +1553,7 @@ MR_VOID	UpdateScriptInfo(LIVE_ENTITY *live_entity)
 	MR_LONG			cos, sin;
 	ENTSTR_STATIC*	ent_static;
 	MR_SVEC			svec;
+	MR_MAT		  matrix;
 
 	MR_ASSERT(live_entity);
 	
@@ -1684,7 +1693,8 @@ MR_VOID	UpdateScriptInfo(LIVE_ENTITY *live_entity)
 				{
 				ent_static = (ENTSTR_STATIC*)(entity + 1);
 				MR_SET_SVEC(&svec, script_info->si_x, script_info->si_y, script_info->si_z);
-				MRRotMatrix(&svec, live_entity->le_lwtrans);
+				MRRotMatrix(&svec, &matrix);
+				MRMulMatrixABC(&matrix, &ent_static->et_matrix, live_entity->le_lwtrans);
 				}
 			}
 

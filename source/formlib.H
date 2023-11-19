@@ -96,7 +96,7 @@ extern	FORM_BOOK	Form_library_des[];
 extern	FORM_BOOK	Form_library_for[];
 extern	FORM_BOOK	Form_library_jun[];
 extern	FORM_BOOK	Form_library_org[];
-extern	FORM_BOOK	Form_library_arn[];
+//extern	FORM_BOOK	Form_library_arn[];
 extern	FORM_BOOK	Form_library_swp[];
 extern	FORM_BOOK	Form_library_sky[];
 extern	FORM_BOOK	Form_library_sub[];
