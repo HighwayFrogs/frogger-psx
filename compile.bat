@@ -31,6 +31,7 @@ CALL SDK\PSPATHS.BAT
 
 :: Setup build folder.
 if not exist build md build
+if not exist build\temp md build\temp
 
 :: Setup PsyQ SDK 4.0 Binaries.
 :: DMPSX from PsyQ 4.3 is the first one I found which is win32 compatible.

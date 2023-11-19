@@ -7,7 +7,6 @@ source/*.sym
 source/*.map
 */desktop.ini
 build/
-merge/frogpsx.mwi
 *.cue
 *.bin
 

@@ -39,6 +39,7 @@ CALL SDK\PSPATHS.BAT
 
 :: Setup build folder.
 if not exist build md build
+if not exist build\temp md build\temp
 
 :: Setup DOSBox Path.
 :: A simple SET DOSBOX=C:\Program Files\......\DOSBox.exe" can go in that file.
@@ -117,6 +118,10 @@ CALL :MakeWSL MR_SPLIN TRUE
 CALL :MakeWSL MR_SPRT TRUE
 CALL :MakeWSL MR_STAT TRUE
 CALL :MakeWSL MR_VRAM TRUE
+
+ECHO.
+ECHO Compiling remaining files through makefile...
+ECHO.
 
 :: Run the dos make script through DOSBox.
 IF EXIST source\main.cpe DEL source\main.cpe
