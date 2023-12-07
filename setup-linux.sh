@@ -42,6 +42,8 @@ mv include/SYS include/sys
 for f in `find include/*.[hH]`; do mv -v "$f" "`echo $f | tr '[A-Z]' '[a-z]'`"; done
 for f in `find include/sys/*.[hH]`; do mv -v "$f" "`echo $f | tr '[A-Z]' '[a-z]'`"; done
 for f in `find source/*.[cChHsSIi]`; do mv -v "$f" "`echo $f | tr '[A-Z]' '[a-z]'`"; done
+mv include/inline_c.h include/inline_c_windows.h
+mv include/inline_c_linux.h include/inline_c.h
 
 # Go into the directory, since otherwise it will try to make 'API.SRC' lower-case too.
 cd source/API.SRC/
