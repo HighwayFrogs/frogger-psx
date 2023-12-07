@@ -23,9 +23,27 @@ None of that work is present in this backup, and not many details are know about
 This code could be ported to PC, but such an effort has not been attempted.  
 
 ## How to compile & run?
-After downloading / cloning this repository, double-click `compile.bat`.  
-It will tell you what to do, and you will need to run it again after doing what it asks.  
-By following the instructions, it will build an executable with the SHA1 hash shown above as well as a playable CD image.  
+Compilation has been verified working on Windows 10, Windows 11, and Ubuntu 22.04 LTS.  
+However, it is intended to support any Windows x86, Windows x64, or Linux x64 (or any architecture GCC can be compiled for) environments.  
+In-depth documentation of the different build systems can be found [here](/sdk/README.MD), but in order to just compile the game, refer to the following steps instead.  
+
+**Windows:**  
+ - 1) Install [git](https://git-scm.com/downloads) if you haven't already. The default settings are OK to accept.  
+ - 2) Clone this repository by running `git clone https://github.com/HighwayFrogs/frogger-psx` in a command prompt window.  
+ - 3) Follow any instructions shown by the script, re-running `compile.bat` if necessary.  
+ - 4) The script will walk you through building the source code into `source\frogger.exe`.  
+ - 5) Then, if desired, it will let you build a playable CD image at `build\Frogger.bin` and `build\Frogger.cue`.  
+
+**Linux:**  
+ - 1) Install [git](https://git-scm.com/downloads) if you haven't already. (Easy: `sudo apt-get install -y git`)  
+ - 2) Clone this repository by running `git clone https://github.com/HighwayFrogs/frogger-psx` in a terminal session.  
+ - 3) Change the active directory by running `cd frogger-psx`  
+ - 4a) If using WSL (Windows Subsystem for Linux), run `vim "./setup-linux.sh" -c "set ff=unix" -c "wq"`.  
+ - 4b) Run `sh ./setup-linux.sh`, entering local system account password for sudo if necessary.  
+ - 5) Now, every time you run `make` while in the `frogger-psx` directory, the source code will be compiled to `source/frogger.exe`.  
+ - 6) To make a playable CD image `build/Frogger.bin`, run `sh ./build-cd.sh` and follow the instructions.  
+
+**NOTE:** `frogger.exe` might sound like a .exe usable in Windows, but it only will run on the PlayStation since this is the code for the PlayStation version.  
 
 ## How is this repository organized?  
 As closely to the original organization used by the developers as possible.  
@@ -54,3 +72,5 @@ However, this is unknown. If there is somehow an owner, Highway Frogs is interes
  - [sonicdcer](https://github.com/sonicdcer) for helping create a decomp environment, and helping match functions  
  - [pixel-stuck](https://github.com/pixel-stuck), [mono21400](https://github.com/Mc-muffin), [petrie911](https://github.com/petrie911), and potentially more who helped decomp/match functions.  
  - The [PSXDev](https://psxdev.net/) community for archiving a lot of the PSX tools necessary to do something like this.  
+ - [nicolasnoble](https://github.com/nicolasnoble) for [psyq-obj-converter](https://github.com/grumpycoders/pcsx-redux/tree/main/tools/psyq-obj-parser), and other help with understanding LD scripts.  
+ - [mkst](https://github.com/mkst) for [maspsx](https://github.com/mkst/maspsx), which needed work to support building this project.  

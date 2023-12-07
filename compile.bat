@@ -37,32 +37,31 @@ if not exist build\temp md build\temp
 :: DMPSX from PsyQ 4.3 is the first one I found which is win32 compatible.
 :: GCC 2.6.3 / CC1PSX.EXE was compiled from scratch (as described in the document)
 IF EXIST sdk\bin\PSYLIB.EXE DEL sdk\bin\PSYLIB.EXE
-IF EXIST sdk\bin\cc1-psx-263 DEL sdk\bin\cc1-psx-263
 robocopy sdk\bin\SDK4.0 sdk\bin\ /NJH /NJS /NFL /NS /NC /NDL
 robocopy sdk\bin\SDK4.3 sdk\bin\ /NJH /NJS /NFL /NS /NC /NDL
-COPY sdk\bin\gcc-2.6.3\CC1PSX.EXE sdk\bin\ /Y /B
+COPY sdk\bin\gcc-2.6.3\bin\win32\CC1PSX.EXE sdk\bin\ /Y /B
 
 :: Move to the source folder.
 cd source
 
 :: Make Frogger executable.
-DEL main.cpe
+DEL frogger.cpe
 make -l -DWIN32 -N all
 
 :: Verify Frogger executable was made.
-if NOT EXIST main.cpe goto error
-if EXIST main.exe DEL main.exe
+if NOT EXIST frogger.cpe goto error
+if EXIST frogger.exe DEL frogger.exe
 
 :: Convert Frogger executable to PSX-EXE.
-cpe2exe main.cpe A 0x801ffff0
-if NOT EXIST main.exe goto error
+cpe2exe frogger.cpe A 0x801ffff0
+if NOT EXIST frogger.exe goto error
 
 :: Move back to root folder.
 cd ..\
 
 :: Show SHA1 hash
 ECHO Executable SHA1 Hash:
-certutil -hashfile source\main.exe SHA1
+certutil -hashfile source\frogger.exe SHA1
 ECHO.
 ECHO.
 

@@ -22,7 +22,6 @@ sdk/bin/dmpsx.exe
 sdk/bin/psylib.exe
 sdk/bin/psylib2.exe
 sdk/bin/psylink.exe
-sdk/bin/cc1-psx-263
 
 # Ignore certain Visual Studio files which don't belong in a git repository
 # Reference: https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
@@ -40,3 +39,9 @@ sdk/bin/src/*/[Aa][Rr][Mm]/
 sdk/bin/src/*/[Aa][Rr][Mm]64/
 sdk/bin/src/*/bld/
 sdk/bin/src/*/[Bb]in/
+
+# Ignore GCC Build
+sdk/bin/gcc-2.6.3/source/linux/build/
+
+# Ignore .LIBs in elf folder
+sdk/lib/elf/*.LIB

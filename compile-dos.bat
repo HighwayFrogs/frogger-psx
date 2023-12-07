@@ -7,7 +7,7 @@ ECHO.
 ECHO Welcome to the DOS Build Pipeline
 ECHO.
 
-:: This script can compile Frogger PSX with pipeline #2 (DOS + WSL).
+:: This script can compile Frogger PSX with pipeline #2 (DOS).
 :: It can build a byte-match of the game.
 :: However, this script is discouraged, because it takes considerable setup. It is slow, takes considerable setup, 
 :: It's also very very slow. It takes approximately 11 minutes to do a clean build on my computer, and even worse DOSBox doesn't run at full-speed if you de-select the window.
@@ -58,26 +58,6 @@ if not exist "%DOSBOX%" (
 	goto :CompileDos
 )
 
-:EnsureWSLExists
-SET USE_WSL=TRUE
-
-:: Runs wsl (Windows Subsystem for Linux), and do a nothing operation "exit with exit code 0".
-wsl.exe -- exit 0 > nul
-IF ERRORLEVEL 1 (
-	ECHO.
-	ECHO You probably wanted to run "compile.bat" instead of this file.
-	ECHO Unless you know what you are doing, exit this and run that one instead.
-	ECHO.
-	ECHO.
-	ECHO Could not run wsl.exe ^(Windows Subsystem for Linux^)
-	ECHO To build byte-matching code with the DOS pipeline, you must install WSL2.
-	ECHO If you continue, a non-matching build will be made.
-	ECHO.
-	SET USE_WSL=FALSE
-	PAUSE
-)
-
-
 :: Setup PsyQ SDK 3.5 + 4.0 DOS Binaries.
 :: DMPSX.EXE from PsyQ 4.0 is necessary to work with runtime libraries 4.0. Luckily, 4.0 ships with a DOS-compatible 16-bit DMPSX.EXE
 :: ASPSXD.EXE from PsyQ 4.0 was determined to be the correct version, fixing a nop before gte_SetGeomScreen in MR_VIEW.C. The only other version which was known to be released at the time that can compile the code is 2.34 (PsyQ 3.5/3.6)
@@ -87,44 +67,43 @@ IF ERRORLEVEL 1 (
 IF EXIST sdk\bin\PSYLIB2.EXE DEL sdk\bin\PSYLIB2.EXE
 robocopy sdk\bin\SDK3.5 sdk\bin\ /NJH /NJS /NFL /NS /NC /NDL
 robocopy sdk\bin\SDK4.0\DOS sdk\bin\ /NJH /NJS /NFL /NS /NC /NDL
-COPY sdk\bin\gcc-2.6.3\cc1-psx-263 sdk\bin\ /Y /B
 
 :: Compile files that require 2.6.3 (2.6.0 works with most files, so for now we only use 2.6.3 when we have to because of how slow it can be to wield.)
-CALL :MakeWSL ENT_DES FALSE
-CALL :MakeWSL FROG FALSE
-CALL :MakeWSL MAPVIEW FALSE
-CALL :MakeWSL MR_ANIM TRUE
-CALL :MakeWSL MR_ANIM3 TRUE
-CALL :MakeWSL MR_COLL TRUE
-CALL :MakeWSL MR_DEBUG TRUE
-CALL :MakeWSL MR_DISP TRUE
-CALL :MakeWSL MR_FILE TRUE
-CALL :MakeWSL MR_FRAME TRUE
-CALL :MakeWSL MR_FONT TRUE
-CALL :MakeWSL MR_FX TRUE
-CALL :MakeWSL MR_LIGHT TRUE
-CALL :MakeWSL MR_INPUT TRUE
-CALL :MakeWSL MR_MATH TRUE
-CALL :MakeWSL MR_MEM TRUE
-CALL :MakeWSL MR_MESH TRUE
-CALL :MakeWSL MR_MISC TRUE
-CALL :MakeWSL MR_MOF TRUE
-CALL :MakeWSL MR_OBJ TRUE
-CALL :MakeWSL MR_OT TRUE
-CALL :MakeWSL MR_PART TRUE
-CALL :MakeWSL MR_QUAT TRUE
-CALL :MakeWSL MR_SOUND TRUE
-CALL :MakeWSL MR_SPLIN TRUE
-CALL :MakeWSL MR_SPRT TRUE
-CALL :MakeWSL MR_STAT TRUE
-CALL :MakeWSL MR_VRAM TRUE
+CALL :MakeDOS ENT_DES FALSE
+CALL :MakeDOS FROG FALSE
+CALL :MakeDOS MAPVIEW FALSE
+CALL :MakeDOS MR_ANIM TRUE
+CALL :MakeDOS MR_ANIM3 TRUE
+CALL :MakeDOS MR_COLL TRUE
+CALL :MakeDOS MR_DEBUG TRUE
+CALL :MakeDOS MR_DISP TRUE
+CALL :MakeDOS MR_FILE TRUE
+CALL :MakeDOS MR_FRAME TRUE
+CALL :MakeDOS MR_FONT TRUE
+CALL :MakeDOS MR_FX TRUE
+CALL :MakeDOS MR_LIGHT TRUE
+CALL :MakeDOS MR_INPUT TRUE
+CALL :MakeDOS MR_MATH TRUE
+CALL :MakeDOS MR_MEM TRUE
+CALL :MakeDOS MR_MESH TRUE
+CALL :MakeDOS MR_MISC TRUE
+CALL :MakeDOS MR_MOF TRUE
+CALL :MakeDOS MR_OBJ TRUE
+CALL :MakeDOS MR_OT TRUE
+CALL :MakeDOS MR_PART TRUE
+CALL :MakeDOS MR_QUAT TRUE
+CALL :MakeDOS MR_SOUND TRUE
+CALL :MakeDOS MR_SPLIN TRUE
+CALL :MakeDOS MR_SPRT TRUE
+CALL :MakeDOS MR_STAT TRUE
+CALL :MakeDOS MR_VRAM TRUE
 
 ECHO.
 ECHO Compiling remaining files through makefile...
 ECHO.
 
 :: Run the dos make script through DOSBox.
-IF EXIST source\main.cpe DEL source\main.cpe
+IF EXIST source\frogger.cpe DEL source\frogger.cpe
 :DosMake
 :: The commend to run make with DOS used to be a bit simpler:
 :: "%DOSBOX%" "%~dp0sdk\dos\dosmake.bat" -noautoexec -noconsole -exit
@@ -152,19 +131,19 @@ DEL stdout.txt
 CD source
 
 :: Verify Frogger executable was made.
-if NOT EXIST main.cpe goto error
-if EXIST main.exe DEL main.exe
+if NOT EXIST frogger.cpe goto error
+if EXIST frogger.exe DEL frogger.exe
 
 :: Convert Frogger executable to PSX-EXE.
-cpe2exe main.cpe A 0x801ffff0
-if NOT EXIST main.exe goto error
+cpe2exe frogger.cpe A 0x801ffff0
+if NOT EXIST frogger.exe goto error
 
 :: Move back to root folder.
 cd ..\
 
 :: Show SHA1 hash
 ECHO Executable SHA1 Hash:
-certutil -hashfile source\main.exe SHA1
+certutil -hashfile source\frogger.exe SHA1
 ECHO.
 ECHO.
 
@@ -190,13 +169,10 @@ if errorlevel 1 goto :EOF
 
 goto done
 
-:MakeWSL
+:MakeDOS
 SET FILE_NAME=%1
 SET DOS_PATH=source\%FILE_NAME%
 SET LINUX_PATH=source/%FILE_NAME%
-
-:: Exit if WSL is not enabled.
-IF /I "%USE_WSL%"=="FALSE" EXIT /b 0
 
 :: If this is API code, update the paths accordingly.
 IF "%2"=="TRUE" (
@@ -216,49 +192,42 @@ ECHO Preprocessing %FILE_NAME%.C
  -c "MOUNT C: '%~dp0'" ^
  -c "C:" ^
  -c "CALL sdk\dos\dospaths.bat" ^
- -c "ccpsx -E -comments-c++ -c -Wunused -Wmissing-prototypes -Wuninitialized -O3 %DOS_PATH%.C -o %DOS_PATH%.P" ^
+ -c "ccpsx -E -comments-c++ -c -Wunused -Wmissing-prototypes -Wuninitialized -O3 '%DOS_PATH%.C' -o '%DOS_PATH%.P'" ^
  -c "IF ERRORLEVEL 1 PAUSE" ^
  -c "exit"
 
 IF NOT EXIST "%DOS_PATH%.P" GOTO :error
 
-:: Step 2) Replace CRLF line endings (\r\n) with LF line endings (\n) to make the preprocessed code compatibility with Linux tools.
-wsl -- awk '{ sub("\r$", ""); print }' "%LINUX_PATH%.P" > "%LINUX_PATH%-LF.P"
+:: Step 2) Compile the code.
+ECHO Compiling %FILE_NAME%.P
+sdk\bin\gcc-2.6.3\bin\win32\cc1psx.exe -quiet -version -Wunused -Wmissing-prototypes -Wuninitialized -O3 "%DOS_PATH%.P" -o "%DOS_PATH%.S"
 
-:: Step 3) Compile the code.
-ECHO Compiling %FILE_NAME%-LF.P
-wsl -- cat "%LINUX_PATH%-LF.P" ^| ./sdk/bin/cc1-psx-263 -O3 -funsigned-char -w -fpeephole -ffunction-cse -fpcc-struct-return -fcommon -fverbose-asm -msoft-float -g -quiet -mcpu=3000 -fgnu-linker -mgas -gcoff ^> "%LINUX_PATH%-LF.S"
-
-:: Step 4) Replace LF line endings (\n) back with CRLF line endings (\r\n) so Windows & DOS can use the compiler output.
-wsl -- awk '{ sub("$", "\r"); print }' "%LINUX_PATH%-LF.S" > "%LINUX_PATH%.S"
 IF NOT EXIST "%DOS_PATH%.S" GOTO :error
 DEL "%DOS_PATH%.P"
-DEL "%DOS_PATH%-LF.P"
 
-:: Step 5) Assemble & DMPSXify
+:: Step 3) Assemble & DMPSXify
 ECHO Assembling %FILE_NAME%.S
 "%DOSBOX%" -noautoexec -noconsole ^
  -c "MOUNT C: '%~dp0'" ^
  -c "C:" ^
- -c "sdk\bin\aspsx -0 -q %DOS_PATH%.S -o %DOS_PATH%.OBJ" ^
+ -c "sdk\bin\aspsx -q '%DOS_PATH%.S' -o '%DOS_PATH%.OBJ'" ^
  -c "IF ERRORLEVEL 1 PAUSE" ^
  -c "sdk\bin\dmpsx %DOS_PATH%.OBJ -b" ^
  -c "exit"
 
-:: Step 6) Create .LIB (If API)
+:: Step 4) Create .LIB (If API)
 IF "%2"=="TRUE" (
  ECHO Creating .LIB for %FILE_NAME%.OBJ
  "%DOSBOX%" -noautoexec -noconsole ^
   -c "MOUNT C: '%~dp0'" ^
   -c "C:" ^
-  -c "sdk\bin\psylib /u %DOS_PATH%.LIB %DOS_PATH%.OBJ" ^
+  -c "sdk\bin\psylib /u '%DOS_PATH%.LIB' '%DOS_PATH%.OBJ'" ^
   -c "IF ERRORLEVEL 1 PAUSE" ^
   -c "exit"
 )
 
-:: Step 7) Cleanup
+:: Step 5) Cleanup
 IF NOT EXIST "%DOS_PATH%.OBJ" GOTO :error
-DEL "%DOS_PATH%-LF.S"
 DEL "%DOS_PATH%.S"
 
 :: Success

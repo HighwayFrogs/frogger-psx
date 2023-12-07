@@ -1,0 +1,51 @@
+--- cp/g++.c	1994-10-29 11:17:44.000000000 +0000
++++ cp/g++-patched.c	2023-10-08 08:48:51.000932344 +0000
+@@ -83,12 +83,16 @@
+ extern int errno;
+ #endif
+ 
++#ifndef HAVE_STRERROR
+ extern int sys_nerr;
+ #if defined(bsd4_4) || defined(__NetBSD__)
+ extern const char *const sys_errlist[];
+ #else
+ extern char *sys_errlist[];
+ #endif
++#else /* HAVE_STERRROR */
++char *strerror ();
++#endif
+ 
+ /* Name with which this program was invoked.  */
+ static char *programname;
+@@ -209,10 +213,14 @@
+ {
+   char *s;
+ 
++#ifndef HAVE_STRERROR
+   if (errno < sys_nerr)
+     s = concat ("%s: ", sys_errlist[errno], "");
+   else
+     s = "cannot open %s";
++#else
++  s = strerror (errno);
++#endif
+   fatal (s, name);
+ }
+ 
+@@ -281,11 +289,14 @@
+ {
+   char *s;
+ 
++#ifndef HAVE_STRERROR
+   if (errno < sys_nerr)
+-    s = concat ("installation problem, cannot exec %s: ",
+-		sys_errlist[errno], "");
++    s = concat ("installation problem, cannot exec %s: ", sys_errlist[errno], "");
+   else
+     s = "installation problem, cannot exec %s";
++#else
++  s = strerror (errno);
++#endif
+   error (s, name);
+ }
+ 

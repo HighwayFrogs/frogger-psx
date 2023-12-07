@@ -1,0 +1,6 @@
+--- gcc-2.6.3/sdbout.c	1994-09-30 22:23:57.000000000 +0100
++++ gcc-2.7.1/sdbout.c	1995-06-15 13:07:11.000000000 +0100
+@@ -56,2 +57,2 @@
+-#if defined(USG) && !defined(MIPS) && !defined (hpux) && !defined(WINNT)
++#if defined(USG) && !defined(MIPS) && !defined (hpux) && !defined(_WIN32) && !defined(__linux__)
+ #include <syms.h>

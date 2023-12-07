@@ -1,0 +1,214 @@
+#//
+#// Linux Makefile for Frogger (PlayStation Version)
+#// -------------------------------------------
+#// Created by Kneesnap for Linux-compatible compilation, with GCC.
+#//
+#// Intended for use with GNU make, but may support other versions of make.
+#// This completely removes the original build toolchain (PsyQ SDK Tools) in favor of open source replacements.
+#// Incredibly, it is still capable of a byte-matching compilation. TODO: Confirm this.
+#//
+
+.SECONDEXPANSION:
+.SECONDARY:
+
+#//-------------------------------------------------------------------------------------------
+#// Directories
+
+SDK_DIR			:= sdk
+GAME_SRC_DIR	:= source
+ASM_SRC_DIR		:= $(GAME_SRC_DIR)/linux
+API_SRC_DIR		:= $(GAME_SRC_DIR)/API.SRC
+INCLUDE_DIR		:= include
+OUTPUT_BASE		:= $(GAME_SRC_DIR)/frogger.elf
+OUTPUT_ELF		:= $(OUTPUT_BASE).elf
+OUTPUT_EXE		:= $(OUTPUT_BASE).exe
+OUTPUT_MAP		:= $(OUTPUT_BASE).map
+
+#//-------------------------------------------------------------------------------------------
+#// Compiler options and flags
+
+GCC				:= sdk/bin/gcc-2.6.3/bin/linux-x64/
+INCLUDE			:= include
+CROSS			:= mipsel-linux-gnu-
+AR				:= $(CROSS)ar
+AS				:= $(CROSS)as
+LD				:= $(CROSS)ld
+OBJCOPY			:= $(CROSS)objcopy
+AS_FLAGS		+= -I$(INCLUDE) -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0
+CPP_FLAGS		+= -I$(INCLUDE) -undef -Wunused -Wmissing-prototypes -Wuninitialized -lang-c -lang-c-c++-comments
+CPP_FLAGS		+= -Dmips -D__GNUC__=2 -D__OPTIMIZE__ -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C -D__CHAR_UNSIGNED__
+
+LD_SCRIPT		:= frogger.ld
+LD_FLAGS		:= -nostdlib -G8 -T $(LD_SCRIPT) -o frogger.exe -Map frogger.map
+#LD_FLAGS		:= -nostdlib -G8 -T $(LD_SCRIPT) -o $(OUTPUT_EXE) -Map $(OUTPUT_MAP)
+
+# 'make MODERN_GCC=1'
+#ifdef MODERN_GCC
+#CC1				:= $(shell $(CROSS)gcc -print-prog-name=cc1)
+#CPP				:= $(CROSS)cpp
+#CC_FLAGS		+= -O3 -G0 -funsigned-char -w -fpeephole -ffunction-cse -fpcc-struct-return -fcommon -fverbose-asm -msoft-float -g -march=r3000 -gcoff -version -quiet
+#CC_FLAGS		+= -imultiarch mipsel-linux-gnu -mel -march=mips32r2 -mfpxx -mllsc -mno-lxc1-sxc1 -mno-madd4 -mips32r2 -mno-shared -mabi=32 -fstack-protector-strong -o /dev/stdout
+#else
+CC1				:= $(GCC)cc1
+CPP				:= $(GCC)cpp
+CC_FLAGS		+= -O3 -G8 -mgpopt -funsigned-char -w -fpeephole -ffunction-cse -fpcc-struct-return -fcommon -fverbose-asm -msoft-float -g -fgnu-linker -mgas -gcoff -quiet
+#endif
+
+#//-------------------------------------------------------------------------------------------
+#// Tooling
+
+MAKE		:= make
+PYTHON		:= python3
+MASPSX_DIR	:= $(SDK_DIR)/maspsx
+MASPSX_APP	:= $(MASPSX_DIR)/maspsx.py
+MASPSX		:= $(PYTHON) $(MASPSX_APP) --no-macro-inc -G8
+
+#//-------------------------------------------------------------------------------------------
+#// Objects
+
+GAME_OBJ_C_LIST =	main.o		sprdata.o	project.o	gamefont.o	stream.o	\
+					formlib.o	gamesys.o	mapload.o	mapdisp.o	library.o	\
+					mapview.o	camera.o	entity.o	form.o		options.o	\
+					frog.o		grid.o		path.o		zone.o		collide.o	\
+					misc.o		mapdebug.o	entlib.o	scripts.o	scripter.o	\
+					playxa.o	sound.o		memcard.o	ent_des.o	ent_swp.o	\
+					ent_sub.o	ent_sky.o	ent_org.o	ent_jun.o	ent_gen.o	\
+					ent_for.o	ent_cav.o	ent_arn.o	ent_vol.o	hud.o		\
+					score.o		froguser.o	tempopt.o	effects.o	xalist.o	\
+					select.o	model.o		hsview.o	froganim.o	hsinput.o	\
+					credits.o	loadsave.o	particle.o	water.o		pause.o
+#GAME_OBJ_C_LIST = main.o     project.o  sprdata.o  gamefont.o            \
+#                  mapload.o  mapdisp.o  gamesys.o  library.o  particle.o \
+#                  mapview.o  camera.o   entity.o   form.o     options.o  \
+#                  frog.o     grid.o     path.o     zone.o     collide.o  \
+#                  misc.o     mapdebug.o entlib.o   froguser.o scripts.o  \
+#                  sound.o    stream.o   memcard.o  ent_des.o             \
+#                  ent_vol.o  ent_swp.o  ent_sub.o  ent_sky.o  ent_org.o  \
+#                  ent_jun.o  ent_gen.o  ent_for.o  ent_arn.o  ent_cav.o  \
+#                  formlib.o  hud.o      score.o    scripter.o loadsave.o \
+#                  playxa.o   tempopt.o  effects.o  xalist.o   select.o   \
+#                  model.o    hsview.o   froganim.o hsinput.o  credits.o  \
+#                  water.o    pause.o
+
+GAME_OBJ_S_LIST = fastram.o  binaries.o mapasm.o
+
+API_OBJ_C_LIST = mr_anim.o  mr_anim2.o mr_anim3.o            mr_coll.o  \
+                 mr_debug.o mr_disp.o  mr_file.o  mr_font.o  mr_frame.o \
+                 mr_fx.o    mr_input.o mr_light.o mr_math.o  mr_mem.o   \
+                 mr_mesh.o                        mr_misc.o  mr_mof.o   \
+				 mr_obj.o   mr_ot.o    mr_over.o  mr_part.o  mr_pres.o  \
+				 mr_sound.o mr_splin.o mr_sprt.o  mr_stat.o  mr_view.o  \
+				 mr_vram.o  mr_phlf3.o mr_phlf4.o mr_quat.o
+
+API_OBJ_S_LIST = mr_m_f3.o  mr_m_f4.o  mr_m_ft3.o mr_m_ft4.o \
+                 mr_m_g3.o  mr_m_g4.o  mr_m_gt3.o mr_m_gt4.o \
+				 mr_m_e3.o  mr_m_e4.o  mr_m_ge3.o mr_m_ge4.o \
+				 mr_m_qua.o mr_m_pak.o mr_bin.o
+
+OBJECTS		+=	$(patsubst %, $(GAME_SRC_DIR)/%, $(GAME_OBJ_C_LIST))
+OBJECTS		+=	$(patsubst %, $(API_SRC_DIR)/%, $(API_OBJ_C_LIST))
+OBJECTS		+=	$(patsubst %, $(API_SRC_DIR)/%, $(API_OBJ_S_LIST))
+OBJECTS		+=	$(patsubst %, $(GAME_SRC_DIR)/%, $(GAME_OBJ_S_LIST))
+$(info Objects are $(OBJECTS))
+
+LIBRARIES	+=	$(patsubst %.o, $(API_SRC_DIR)/%.a, $(API_OBJ_C_LIST))
+LIBRARIES	+=	$(patsubst %.o, $(API_SRC_DIR)/%.a, $(API_OBJ_S_LIST))
+$(info Libraries are $(LIBRARIES))
+
+LINK_ORDER = \
+	source/main.o		source/fastram.o	source/sprdata.o	source/project.o	source/gamefont.o	\
+	source/binaries.o	source/stream.o		source/formlib.o	source/gamesys.o	source/mapload.o	\
+	source/mapdisp.o	source/library.o	source/mapview.o	source/camera.o		source/entity.o		\
+	source/form.o		source/options.o 	source/frog.o		source/grid.o		source/path.o		\
+	source/zone.o		source/collide.o	source/misc.o		source/mapdebug.o	source/entlib.o		\
+	source/scripts.o	source/scripter.o	source/playxa.o		source/sound.o		source/memcard.o	\
+	source/ent_des.o	source/ent_swp.o	source/ent_sub.o	source/ent_sky.o	source/ent_org.o	\
+	source/ent_jun.o	source/ent_gen.o	source/ent_for.o	source/ent_cav.o	source/ent_arn.o	\
+	source/ent_vol.o	source/hud.o		source/score.o		source/froguser.o	source/tempopt.o	\
+	source/effects.o	source/xalist.o		source/select.o		source/model.o		source/hsview.o		\
+	source/froganim.o	source/hsinput.o	source/credits.o	source/loadsave.o	source/mapasm.o		\
+	source/particle.o	source/water.o		source/pause.o  \
+	--start-group \
+	sdk/lib/elf/putchar.o \
+	source/API.SRC/mr_mof.a		source/API.SRC/mr_misc.a	source/API.SRC/mr_frame.a	\
+	source/API.SRC/mr_anim.a	source/API.SRC/mr_anim2.a	source/API.SRC/mr_anim3.a	\
+	source/API.SRC/mr_obj.a		source/API.SRC/mr_coll.a	source/API.SRC/mr_disp.a	\
+	source/API.SRC/mr_view.a	source/API.SRC/mr_mesh.a	source/API.SRC/mr_sprt.a	\
+	source/API.SRC/mr_light.a	source/API.SRC/mr_mem.a		source/API.SRC/mr_file.a	\
+	source/API.SRC/mr_debug.a	source/API.SRC/mr_input.a	source/API.SRC/mr_font.a	\
+	source/API.SRC/mr_quat.a	source/API.SRC/mr_fx.a		source/API.SRC/mr_pres.a	\
+	source/API.SRC/mr_part.a	source/API.SRC/mr_bin.a		source/API.SRC/mr_vram.a	\
+	source/API.SRC/mr_ot.a		source/API.SRC/mr_splin.a	source/API.SRC/mr_stat.a	\
+	source/API.SRC/mr_math.a	source/API.SRC/mr_sound.a	source/API.SRC/mr_over.a	\
+	source/API.SRC/mr_m_qua.a	source/API.SRC/mr_m_pak.a	\
+	source/API.SRC/mr_phlf3.a	source/API.SRC/mr_phlf4.a	\
+	source/API.SRC/mr_m_f3.a	source/API.SRC/mr_m_f4.a	\
+	source/API.SRC/mr_m_ft3.a	source/API.SRC/mr_m_ft4.a	\
+	source/API.SRC/mr_m_g3.a	source/API.SRC/mr_m_g4.a	\
+	source/API.SRC/mr_m_gt3.a	source/API.SRC/mr_m_gt4.a	\
+	source/API.SRC/mr_m_e3.a	source/API.SRC/mr_m_e4.a	\
+	source/API.SRC/mr_m_ge3.a	source/API.SRC/mr_m_ge4.a	\
+	sdk/lib/elf/libgte.a	\
+	sdk/lib/elf/libgpu.a	\
+	sdk/lib/elf/libetc.a	\
+	sdk/lib/elf/libapi.a	\
+	sdk/lib/elf/libsn.a		\
+	sdk/lib/elf/libc2.a		\
+	sdk/lib/elf/libspu.a	\
+	sdk/lib/elf/libsnd.a	\
+	sdk/lib/elf/libpress.a	\
+	sdk/lib/elf/libcd.a		\
+	sdk/lib/elf/libds.a		\
+	sdk/lib/elf/libcard.a	\
+	sdk/lib/elf/libmcrd.a	\
+	sdk/lib/elf/libtap.a	\
+	--end-group --noinhibit-exec
+
+#//-------------------------------------------------------------------------------------------
+#// Makefile interface routines (build all, run project, debug project)
+
+all: $(OUTPUT_EXE)
+
+$(MASPSX_APP):
+	$(error maspsx was not found! '$(MASPSX_APP)')
+
+# Build game source files
+$(GAME_SRC_DIR)/%.o: $(GAME_SRC_DIR)/%.c $(MASPSX_APP)
+	$(CPP) $(CPP_FLAGS) $< | $(CC1) $(CC_FLAGS) | $(MASPSX) | $(AS) $(AS_FLAGS) -o $@
+
+# Build game handwritten assembly files.
+$(GAME_SRC_DIR)/%.o: $(ASM_SRC_DIR)/%.s
+	$(AS) -I$(ASM_SRC_DIR) $(AS_FLAGS) -o $@ $<
+
+# Build API source files
+$(API_SRC_DIR)/%.o: $(API_SRC_DIR)/%.c $(MASPSX_APP)
+	$(CPP) $(CPP_FLAGS) $< | $(CC1) $(CC_FLAGS) | $(MASPSX) | $(AS) $(AS_FLAGS) -o $@
+
+# Build API handwritten assembly files
+$(API_SRC_DIR)/%.o: $(ASM_SRC_DIR)/%.s
+	$(AS) -I$(ASM_SRC_DIR) $(AS_FLAGS) -o $@ $<
+
+# Build API Libraries (Using libraries will cause objects which are fully unused to be skipped when linking)
+$(API_SRC_DIR)/%.a: $(API_SRC_DIR)/%.o
+	$(AR) -rs $@ $<
+
+# TODO: One option for forcing ordering of bss and sbss is using .comm to completely define the symbols for all the files in a single .S in the proper order.
+# TODO: That can be linked first, and assuming we make bss and sbss always use comm, it will use the original order?
+# TODO: Heck, that could probably be auto-generated during the make process
+# TODO: Another option is to do the same thing, but abuse .comm's ability to use a symbol if/only if it already exists, and define symbols in the proper order in a single .S file.
+
+clean:
+	rm -f $(GAME_SRC_DIR)/main.elf
+	rm -f $(GAME_SRC_DIR)/main.exe
+	rm -f $(GAME_SRC_DIR)/*.o
+	rm -f $(GAME_SRC_DIR)/*.map
+	rm -f $(API_SRC_DIR)/*.o
+	rm -f $(API_SRC_DIR)/*.a
+
+# This links the PSX EXE from all the objects & libraries.
+$(OUTPUT_EXE): $(OBJECTS) $(LIBRARIES)
+	$(info ----- Linking -----)
+	$(LD) $(LD_FLAGS) $(LINK_ORDER)
+
+# Phony
+.PHONY: all, clean

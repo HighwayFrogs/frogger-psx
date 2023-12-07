@@ -176,11 +176,17 @@ public class VramHeaderExporter extends GhidraScript {
 		StringBuilder cfgBuilder = new StringBuilder();
 		List<ImageHeader> sortedImagesByIndex = new ArrayList<>(sortedImagesByAddressOrder);
 		sortedImagesByIndex.sort(Comparator.comparingInt(image -> image.index));
+		int lastIndex = -1;
 		for (int i = 0; i < sortedImagesByIndex.size(); i++) {
 			ImageHeader header = sortedImagesByIndex.get(i);
-			if (header.hasName())
-				cfgBuilder.append(header.index).append("=").append(header.name).append('\n');
+			if (header.hasName()) {
+				if (lastIndex >= 0 && lastIndex + 1 != header.index)
+					cfgBuilder.append('\n');
 
+				cfgBuilder.append(header.index).append("=").append(header.name).append('\n');
+				lastIndex = header.index;
+			}
+			
 		}
 		
 		
@@ -266,7 +272,7 @@ public class VramHeaderExporter extends GhidraScript {
 								throw new RuntimeException("Symbol '" + prevName + "' shares the same linker hash (" + symbol.hash + ") with '" + currName + "', but it its index (" + lastImage.index + ") comes after the current one (" + currImage.index + ")");
 						} else {
 							// Hashes do not match, so ensure order in the reverse order of the hash.
-							if (currAssemblerHash > prevAssemblerHash && symbol.isImageGeneratedByUs()) // curr must be < previous, because the order is reversed.
+							if (getFullAssemblerHash(currName) > getFullAssemblerHash(prevName) && symbol.isImageGeneratedByUs()) // curr must be < previous, because the order is reversed.
 								throw new RuntimeException("Symbol '" + prevName + "' shares the same linker hash (" + symbol.hash + ") with '" + currName + "', but it its assembler hash (" + prevAssemblerHash + ") comes before the current one (" + currAssemblerHash + ")");
 						}
 					}

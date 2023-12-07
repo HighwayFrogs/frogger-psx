@@ -15,7 +15,7 @@ IF NOT EXIST "build\files" (
 )
 
 :: Ensure game executable exists.
-IF NOT EXIST "source\main.exe" (
+IF NOT EXIST "source\frogger.exe" (
 	ECHO The game has not been compiled yet. Use "compile.bat" to compile the game.
 	goto :error
 )
@@ -24,11 +24,11 @@ IF NOT EXIST "source\main.exe" (
 IF EXIST "build\files\SLUS_005.06" DEL "build\files\SLUS_005.06"
 IF EXIST "build\files\SLES_007.04" DEL "build\files\SLES_007.04"
 IF EXIST "build\files\SLPS013.99" DEL "build\files\SLPS013.99"
-if "%COUNTRY_CODE%"=="A"  copy "source\main.exe" "build\files\SLUS_005.06"
-if "%COUNTRY_CODE%"=="E"  copy "source\main.exe" "build\files\SLES_007.04"
-if "%COUNTRY_CODE%"=="J"  copy "source\main.exe" "build\files\SLPS013.99"
-copy source\main.map "build\files\frogger.map"
-copy source\main.sym "build\files\frogger.sym"
+if "%COUNTRY_CODE%"=="A"  copy "source\frogger.exe" "build\files\SLUS_005.06"
+if "%COUNTRY_CODE%"=="E"  copy "source\frogger.exe" "build\files\SLES_007.04"
+if "%COUNTRY_CODE%"=="J"  copy "source\frogger.exe" "build\files\SLPS013.99"
+if exist "source\frogger.map" copy "source\frogger.map" "build\files\frogger.map"
+if exist "source\frogger.sym" copy "source\frogger.sym" "build\files\frogger.sym"
 
 :: Create .bin/.cue CD image.
 if exist "build\Frogger.bin" del "build\Frogger.bin"

@@ -1,0 +1,68 @@
+--- gcc.c	1994-11-07 08:01:43.000000000 -0800
++++ gcc_patched.c	2023-11-30 16:56:38.952266300 -0800
+@@ -165,12 +165,20 @@
+ extern int errno;
+ #endif
+ 
++#ifndef VMS
++#ifndef HAVE_STRERROR
+ extern int sys_nerr;
+ #if defined(bsd4_4) || defined(__NetBSD__)
+ extern const char *const sys_errlist[];
+ #else
+ extern char *sys_errlist[];
+ #endif
++#else /* HAVE_STERRROR */
++char *strerror ();
++#endif
++#else /* VMS */
++char *strerror (int,...);
++#endif
+ 
+ extern int execv (), execvp ();
+ 
+@@ -4668,10 +4676,14 @@
+ {
+   char *s;
+ 
++#ifndef HAVE_STRERROR
+   if (errno < sys_nerr)
+     s = concat ("%s: ", sys_errlist[errno]);
+   else
+     s = "cannot open %s";
++#else
++  s = strerror (errno);
++#endif
+   fatal (s, name);
+ }
+ 
+@@ -4681,10 +4693,14 @@
+ {
+   char *s;
+ 
++#ifndef HAVE_STRERROR
+   if (errno < sys_nerr)
+     s = concat ("%s: ", sys_errlist[errno]);
+   else
+     s = "cannot open %s";
++#else
++  s = strerror (errno);
++#endif
+   error (s, name);
+ }
+ 
+@@ -4694,10 +4710,14 @@
+ {
+   char *s;
+ 
++#ifndef HAVE_STRERROR
+   if (errno < sys_nerr)
+     s = concat ("installation problem, cannot exec %s: ", sys_errlist[errno]);
+   else
+     s = "installation problem, cannot exec %s";
++#else
++  s = strerror (errno);
++#endif
+   error (s, name);
+ }
+ 
