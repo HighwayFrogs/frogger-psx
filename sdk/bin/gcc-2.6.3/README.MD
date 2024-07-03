@@ -1,8 +1,9 @@
 # The Compiler
-The original compiler binary was a modified version of `GCC 2.6.3` (likely `GNU C 2.6.3.SN.2 [AL 1.1, MM 40] Sony Playstation compiled by GNU C`).  
-This version has not yet surfaced online, likely because the floppy disk it was distributed on seems to be rare.  
+The original compiler binary was likely a version of `GCC 2.6.3` modified to support the Sony PlayStation (`GNU C 2.6.3.SN.2 [AL 1.1, MM 40] Sony Playstation compiled by GNU C`).  
+Originally the compiler binary wasn't available, likely because the floppy disk it was distributed on seems to be rare. But in 2024, it was shared online. (Thanks logi26/logi1700!!)  
 In order to get an accurate compilation, we of course need the same compiler as the original version.  
-This folder contains a build of `CC1PSX.EXE` which seems to be an accurate recreation of the original compiler, which runs on 32-bit Windows platforms.  
+But since the original compiler executable is a 16-bit binary, it won't run on modern Windows computers.  
+This folder contains a build of `CC1PSX.EXE` which attempts to be an accurate recreation of the original compiler with support for 32-bit Windows platforms.  
 The compilation setup in this repository will automatically grab the compiler in this folder and use it.  
 The rest of the information here is for those who want to modify the compiler or build it themselves for whatever reason.  
 In accordance with the GNU GPL v2, all source code has been included, with changes applied on October 23rd of 2023.  

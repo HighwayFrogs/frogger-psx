@@ -7,7 +7,7 @@ It is intended to be an aid when reading the `.bat` scripts created to compile t
 This folder contains the PSX SDK executables used to compile source code into something that runs on the PlayStation.  
 In other words, this folder is mostly tools created for Sony given out to game developers so they could write code for the PlayStation.  
 PsyQ is the name of this toolchain (by Psygnosis & SN Systems) for building PSX code.  
-All of the PsyQ tools were sourced from "Programmer Tool" PlayStation SDK CDs.  
+Most of the PsyQ tools were sourced from "Programmer Tool" PlayStation SDK CDs, otherwise they are specified where they came from.  
 
 ## PsyQ Version  
 Frogger was built using tools mostly from PsyQ 4.0. Luckily, this version contains both 32-bit and 16-bit versions of tools, allowing for some flexibility we'll take advantage of below.  
@@ -17,12 +17,11 @@ One notable exception which was not used from PsyQ 4.0 was the compiler.
 Frogger was compiled using DOS (Likely Windows 95), using 16-bit applications.  
 In order to build a perfect match of the original game, the original compiler must be used. Or rather, if it doesn't it gets a bit more complicated.  
 The compiler used to build Frogger (`CC1PSX.EXE`) has been identified as `GCC 2.6.3`, likely: `GNU C 2.6.3.SN.2 [AL 1.1, MM 40] Sony Playstation compiled by GNU C`.  
-Unfortunately, the floppy containing this compiler version is rare and has not been dumped online.  
-The workaround was to recreate this compiler's changes from the GCC source code as best as possible.  
+Unfortunately, the floppy containing this compiler version is rare and was not available either online or for purchase when this repository was setup.  
+The workaround was to recreate this compiler's changes and apply them to the official GCC 2.6.3 source code to the best of our abilities.  
 `CC1PSX.EXE` is GCC 2.6.3 compiled by me (Kneesnap), with information and source code available in the `gcc-2.6.3` folder.  
 `cc1-psx-263` is GCC 2.6.3 compiled for Linux from [here](https://github.com/decompals/old-gcc) by [sonicdcer](https://github.com/sonicdcer).  
-Naturally, [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) is required for the Linux build. I used `Ubuntu 22.04.2 LTS`, but pretty much anything should work.  
-If the original compiler ever surfaces, we can switch to using it in the DOSBox setup and remove WSL from the mix.  
+Luckily, the original compiler did eventually surface (Thank you logi26/logi1700!!!), but it ended up being a 16-bit executable. As such, it can only be used in the DOSBox build pipeline.  
 
 ## Runtime Libraries  
 The runtime libraries in the `lib\` folder have been copied from PsyQ 4.0, and are the version the game was originally compiled with.  
@@ -40,12 +39,6 @@ These are the steps:
 ## Two Build Pipelines
 There are build pipelines included for compiling the game. Both are similar, but contain key differences.  
 
-### WSL (Windows Subsystem for Linux)
-Because the original compiler executable is missing, a replacement was compiled [this repository](https://github.com/decompals/old-gcc) by [sonicdcer](https://github.com/sonicdcer).  
-The output of this binary is a Linux binary. It may be possible to build this for Windows, but at the time of writing this was not a priority.  
-Both build pipelines utilize [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) to run the `GCC 2.6.3 CC1 (cc1-psx-263)` C compiler.  
-Installing WSL is optional, compilers are provided (of the wrong version) for use if WSL is missing.  
-
 ### Pipeline 1) Windows (Recommended)
 This pipeline builds on Windows 10/11, and likely most earlier versions of Windows too.  
 This pipeline is recommended because it is fast, works on Windows 10/11 with 32-bit executables, and is capable of building byte-matching builds.  
@@ -53,25 +46,25 @@ This pipeline is recommended because it is fast, works on Windows 10/11 with 32-
 **Programs:**  
 ```
 PsyQ 4.0 (Official PlayStation SDK):
- - ASMPSX.EXE: Assembler for hand-written assembly (.S -> .obj, 32-Bit)
- - ASPSX.EXE: Assembler for C Compiler (cc1psx -> aspsx -> .obj, 32-Bit)
  - CCPSX.EXE: Windows Version of GCC (Runs CC1PSX, ASPSX, and CPPPSX, 32-Bit)
  - CPPPSX.EXE: GNU C Preprocessor (Preprocesses .C, 32-Bit)
- - PSYLINK.EXE: PsyQ Linker (.obj -> .cpe, 32-Bit)
+ - ASMPSX.EXE  v2.34: Assembler for hand-written assembly (.S -> .obj, 32-Bit)
+ - ASPSX.EXE   v2.56: Assembler for C Compiler (cc1psx -> aspsx -> .obj, 32-Bit)
+ - PSYLINK.EXE v2.52: PsyQ Linker (.obj -> .cpe, 32-Bit)
 
 PsyQ 4.3 (Official PlayStation SDK):
- - DMPSX.EXE: Ensures gte instructions work properly. (Post-processes .obj, 32-Bit)
- - PSYLIB2.EXE: PsyQ Library Maker (.obj -> .lib, 32-Bit)
+ - DMPSX.EXE   v3.04: Ensures gte instructions work properly. (Post-processes .obj, 32-Bit)
+ - PSYLIB2.EXE v2.05: PsyQ Library Maker (.obj -> .lib, 32-Bit)
  PsyQ 4.3 was the first known Programmer Tool CD to include a 32-bit version of these programs, so they were sourced from this CD.
 
 GCC 2.6.3 (Compiler):
  - CC1PSX.EXE: GNU C Compiler 2.6.3 modified for PSX (.C -> aspsx -> .obj, 32-bit)
 
-Borland Make:
- - MAKE.EXE: I believe this is "Borland Make" dated 1993-12-02. https://winworldpc.com/product/borland-c/40
- I used this version of make from convenience. I had it lying around from when I made the Frogger 2 PSX compilation setup.
- Unfortunately, while Borland Make works great on 32-bit systems, trying to use it in DOSBox causes will encounter segfaults, which is why we use NMAKE in the other pipeline.
+NMAKE:
+ - NMAKE.EXE: This is the actual make program, described below.
  The program 'make', for those unfamiliar is what can read a "Makefile", which is like a recipe which usually describes how to compile code.
+ In this case, nmake is the "brand" of make which was originally used in 1997 for building Frogger.
+ It was obtained from Microsoft Visual C++ 4.0, obtained from https://winworldpc.com/product/visual-c/4x
 ```
 
 ### Pipeline 2) DOS (Not recommended)
@@ -86,17 +79,24 @@ Either way don't use it for now.
 
 **Programs:**  
 ```
-PsyQ 3.5 (Official PlayStation SDK):
- - CC1PSX.EXE GNU C Compiler 2.6.0 (.C -> aspsx -> .obj, 16-Bit)
- - CCPSX.EXE: Windows Version of GCC (Runs CC1PSX, ASPSX, and CPPPSX, 16-Bit)
- - CPPPSX.EXE: GNU C Preprocessor (Preprocesses .C, 16-Bit)
-
 PsyQ 4.0 (Official PlayStation SDK):
- - ASPSXD.EXE: PsyQ Assembler for C Compiler (cc1psx -> aspsx -> .obj, 16-Bit)
- - ASMPSXD.EXE: PsyQ Assembler for hand-written assembly (.S -> .obj, 16-Bit)
- - DMPSX.EXE: Ensures gte instructions work properly. (Post-processes .obj, 16-Bit)
- - PSYLIBD.EXE: PsyQ Library Maker (.obj -> .lib, 16-Bit)
- - PSYLINKD.EXE: PsyQ Linker (.obj -> .cpe, 16-Bit)
+ - These binaries are confirmed to byte-match, and are almost certainly the binaries originally used to build the game.
+ - ASMPSXD.EXE  v2.34: PsyQ Assembler for hand-written assembly (.S -> .obj, 16-Bit)
+ - ASPSXD.EXE   v2.56: PsyQ Assembler for C Compiler (cc1psx -> aspsx -> .obj, 16-Bit)
+ - DMPSX.EXE    v3.03: Ensures gte instructions work properly. (Post-processes .obj, 16-Bit)
+ - PSYLIBD.EXE  v2.07: PsyQ Library Maker (.obj -> .lib, 16-Bit)
+ - PSYLINKD.EXE v2.52: PsyQ Linker (.obj -> .cpe, 16-Bit)
+ 
+DTL-S2110 v4.04 Floppy Disk 1 (CONFIRMED WRONG VERSIONS):
+ - ASMPSX.EXE  v1.32: Fails to assemble the original unmodified .S files, as it does not recognize certain opcodes.
+ - ASPSX.EXE   v2.21: Does not recognize the -0 option, which was confirmed added after PSX Build 49.
+ - PSYLIB.EXE  v1.07: Creates a non-matching build (compared to PSX Build 71) when used in an otherwise matching compilation setup.
+ - PSYLINK.EXE v1.42: This linker version failed to find certain symbols from the SDK libraries
+ 
+DTL-S2110 v4.04 Floppy Disk 2:
+ - CC1PSX.EXE GNU C Compiler 2.6.3 (.C -> aspsx -> .obj, 16-Bit)
+ - CCPSX.EXE: DOS Version of GCC (Runs CC1PSX, ASPSX, and CPPPSX, 16-Bit)
+ - CPPPSX.EXE: GNU C Preprocessor (Preprocesses .C, 16-Bit)
 
 NMAKE:
  - NMAKE.EXE: This is the actual make program, described below.
@@ -122,10 +122,19 @@ dumpsxiso.exe: This program extracts all of the files from a Frogger disc image,
 mkpsxiso.exe: This program creates PSX iso images using the templates created by dumpsxiso.exe.
 ```
 
-### Linux Setup?
+```
+This is a note for when the Linux version is ready.
+### WSL (Windows Subsystem for Linux)
+A Linux version of the compiler has been built from [this repository](https://github.com/decompals/old-gcc) by [sonicdcer](https://github.com/sonicdcer).  
+The Linux build pipeline can be used on Windows via [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) to run the `GCC 2.6.3 CC1 (cc1-psx-263)` C compiler.  
+Naturally, [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) is required for the Linux build. I used `Ubuntu 22.04.2 LTS`, but pretty much anything should work.  
+```
+
+## Linux Build Pipeline?
 It should be completely possible to create a working compilation setup on Linux using free software.  
 In fact, I was able to compile code, but it eventually became clear the simpler route to creating a matching setup was to use the original toolchain, especially with the original makefile, linker script, etc.  
 Perhaps in the future a complete build pipeline could be finished.  
+
 
 **Miscellaneous Potentially Useful Info:**  
 ```
