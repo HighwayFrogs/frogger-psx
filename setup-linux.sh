@@ -105,7 +105,7 @@ sed -i 's/\/\/ MRAcos_table access macros/\/\/ MRAcos_table access macros *\//g'
 ./sdk/lib/elf/tools/psyq-obj-parser ./sdk/lib/putchar.obj -o ./sdk/lib/elf/putchar.o
 
 # avoid double definition of "Option_viewport_ptr"
-sed -i ./source/select.c 's/MR_VIEWPORT/extern MR_VIEWPORT/'
+sed -i 's/MR_VIEWPORT/extern MR_VIEWPORT/' ./source/select.c
 
 # make expects the Makefile to be named Makefile (otherwise 'make -f MAKEFILE')
 mv MAKEFILE Makefile
