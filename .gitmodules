@@ -1,0 +1,3 @@
+[submodule "sdk/maspsx"]
+	path = sdk/maspsx
+	url = https://github.com/mkst/maspsx
