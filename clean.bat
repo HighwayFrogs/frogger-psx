@@ -8,7 +8,7 @@ CALL SDK\PSPATHS.BAT
 cd source
 
 :: Make Frogger executable.
-make -l -N clean
+nmake clean
 if errorlevel 1 goto error
 
 :: Move to the root folder.

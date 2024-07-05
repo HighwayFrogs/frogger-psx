@@ -55,48 +55,21 @@ if not exist "%DOSBOX%" (
 	ECHO If you do not have DOSBox, use "compile.bat" instead.
 	ECHO Otherwise, please enter the full file path to DOSBox.exe:
 	SET /P DOSBOX=
+	IF EXIST "sdk\dos\SetMyDosBoxPath.bat" DEL "sdk\dos\SetMyDosBoxPath.bat"
+	ECHO SET DOSBOX=!DOSBOX! > "sdk\dos\SetMyDosBoxPath.bat"
 	goto :CompileDos
 )
 
-:: Setup PsyQ SDK 3.5 + 4.0 DOS Binaries.
-:: DMPSX.EXE from PsyQ 4.0 is necessary to work with runtime libraries 4.0. Luckily, 4.0 ships with a DOS-compatible 16-bit DMPSX.EXE
-:: ASPSXD.EXE from PsyQ 4.0 was determined to be the correct version, fixing a nop before gte_SetGeomScreen in MR_VIEW.C. The only other version which was known to be released at the time that can compile the code is 2.34 (PsyQ 3.5/3.6)
-:: PSYLINK.EXE from PsyQ was determined by matching every symbol up to "Map_path_header. With the 3.5 linker, it was 8 bytes too early, with 4.0's linker it's just right.
-:: ASMPSX.EXE from PsyQ 4.0 is necessary because the one from 3.5 doesn't support some of the syntax in mapasm.S or the MR API MR_M_ S files. We used 4.0 instead of 3.6 since everything else seems to be 4.0.
-:: PSYLIB.EXE from PsyQ 4.0 since 3.5 worked, but everything else is 4.0.
+:: Setup PsyQ SDK DOS Binaries.
+:: DMPSX.EXE from PsyQ 4.0 is necessary to work with runtime libraries 4.0, meaning no earlier version could have been used. Luckily, 4.0 ships with a DOS-compatible 16-bit DMPSX.EXE
+:: ASPSXD.EXE from PsyQ 4.0 was determined to be the correct version, fixing a nop before gte_SetGeomScreen in MR_VIEW.C. The only other version which was known to be released at the time that can compile the code is 2.34 (PsyQ 3.5/3.6) DTL-S2110 for example, is missing the -0 option added to the makefile after Build 49.
+:: PSYLINK.EXE from PsyQ was determined by matching every symbol up to "Map_path_header. With the 3.5 linker, it was 8 bytes too early, with 4.0's linker it's just right. With DTL-S2110's linker, linking fails to find certain symbols.
+:: ASMPSX.EXE from PsyQ 4.0 is necessary because the ones from 3.5 and DTL-S2110 dont't support some of the syntax in mapasm.S or the MR API MR_M_ S files. We used 4.0 instead of 3.6 since everything else seems to be 4.0.
+:: PSYLIB.EXE from PsyQ 4.0 since 3.5 worked, but everything else is 4.0, so the original was probably also 4.0. (PSYLIB.EXE from DTL-S2110 produced an executable which differed from the retail version)
 IF EXIST sdk\bin\PSYLIB2.EXE DEL sdk\bin\PSYLIB2.EXE
-robocopy sdk\bin\SDK3.5 sdk\bin\ /NJH /NJS /NFL /NS /NC /NDL
+robocopy sdk\bin\DTL-S2110 sdk\bin\ /NJH /NJS /NFL /NS /NC /NDL
 robocopy sdk\bin\SDK4.0\DOS sdk\bin\ /NJH /NJS /NFL /NS /NC /NDL
-
-:: Compile files that require 2.6.3 (2.6.0 works with most files, so for now we only use 2.6.3 when we have to because of how slow it can be to wield.)
-CALL :MakeDOS ENT_DES FALSE
-CALL :MakeDOS FROG FALSE
-CALL :MakeDOS MAPVIEW FALSE
-CALL :MakeDOS MR_ANIM TRUE
-CALL :MakeDOS MR_ANIM3 TRUE
-CALL :MakeDOS MR_COLL TRUE
-CALL :MakeDOS MR_DEBUG TRUE
-CALL :MakeDOS MR_DISP TRUE
-CALL :MakeDOS MR_FILE TRUE
-CALL :MakeDOS MR_FRAME TRUE
-CALL :MakeDOS MR_FONT TRUE
-CALL :MakeDOS MR_FX TRUE
-CALL :MakeDOS MR_LIGHT TRUE
-CALL :MakeDOS MR_INPUT TRUE
-CALL :MakeDOS MR_MATH TRUE
-CALL :MakeDOS MR_MEM TRUE
-CALL :MakeDOS MR_MESH TRUE
-CALL :MakeDOS MR_MISC TRUE
-CALL :MakeDOS MR_MOF TRUE
-CALL :MakeDOS MR_OBJ TRUE
-CALL :MakeDOS MR_OT TRUE
-CALL :MakeDOS MR_PART TRUE
-CALL :MakeDOS MR_QUAT TRUE
-CALL :MakeDOS MR_SOUND TRUE
-CALL :MakeDOS MR_SPLIN TRUE
-CALL :MakeDOS MR_SPRT TRUE
-CALL :MakeDOS MR_STAT TRUE
-CALL :MakeDOS MR_VRAM TRUE
+IF EXIST sdk\bin\COPYING DEL sdk\bin\COPYING
 
 ECHO.
 ECHO Compiling remaining files through makefile...
@@ -168,70 +141,6 @@ CALL buildcd.bat
 if errorlevel 1 goto :EOF
 
 goto done
-
-:MakeDOS
-SET FILE_NAME=%1
-SET DOS_PATH=source\%FILE_NAME%
-SET LINUX_PATH=source/%FILE_NAME%
-
-:: If this is API code, update the paths accordingly.
-IF "%2"=="TRUE" (
-	SET DOS_PATH=source\API.SRC\%FILE_NAME%
-	SET LINUX_PATH=source/API.SRC/%FILE_NAME%
-)
-
-:: Return if the obj already exists and was modified more recently than the source file.
-IF EXIST "%DOS_PATH%.OBJ" (
-	FOR /F %%i IN ('DIR /B /O:D "%DOS_PATH%.C" "%DOS_PATH%.OBJ"') DO SET NEWER_FILE=%%i
-	IF /I "!NEWER_FILE!"=="%FILE_NAME%.OBJ" EXIT /b 0
-)
-
-:: Step 1) Preprocess
-ECHO Preprocessing %FILE_NAME%.C
-"%DOSBOX%" -noautoexec -noconsole ^
- -c "MOUNT C: '%~dp0'" ^
- -c "C:" ^
- -c "CALL sdk\dos\dospaths.bat" ^
- -c "ccpsx -E -comments-c++ -c -Wunused -Wmissing-prototypes -Wuninitialized -O3 '%DOS_PATH%.C' -o '%DOS_PATH%.P'" ^
- -c "IF ERRORLEVEL 1 PAUSE" ^
- -c "exit"
-
-IF NOT EXIST "%DOS_PATH%.P" GOTO :error
-
-:: Step 2) Compile the code.
-ECHO Compiling %FILE_NAME%.P
-sdk\bin\gcc-2.6.3\bin\win32\cc1psx.exe -quiet -version -Wunused -Wmissing-prototypes -Wuninitialized -O3 "%DOS_PATH%.P" -o "%DOS_PATH%.S"
-
-IF NOT EXIST "%DOS_PATH%.S" GOTO :error
-DEL "%DOS_PATH%.P"
-
-:: Step 3) Assemble & DMPSXify
-ECHO Assembling %FILE_NAME%.S
-"%DOSBOX%" -noautoexec -noconsole ^
- -c "MOUNT C: '%~dp0'" ^
- -c "C:" ^
- -c "sdk\bin\aspsx -q '%DOS_PATH%.S' -o '%DOS_PATH%.OBJ'" ^
- -c "IF ERRORLEVEL 1 PAUSE" ^
- -c "sdk\bin\dmpsx %DOS_PATH%.OBJ -b" ^
- -c "exit"
-
-:: Step 4) Create .LIB (If API)
-IF "%2"=="TRUE" (
- ECHO Creating .LIB for %FILE_NAME%.OBJ
- "%DOSBOX%" -noautoexec -noconsole ^
-  -c "MOUNT C: '%~dp0'" ^
-  -c "C:" ^
-  -c "sdk\bin\psylib /u '%DOS_PATH%.LIB' '%DOS_PATH%.OBJ'" ^
-  -c "IF ERRORLEVEL 1 PAUSE" ^
-  -c "exit"
-)
-
-:: Step 5) Cleanup
-IF NOT EXIST "%DOS_PATH%.OBJ" GOTO :error
-DEL "%DOS_PATH%.S"
-
-:: Success
-exit /b 0
 
 :error
 echo *** There Were Errors ***

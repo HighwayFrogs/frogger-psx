@@ -23,6 +23,10 @@ sdk/bin/psylib.exe
 sdk/bin/psylib2.exe
 sdk/bin/psylink.exe
 
+# Part of the DOS Build Pipeline
+stderr.txt
+stdout.txt
+
 # Ignore certain Visual Studio files which don't belong in a git repository
 # Reference: https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 sdk/bin/src/*/*.user

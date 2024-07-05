@@ -46,7 +46,9 @@ cd source
 
 :: Make Frogger executable.
 DEL frogger.cpe
-make -l -DWIN32 -N all
+:: make -l -DWIN32 -N all
+:: Borland Make seems to fail on Windows 11 on a pretty much fresh install. It's probably path related soooo, we're just gonna use real nmake, no reason why not to at this point.
+nmake WIN32= all
 
 :: Verify Frogger executable was made.
 if NOT EXIST frogger.cpe goto error
