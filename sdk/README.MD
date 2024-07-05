@@ -117,7 +117,7 @@ NMAKE:
 At the time of writing, Windows is capable of running 32 bit applications, but there is no guarantee how long this support will last.  
 While it is possible to use DOSBox or Wine on Linux to build the game, a native open source build toolchain still has its benefits.  
 Given how much work was already done (compiling custom GCC, using a Linux decompilation toolchain, etc), there wasn't much work left to make a full Linux build pipeline.  
-In order to use the Linux pipeline, run `sh setup-linux.sh` in the repository root. Then, running `make` should build the game.  
+In order to use the Linux pipeline, run `./setup-linux.sh` in the repository root. Then, running `make` should build the game.  
 
 **Programs:**  
 ```

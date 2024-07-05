@@ -39,9 +39,9 @@ In-depth documentation of the different build systems can be found [here](/sdk/R
  - 2) Clone this repository by running `git clone https://github.com/HighwayFrogs/frogger-psx` in a terminal session.  
  - 3) Change the active directory by running `cd frogger-psx`  
  - 4a) If using WSL (Windows Subsystem for Linux), run `vim "./setup-linux.sh" -c "set ff=unix" -c "wq"`.  
- - 4b) Run `sh ./setup-linux.sh`, entering local system account password for sudo if necessary.  
+ - 4b) Run `./setup-linux.sh`, entering local system account password for sudo if necessary.  
  - 5) Now, every time you run `make` while in the `frogger-psx` directory, the source code will be compiled to `source/frogger.exe`.  
- - 6) To make a playable CD image `build/Frogger.bin`, run `sh ./build-cd.sh` and follow the instructions.  
+ - 6) To make a playable CD image `build/Frogger.bin`, run `./build-cd.sh` and follow the instructions.  
 
 **NOTE:** `frogger.exe` might sound like a .exe usable in Windows, but it only will run on the PlayStation since this is the code for the PlayStation version.  
 
