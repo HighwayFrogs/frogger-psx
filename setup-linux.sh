@@ -127,7 +127,6 @@ chmod +x sdk/bin/gcc-2.6.3/bin/linux-x64/cpp
 # 8) Replace file paths that use backslashes with forward slashes.
 echo ""
 echo "Updating source files..."
-sed -i 's/MR_VIEWPORT/extern MR_VIEWPORT/' ./source/select.c # avoid double definition of "Option_viewport_ptr"
 sed -i 's/..\\merge\\frogpsx.h/..\/merge\/frogpsx.h/g' source/sound.c
 sed -i 's/..\\vlo\\frogvram.c/..\/vlo\/frogvram.c/g' source/sprdata.c
 sed -i 's/..\\vlo\\frogvram.h/..\/vlo\/frogvram.h/g' source/sprdata.h
@@ -139,6 +138,11 @@ sed -i 's/..\\system.h/..\/system.h/g' source/API.SRC/mr_sys.h
 sed -i 's/\/\/ Special GTE load\/save macros (not found in the normal PlayStation header files/\/* Special GTE load\/save macros (not found in the normal PlayStation header files/g' source/API.SRC/mr_sys.h
 sed -i 's/\/\/ MRAcos_table access macros/\/\/ MRAcos_table access macros *\//g' source/API.SRC/mr_sys.h
 
+# Avoid double definition of "Option_viewport_ptr". (Disabled)
+# This is disabled since it seems this actually does compile/link somehow.
+# We want to keep the duplicate definition since it impacts the instructions used to access Option_viewport_ptr in select.c (It will use $gp relative addressing with the double declaration, but it won't without it)
+# My guess for why I originally thought I needed this is that maspsx supported very few of the scenarios we needed for Frogger when I wrote this, and maspsx might not have output assembly which allowed the same symbol declared in two objects.
+#sed -i 's/MR_VIEWPORT\*\tOption_viewport_ptr;/\/\/MR_VIEWPORT*\tOption_viewport_ptr;/g' source/select.c TODO: Maybe extern it instead? Wrap it around an ifdef so it only happens for certain stuff? Dunno.
 
 # 9) Misc Changes
 # convert objects

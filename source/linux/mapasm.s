@@ -69,7 +69,7 @@
 #	s8	-	Map_vertices
 
 # Handwritten function
-func MapRenderQuadsASM
+glabel MapRenderQuadsASM
 	addiu      $sp, $sp, -0x60  # Create a stack frame
 	sw         $s0, 0x10($sp)   # Save registers on the stack
 	sw         $s1, 0x14($sp)
@@ -528,7 +528,7 @@ func MapRenderQuadsASM
 .set noreorder /* dont insert nops after branches */
 
 # Handwritten function
-func MapRenderTrisASM
+glabel MapRenderTrisASM
 	addiu      $sp, $sp, -0x60
 	sw         $s0, 0x10($sp)
 	sw         $s1, 0x14($sp)

@@ -19,7 +19,7 @@ GAME_SRC_DIR	:= source
 ASM_SRC_DIR		:= $(GAME_SRC_DIR)/linux
 API_SRC_DIR		:= $(GAME_SRC_DIR)/API.SRC
 INCLUDE_DIR		:= include
-OUTPUT_BASE		:= $(GAME_SRC_DIR)/frogger.elf
+OUTPUT_BASE		:= $(GAME_SRC_DIR)/frogger
 OUTPUT_ELF		:= $(OUTPUT_BASE).elf
 OUTPUT_EXE		:= $(OUTPUT_BASE).exe
 OUTPUT_MAP		:= $(OUTPUT_BASE).map
@@ -40,7 +40,7 @@ CPP_FLAGS		+= -Dmips -D__GNUC__=2 -D__OPTIMIZE__ -D__mips__ -D__mips -Dpsx -D__p
 
 LD_SCRIPT		:= frogger.ld
 LD_FLAGS		:= -nostdlib -G8 -T $(LD_SCRIPT) -o frogger.exe -Map frogger.map
-#LD_FLAGS		:= -nostdlib -G8 -T $(LD_SCRIPT) -o $(OUTPUT_EXE) -Map $(OUTPUT_MAP)
+#LD_FLAGS		:= -nostdlib -G8 -T $(LD_SCRIPT) -o $(OUTPUT_EXE) -Map $(OUTPUT_MAP) # TODO: ENABLE
 
 # 'make MODERN_GCC=1'
 #ifdef MODERN_GCC
@@ -61,7 +61,7 @@ MAKE		:= make
 PYTHON		:= python3
 MASPSX_DIR	:= $(SDK_DIR)/maspsx
 MASPSX_APP	:= $(MASPSX_DIR)/maspsx.py
-MASPSX		:= $(PYTHON) $(MASPSX_APP) --no-macro-inc -G8
+MASPSX		:= $(PYTHON) $(MASPSX_APP) --aspsx-version=2.56 --dont-force-G0 -G8
 
 #//-------------------------------------------------------------------------------------------
 #// Objects
@@ -77,18 +77,6 @@ GAME_OBJ_C_LIST =	main.o		sprdata.o	project.o	gamefont.o	stream.o	\
 					score.o		froguser.o	tempopt.o	effects.o	xalist.o	\
 					select.o	model.o		hsview.o	froganim.o	hsinput.o	\
 					credits.o	loadsave.o	particle.o	water.o		pause.o
-#GAME_OBJ_C_LIST = main.o     project.o  sprdata.o  gamefont.o            \
-#                  mapload.o  mapdisp.o  gamesys.o  library.o  particle.o \
-#                  mapview.o  camera.o   entity.o   form.o     options.o  \
-#                  frog.o     grid.o     path.o     zone.o     collide.o  \
-#                  misc.o     mapdebug.o entlib.o   froguser.o scripts.o  \
-#                  sound.o    stream.o   memcard.o  ent_des.o             \
-#                  ent_vol.o  ent_swp.o  ent_sub.o  ent_sky.o  ent_org.o  \
-#                  ent_jun.o  ent_gen.o  ent_for.o  ent_arn.o  ent_cav.o  \
-#                  formlib.o  hud.o      score.o    scripter.o loadsave.o \
-#                  playxa.o   tempopt.o  effects.o  xalist.o   select.o   \
-#                  model.o    hsview.o   froganim.o hsinput.o  credits.o  \
-#                  water.o    pause.o
 
 GAME_OBJ_S_LIST = fastram.o  binaries.o mapasm.o
 
@@ -198,12 +186,12 @@ $(API_SRC_DIR)/%.a: $(API_SRC_DIR)/%.o
 # TODO: Another option is to do the same thing, but abuse .comm's ability to use a symbol if/only if it already exists, and define symbols in the proper order in a single .S file.
 
 clean:
-	rm -f $(GAME_SRC_DIR)/main.elf
-	rm -f $(GAME_SRC_DIR)/main.exe
-	rm -f $(GAME_SRC_DIR)/*.o
-	rm -f $(GAME_SRC_DIR)/*.map
-	rm -f $(API_SRC_DIR)/*.o
-	rm -f $(API_SRC_DIR)/*.a
+	rm -f -- $(OUTPUT_ELF)
+	rm -f -- $(OUTPUT_EXE)
+	rm -f -- $(OUTPUT_MAP)
+	rm -f -- $(GAME_SRC_DIR)/*.o
+	rm -f -- $(API_SRC_DIR)/*.o
+	rm -f -- $(API_SRC_DIR)/*.a
 
 # This links the PSX EXE from all the objects & libraries.
 $(OUTPUT_EXE): $(OBJECTS) $(LIBRARIES)
