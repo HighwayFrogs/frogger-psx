@@ -145,43 +145,8 @@ sed -i 's/\/\/ MRAcos_table access macros/\/\/ MRAcos_table access macros *\//g'
 #sed -i 's/MR_VIEWPORT\*\tOption_viewport_ptr;/\/\/MR_VIEWPORT*\tOption_viewport_ptr;/g' source/select.c TODO: Maybe extern it instead? Wrap it around an ifdef so it only happens for certain stuff? Dunno.
 
 # 9) Misc Changes
-# convert objects
-./sdk/lib/elf/tools/psyq-obj-parser ./sdk/lib/putchar.obj -o ./sdk/lib/elf/putchar.o
-
 # make expects the Makefile to be named Makefile (otherwise 'make -f MAKEFILE')
 mv MAKEFILE Makefile
 
-#sdk/bin/gcc-2.6.3/bin/linux-x64/cpp -Iinclude -undef -D__GNUC__=2 -v -Wunused -Wmissing-prototypes -Wuninitialized -D__OPTIMIZE__ -lang-c -lang-c-c++-comments -Dmips -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D__EXTENSIONS__ -D_MIPSEL -D__CHAR_UNSIGNED__ -D_LANGUAGE_C -DLANGUAGE_C source/frog.c > source/frog-preproc.c
-#cat source/frog-preproc.c | sdk/bin/gcc-2.6.3/bin/linux-x64/cc1 -O3 -G0 -funsigned-char -w -fpeephole -ffunction-cse -fpcc-struct-return -fcommon -fgnu-linker -mgas -msoft-float -fverbose-asm -g -quiet -mcpu=3000 -gcoff -o source/frog-1.s
-#cat source/frog-1.s | python3 sdk/maspsx/maspsx.py --no-macro-inc > source/frog-2.s
-#mipsel-linux-gnu-as -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 -o source/frog.o source/frog-2.s
-
+echo ""
 echo "Setup complete, it should now be possible to build the game by running 'make'."
-
-#mipsel-linux-gnu-ld -nostdlib --no-check-sections -o Frogger.elf \
-#	source/main.o  source/project.o  source/sprdata.o  source/gamefont.o  source/mapload.o  source/mapdisp.o  source/gamesys.o  source/library.o  source/particle.o \
-#    source/mapview.o  source/camera.o  source/entity.o  source/form.o  source/options.o  source/frog.o  source/grid.o  source/path.o  source/zone.o  source/collide.o  source/misc.o \
-#	source/mapdebug.o  source/entlib.o  source/froguser.o  source/scripts.o  source/sound.o  source/stream.o  source/memcard.o  source/ent_des.o  source/ent_vol.o  source/ent_swp.o  \
-#	source/ent_sub.o  source/ent_sky.o  source/ent_org.o  source/ent_jun.o  source/ent_gen.o  source/ent_for.o  source/ent_arn.o  source/ent_cav.o  source/formlib.o  source/hud.o  \
-#	source/score.o  source/scripter.o  source/loadsave.o  source/playxa.o  source/tempopt.o  source/effects.o  source/xalist.o  source/select.o  source/model.o  source/hsview.o  \
-#	source/froganim.o  source/hsinput.o  source/credits.o  source/water.o  source/pause.o  \
-#	--start-group \
-#	sdk/lib-elf/libgte.a sdk/lib-elf/libgpu.a sdk/lib-elf/libetc.a sdk/lib-elf/libapi.a sdk/lib-elf/libsn.a sdk/lib-elf/libc2.a sdk/lib-elf/libspu.a \
-#	sdk/lib-elf/libsnd.a sdk/lib-elf/libpress.a sdk/lib-elf/libcd.a sdk/lib-elf/libds.a sdk/lib-elf/libcard.a sdk/lib-elf/libmcrd.a sdk/lib-elf/libtap.a \
-#	source/API.SRC/mr_mof.o  source/API.SRC/mr_misc.o  source/API.SRC/mr_frame.o  \
-#	source/API.SRC/mr_anim.o  source/API.SRC/mr_anim2.o  source/API.SRC/mr_anim3.o  \
-#	source/API.SRC/mr_obj.o  source/API.SRC/mr_coll.o  source/API.SRC/mr_disp.o  \
-#	source/API.SRC/mr_view.o  source/API.SRC/mr_mesh.o  source/API.SRC/mr_sprt.o  \
-#	source/API.SRC/mr_light.o  source/API.SRC/mr_mem.o  source/API.SRC/mr_file.o  \
-#	source/API.SRC/mr_debug.o  source/API.SRC/mr_input.o  source/API.SRC/mr_font.o  \
-#	source/API.SRC/mr_quat.o  source/API.SRC/mr_fx.o  source/API.SRC/mr_pres.o  \
-#	source/API.SRC/mr_part.o  source/API.SRC/mr_bin.o  source/API.SRC/mr_vram.o  \
-#	source/API.SRC/mr_ot.o  source/API.SRC/mr_splin.o  source/API.SRC/mr_stat.o  \
-#	source/API.SRC/mr_math.o  source/API.SRC/mr_sound.o  source/API.SRC/mr_over.o  \
-#	source/API.SRC/mr_m_qua.o  source/API.SRC/mr_m_pak.o  \
-#	source/API.SRC/mr_phlf3.o  source/API.SRC/mr_phlf4.o  \
-#	source/API.SRC/mr_m_f3.o  source/API.SRC/mr_m_f4.o  source/API.SRC/mr_m_ft3.o  source/API.SRC/mr_m_ft4.o  \
-#	source/API.SRC/mr_m_g3.o  source/API.SRC/mr_m_g4.o  source/API.SRC/mr_m_gt3.o  source/API.SRC/mr_m_gt4.o  \
-#	source/API.SRC/mr_m_e3.o  source/API.SRC/mr_m_e4.o  source/API.SRC/mr_m_ge3.o  source/API.SRC/mr_m_ge4.o  \
-#	--end-group \
-#	source/fastram.o  source/binaries.o  source/mapasm.o
