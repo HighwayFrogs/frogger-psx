@@ -61,7 +61,7 @@ MAKE		:= make
 PYTHON		:= python3
 MASPSX_DIR	:= $(SDK_DIR)/maspsx
 MASPSX_APP	:= $(MASPSX_DIR)/maspsx.py
-MASPSX		:= $(PYTHON) $(MASPSX_APP) --aspsx-version=2.56 --dont-force-G0 -G8
+MASPSX		:= $(PYTHON) $(MASPSX_APP) --aspsx-version=2.56 --dont-force-G0 -G8 --use-comm-section
 
 #//-------------------------------------------------------------------------------------------
 #// Objects
@@ -97,11 +97,11 @@ OBJECTS		+=	$(patsubst %, $(GAME_SRC_DIR)/%, $(GAME_OBJ_C_LIST))
 OBJECTS		+=	$(patsubst %, $(API_SRC_DIR)/%, $(API_OBJ_C_LIST))
 OBJECTS		+=	$(patsubst %, $(API_SRC_DIR)/%, $(API_OBJ_S_LIST))
 OBJECTS		+=	$(patsubst %, $(GAME_SRC_DIR)/%, $(GAME_OBJ_S_LIST))
-$(info Objects are $(OBJECTS))
+#$(info Objects are $(OBJECTS))
 
 LIBRARIES	+=	$(patsubst %.o, $(API_SRC_DIR)/%.a, $(API_OBJ_C_LIST))
 LIBRARIES	+=	$(patsubst %.o, $(API_SRC_DIR)/%.a, $(API_OBJ_S_LIST))
-$(info Libraries are $(LIBRARIES))
+#$(info Libraries are $(LIBRARIES))
 
 LINK_ORDER = \
 	source/main.o		source/fastram.o	source/sprdata.o	source/project.o	source/gamefont.o	\
@@ -116,7 +116,6 @@ LINK_ORDER = \
 	source/effects.o	source/xalist.o		source/select.o		source/model.o		source/hsview.o		\
 	source/froganim.o	source/hsinput.o	source/credits.o	source/loadsave.o	source/mapasm.o		\
 	source/particle.o	source/water.o		source/pause.o  \
-	--start-group \
 	sdk/lib/elf/putchar.o \
 	source/API.SRC/mr_mof.a		source/API.SRC/mr_misc.a	source/API.SRC/mr_frame.a	\
 	source/API.SRC/mr_anim.a	source/API.SRC/mr_anim2.a	source/API.SRC/mr_anim3.a	\
@@ -124,11 +123,11 @@ LINK_ORDER = \
 	source/API.SRC/mr_view.a	source/API.SRC/mr_mesh.a	source/API.SRC/mr_sprt.a	\
 	source/API.SRC/mr_light.a	source/API.SRC/mr_mem.a		source/API.SRC/mr_file.a	\
 	source/API.SRC/mr_debug.a	source/API.SRC/mr_input.a	source/API.SRC/mr_font.a	\
-	source/API.SRC/mr_quat.a	source/API.SRC/mr_fx.a		source/API.SRC/mr_pres.a	\
+	source/API.SRC/mr_fx.a		source/API.SRC/mr_pres.a	\
 	source/API.SRC/mr_part.a	source/API.SRC/mr_bin.a		source/API.SRC/mr_vram.a	\
 	source/API.SRC/mr_ot.a		source/API.SRC/mr_splin.a	source/API.SRC/mr_stat.a	\
 	source/API.SRC/mr_math.a	source/API.SRC/mr_sound.a	source/API.SRC/mr_over.a	\
-	source/API.SRC/mr_m_qua.a	source/API.SRC/mr_m_pak.a	\
+	source/API.SRC/mr_m_qua.a	source/API.SRC/mr_quat.a	source/API.SRC/mr_m_pak.a	\
 	source/API.SRC/mr_phlf3.a	source/API.SRC/mr_phlf4.a	\
 	source/API.SRC/mr_m_f3.a	source/API.SRC/mr_m_f4.a	\
 	source/API.SRC/mr_m_ft3.a	source/API.SRC/mr_m_ft4.a	\
@@ -136,6 +135,7 @@ LINK_ORDER = \
 	source/API.SRC/mr_m_gt3.a	source/API.SRC/mr_m_gt4.a	\
 	source/API.SRC/mr_m_e3.a	source/API.SRC/mr_m_e4.a	\
 	source/API.SRC/mr_m_ge3.a	source/API.SRC/mr_m_ge4.a	\
+	--no-gc-sections --start-group \
 	sdk/lib/elf/libgte.a	\
 	sdk/lib/elf/libgpu.a	\
 	sdk/lib/elf/libetc.a	\
@@ -150,7 +150,13 @@ LINK_ORDER = \
 	sdk/lib/elf/libcard.a	\
 	sdk/lib/elf/libmcrd.a	\
 	sdk/lib/elf/libtap.a	\
-	--end-group --noinhibit-exec
+	--end-group
+
+# TODO: Figure out function and object ordering.
+# TODO: One option for forcing ordering of bss and sbss is using .comm to completely define the symbols for all the files in a single .S in the proper order.
+# TODO: That can be linked first, and assuming we make bss and sbss always use comm, it will use the original order?
+# TODO: Heck, that could probably be auto-generated during the make process
+# TODO: Another option is to do the same thing, but abuse .comm's ability to use a symbol if/only if it already exists, and define symbols in the proper order in a single .S file.
 
 #//-------------------------------------------------------------------------------------------
 #// Makefile interface routines (build all, run project, debug project)
@@ -179,11 +185,6 @@ $(API_SRC_DIR)/%.o: $(ASM_SRC_DIR)/%.s
 # Build API Libraries (Using libraries will cause objects which are fully unused to be skipped when linking)
 $(API_SRC_DIR)/%.a: $(API_SRC_DIR)/%.o
 	$(AR) -rs $@ $<
-
-# TODO: One option for forcing ordering of bss and sbss is using .comm to completely define the symbols for all the files in a single .S in the proper order.
-# TODO: That can be linked first, and assuming we make bss and sbss always use comm, it will use the original order?
-# TODO: Heck, that could probably be auto-generated during the make process
-# TODO: Another option is to do the same thing, but abuse .comm's ability to use a symbol if/only if it already exists, and define symbols in the proper order in a single .S file.
 
 clean:
 	rm -f -- $(OUTPUT_ELF)

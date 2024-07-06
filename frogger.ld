@@ -164,72 +164,39 @@ SECTIONS {
     .rodata : SUBALIGN(4) {
         *(.rodata .rodata.* .rdata .rdata.* .gnu.linkonce.r.*)
         . = ALIGN(16);
-        __preinit_array_start = .;
-        KEEP (*(.preinit_array))
-        __preinit_array_end = .;
-
-        . = ALIGN(16);
-        __init_array_start = .;
-        KEEP (*(SORT(.init_array.*)))
-        KEEP (*(.init_array))
-
-        . = ALIGN(16);
-        KEEP (*crtbegin.o(.ctors))
-        KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
-        KEEP (*(SORT(.ctors.*)))
-        KEEP (*crtend.o(.ctors))
-        __init_array_end = .;
-
-        . = ALIGN(16);
-        __fini_array_start = .;
-        KEEP (*(.fini_array))
-        KEEP (*(SORT(.fini_array.*)))
-
-        KEEP (*crtbegin.o(.dtors))
-        KEEP (*(EXCLUDE_FILE (*crtend.o) .dtors))
-        KEEP (*(SORT(.dtors.*)))
-        KEEP (*crtend.o(.dtors))
-        __fini_array_end = .;
-        __build_id = .;
-        *(.note.gnu.build-id)
-        __build_id_end = .;
     } > ram
 
     . = ALIGN(16);
     __data_start = .;
     .data ALIGN(16) : SUBALIGN(4) {
         KEEP (*(.data .data.* .gnu.linkonce.d.*))
-        KEEP (*(.data1))
     } > ram
     __data_end = .;
 
-    . = ALIGN(16);
     __sdata_start = .;
-    .sdata ALIGN(16) : SUBALIGN(4) {
+    .sdata : SUBALIGN(4) {
         KEEP (*(.sdata .sdata.* .gnu.linkonce.s.*))
-        KEEP (*(.sdata2 .sdata2.* .gnu.linkonce.s2.*))
-        KEEP (*(.got.plt))
-        KEEP (*(.got))
         /* pad file to be a multiple of 2048 bytes.  Needed for loading from CD-ROM. */
+        __sdata_end = .;
         . = ALIGN(2048);
     } > ram
-    __sdata_end = .;
     __fdata_end = .;
 
-    . = ALIGN(16);
+    . = __sdata_end;
+    . = ALIGN(8);
     __fbss_start = .;
     __sbss_start = .;
-    .sbss (NOLOAD) : SUBALIGN(4) {
+    .sbss ALIGN(1) (NOLOAD) : SUBALIGN(8) {
         *(.dynsbss)
         *(.sbss .sbss.* .gnu.linkonce.sb.*)
         *(.scommon)
     } > ram
 
-    . = ALIGN(4);
+    . = ALIGN(8); /* TODO: THIS IS A HACK, IT SHOULD BE 4 */
     __sbss_end = .;
     
     __bss_start = .;
-    .bss (NOLOAD) : SUBALIGN(4) {
+    .bss . (NOLOAD) : SUBALIGN(8) {
         *(.dynbss)
         *(.bss .bss.* .gnu.linkonce.b.*)
         *(COMMON)
@@ -239,16 +206,11 @@ SECTIONS {
     __bss_end = .;
     __fbss_end = .;
 
-    /*.align : {
-        /* pad file to be a multiple of 2048 bytes.  Needed for loading from CD-ROM.
-        BYTE(0);
-        . = ALIGN(2048);
-    } > ram*/
-
     . = ADDR(.text) - 0x800;
     __end = .;
 
     /DISCARD/ : { *(.MIPS.abiflags) }
+    /DISCARD/ : { *(.reginfo) }
 
     /* Everything is statically linked, so discard PLTs. */
     /DISCARD/ : { *(.rel.iplt) *(.rela.iplt) *(.rel.plt) *(.rela.plt) *(.plt) *(.iplt) }

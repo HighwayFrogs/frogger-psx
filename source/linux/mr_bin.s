@@ -13,12 +13,12 @@
 
 		.data
 
-		.align 4
+		.align 2 # Aligns 4 bytes. (2 ^ x)
 		.global MRAcos_table
 MRAcos_table:
 		.incbin	"../API.BIN/acos_le.dat"
 
-		.align 4
+		.align 2 # Aligns 4 bytes. (2 ^ x)
 		.global MRCd_error_pp
 MRCd_error_pp:
 		.incbin	"../API.BIN/cd_error.pp"
