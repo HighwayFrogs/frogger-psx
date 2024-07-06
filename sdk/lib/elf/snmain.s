@@ -4,11 +4,11 @@
 	.set	noreorder
 	.set	noat
 	
+# Defines
 	.global __start
 	.global __SN_ENTRY_POINT
 	.global __main
 	.global __do_global_dtors
-
 	.global __heapbase
 	.global __heapsize
 	.global __text
@@ -18,7 +18,7 @@
 	.global __bss
 	.global __bsslen
 
-	# Include from other object:
+# Imports:
 	.global InitHeap
 
 #
@@ -57,8 +57,8 @@
 # These latter variables should be treated as READ ONLY.
 # (You can of course declare them as pointers if you prefer).
 
-	.text
-	
+	.section .text
+
 __start:
 __SN_ENTRY_POINT:
 	lui        $v0, %hi(__sbss_start)
@@ -66,11 +66,11 @@ __SN_ENTRY_POINT:
 	lui        $v1, %hi(__bss_end)
 	addiu      $v1, $v1, %lo(__bss_end)
 
-.clrit:
+.Lclrit:
 	sw         $zero, 0x0($v0)
 	addiu      $v0, $v0, 0x4
 	sltu       $at, $v0, $v1
-	bnez       $at, .clrit
+	bnez       $at, .Lclrit
 	nop
 	
 # This was the old way to set ram-top. Read mem config from DIP switches.
@@ -140,7 +140,7 @@ __main:
 	sw         $s1, 0x8($sp)
 	sw         $ra, 0xC($sp)
 
-	bnez       $t0, .exit
+	bnez       $t0, .Lexit
 	ori        $t0, $zero, 0x1
 
 	lui        $at, %hi(__initialised)
@@ -150,20 +150,20 @@ __main:
 	addiu      $s0, $s0, %lo(0) # TODO: BAD SYNTAX %lo((sectend(.ctors)-sect(.ctors))/4)
 	lui        $s1, (0x0 >> 16)
 	addiu      $s1, $s1, 0x0
-	beqz       $s1, .exit
+	beqz       $s1, .Lexit
 	nop
 
-.loop: # loop for all C++ global constructors
+.Lloop: # loop for all C++ global constructors
 	lw         $t0, 0x0($s0)
 	addiu      $s0, $s0, 0x4
 
 	jalr       $t0 # call C++ constructor
 	addiu     $s1, $s1, -0x1
 
-	bnez       $s1, .loop
+	bnez       $s1, .Lloop
 	nop
 
-.exit:
+.Lexit:
 	lw         $ra, 0xC($sp)
 	lw         $s1, 0x8($sp)
 	lw         $s0, 0x4($sp)
@@ -183,27 +183,27 @@ __do_global_dtors:
 	sw         $s1, 0x8($sp)
 	sw         $ra, 0xC($sp)
 
-	beqz       $t0, .exit2
+	beqz       $t0, .Lexit2
 	nop
 
 	lui        $s0, %hi(0) # TODO: BAD SYNTAX %hi((sectend(.dtors)-sect(.dtors))/4
 	addiu      $s0, $s0, %lo(0) # TODO: BAD SYNTAX %lo((sectend(.dtors)-sect(.dtors))/4)
 	lui        $s1, (0x0 >> 16)
 	addiu      $s1, $s1, 0x0
-	beqz       $s1, .exit2
+	beqz       $s1, .Lexit2
 	nop
 
-.loop2:
+.Lloop2:
 	lw         $t0, 0x0($s0)
 
 	addiu      $s0, $s0, 0x4
 	jalr       $t0
 	addiu     $s1, $s1, -0x1
 
-	bnez       $s1, .loop2
+	bnez       $s1, .Lloop2
 	nop
 
-.exit2:
+.Lexit2:
 	lw         $ra, 0xC($sp)
 	lw         $s1, 0x8($sp)
 	lw         $s0, 0x4($sp)
@@ -214,7 +214,7 @@ __do_global_dtors:
 	nop
 
 
-	.data
+	.section .data
 
 __initialised:
 	.word 0

@@ -2,7 +2,7 @@
 These tools are used by the library conversion batch script.  
 
 **psyq-obj-converter:**  
-Links: [Source Code](https://github.com/grumpycoders/pcsx-redux/blob/main/tools/psyq-obj-parser/psyq-obj-parser.cc)  
+Links: [Source Code](https://github.com/grumpycoders/pcsx-redux/blob/main/tools/psyq-obj-parser/psyq-obj-parser.cc) [Windows x64 Builds](https://distrib.app/pub/org/pcsx-redux/project/dev-win-x64) [Linux x64 Builds](https://distrib.app/pub/org/pcsx-redux/project/dev-linux-x64)  
 Download: A pre-built exe is included as part of the [PCSX Redux](https://github.com/grumpycoders/pcsx-redux) emulator.  
 
 This tool is used to convert Psy-Q .obj files into ELF files (usable with the GNU Linker).  
