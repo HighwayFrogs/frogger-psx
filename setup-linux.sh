@@ -59,7 +59,7 @@ fi
 
 # 2) Install required software
 # dos2unix is required to convert CR LF (\r\n) line endings to LF (\n).
-# git is required for installing maspsx. (Although, a backup has been included in this repository which is known to work, and can be manually setup by just doing the steps this script does.)
+# git is required for installing maspsx. (Although, a backup has been included in this repository which is known to work, and can be manually setup by extracting it to sdk/maspsx/.)
 # make is required to use the Linux makefile.
 # gcc-mipsel-linux-gnu and binutils-mipsel-linux-gnu contain utilities for compiling MIPS programs and working with MIPS binaries. (In other words, it's how we're gonna get the executable.)
 # python3 and python3-pip are required for maspsx.

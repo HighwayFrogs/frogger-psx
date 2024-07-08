@@ -72,5 +72,5 @@ However, this is unknown. If there is somehow an owner, Highway Frogs is interes
  - [sonicdcer](https://github.com/sonicdcer) for helping create a decomp environment, and helping match functions  
  - [pixel-stuck](https://github.com/pixel-stuck), [mono21400](https://github.com/Mc-muffin), [petrie911](https://github.com/petrie911), and potentially more who helped decomp/match functions.  
  - The [PSXDev](https://psxdev.net/) community for archiving a lot of the PSX tools necessary to do something like this.  
- - [nicolasnoble](https://github.com/nicolasnoble) for [psyq-obj-converter](https://github.com/grumpycoders/pcsx-redux/tree/main/tools/psyq-obj-parser), and other help with understanding LD scripts.  
- - [mkst](https://github.com/mkst) for [maspsx](https://github.com/mkst/maspsx), which needed work to support building this project.  
+ - [nicolasnoble](https://github.com/nicolasnoble) for [psyq-obj-parser](https://github.com/grumpycoders/pcsx-redux/tree/main/tools/psyq-obj-parser), and other help with understanding LD scripts.  
+ - [mkst](https://github.com/mkst) for [maspsx](https://github.com/mkst/maspsx), which needed work to build on Linux using [binutils](https://www.gnu.org/software/binutils/).  
