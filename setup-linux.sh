@@ -148,5 +148,12 @@ sed -i 's/\/\/ MRAcos_table access macros/\/\/ MRAcos_table access macros *\//g'
 # make expects the Makefile to be named Makefile (otherwise 'make -f MAKEFILE')
 mv MAKEFILE Makefile
 
+# Extract all library objects
+cd sdk/lib/elf
+for f in *.a; do
+    mkdir -p extracted/$f
+    (cd extracted/$f; ar x ../../$f)
+done
+
 echo ""
 echo "Setup complete, it should now be possible to build the game by running 'make'."
