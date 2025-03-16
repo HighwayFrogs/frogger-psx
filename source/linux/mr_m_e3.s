@@ -34,7 +34,7 @@ glabel MRDisplayMeshPolys_E3
 	lui        $t9, %hi(MREnv_strip)
 	lui        $at, 0
 	addu       $at, $at, $t9
-	lw         $t5, %lo(MREnv_strip)($t9)
+	lw         $t5, %lo(MREnv_strip)($at)
 	nop
 	lbu        $s6, 0x4($t5)
 	lbu        $s7, 0x5($t5)

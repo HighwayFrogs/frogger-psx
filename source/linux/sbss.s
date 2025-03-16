@@ -1,10 +1,5 @@
 .section .sbss
 
-# XXX
-.global __ra_temp
-__ra_temp:
-    .space 8,0
-
 .global Map_path_header
 Map_path_header:
     .space 4,0

@@ -146,10 +146,10 @@ __main:
 	lui        $at, %hi(__initialised)
 	sw         $t0, %lo(__initialised)($at)
 
-	lui        $s0, %hi(0) # TODO: BAD SYNTAX %hi((sectend(.ctors)-sect(.ctors))/4)
-	addiu      $s0, $s0, %lo(0) # TODO: BAD SYNTAX %lo((sectend(.ctors)-sect(.ctors))/4)
-	lui        $s1, (0x0 >> 16)
-	addiu      $s1, $s1, 0x0
+	lui        $s0, %hi(__ctors_start)
+	addiu      $s0, $s0, %lo(__ctors_start)
+	lui        $s1, %hi(__ctors_count)
+	addiu      $s1, $s1, %lo(__ctors_count)
 	beqz       $s1, .Lexit
 	nop
 
@@ -186,10 +186,10 @@ __do_global_dtors:
 	beqz       $t0, .Lexit2
 	nop
 
-	lui        $s0, %hi(0) # TODO: BAD SYNTAX %hi((sectend(.dtors)-sect(.dtors))/4
-	addiu      $s0, $s0, %lo(0) # TODO: BAD SYNTAX %lo((sectend(.dtors)-sect(.dtors))/4)
-	lui        $s1, (0x0 >> 16)
-	addiu      $s1, $s1, 0x0
+	lui        $s0, %hi(__dtors_start)
+	addiu      $s0, $s0, %lo(__dtors_start)
+	lui        $s1, %hi(__dtors_count)
+	addiu      $s1, $s1, %lo(__dtors_count)
 	beqz       $s1, .Lexit2
 	nop
 
@@ -236,6 +236,7 @@ __bss:
 __bsslen:
 	.word __bss_len
 
-	.sbss
-	.comm __ra_temp	2
+	.section .sbss
+__ra_temp:
+        .space 4,0
 
