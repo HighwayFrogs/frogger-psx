@@ -78,7 +78,7 @@ GAME_OBJ_C_LIST =	main.o		sprdata.o	project.o	gamefont.o	stream.o	\
 					select.o	model.o		hsview.o	froganim.o	hsinput.o	\
 					credits.o	loadsave.o	particle.o	water.o		pause.o
 
-GAME_OBJ_S_LIST = sbss.o bss.o fastram.o  binaries.o mapasm.o
+GAME_OBJ_S_LIST = snmain.o sbss.o bss.o fastram.o  binaries.o mapasm.o
 
 API_OBJ_C_LIST = mr_anim.o  mr_anim2.o mr_anim3.o            mr_coll.o  \
                  mr_debug.o mr_disp.o  mr_file.o  mr_font.o  mr_frame.o \
@@ -190,7 +190,7 @@ LINK_ORDER = \
 	sdk/lib/elf/extracted/libsn.a/close.o \
 	sdk/lib/elf/extracted/libsn.a/lseek.o \
 	sdk/lib/elf/extracted/libsn.a/creat.o \
-	sdk/lib/elf/extracted/libsn.a/snmain.o \
+	source/snmain.o \
 	sdk/lib/elf/extracted/libapi.a/c57.o \
 	sdk/lib/elf/extracted/libsn.a/read.o \
 	sdk/lib/elf/extracted/libsn.a/snread.o \

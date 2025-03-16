@@ -137,6 +137,16 @@ SECTIONS {
         . = . + 1916;
     } > loader
 
+    __ctors_start = .;
+    /* TODO ctor stuff would probably go here (but frogger doesn't use them) */
+    __ctors_end = .;
+    __ctors_count = (__ctors_end - __ctors_start) / 4;
+
+    __dtors_start = .;
+    /* TODO dtor stuff would probably go here (but frogger doesn't use them) */
+    __dtors_end = .;
+    __dtors_count = (__dtors_end - __dtors_start) / 4;
+
     __text_start = .;
     __ftext_start = ABSOLUTE(.);
     .text TLOAD_ADDR : SUBALIGN(4) {

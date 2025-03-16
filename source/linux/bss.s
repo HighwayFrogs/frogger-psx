@@ -8140,3 +8140,6 @@ im_vol3pic:
 im_img1309_U:
     .space 16,0
 
+.global _svm_okof2
+_svm_okof2:
+    .space 2,0
