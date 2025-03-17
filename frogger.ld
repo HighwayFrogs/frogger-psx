@@ -18,6 +18,7 @@ TODO:
  2) Bring back ctors?
  3) Modern GCC compatibility?
  4) Make this general 'psyq.ld'
+ 5) Cleanup
 */
 
 /*

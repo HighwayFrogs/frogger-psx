@@ -19,8 +19,7 @@ GAME_SRC_DIR	:= source
 ASM_SRC_DIR		:= $(GAME_SRC_DIR)/linux
 API_SRC_DIR		:= $(GAME_SRC_DIR)/API.SRC
 INCLUDE_DIR		:= include
-OUTPUT_BASE		:= $(GAME_SRC_DIR)/frogger
-OUTPUT_ELF		:= $(OUTPUT_BASE).elf
+OUTPUT_BASE		:= frogger
 OUTPUT_EXE		:= $(OUTPUT_BASE).exe
 OUTPUT_MAP		:= $(OUTPUT_BASE).map
 
@@ -39,8 +38,7 @@ CPP_FLAGS		+= -I$(INCLUDE) -undef -Wunused -Wmissing-prototypes -Wuninitialized 
 CPP_FLAGS		+= -Dmips -D__GNUC__=2 -D__OPTIMIZE__ -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C -D__CHAR_UNSIGNED__
 
 LD_SCRIPT		:= frogger.ld
-LD_FLAGS		:= -nostdlib -G8 -T $(LD_SCRIPT) -o frogger.exe -Map frogger.map
-#LD_FLAGS		:= -nostdlib -G8 -T $(LD_SCRIPT) -o $(OUTPUT_EXE) -Map $(OUTPUT_MAP) # TODO: ENABLE
+LD_FLAGS		:= -nostdlib -G8 -T $(LD_SCRIPT) -o $(OUTPUT_EXE) -Map $(OUTPUT_MAP)
 
 # 'make MODERN_GCC=1'
 #ifdef MODERN_GCC
@@ -336,26 +334,35 @@ $(MASPSX_APP):
 
 # Build game source files
 $(GAME_SRC_DIR)/%.o: $(GAME_SRC_DIR)/%.c $(MASPSX_APP)
+	$(info )
+	$(info ----- Compiling $@ -----)
 	$(CPP) $(CPP_FLAGS) $< | $(CC1) $(CC_FLAGS) | $(MASPSX) | $(AS) $(AS_FLAGS) -o $@
 
 # Build game handwritten assembly files.
 $(GAME_SRC_DIR)/%.o: $(ASM_SRC_DIR)/%.s
+	$(info )
+	$(info ----- Assembling $@ -----)
 	$(AS) -I$(ASM_SRC_DIR) $(AS_FLAGS) -o $@ $<
 
 # Build API source files
 $(API_SRC_DIR)/%.o: $(API_SRC_DIR)/%.c $(MASPSX_APP)
+	$(info )
+	$(info ----- Compiling $@ -----)
 	$(CPP) $(CPP_FLAGS) $< | $(CC1) $(CC_FLAGS) | $(MASPSX) | $(AS) $(AS_FLAGS) -o $@
 
 # Build API handwritten assembly files
 $(API_SRC_DIR)/%.o: $(ASM_SRC_DIR)/%.s
+	$(info )
+	$(info ----- Assembling $@ -----)
 	$(AS) -I$(ASM_SRC_DIR) $(AS_FLAGS) -o $@ $<
 
 # Build API Libraries (Using libraries will cause objects which are fully unused to be skipped when linking)
 $(API_SRC_DIR)/%.a: $(API_SRC_DIR)/%.o
+	$(info )
+	$(info ----- Creating library $@ -----)
 	$(AR) -rs $@ $<
 
 clean:
-	rm -f -- $(OUTPUT_ELF)
 	rm -f -- $(OUTPUT_EXE)
 	rm -f -- $(OUTPUT_MAP)
 	rm -f -- $(GAME_SRC_DIR)/*.o
@@ -364,8 +371,13 @@ clean:
 
 # This links the PSX EXE from all the objects & libraries.
 $(OUTPUT_EXE): $(OBJECTS) $(LIBRARIES)
+	$(info )
 	$(info ----- Linking -----)
-	$(LD) $(LD_FLAGS) $(LINK_ORDER)
+	@$(LD) $(LD_FLAGS) $(LINK_ORDER)
 
-# Phony
+# We cannot use $(info message) here, because the info function is evaluated with all the variables. This evaluation occurs before any shell commands are run, including the command to build the executable, thus it would print an outdated SHA-1 hash, or potentially even fail.
+	@echo "Build Success, SHA1: $$(sha1sum $(OUTPUT_EXE))"
+	@echo ""
+
+# Phony (Targets which are not treated as file names.)
 .PHONY: all, clean
