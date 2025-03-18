@@ -145,7 +145,7 @@ MASPSX:
 #### WSL Support (Windows Subsystem for Linux)
 The Linux build pipeline can be used on Windows via [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) to run the `GCC 2.6.3 CC1 (cc1-psx-263)` C compiler.  
 However, the repository should not be cloned to an NTFS file system. In other words, **DO NOT** use a path such as `/mnt/c/Users/kneesnap/projects/frogger-psx`), use somewhere in the WSL file system like `/home/kneesnap/projects/frogger-psx`.  
-Naturally, [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) is required for using the Linux build pipeline on Linux. I used `Ubuntu 22.04.2 LTS`, but pretty much anything should work.  
+Naturally, [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) is required for using the Linux build pipeline on Windows. I used `Ubuntu 22.04.2 LTS`, but pretty much anything should work.  
 The build pipeline should also work on a native Linux OS as well.  
 
 #### Problems Solved
@@ -185,7 +185,7 @@ The custom linker script is available [here](/frogger.ld).
 Because the original assembler was a proprietary program called `ASPSX.EXE` without any source code available, shouldn't that prevent building with open source tools?  
 Not quite, because its syntax is seemingly identical to the official GNU AS syntax.  
 There are some differences in the assembled machine code, the original `ASPSX.EXE` has differing behavior things like auto-nopping the branch delay slot and various macros.  
-Luckily the [maspsx](https://github.com/mkst/maspsx) project mentioned earlier takes care of these differences for us, and has been specifically designed to modify the assembly to let the GNU Assembler mimick `ASPSX.EXE`.  
+Luckily the [maspsx](https://github.com/mkst/maspsx) project mentioned earlier takes care of these differences for us, and has been specifically designed to modify the assembly text to make the GNU Assembler mimic `ASPSX.EXE`.  
 
 **7) Matching Symbol Ordering (.bss/.sbss):**  
 Lastly, to get a byte-matching executable, the `.bss`/`.sbss` sections have the hash-based symbol ordering as described [here](/vlo/README.MD).  
