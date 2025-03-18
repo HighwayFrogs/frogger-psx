@@ -188,14 +188,22 @@ There are some differences in the assembled machine code, the original `ASPSX.EX
 Luckily the [maspsx](https://github.com/mkst/maspsx) project mentioned earlier takes care of these differences for us, and has been specifically designed to modify the assembly text to make the GNU Assembler mimic `ASPSX.EXE`.  
 
 **7) Matching Symbol Ordering (.bss/.sbss):**  
-Lastly, to get a byte-matching executable, the `.bss`/`.sbss` sections have the hash-based symbol ordering as described [here](/vlo/README.MD).  
-Luckily, the behavior of symbols that end up in `.bss`/`.sbss` are always declared and accessed using `.comm`.  
-This is good because `.comm` leaves the actual placement of each object up to the linker.  
-But it turns out that if you simultaneously declare global symbols with `.comm`, while also having an explicit definition using `.global`, the `.comm` usages will point to the `.global` definition.  
-So, by linking [bss.s](/source/linux/bss.s) and [sbss.s](/source/linux/sbss.s), it is possible to explicitly define the ordering of symbols in the two sections.  
-Unfortunately, there was still one major issue remaining: the symbols in the PsyQ runtime libraries were not ordered properly.  
+All uninitialized global variable declarations end up in the `.bss`/`.sbss` sections based respectively on variable size.  
+In Frogger, nearly all of these variables are **common symbols**.  
+The purpose of common symbols is similar to an extern in the sense that the symbol may be declared in another translation unit.  
+
+Examples of how to declare a non-common global variable:  
+ - Initialize the variable (`int foo = 0;` instead of `int foo;`), because having a value assigned implies the translation unit is the location where the variable definition belongs.
+ - Prefixing an uninitialized global with the `static` keyword, because `static` guarantees the variable's declaration/use is within only the current translation unit.
+ - In GNU Assembler syntax, using the `.global` directive for a label followed by a data allocation such as `.space`.
+
+However, there is a key difference between externs and common symbols: externs require a non-extern definition in a linked translation unit, but common symbols will be created by the linker if missing.  
+Unfortunately, the original linker used to build Frogger jumbles up symbol ordering based on [the behavior described here](/vlo/README.MD).  
+In order to byte-match the executable, we must replicate the symbol ordering of the original executable.  
+Because the purpose of common symbols is to allow definitions in another translation unit, we can link [bss.s](/source/linux/bss.s) and [sbss.s](/source/linux/sbss.s) to define the correct symbol order.  
+Unfortunately, even after doing so there was still one major issue remaining issue: the symbols in the PsyQ runtime libraries were not ordered properly.  
 Huge thanks to [Dezgeg](https://github.com/Dezgeg) for identifying and fixing this problem.  
-It was an issue with [psyq-obj-parser](https://github.com/grumpycoders/pcsx-redux/tree/main/tools/psyq-obj-parser) which meant the converted libraries did not define their `.bss` sections in a way which allowed relocating them.  
+It was an issue with [psyq-obj-parser](https://github.com/grumpycoders/pcsx-redux/tree/main/tools/psyq-obj-parser) which meant the converted libraries did not convert common symbols correctly.  
 
 ## Extra Tools
 There are a few additional tools included, their purposes are described below.  
