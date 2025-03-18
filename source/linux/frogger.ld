@@ -10,15 +10,6 @@ Documentation: https://sourceware.org/binutils/docs/ld/Builtin-Functions.html
 Documentation: https://sourceware.org/binutils/docs/ld/Output-Section-Data.html
 Documentation: https://ftp.gnu.org/old-gnu/Manuals/gas-2.9.1/html_chapter/as_7.html
 
-TODO:
- 1) Build nearly matching executable
-  - matching maspsx
-  - bss section ordering hashing? single .comm?
-  - 
- 2) Bring back ctors?
- 3) Modern GCC compatibility?
- 4) Make this general 'psyq.ld'
- 5) Cleanup
 */
 
 /*

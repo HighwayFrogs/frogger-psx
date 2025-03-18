@@ -4,31 +4,30 @@
 # This is a somewhat unusual approach, usually  you'd want one unified setup for both Windows and Linux.
 # However, I wanted to keep the repository as close to the original as possible, and additionally the compilers for each system depend on different line endings.
 # So, this script should do all the changes necessary to make it compileable on Linux.
+# This script should be possible to run more than once (and on a separate computer) without making further repository changes.
+# It should also be possible to still compile the game using the Windows build pipeline, at least if the Linux-configured repository is cloned on a Windows machine.
 
-# TODO: Before done.
-# 1) Get a build which functions and matches outside of bss ordering.
-#  - a) Fix relative $gp accessing.
-#  - b) Generalize LD script as much as possible to SN Systems.
-#  - c) Create build-cd.sh and make it work.
-# 2) Attempt automated symbol ordering. (Python script for generating order automagically?)
-# 3) Improve handwritten assembly files.
-# 4) Make api.src and other folders lower-case.
-# 5) Which changes did we want to apply to the windows setup?
+# TODO:
+# 1) Allow building the CD image on Linux too by creating build-cd.sh
+# 2) Improve quality of the linux build pipeline hand-written assembly files.
+# 3) Make api.src and other folders lower-case.
+# 4) Which changes did we want to apply to the windows setup?
 #  - Lower-case header file names? Leaning towards yes
 #  - Lower-case main source file names? Leaning towards no, but consider further.
-# 6) Go through all documentation, find all TODOs. Did we byte-match on Linux? If not, make sure documentation makes this clear. If so, document how.
-# 7) Move file setup from loose to setup script. [makefile, linker LD, linux/ folder]
-# 8) Heavy Testing (Is it possible to have a repository which is both linux and windows compileable? Probably not locally due to CRLF reasons. But, a git repository which has linux pushed? Perhaps...)
+# 5) Update psyq-obj-parser executable & source code
+# 6) Heavy Testing (Is it possible to have a repository which is both linux and windows compileable? Probably not locally due to CRLF reasons. But, a git repository which has linux pushed? Perhaps...)
 # - Verify Full WSL (Then, see if windows build pipeline still works & that DOS pipeline still works.)
 # - Verify WSL In Windows Filesystem (Then, see if windows build pipeline still works & that DOS pipeline still works.)
 # - Verify standalone Windows Pipeline
 # - Verify standalone DOS Pipeline
+# 7) Merge into main
+# 8) Why not try byte-matching retail PAL, and retail NTSC-J?
 
 # 1) Ensure current environment is capable of building Frogger.
 # The ability to compile Frogger depends on case-sensitive file names. (Eg: We want everything to be lower-case, otherwise the preprocessor won't resolve #include statements)
 # However, some file-system types (Primarily when running under Windows Subsystem for Linux) are case-insensitive, meaning the file 'TEST' is the same as a file named 'test'.
 # It's probably just Windows/NTFS, but when this happens, the "mv" command fails to rename files, because Linux interfacing with the Windows file-system causes both files to be seen as the same hard link, a rename operation can't occur.
-# TODO: It's been a while, and I don't recall if using some kind of bypass (Creating a replacement function for mv which renames the file to a temp file before renaming to the new target file.) would work, or if other complications occur.
+# It's been a while, and I don't recall if using some kind of bypass (Creating a replacement function for mv which renames the file to a temp file before renaming to the new target file.) would work, or if other complications occur. It doesn't matter though since they could just use the Windows build pipeline.
 
 # Prepare FS Case-Sensitivity Test
 testFileNameUpper="FILENAME_CASE.TEST"
@@ -84,8 +83,6 @@ mv include/SYS include/sys
 for f in include/*.[hH]; do mv -v "$f" "`echo $f | tr '[A-Z]' '[a-z]'`"; done
 for f in include/sys/*.[hH]; do mv -v "$f" "`echo $f | tr '[A-Z]' '[a-z]'`"; done
 for f in source/*.[cChHsSIi]; do mv -v "$f" "`echo $f | tr '[A-Z]' '[a-z]'`"; done
-mv include/inline_c.h include/inline_c_windows.h
-mv include/inline_c_linux.h include/inline_c.h
 
 # Go into the directory, since otherwise it will try to make 'API.SRC' lower-case too.
 cd source/API.SRC/
@@ -136,20 +133,16 @@ sed -i 's/sys\\file.h/sys\/file.h/g' source/system.h
 sed -i 's/api.src\/mr_all.h/API.SRC\/mr_all.h/g' source/mr_all.h
 sed -i 's/..\\system.h/..\/system.h/g' source/API.SRC/mr_sys.h
 sed -i 's/\/\/ Special GTE load\/save macros (not found in the normal PlayStation header files/\/* Special GTE load\/save macros (not found in the normal PlayStation header files/g' source/API.SRC/mr_sys.h
-sed -i 's/\/\/ MRAcos_table access macros/\/\/ MRAcos_table access macros *\//g' source/API.SRC/mr_sys.h
-
-# Avoid double definition of "Option_viewport_ptr". (Disabled)
-# This is disabled since it seems this actually does compile/link somehow.
-# We want to keep the duplicate definition since it impacts the instructions used to access Option_viewport_ptr in select.c (It will use $gp relative addressing with the double declaration, but it won't without it)
-# My guess for why I originally thought I needed this is that maspsx supported very few of the scenarios we needed for Frogger when I wrote this, and maspsx might not have output assembly which allowed the same symbol declared in two objects.
-#sed -i 's/MR_VIEWPORT\*\tOption_viewport_ptr;/\/\/MR_VIEWPORT*\tOption_viewport_ptr;/g' source/select.c TODO: Maybe extern it instead? Wrap it around an ifdef so it only happens for certain stuff? Dunno.
+sed -i 's/\/\/ MRAcos_table access macros$/\/\/ MRAcos_table access macros *\//g' source/API.SRC/mr_sys.h
 
 # 9) Misc Changes
-# make expects the Makefile to be named Makefile (otherwise 'make -f MAKEFILE')
-mv MAKEFILE Makefile
+# make expects the Makefile to be named Makefile (case-sensitive, otherwise 'make -f MAKEFILE')
+ln -sf source/linux/Makefile Makefile
+ln -sf source/linux/frogger.ld frogger.ld
 
 # Extract all library objects
 cd sdk/lib/elf
+rm -rf extracted/
 for f in *.a; do
     mkdir -p extracted/$f
     (cd extracted/$f; ar x ../../$f)

@@ -14,7 +14,7 @@ Frogger was built using tools mostly from PsyQ 4.0. Luckily, this version contai
 One notable exception which was not used from PsyQ 4.0 was the compiler.  
 
 ## The Compiler
-Frogger was compiled using DOS (Likely Windows 95), using mostly 16-bit applications.  
+Frogger was originally compiled using DOS (Likely Windows 95), using mostly 16-bit applications.  
 In order to build a perfect match of the original game, the original compiler must be used. Or rather, if it doesn't it gets a bit more complicated.  
 The compiler used to build Frogger (`CC1PSX.EXE`) has been identified as `GCC 2.6.3`, likely: `GNU C 2.6.3.SN.2 [AL 1.1, MM 40] Sony Playstation compiled by GNU C`.  
 Unfortunately, the floppy containing this compiler version is rare and [was not available either online or for purchase when this repository was setup](https://www.psxdev.net/forum/viewtopic.php?f=28&t=4122).  
@@ -117,7 +117,7 @@ NMAKE:
 At the time of writing, Windows is capable of running 32 bit applications, but there is no guarantee how long this support will last.  
 While it is possible to use DOSBox or Wine on Linux to build the game, a native open source build toolchain still has its benefits.  
 Given how much work was already done (compiling custom GCC, using a Linux decompilation toolchain, etc), there wasn't much work left to make a full Linux build pipeline.  
-In order to use the Linux pipeline, run `./setup-linux.sh` in the repository root. Then, running `make` should build the game.  
+In order to use the Linux pipeline, run `./setup-linux.sh` in the repository root. Then, running `make` should build a byte-matching executable.  
 
 **Programs:**  
 ```
@@ -145,7 +145,8 @@ MASPSX:
 #### WSL Support (Windows Subsystem for Linux)
 The Linux build pipeline can be used on Windows via [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) to run the `GCC 2.6.3 CC1 (cc1-psx-263)` C compiler.  
 However, the repository should not be cloned to an NTFS file system. In other words, **DO NOT** use a path such as `/mnt/c/Users/kneesnap/projects/frogger-psx`), use somewhere in the WSL file system like `/home/kneesnap/projects/frogger-psx`.  
-Naturally, [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) is required for the Linux build. I used `Ubuntu 22.04.2 LTS`, but pretty much anything should work.  
+Naturally, [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) is required for using the Linux build pipeline on Linux. I used `Ubuntu 22.04.2 LTS`, but pretty much anything should work.  
+The build pipeline should also work on a native Linux OS as well.  
 
 #### Problems Solved
 The challenges with creating a Linux build pipeline have been documented here, with their solution.  
@@ -177,10 +178,24 @@ Luckily, it was possible to convert the files into ELF files compatible with Lin
 The pre-converted libraries have been included, and no conversion is necessary unless you want to use another library which was not included.  
 
 **5) Linker Script:**  
-Using a custom linker script (LD) based on [this](https://github.com/grumpycoders/pcsx-redux/blob/main/src/mips/ps-exe.ld), we can create a PSX binary.  
-TODO: Document this further. 
-TODO: Get into the details about maspsx.
-TODO: ! 
+Using a custom linker script (LD) based on [this](https://github.com/grumpycoders/pcsx-redux/blob/main/src/mips/ps-exe.ld), we can create a matching PSX binary.  
+The custom linker script is available [here](/frogger.ld).  
+
+**6) Matching behavior of the original assembler.**  
+Because the original assembler was a proprietary program called `ASPSX.EXE` without any source code available, shouldn't that prevent building with open source tools?  
+Not quite, because its syntax is seemingly identical to the official GNU AS syntax.  
+There are some differences in the assembled machine code, the original `ASPSX.EXE` has differing behavior things like auto-nopping the branch delay slot and various macros.  
+Luckily the [maspsx](https://github.com/mkst/maspsx) project mentioned earlier takes care of these differences for us, and has been specifically designed to modify the assembly to let the GNU Assembler mimick `ASPSX.EXE`.  
+
+**7) Matching Symbol Ordering (.bss/.sbss):**  
+Lastly, to get a byte-matching executable, the `.bss`/`.sbss` sections have the hash-based symbol ordering as described [here](/vlo/README.MD).  
+Luckily, the behavior of symbols that end up in `.bss`/`.sbss` are always declared and accessed using `.comm`.  
+This is good because `.comm` leaves the actual placement of each object up to the linker.  
+But it turns out that if you simultaneously declare global symbols with `.comm`, while also having an explicit definition using `.global`, the `.comm` usages will point to the `.global` definition.  
+So, by linking [bss.s](/source/linux/bss.s) and [sbss.s](/source/linux/sbss.s), it is possible to explicitly define the ordering of symbols in the two sections.  
+Unfortunately, there was still one major issue remaining: the symbols in the PsyQ runtime libraries were not ordered properly.  
+Huge thanks to [Dezgeg](https://github.com/Dezgeg) for identifying and fixing this problem.  
+It was an issue with [psyq-obj-parser](https://github.com/grumpycoders/pcsx-redux/tree/main/tools/psyq-obj-parser) which meant the converted libraries did not define their `.bss` sections in a way which allowed relocating them.  
 
 ## Extra Tools
 There are a few additional tools included, their purposes are described below.  

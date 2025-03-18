@@ -38,7 +38,7 @@ In-depth documentation of the different build systems can be found [here](/sdk/R
  - 1) Install [git](https://git-scm.com/downloads) if you haven't already. (Easy: `sudo apt-get install -y git`)  
  - 2) Clone this repository by running `git clone https://github.com/HighwayFrogs/frogger-psx` in a terminal session.  
  - 3) Change the active directory by running `cd frogger-psx`  
- - 4a) If using WSL (Windows Subsystem for Linux), run `vim "./setup-linux.sh" -c "set ff=unix" -c "wq"`.  
+ - 4a) Run `vim "./setup-linux.sh" -c "set ff=unix" -c "wq"` to convert CRLF line endings to LF (or use other method of your choice).  
  - 4b) Run `./setup-linux.sh`, entering local system account password for sudo if necessary.  
  - 5) Now, every time you run `make` while in the `frogger-psx` directory, the source code will be compiled to `source/frogger.exe`.  
  - 6) To make a playable CD image `build/Frogger.bin`, run `./build-cd.sh` and follow the instructions.  
@@ -73,4 +73,5 @@ However, this is unknown. If there is somehow an owner, Highway Frogs is interes
  - [pixel-stuck](https://github.com/pixel-stuck), [mono21400](https://github.com/Mc-muffin), [petrie911](https://github.com/petrie911), and potentially more who helped decomp/match functions.  
  - The [PSXDev](https://psxdev.net/) community for archiving a lot of the PSX tools necessary to do something like this.  
  - [nicolasnoble](https://github.com/nicolasnoble) for [psyq-obj-parser](https://github.com/grumpycoders/pcsx-redux/tree/main/tools/psyq-obj-parser), and other help with understanding LD scripts.  
- - [mkst](https://github.com/mkst) for [maspsx](https://github.com/mkst/maspsx), which needed work to build on Linux using [binutils](https://www.gnu.org/software/binutils/).  
+ - [mkst](https://github.com/mkst) for [maspsx](https://github.com/mkst/maspsx), which needed new features to build Frogger on Linux using [binutils](https://www.gnu.org/software/binutils/).  
+ - [Dezgeg](https://github.com/Dezgeg/) for identifying and fixing the object conversion issue to build a byte-matching executable when using the fully open source build toolchain/pipeline.  

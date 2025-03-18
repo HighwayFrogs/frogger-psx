@@ -9,6 +9,7 @@ This tool is used to convert Psy-Q .obj files into ELF files (usable with the GN
 The .OBJ come from extracting a .LIB file, and once converted to elf, can be added to an ELF Archive (.a).  
 
 Many thanks to Nicolas Noble from PSXDev for both making the psyq-obj-converter program, but also fixing an issue that prevented several objects from converting successfully.  
+Additional thanks to [Dezgeg](https://github.com/Dezgeg) for identifying the issues with common symbols (bss/sbss symbols being impossible to relocate).  
 
 Other Resources for this format:  
  - [ghidra_psx_ldr](https://github.com/lab313ru/ghidra_psx_ldr/blob/master/src/main/java/psyq/PsyqLoader.java)

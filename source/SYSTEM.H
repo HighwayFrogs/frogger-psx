@@ -112,7 +112,11 @@
 #include 	<libspu.h>
 #include	<libsnd.h>
 #include	<libcd.h>
+#ifdef BUILDING_ON_LINUX
+#include	<inline_c_linux.h>
+#else
 #include	<inline_c.h>
+#endif
 #include	<gtemac.h>
 
 //------------------------------------------------------------------------------------------------

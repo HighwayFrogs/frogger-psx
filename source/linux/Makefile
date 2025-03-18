@@ -2,10 +2,12 @@
 #// Linux Makefile for Frogger (PlayStation Version)
 #// -------------------------------------------
 #// Created by Kneesnap for Linux-compatible compilation, with GCC.
+#// Thanks Dezgeg for figuring out the final steps needed to byte-match the executable.
 #//
 #// Intended for use with GNU make, but may support other versions of make.
 #// This completely removes the original build toolchain (PsyQ SDK Tools) in favor of open source replacements.
-#// Incredibly, it is still capable of a byte-matching compilation. TODO: Confirm this.
+#// Incredibly, it is still capable of a byte-matching compilation, despite even the hashing behavior specific to the original assembler/linker for the bss section.
+#// This has been done by having a bss.s which manually enforces the order of all the symbols in the bss section, and likewise sbss.s for the sbss section.
 #//
 
 .SECONDEXPANSION:
@@ -35,15 +37,15 @@ LD				:= $(CROSS)ld
 OBJCOPY			:= $(CROSS)objcopy
 AS_FLAGS		+= -I$(INCLUDE) -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0
 CPP_FLAGS		+= -I$(INCLUDE) -undef -Wunused -Wmissing-prototypes -Wuninitialized -lang-c -lang-c-c++-comments
-CPP_FLAGS		+= -Dmips -D__GNUC__=2 -D__OPTIMIZE__ -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C -D__CHAR_UNSIGNED__
+CPP_FLAGS		+= -Dmips -D__GNUC__=2 -D__OPTIMIZE__ -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C -D__CHAR_UNSIGNED__ -DBUILDING_ON_LINUX
 
 LD_SCRIPT		:= frogger.ld
 LD_FLAGS		:= -nostdlib -G8 -T $(LD_SCRIPT) -o $(OUTPUT_EXE) -Map $(OUTPUT_MAP)
 
 # 'make MODERN_GCC=1'
 #ifdef MODERN_GCC
-#CC1				:= $(shell $(CROSS)gcc -print-prog-name=cc1)
-#CPP				:= $(CROSS)cpp
+#CC1			:= $(shell $(CROSS)gcc -print-prog-name=cc1)
+#CPP			:= $(CROSS)cpp
 #CC_FLAGS		+= -O3 -G0 -funsigned-char -w -fpeephole -ffunction-cse -fpcc-struct-return -fcommon -fverbose-asm -msoft-float -g -march=r3000 -gcoff -version -quiet
 #CC_FLAGS		+= -imultiarch mipsel-linux-gnu -mel -march=mips32r2 -mfpxx -mllsc -mno-lxc1-sxc1 -mno-madd4 -mips32r2 -mno-shared -mabi=32 -fstack-protector-strong -o /dev/stdout
 #else
@@ -317,12 +319,6 @@ LINK_ORDER = \
 	source/sbss.o \
 	source/bss.o \
 	--no-gc-sections
-
-# TODO: Figure out function and object ordering.
-# TODO: One option for forcing ordering of bss and sbss is using .comm to completely define the symbols for all the files in a single .S in the proper order.
-# TODO: That can be linked first, and assuming we make bss and sbss always use comm, it will use the original order?
-# TODO: Heck, that could probably be auto-generated during the make process
-# TODO: Another option is to do the same thing, but abuse .comm's ability to use a symbol if/only if it already exists, and define symbols in the proper order in a single .S file.
 
 #//-------------------------------------------------------------------------------------------
 #// Makefile interface routines (build all, run project, debug project)
