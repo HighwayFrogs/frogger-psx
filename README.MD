@@ -1,9 +1,9 @@
-![Frogger Logo](/logo.png)
+![Frogger Logo](/docs/logo.png)
 # Frogger He's Back (PlayStation)
 This repository contains a modified source backup of Frogger (1997), commonly called Frogger: He's Back.  
 The source backup appears to be from September 3, 1997, less than 3 weeks before the retail NTSC version.  
 However, the code has been modified (via a matching decompilation project) to perfectly byte-match the retail version of the game.  
-In other words, this repository can builds an exact copy of the game executable found on a playable game CD. (As in, every single byte matches exactly.)  
+In other words, this repository can builds an exact copy of the game executable found on a playable game CD.  
 
 **Developer:** Milennium Interactive (Defunct)  
 **Publisher:** Hasbro Interactive (Sorta Defunct)   
@@ -31,8 +31,8 @@ In-depth documentation of the different build systems can be found [here](/sdk/R
  - 1) Install [git](https://git-scm.com/downloads) if you haven't already. The default settings are OK to accept.  
  - 2) Clone this repository by running `git clone https://github.com/HighwayFrogs/frogger-psx` in a command prompt window.  
  - 3) Follow any instructions shown by the script, re-running `compile.bat` if necessary.  
- - 4) The script will walk you through building the source code into `source\frogger.exe`.  
- - 5) Then, if desired, it will let you build a playable CD image at `build\Frogger.bin` and `build\Frogger.cue`.  
+ - 4) The script will walk you through building the source code into `build\frogger.exe`.  
+ - 5) Then, if desired, it will let you build a playable CD image in subfolders of `build\`.  
 
 **Linux:**  
  - 1) Install [git](https://git-scm.com/downloads) if you haven't already. (Easy: `sudo apt-get install -y git`)  
@@ -40,8 +40,8 @@ In-depth documentation of the different build systems can be found [here](/sdk/R
  - 3) Change the active directory by running `cd frogger-psx`  
  - 4a) Run `vim "./setup-linux.sh" -c "set ff=unix" -c "wq"` to convert CRLF line endings to LF (or use other method of your choice).  
  - 4b) Run `./setup-linux.sh`, entering local system account password for sudo if necessary.  
- - 5) Now, every time you run `make` while in the `frogger-psx` directory, the source code will be compiled to `source/frogger.exe`.  
- - 6) To make a playable CD image `build/Frogger.bin`, run `./build-cd.sh` and follow the instructions.  
+ - 5) Now, every time you run `make` while in the `frogger-psx` directory, the source code will be compiled to `build/frogger.exe`.  
+ - 6) To make a playable CD image in `build/`, run `./build-cd.sh` and follow the instructions.  
 
 **NOTE:** `frogger.exe` might sound like a .exe usable in Windows, but it only will run on the PlayStation since this is the code for the PlayStation version.  
 

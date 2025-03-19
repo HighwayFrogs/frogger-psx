@@ -26,6 +26,7 @@ stderr.txt
 stdout.txt
 
 # Linux Build Pipeline
+/build-cd.sh
 /Makefile
 /frogger.ld
 /frogger.exe

@@ -8,7 +8,6 @@
 # It should also be possible to still compile the game using the Windows build pipeline, at least if the Linux-configured repository is cloned on a Windows machine.
 
 # TODO:
-# 1) Allow building the CD image on Linux too by creating build-cd.sh
 # 2) Improve quality of the linux build pipeline hand-written assembly files.
 # 3) Make api.src and other folders lower-case.
 # 4) Which changes did we want to apply to the windows setup?
@@ -107,6 +106,7 @@ find ./source/ -iname '*.[chs]' | xargs dos2unix
 find ./include/ -iname '*.h' | xargs dos2unix
 find ./sdk/bin/gcc-2.6.3/source/linux/patches/ | xargs dos2unix
 dos2unix ./sdk/bin/gcc-2.6.3/source/linux/build.sh
+dos2unix ./source/linux/build-cd.sh
 
 
 # 6) Setup maspsx
@@ -139,6 +139,10 @@ sed -i 's/\/\/ MRAcos_table access macros$/\/\/ MRAcos_table access macros *\//g
 # make expects the Makefile to be named Makefile (case-sensitive, otherwise 'make -f MAKEFILE')
 ln -sf source/linux/Makefile Makefile
 ln -sf source/linux/frogger.ld frogger.ld
+ln -sf source/linux/build-cd.sh build-cd.sh
+chmod +x build-cd.sh
+chmod +x sdk/bin/mkpsxiso/linux-x64/dumpsxiso
+chmod +x sdk/bin/mkpsxiso/linux-x64/mkpsxiso
 
 # Extract all library objects
 cd sdk/lib/elf

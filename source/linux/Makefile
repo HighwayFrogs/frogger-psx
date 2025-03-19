@@ -21,9 +21,11 @@ GAME_SRC_DIR	:= source
 ASM_SRC_DIR		:= $(GAME_SRC_DIR)/linux
 API_SRC_DIR		:= $(GAME_SRC_DIR)/API.SRC
 INCLUDE_DIR		:= include
-OUTPUT_BASE		:= frogger
+BUILD_DIR		:= build
+OUTPUT_BASE		:= $(BUILD_DIR)/frogger
 OUTPUT_EXE		:= $(OUTPUT_BASE).exe
 OUTPUT_MAP		:= $(OUTPUT_BASE).map
+OUTPUT_SYM		:= $(OUTPUT_BASE).sym
 
 #//-------------------------------------------------------------------------------------------
 #// Compiler options and flags
@@ -361,18 +363,22 @@ $(API_SRC_DIR)/%.a: $(API_SRC_DIR)/%.o
 clean:
 	rm -f -- $(OUTPUT_EXE)
 	rm -f -- $(OUTPUT_MAP)
+	rm -f -- $(OUTPUT_SYM)
 	rm -f -- $(GAME_SRC_DIR)/*.o
 	rm -f -- $(API_SRC_DIR)/*.o
 	rm -f -- $(API_SRC_DIR)/*.a
 
 # This links the PSX EXE from all the objects & libraries.
 $(OUTPUT_EXE): $(OBJECTS) $(LIBRARIES)
+	@rm -f -- $(OUTPUT_SYM)
+	@mkdir -p $(BUILD_DIR)
 	$(info )
 	$(info ----- Linking -----)
 	@$(LD) $(LD_FLAGS) $(LINK_ORDER)
 
 # We cannot use $(info message) here, because the info function is evaluated with all the variables. This evaluation occurs before any shell commands are run, including the command to build the executable, thus it would print an outdated SHA-1 hash, or potentially even fail.
 	@echo "Build Success, SHA1: $$(sha1sum $(OUTPUT_EXE))"
+	@echo "To build a CD image, run ./build-cd.sh"
 	@echo ""
 
 # Phony (Targets which are not treated as file names.)
