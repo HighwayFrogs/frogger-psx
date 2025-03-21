@@ -1,46 +1,60 @@
-source/*.obj
-source/API.SRC/*.lib
-source/API.SRC/*.obj
-source/*.cpe
-source/*.exe
-source/*.sym
-source/*.map
-*/desktop.ini
-build/
-*.cue
-*.bin
+/source/*.obj
+/source/API.SRC/*.lib
+/source/API.SRC/*.obj
+/source/*.cpe
+/source/*.exe
+/source/*.sym
+/source/*.map
+/build/
+desktop.ini
 
-sdk/dos/SetMyDosBoxPath.bat
+/sdk/dos/SetMyDosBoxPath.bat
 
 # These files are copied here, depending on the build pipeline getting used.
-sdk/bin/asmpsx.exe
-sdk/bin/aspsx.exe
-sdk/bin/ccpsx.exe
-sdk/bin/cc1psx.exe
-sdk/bin/cpppsx.exe
-sdk/bin/dmpsx.exe
-sdk/bin/psylib.exe
-sdk/bin/psylib2.exe
-sdk/bin/psylink.exe
-sdk/bin/cc1-psx-263
+/sdk/bin/asmpsx.exe
+/sdk/bin/aspsx.exe
+/sdk/bin/ccpsx.exe
+/sdk/bin/cc1psx.exe
+/sdk/bin/cpppsx.exe
+/sdk/bin/dmpsx.exe
+/sdk/bin/psylib.exe
+/sdk/bin/psylib2.exe
+/sdk/bin/psylink.exe
 
 # Part of the DOS Build Pipeline
 stderr.txt
 stdout.txt
 
+# Linux Build Pipeline
+/build-cd.sh
+/Makefile
+/frogger.ld
+/frogger.exe
+/frogger.map
+/sdk/lib/elf/extracted/
+/source/*.o
+/source/*/*.a
+/source/*/*.o
+
 # Ignore certain Visual Studio files which don't belong in a git repository
 # Reference: https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
-sdk/bin/src/*/*.user
-sdk/bin/src/*/.vs/
-sdk/bin/src/*/[Rr]elease/
-sdk/bin/src/*/[Dd]ebug/
-sdk/bin/src/*/x64/
-sdk/bin/src/*/x86/
-sdk/bin/src/*/[Oo]bj/
-sdk/bin/src/*/[Ll]og/
-sdk/bin/src/*/[Ll]ogs/
-sdk/bin/src/*/[Ww]in32/
-sdk/bin/src/*/[Aa][Rr][Mm]/
-sdk/bin/src/*/[Aa][Rr][Mm]64/
-sdk/bin/src/*/bld/
-sdk/bin/src/*/[Bb]in/
+/sdk/bin/src/*/*.user
+/sdk/bin/src/*/.vs/
+/sdk/bin/src/*/[Rr]elease/
+/sdk/bin/src/*/[Dd]ebug/
+/sdk/bin/src/*/x64/
+/sdk/bin/src/*/x86/
+/sdk/bin/src/*/[Oo]bj/
+/sdk/bin/src/*/[Ll]og/
+/sdk/bin/src/*/[Ll]ogs/
+/sdk/bin/src/*/[Ww]in32/
+/sdk/bin/src/*/[Aa][Rr][Mm]/
+/sdk/bin/src/*/[Aa][Rr][Mm]64/
+/sdk/bin/src/*/bld/
+/sdk/bin/src/*/[Bb]in/
+
+# Ignore GCC Build
+/sdk/bin/gcc-2.6.3/source/linux/build/
+
+# Ignore .LIBs in elf folder
+/sdk/lib/elf/*.LIB

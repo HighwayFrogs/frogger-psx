@@ -1,43 +1,50 @@
 # Frogger PsyQ SDK  
 If you are just trying to compile the game, this document is not the right one to read, refer to the main readme instead.  
 This document details the contents of the SDK folder, where the binaries were sourced, and how the compilation process works.  
-It is intended to be an aid when reading the `.bat` scripts created to compile the game.  
+It is intended to be an aid when reading the `.bat` and `.sh` scripts which compile the game.  
 
 ## The Basics
 This folder contains the PSX SDK executables used to compile source code into something that runs on the PlayStation.  
 In other words, this folder is mostly tools created for Sony given out to game developers so they could write code for the PlayStation.  
 PsyQ is the name of this toolchain (by Psygnosis & SN Systems) for building PSX code.  
-Most of the PsyQ tools were sourced from "Programmer Tool" PlayStation SDK CDs, otherwise they are specified where they came from.  
+Most of the PsyQ tools and libraries were sourced from "Programmer Tool" PlayStation SDK CDs.  
 
 ## PsyQ Version  
 Frogger was built using tools mostly from PsyQ 4.0. Luckily, this version contains both 32-bit and 16-bit versions of tools, allowing for some flexibility we'll take advantage of below.  
 One notable exception which was not used from PsyQ 4.0 was the compiler.  
 
 ## The Compiler
-Frogger was compiled using DOS (Likely Windows 95), using 16-bit applications.  
+Frogger was originally compiled using DOS (Likely Windows 95), using mostly 16-bit applications.  
 In order to build a perfect match of the original game, the original compiler must be used. Or rather, if it doesn't it gets a bit more complicated.  
 The compiler used to build Frogger (`CC1PSX.EXE`) has been identified as `GCC 2.6.3`, likely: `GNU C 2.6.3.SN.2 [AL 1.1, MM 40] Sony Playstation compiled by GNU C`.  
-Unfortunately, the floppy containing this compiler version is rare and was not available either online or for purchase when this repository was setup.  
+Unfortunately, the floppy containing this compiler version is rare and [was not available either online or for purchase when this repository was setup](https://www.psxdev.net/forum/viewtopic.php?f=28&t=4122).  
 The workaround was to recreate this compiler's changes and apply them to the official GCC 2.6.3 source code to the best of our abilities.  
-`CC1PSX.EXE` is GCC 2.6.3 compiled by me (Kneesnap), with information and source code available in the `gcc-2.6.3` folder.  
-`cc1-psx-263` is GCC 2.6.3 compiled for Linux from [here](https://github.com/decompals/old-gcc) by [sonicdcer](https://github.com/sonicdcer).  
+Those recreations have compiled builds (and their source code) for both Windows and Linux available in the `gcc-2.6.3` directory.  
 Luckily, the original compiler did eventually surface (Thank you logi26/logi1700!!!), but it ended up being a 16-bit executable. As such, it can only be used in the DOSBox build pipeline.  
 
 ## Runtime Libraries  
 The runtime libraries in the `lib\` folder have been copied from PsyQ 4.0, and are the version the game was originally compiled with.  
+For compilation on Linux systems, the normal ELF libraries are provided in `lib-elf\` folder were converted to ELF from .LIB using the `lib-elf\convert-libs.bat` script.  
 
 **putchar.obj:**  
-This file was probably extracted from some `.lib` file with Ghidra, then modified to closely match the data seen in the build of the game.  
-Specific details have been forgotten, as it seems they were not documented. Here's my recollection of what happened.  
-These are the steps:  
- - **1)** Install the [ghidra-psx-ldr](https://github.com/lab313ru/ghidra_psx_ldr) plugin installed in Ghidra.  
- - **2)** Drag the `LIBC2.LIB` file into Ghidra.  
- - **3)** It should ask what import mode you want since it has nested files. Select "File System".  
- - **4)** Right-click "PUTCHAR.OBJ", and click "Export".  
- - **5)** Modify the file with a hex editor, and replace the large existing function code with the handful of instructions seen in the actual game executable.  
+This object was recreated by assembling the following file with the command: `ASPSX.EXE putchar.s -o putchar.obj`.  
 
-## Two Build Pipelines
-There are build pipelines included for compiling the game. Both are similar, but contain key differences.  
+putchar.s:  
+```gas
+	.set	noat
+	.set	noreorder
+	.text
+
+    .global putchar
+    putchar:
+		addiu      $10, $0, 0xB0
+		jr         $10
+		addiu      $9, $0, 0x3D
+		nop
+```
+
+## Build Pipelines
+There are several build pipelines included for compiling the game, each built for different reasons.  
 
 ### Pipeline 1) Windows (Recommended)
 This pipeline builds on Windows 10/11, and likely most earlier versions of Windows too.  
@@ -57,7 +64,7 @@ PsyQ 4.3 (Official PlayStation SDK):
  - PSYLIB2.EXE v2.05: PsyQ Library Maker (.obj -> .lib, 32-Bit)
  PsyQ 4.3 was the first known Programmer Tool CD to include a 32-bit version of these programs, so they were sourced from this CD.
 
-GCC 2.6.3 (Compiler):
+GCC 2.6.3 (Compiled By Knee):
  - CC1PSX.EXE: GNU C Compiler 2.6.3 modified for PSX (.C -> aspsx -> .obj, 32-bit)
 
 NMAKE:
@@ -73,9 +80,9 @@ Unfortunately, the original tools were 16-bit, so they can only be run in DOS, t
 While Windows XP (and other versions) were supposed to have compatibility with 16-bit programs, they crash with memory errors.  
 While Windows 95/98 (built upon DOS) are capable of running these tools, the most convenient way to run them these days is with a DOS emulator, in our case [DOSBox](https://www.dosbox.com/).  
 If you use this pipeline, you will need to install [DOSBox](https://www.dosbox.com/).  
-This pipeline was primarily helpful for reverse engineering purposes, but fell out of favor once rhe other setup was finished.  
+This pipeline was primarily helpful for reverse engineering purposes, but fell out of favor once the other setup was finished.  
 It is kept here because there isn't much of a need to remove it, and perhaps one day when Windows is obscure maybe this one would be easier to emulate?  
-Either way don't use it for now.  
+Either way, the Windows build pipeline is magnitudes faster, doesn't crash, and works on Windows 10/11.  
 
 **Programs:**  
 ```
@@ -106,6 +113,98 @@ NMAKE:
  Both of the programs here came from Microsoft Visual C++ 4.0, obtained from https://winworldpc.com/product/visual-c/4x
 ```
 
+### Pipeline 3) GNU/Linux (Fully Open Source)
+At the time of writing, Windows is capable of running 32 bit applications, but there is no guarantee how long this support will last.  
+While it is possible to use DOSBox or Wine on Linux to build the game, a native open source build toolchain still has its benefits.  
+Given how much work was already done (compiling custom GCC, using a Linux decompilation toolchain, etc), there wasn't much work left to make a full Linux build pipeline.  
+In order to use the Linux pipeline, run `./setup-linux.sh` in the repository root. Then, running `make` should build a byte-matching executable.  
+
+**Programs:**  
+```
+GCC 2.6.3 (Modified for PlayStation):
+ - Partially based on https://github.com/decompals/old-gcc/
+ - CPP: GNU C Preprocessor (.C -> cc1 -> as, x64, PsyQ Equivalent: CPPPSX.EXE)
+ - CC1: GNU C Compiler 2.6.3 (cpp -> as -> .o, x64, PsyQ Equivalent: CC1PSX.EXE)
+
+Modern GCC & binutils (apt packages: gcc-mipsel-linux-gnu, binutils-mipsel-linux-gnu):
+ - Modern GCC programs can be used to replace the job of some of the original PsyQ SDK, without losing byte-accuracy.
+ - mipsel-linux-gnu-as: GNU Assembler (Assembly & Compiler Output -> .o, PsyQ Equivalent: ASPSX.EXE)
+ - mipsel-linux-gnu-ar: Creates .A libraries from .o compiler objects. (PsyQ Equivalent: PSYLIB2.EXE)
+ - mipsel-linux-gnu-ld: LD Linker (Many .o/.a files -> single .elf, PsyQ Equivalent: PSYLINK.EXE)
+ - mipsel-linux-gnu-objcopy: Used to get raw data out of the .ELF (used when converting .ELF to PSX .EXE)
+ - make: GNU Make (Builds the project from the makefile)
+
+MASPSX:
+ - Source Code: https://github.com/mkst/maspsx (A backup is also included in this repository)
+ - Because ASPSX.EXE was a custom assembler created for the PsyQ toolchain, it had some differences from the GNU Assembler (mipsel-linux-gnu-as). It was also rather old.
+ - MASPSX.EXE is a pre-processing layer that applies changes to the assembly text before it is passed to the assembler.
+ - These changes modify the code so it produces the same output the original assembler did.
+ - Requires python3 (apt-get install python3 python3-pip)
+```
+
+#### WSL Support (Windows Subsystem for Linux)
+The Linux build pipeline can be used on Windows via [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) to run the `GCC 2.6.3 CC1 (cc1-psx-263)` C compiler.  
+However, the repository should not be cloned to an NTFS file system. In other words, **DO NOT** use a path such as `/mnt/c/Users/kneesnap/projects/frogger-psx`), use somewhere in the WSL file system like `/home/kneesnap/projects/frogger-psx`.  
+Naturally, [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) is required for using the Linux build pipeline on Windows. I used `Ubuntu 22.04.2 LTS`, but pretty much anything should work.  
+The build pipeline should also work on a native Linux OS as well.  
+
+#### Problems Solved
+The challenges with creating a Linux build pipeline have been documented here, with their solution.  
+
+**1) Line Endings:**  
+Linux uses LF (\n) line endings, while Windows uses CRLF (\r\n) line endings.  
+The old version of GCC used by Frogger doesn't recognize CRLF line endings when run on Linux.  
+Thus, when building in environments such as WSL (Windows Subsystem for Linux), syntax errors will be thrown, sometimes with a segfault.  
+The solution to this was automated in `setup-linux.sh`, which will convert line endings to LF.  
+
+**2) File Name Case Sensitivity:**  
+The Windows NTFS filesystem is not case-sensitive. So, `FROG.C` will be opened if someone asks to open `frog.c`.  
+However, this is not the case on Linux. Unfortunately, this is a problem for Frogger.  
+All of the #include statements in its source code use fully lower-case file names, but the actual file names have varying capitalizations, meaning those files will not be found.  
+This issue does not occur when running WSL on a Windows file-system due to Windows file-system rules still applying.  
+The solution was to make `setup-linux.sh` rename all files to become lower-case.  
+
+**3) Handwritten Assembly (ASMPSX.EXE):**  
+Unfortunately, the original PsyQ toolchain had two assemblers, `ASPSX.EXE` and `ASMPSX.EXE`.  
+While `ASPSX.EXE` is very similar to the GNU Assembler since it was used for compiler output, `ASMPSX.EXE` was meant for handwritten assembly and used a completely custom/proprietary syntax.  
+There is no equivalent program for `ASMPSX.EXE`, so the decision was made to rewrite the handwritten assembly files into the GNU Assembler syntax, and just re-use the GNU Assembler.  
+The converted files can be found [here](source/linux/).  
+
+**4) Converting Libraries:**  
+The official Psy-Q SDK Libraries must be included in the executable so the game code can call the functions used to interact with PSX hardware.  
+Unfortunately, SN Systems made a proprietary format for their compiler objects, libraries, and executables.  
+Linux tools primarily support ELF binary files, and they are incompatible with the .OBJ and .LIB files included in the PsyQ SDK.  
+Luckily, it was possible to convert the files into ELF files compatible with Linux tools by creating [this batch script](/source/sdk/lib-elf/convert-libs.bat).  
+The pre-converted libraries have been included, and no conversion is necessary unless you want to use another library which was not included.  
+
+**5) Linker Script:**  
+Using a custom linker script (LD) based on [this](https://github.com/grumpycoders/pcsx-redux/blob/main/src/mips/ps-exe.ld), we can create a matching PSX binary.  
+The custom linker script is available [here](/frogger.ld).  
+
+**6) Matching behavior of the original assembler.**  
+Because the original assembler was a proprietary program called `ASPSX.EXE` without any source code available, shouldn't that prevent building with open source tools?  
+Not quite, because its syntax is seemingly identical to the official GNU AS syntax.  
+There are some differences in the assembled machine code, the original `ASPSX.EXE` has differing behavior things like auto-nopping the branch delay slot and various macros.  
+Luckily the [maspsx](https://github.com/mkst/maspsx) project mentioned earlier takes care of these differences for us, and has been specifically designed to modify the assembly text to make the GNU Assembler mimic `ASPSX.EXE`.  
+
+**7) Matching Symbol Ordering (.bss/.sbss):**  
+All uninitialized global variable declarations end up in the `.bss`/`.sbss` sections based respectively on variable size.  
+In Frogger, nearly all of these variables are **common symbols**.  
+The purpose of common symbols is similar to an extern in the sense that the symbol may be declared in another translation unit.  
+
+Examples of how to declare a non-common global variable:  
+ - Initialize the variable (`int foo = 0;` instead of `int foo;`), because having a value assigned implies the translation unit is the location where the variable definition belongs.
+ - Prefixing an uninitialized global with the `static` keyword, because `static` guarantees the variable's declaration/use is within only the current translation unit.
+ - In GNU Assembler syntax, using the `.global` directive for a label followed by a data allocation such as `.space`.
+
+However, there is a key difference between externs and common symbols: externs require a non-extern definition in a linked translation unit, but common symbols will be created by the linker if missing.  
+Unfortunately, the original linker used to build Frogger jumbles up symbol ordering based on [the behavior described here](/vlo/README.MD).  
+In order to byte-match the executable, we must replicate the symbol ordering of the original executable.  
+Because the purpose of common symbols is to allow definitions in another translation unit, we can link [bss.s](/source/linux/bss.s) and [sbss.s](/source/linux/sbss.s) to define the correct symbol order.  
+Unfortunately, even after doing so there was still one major issue remaining issue: the symbols in the PsyQ runtime libraries were not ordered properly.  
+Huge thanks to [Dezgeg](https://github.com/Dezgeg) for identifying and fixing this problem.  
+It was an issue with [psyq-obj-parser](https://github.com/grumpycoders/pcsx-redux/tree/main/tools/psyq-obj-parser) which meant the converted libraries did not convert common symbols correctly.  
+
 ## Extra Tools
 There are a few additional tools included, their purposes are described below.  
 
@@ -118,75 +217,12 @@ I modified the code so it could work with large .cpe files, something the origin
 Source code is available in the `src\` folder.
 
 The source code to both of these programs are available at: https://github.com/Lameguy64/mkpsxiso (Licensed with GPLv2)
+A checkout of this code has been included in this repository as a backup too.
 dumpsxiso.exe: This program extracts all of the files from a Frogger disc image, and makes a template for how to recreate the PSX iso image.
 mkpsxiso.exe: This program creates PSX iso images using the templates created by dumpsxiso.exe.
 ```
 
-```
-This is a note for when the Linux version is ready.
-### WSL (Windows Subsystem for Linux)
-A Linux version of the compiler has been built from [this repository](https://github.com/decompals/old-gcc) by [sonicdcer](https://github.com/sonicdcer).  
-The Linux build pipeline can be used on Windows via [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) to run the `GCC 2.6.3 CC1 (cc1-psx-263)` C compiler.  
-Naturally, [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) is required for the Linux build. I used `Ubuntu 22.04.2 LTS`, but pretty much anything should work.  
-```
-
-## Linux Build Pipeline?
-It should be completely possible to create a working compilation setup on Linux using free software.  
-In fact, I was able to compile code, but it eventually became clear the simpler route to creating a matching setup was to use the original toolchain, especially with the original makefile, linker script, etc.  
-Perhaps in the future a complete build pipeline could be finished.  
-
-
-**Miscellaneous Potentially Useful Info:**  
-```
-cc1-psx-263 combined with the mips gcc toolchain can be used to build Frogger, as seen in the DOSBox compilation setup.
-However, CR LF line endings (\r\n) used by Windows completely break GCC, since outside of Windows everyone uses LF line endings (Just \n).
-So, when you start encountering segfaults and/or syntax errors while trying to preprocess or compile this code in Linux, this is usually why.
-
-Working GCC Toolchain:
-sudo apt-get install -y git make gcc-mipsel-linux-gnu g++-mipsel-linux-gnu binutils-mipsel-linux-gnu python3 python3-pip
-
-Code Formatter:
-sudo apt-get install -y  clang clang-format clang-tidy-14
-
-Compilation Examples:
-
-1) Convert CR LF (\r\n) line endings to LF (\n), for compatibility with Linux tools:
-awk '{ sub("\r$", ""); print }' "source/FROG.C" > "source/FROG-LF.C"
-
-2) Preprocess with modern GNU (mipsel-linux-gnu-cpp instead of cpppsx.exe):
-mipsel-linux-gnu-cpp -Iinclude -undef -Wall -fno-builtin -Dmips -D__GNUC__=2 -D__OPTIMIZE__ -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C -DHACKS -DUSE_INCLUDE_ASM -lang-c source/FROG-LF.C > source/FROG-PREPROC.C
-NOTE: I got an error "mipsel-linux-gnu-cpp: fatal error: cannot execute ‘cc1plus’: execvp: No such file or directory", because I didn't have "g++-mipsel-linux-gnu" installed.
-This doesn't seem to produce compileable output for the old version, which is odd because in a decomp setup it compiles just fine.
-
-3) Compile Preprocessed FROG.C GNU (& Fix the Assembly Code):
-cat source/FROG-PREPROC.C | ./sdk/bin/gcc-2.6.3/cc1-psx-263 -O3 -G0 -funsigned-char -w -fpeephole -ffunction-cse -fpcc-struct-return -fcommon -fverbose-asm -msoft-float -g -quiet -mcpu=3000 -fgnu-linker -mgas -gcoff > source/FROG-ASM.S
-
-4) Update assembly with maspsx
-cat source/FROG-ASM.S | python3 tools/maspsx/maspsx.py --no-macro-inc >> src/main/FROG.asm
-
-4) Assemble with GNU Assembler/AS (mipsel-linux-gnu-as instead of aspsx.exe):
-mipsel-linux-gnu-as -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 src/main/FROG.asm -o src/main/FROG.o
-You'll get a .o file, which is a completely different format from what aspsx.
-
-Linker Info:
-Unfortunately, I have no idea how to link the .o objects into a PSX executable from this point.
-Other PSX decomp projects should probably get checked out.
-You'll need to use ld of course, but I am not sure how to make a linker script that LD likes.
-
-See the DOS pipelinecat FROG.PRE | ./sdk/bin/cc1-psx-263 -O3 -funsigned-char -w -fpeephole -ffunction-cse -fpcc-struct-return -fcommon -fverbose-asm -msoft-float -g -quiet -mcpu=3000 -fgnu-linker -mgas -gcoff > FROG.S
-cat src/main/FROG.PRE | ./bin/cc1-psx-263 -O3 -funsigned-char -w -fpeephole -ffunction-cse -fpcc-struct-return -fcommon -fverbose-asm -msoft-float -g -quiet -mcpu=3000 -fgnu-linker -mgas -gcoff > src/main/FROG.S
-aspsx.exe -q FROG.S -o FROG.OBJ
-
-
-Windows Example (Build 49, NOT Retail):
-ccpsx -save-temps -v -comments-c++ -c -Wunused -Wmissing-prototypes -Wuninitialized -O3 mapview.c
-OR
-cpppsx.exe -undef -D__GNUC__=2 -v -Wunused -Wmissing-prototypes -Wuninitialized -D__OPTIMIZE__ -lang-c -Dmips -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D__EXTENSIONS__ -D_MIPSEL -D__CHAR_UNSIGNED__ -D_LANGUAGE_C -DLANGUAGE_C mapview.c C:/build/temp/QLJHWRNT
-cc1psx.exe -quiet -version -Wunused -Wmissing-prototypes -Wuninitialized -O3 C:/build/temp/QLJHWRNT -o C:/build/temp/JFTSBZIG
-aspsx.exe -q C:\build\temp\JFTSBZIG -o mapview.obj
-```
-
-## Ghidra Scripts
+### Ghidra Scripts
 Ghidra was used extensively in understanding and reverse engineering the game, and there are many scripts which have been included which were helpful.  
 These were used to assist in both attempting to understand the game and also to assist in making a matching build.   
 Many of these were made long ago.

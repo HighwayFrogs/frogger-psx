@@ -3,22 +3,23 @@
 The tool which made VLO files (Vorg) also generated files which belong in this folder called `frogvram.c` and `frogvram.h`.  
 Unfortunately, the source code backup this repository is built from did not include `frogvram.c` and `frogvram.h`.  
 So, in order to make this code usable, we needed to recreate those files.  
-`frogvram.c` only contained variable definitions however, so for many of them it was fairly simple to recreate, just by taking data out of a build of the game.  
-However, for every single texture in the game, there is a global variable defined in `frogvram.c`. This allowed the code to reference a particular texture.  
-For textures that are referenced by the code, the other places in the code would tell us the variable names, because they were used.  
-But for the hundreds / thousands which aren't explicitly referenced in the code, we have to make our own.  
-For the ones which aren't referenced by the other game code, we can just give it whatever variable name we want right?  
-Yes, but it's more complicated than that. If you want to perfectly match an executable (something we want to make this repository match the final version of the game), I discovered that the variable name is important to determining how the variables are ordered in memory.  
+`frogvram.c` only contained variable definitions however, so it should be as simple as taking data out of a build of the game, right?  
+Almost. Lets talk about what these variables are first.  
+For every single texture in the game, there is a global variable defined in `frogvram.c`. This allowed the code to reference a particular texture by its variable name, which was based on the original texture's file name.  
+Thus all textures which are used in the source code (excluding frogvram.c) we know the file names for just by checking their variable names. For example a variable named `im_for_swarm` would mean the file name was `for_swarm.bmp`.  
+But for the approximately 1000 textures which aren't explicitly referenced in the code, who cares?  
+Variable names are arbitrary and don't impact the output of a compiled binary right? So we could just give random names to these images and call it a day right?  
+Welllll, it's more complicated than that. If you want to perfectly match an executable (something we want to make this repository match the final version of the game), I discovered that the variable name is important to determining how the variables are ordered in memory.  
 
 ## What is texmacro.h?
 Notably, there's a file in here which we generated ourselves: `texmacro.h`.  
 Looking inside, its contents look pretty much like gibberish. It renames the names of variables such as `im_img463` to `im_img463_Fzwyid`.   
-Believe it or not, this black magic fixes our problem/orders our variables correctly.  
+Believe it or not, this black magic fixes the problem and orders the symbols in memory correctly, allowing for a perfect match of the retail game.  
 To understand why, we must consider how memory is laid out in the executable.  
 For most things in the executable, like functions, the order they are written into the source code files is the same order they will be put in the compiled code / executable.  
 So for example, if you write code for `FunctionA()` before `FunctionB()`, `FunctionA()` will be placed before `FunctionB()` in the compiled code / executable.  
-HOWEVER, because the tools used to write code for the PlayStation were made from scratch specifically for game consoles, it's a lot more susceptible to unusual quirks.  
-Unlike functions, uninitialized memory (variables which are 0/empty when the game sets up) get ordered in a way which is a bit complicated to explain.  
+HOWEVER, because the tools (build toolchain) used to write code for the PlayStation were made from scratch specifically for game consoles, they're a lot more susceptible to unusual quirks.  
+Unlike functions, uninitialized memory (variables which are empty/0 when the game sets up) get ordered in a way which is a bit complicated to explain.  
 All of that uninitialized data gets put into a part of the executable called the **.bss section**.  
 
 **Why does this matter?**  
@@ -164,7 +165,8 @@ This checklist should make it a lot easier to debug / diagnose when something is
  - If previousSymbolObjFile is linked after currentSymbolObjFile, the order is incorrect  
  - If both symbols come from the same file, go to step 3  
 
-3) Compare the previous symbol's assembler hash with the current symbol's assembler hash:  
+3) Compare the previous symbol's assembler hash with the current symbol's assembler hash:
+ - Recall how the assembler hash does not include the input string length, but the linker hash does. In practice this causes the symbols to be sorted from shortest to longest.    
  - If previousAssemblerHash > currentAssemblerHash, the order is correct  
  - If previousAssemblerHash < currentAssemblerHash, the order is incorrect  
  - If previousAssemblerHash == currentAssemblerHash, continue to step 4  

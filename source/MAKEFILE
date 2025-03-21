@@ -112,14 +112,14 @@ all: $(PROJ_MWI_FILE) $(PROJ_OBJ_C_LIST) $(PROJ_OBJ_S_LIST)
 	chdir ..
 	
 	@echo -----
-	psylink /n512 /c /m @makefile.lnk,main.cpe,main.sym,main.map
+	psylink /n512 /c /m @makefile.lnk,frogger.cpe,frogger.sym,frogger.map
 
 debug:  
-	dbugpsx main.sym
+	dbugpsx frogger.sym
 
 clean:
 #	del		*.dep
-	del		main.exe
+	del		frogger.exe
 	del		*.obj
 	del 	*.cpe
 	del 	*.map
