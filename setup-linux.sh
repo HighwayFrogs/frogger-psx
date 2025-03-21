@@ -7,25 +7,12 @@
 # This script should be possible to run more than once (and on a separate computer) without making further repository changes.
 # It should also be possible to still compile the game using the Windows build pipeline, at least if the Linux-configured repository is cloned on a Windows machine.
 
-# TODO:
-# 3) Make api.src and other folders lower-case.
-# 4) Which changes did we want to apply to the windows setup?
-#  - Lower-case header file names? Leaning towards yes
-#  - Lower-case main source file names? Leaning towards no, but consider further.
-# 5) Update psyq-obj-parser executable & source code
-# 6) Heavy Testing (Is it possible to have a repository which is both linux and windows compileable? Probably not locally due to CRLF reasons. But, a git repository which has linux pushed? Perhaps...)
-# - Verify Full WSL (Then, see if windows build pipeline still works & that DOS pipeline still works.)
-# - Verify WSL In Windows Filesystem (Then, see if windows build pipeline still works & that DOS pipeline still works.)
-# - Verify standalone Windows Pipeline
-# - Verify standalone DOS Pipeline
-# 7) Merge into main
-# 8) Why not try byte-matching retail PAL, and retail NTSC-J?
-
 # 1) Ensure current environment is capable of building Frogger.
 # The ability to compile Frogger depends on case-sensitive file names. (Eg: We want everything to be lower-case, otherwise the preprocessor won't resolve #include statements)
 # However, some file-system types (Primarily when running under Windows Subsystem for Linux) are case-insensitive, meaning the file 'TEST' is the same as a file named 'test'.
 # It's probably just Windows/NTFS, but when this happens, the "mv" command fails to rename files, because Linux interfacing with the Windows file-system causes both files to be seen as the same hard link, a rename operation can't occur.
 # It's been a while, and I don't recall if using some kind of bypass (Creating a replacement function for mv which renames the file to a temp file before renaming to the new target file.) would work, or if other complications occur. It doesn't matter though since they could just use the Windows build pipeline.
+# Technically 'fsutil.exe file setCaseSensitiveInfo <path> enable' may fix this, but it only works on NTFS, not exFAT.
 
 # Prepare FS Case-Sensitivity Test
 testFileNameUpper="FILENAME_CASE.TEST"
