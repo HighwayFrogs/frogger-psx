@@ -1,21 +1,22 @@
-#;/******************************************************************************
-#;/*%%%% mapasm.s
-#;/*------------------------------------------------------------------------------
-#;/*
-#;/*	Polygon rendering routines for Frogger (PlayStation)
-#;/*
-#;/*	CHANGED		PROGRAMMER		REASON
-#;/*	-------  	----------  	------
-#;/*	03.07.97	Dean Ashton		Created
-#;/*	XX.12.23	Kneesnap		Converted to GNU AS Syntax
-#;/*
-#;/*%%%**************************************************************************/
+#/******************************************************************************
+#/*%%%% mapasm.s
+#/*------------------------------------------------------------------------------
+#/*
+#/*	Polygon rendering routines for Frogger (PlayStation)
+#/*
+#/*	CHANGED		PROGRAMMER		REASON
+#/*	-------  	----------  	------
+#/*	03.07.97	Dean Ashton		Created
+#/*	XX.12.23	Kneesnap		Converted to GNU AS Syntax
+#/*	19.03.25	Kneesnap		Improved GNU Assembler version readibility
+#/*
+#/*%%%**************************************************************************/
 
-.include "macro.inc"
+.include "mapasm.i"
 
-.set noat      /* allow manual use of $at */
-.set noreorder /* dont insert nops after branches */
-
+.set noat      # allow manual use of $at
+.set noreorder # dont insert nops after branches
+	
 #/******************************************************************************
 #/*%%%% MapRenderQuadsASM
 #/*------------------------------------------------------------------------------
@@ -32,6 +33,598 @@
 #/*
 #/*	NOTES		This function performs equivalent processing to that found
 #/*			in mapdisp.c (MapRenderQuads)
+#/*
+#/*	CHANGED		PROGRAMMER		REASON
+#/*	-------		----------		------
+#/*	03.07.97	Dean Ashton		Created
+#/*	??.11.23	Kneesnap		Created GNU Assembler version
+#/*	19.03.25	Kneesnap		Improved GNU Assembler version readibility
+#/*
+#/*%%%**************************************************************************/
+
+#	a0	-	pointer to current polygon node
+#	a1	-	pointer to rendering param block
+#	a2	-	current prim pointer
+#	a3	-	OT position 
+#
+#	v0	-	poly
+#	v1	-	npolys
+#
+#	t0	-	
+#	t1	-	
+#	t2	-	
+#	t3	-	
+#	t4	-	
+#	t5	-	
+#	t6	-	
+#	t7	-	
+#	t8	-	
+#	t9	-	
+#
+#	s0	-	current prim pointer x0 address
+#	s1	-	current prim pointer x1 address
+#	s2	-	current prim pointer x2 address
+#	s3	-	current prim pointer x3 address
+#	s4	-	pvert[0]
+#	s5	-	pvert[1]	
+#	s6	-	pvert[2]
+#	s7	-	pvert[3]
+#	s8	-	Map_vertices
+
+glabel MapRenderQuadsASM
+.Lstack_saved_registers:
+	addiu      $sp, $sp, -sizeof_MAPASM_STACK  # Create a stack frame
+	sw         $s0, MAPASM_STACK_s0($sp)   # Save registers on the stack
+	sw         $s1, MAPASM_STACK_s1($sp)
+	sw         $s2, MAPASM_STACK_s2($sp)
+	sw         $s3, MAPASM_STACK_s3($sp)
+	sw         $s4, MAPASM_STACK_s4($sp)
+	sw         $s5, MAPASM_STACK_s5($sp)
+	sw         $s6, MAPASM_STACK_s6($sp)
+	sw         $s7, MAPASM_STACK_s7($sp)
+	sw         $s8, MAPASM_STACK_s8($sp)
+
+.Linit:
+	lw         $t0, MRP_prim_size($a1)
+	lui        $t1, (0x00FFFFFF >> 16)
+	sra        $t0, $t0, 2
+	ori        $t1, $t1, %lo(0xFFFFFF) # t1 = $ffffff
+	addiu      $t0, $t0, -1
+	sll        $t0, $t0, 24 # t0 = (GPU primitive size << 24)
+	sw         $t1, MAPASM_STACK_ot_and_mask($sp)
+	sw         $t0, MAPASM_STACK_ot_or_mask($sp)
+
+	lui        $s8, %hi(Map_vertices)
+	ori        $s8, $s8, %lo(Map_vertices)
+	lw         $s8, 0($s8)  # s8 = Contents of Map_vertices (pointer to MR_SVEC array)
+
+	lui        $t1, %hi(MRVp_work_ot) # Read and cache the OT pointer, OT size, and OT shift
+	lui        $t2, %hi(MRVp_ot_size)
+	lui        $t3, %hi(MRVp_otz_shift)
+	lui        $t4, %hi(MRTemp_svec)
+	ori        $t1, $t1, %lo(MRVp_work_ot)
+	ori        $t2, $t2, %lo(MRVp_ot_size)
+	ori        $t3, $t3, %lo(MRVp_otz_shift)
+	ori        $t4, $t4, %lo(MRTemp_svec)
+	lw         $t1, 0($t1)
+	lh         $t2, 0($t2)
+	lh         $t3, 0($t3)
+	sw         $t1, MAPASM_STACK_work_ot($sp)
+	sw         $t2, MAPASM_STACK_ot_size($sp)
+	sw         $t3, MAPASM_STACK_otz_shift($sp)
+	sw         $t4, MAPASM_STACK_temp_svec_ptr($sp)
+
+	lw         $t1, MRP_prim_flags($a1)
+	nop
+	andi       $t1, $t1, MAP_RENDER_FLAGS_LIT
+	beqz       $t1, .Lfetch_next_node
+	add        $a3, $zero, $zero # DELAY: light_factor = NULL
+
+	lui        $t0, 0x80 # t0 = (128<<16)
+
+	lui        $t1, %hi(Map_light_min_r2)
+	ori        $t1, $t1, %lo(Map_light_min_r2)
+	lw         $t2, 0($t1) # t2 = *Map_light_min_r2
+
+	lui        $t1, %hi(Map_light_max_r2)
+	ori        $t1, $t1, %lo(Map_light_max_r2)
+	lw         $t3, 0($t1) # t3 = *Map_light_max_r2
+
+	sw         $t2, MAPASM_STACK_light_min($sp)
+	sw         $t3, MAPASM_STACK_light_max($sp)
+	sub        $t1, $t3, $t2 # t1 = Map_light_max_r2 - Map_light_min_r2
+	divu       $zero, $t0, $t1 # start divide of t0 (128<<16) by t1 (Map_light_max_r2 - Map_light_min_r2)
+	nop
+	mflo       $t0 # t3 = (128<<16) / (Map_light_max_r2 - Map_light_min_r2)
+	sw         $t0, MAPASM_STACK_light_factor($sp)
+
+.Lfetch_next_node:
+	lw         $a0, 0x0($a0) # poly_node = poly_node->pn_next
+	lui        $t0, %hi(MRFrame_index) # Fetch first part of MRFrame_index address
+	beqz       $a0, .Lexit # leave if we haven't any poly nodes
+	ori        $t0, $t0, %lo(MRFrame_index) # t0 = address of MRFrame_index
+	lw         $t1, 0($t0) # t1 = MRFrame_index
+	addi       $t2, $a0, PN_prims # t2 points to poly_node->pn_prims
+	sll        $t1, $t1, 2 # Turn MRFrame_index into longword offset
+	add        $t2, $t2, $t1 # t2 now points to poly_node->pn_prims[0] or poly_node->pn_prims[1]
+	lw         $a2, 0($t2) # a2 now points to appropriate primitive buffer
+
+	lw         $v1, PN_numpolys($a0) # v1 = numpoly
+	lw         $v0, PN_map_polys($a0) # v0 = poly
+	beqz       $v1, .Lfetch_next_node
+	nop
+
+	# Set s0, s1, s2 and s3 to appropriate addresses within primitive
+	lw         $s0, MRP_prim_x0_ofs($a1) # s0 = mr_prim_x0_ofs
+	lw         $t0, MRP_prim_coord_ofs($a1) # load t0 with offset between each x position in prim
+	addu       $s0, $s0, $a2 # s0 = address of x0 in primitive
+	add        $s1, $s0, $t0 # s1 = s0 + mr_prim_coord_ofs
+	add        $s2, $s1, $t0 # s1 = s0 + mr_prim_coord_ofs
+	add        $s3, $s2, $t0 # s3 = s2 + mr_prim_coord_ofs
+
+	lhu        $s4, 0 + MF4_vertices($v0) # t0 = poly->mp_vertices[0]
+	lhu        $s5, 2 + MF4_vertices($v0) # t1 = poly->mp_vertices[1]
+	lhu        $s6, 4 + MF4_vertices($v0) # t2 = poly->mp_vertices[2]
+	lhu        $s7, 6 + MF4_vertices($v0) # t3 = poly->mp_vertices[3]
+
+	sll        $s4, $s4, 3 # Turn next vertex 0 index into a MR_SVEC offset
+	sll        $s5, $s5, 3 # Turn next vertex 1 index into a MR_SVEC offset
+	sll        $s6, $s6, 3 # Turn next vertex 2 index into a MR_SVEC offset
+	sll        $s7, $s7, 3 # Turn next vertex 3 index into a MR_SVEC offset
+
+	add        $s4, $s8, $s4 # s4 = address of vertex 0
+	add        $s5, $s8, $s5 # s5 = address of vertex 1
+	add        $s6, $s8, $s6 # s6 = address of vertex 2
+	add        $s7, $s8, $s7 # s7 = address of vertex 3
+
+.Lprocess_next_polygon:
+.Lcheck_for_lit:
+	lw         $t0, MRP_prim_flags($a1)
+	nop
+	andi       $t1, $t0, MAP_RENDER_FLAGS_LIT
+	beqz       $t1, .Lcheck_for_textured
+	nop
+
+	# Start of lighting code
+	lh         $t3, SVEC_vx + MRP_frog_svec($a1) # Must NOT trash t3/t4/t5
+	lh         $t4, SVEC_vy + MRP_frog_svec($a1) # and must keep t6/t7/t8/t9 holding rgb[0/1/2/3]'s
+	lh         $t5, SVEC_vz + MRP_frog_svec($a1)
+	
+	# ------ VERTEX 0 -------
+	lh         $t0, SVEC_vx($s4)
+	lh         $t1, SVEC_vy($s4)
+	lh         $t2, SVEC_vz($s4)
+	sub        $t0, $t0, $t3 # t0 = diff.vx
+	sub        $t1, $t1, $t4 # t1 = diff.vy
+	sub        $t2, $t2, $t5 # t2 = diff.vz
+	andi       $t0, $t0, 0xFFFF
+	sll        $t1, $t1, 16
+	andi       $t2, $t2, 0xFFFF
+	or         $t0, $t0, $t1 # t0 = (diff.vy << 16) | (diff.vx)
+	ctc2       $t2, C2_L13L21
+	ctc2       $t0, C2_L11L12
+	mtc2       $t2, C2_VZ0
+	mtc2       $t0, C2_VXY0
+	nop
+	nop
+	MVMVA      0, 1, 0, 3, 0 # Multiply vertex 0 by row of light matrix we're playing with
+	lw         $t1, MAPASM_STACK_light_min($sp) # DELAY: Fetch light min
+	lw         $t2, MAPASM_STACK_light_max($sp) # DELAY: Fetch light max
+	mfc2       $t0, C2_MAC1 # t0 = (diff.vx*diff.vx)+(diff.vy*diff.vy)+(diff.vz*diff.vz)
+	nop
+	slt        $at, $t0, $t1
+	beqz       $at, .Lcheck_max_light_0
+	lui        $t6, (0x808080 >> 16)
+	b          .Lhave_light_0
+	ori        $t6, $t6, %lo(0x808080)
+
+.Lcheck_max_light_0:
+	slt        $at, $t0, $t2
+	bnez       $at, .Lcalc_light_0
+	add        $t6, $zero, $zero
+	b          .Lhave_light_0
+	nop
+
+.Lcalc_light_0:
+	sub        $t0, $t0, $t1 # t0 = dist[v] - Map_light_min_r2
+	lw         $t2, MAPASM_STACK_light_factor($sp) # t2 = light_factor
+	ori        $t1, $zero, 0x80 # t1 = 0x80
+	mult       $t0, $t2
+	nop
+	mflo       $t0 # t0 = light_factor * (dist[v] - Map_light_min_r2
+	lui        $t2, (0x10101 >> 16)
+	sra        $t0, $t0, 16
+	ori        $t2, $t2, %lo(0x10101)
+	sub        $t1, $t1, $t0
+	mult       $t1, $t2
+	nop
+	mflo       $t6 # t6 = rgb[0]
+
+.Lhave_light_0:
+	# ------ End of VERTEX 0 ------
+	# ------ VERTEX 1 -------
+
+	lh         $t0, SVEC_vx($s5)
+	lh         $t1, SVEC_vy($s5)
+	lh         $t2, SVEC_vz($s5)
+	sub        $t0, $t0, $t3 # t0 = diff.vx
+	sub        $t1, $t1, $t4 # t1 = diff.vy
+	sub        $t2, $t2, $t5 # t2 = diff.vz
+	andi       $t0, $t0, 0xFFFF
+	sll        $t1, $t1, 16
+	andi       $t2, $t2, 0xFFFF
+	or         $t0, $t0, $t1 # t0 = (diff.vy << 16) | (diff.vx)
+	ctc2       $t2, C2_L13L21
+	ctc2       $t0, C2_L11L12
+	mtc2       $t2, C2_VZ0
+	mtc2       $t0, C2_VXY0
+	nop
+	nop
+	MVMVA      0, 1, 0, 3, 0 # Multiply vertex 0 by row of light matrix we're playing with
+	lw         $t1, MAPASM_STACK_light_min($sp) # DELAY: Fetch light min
+	lw         $t2, MAPASM_STACK_light_max($sp) # DELAY: Fetch light min
+	mfc2       $t0, C2_MAC1 # t0 = (diff.vx*diff.vx)+(diff.vy*diff.vy)+(diff.vz*diff.vz)
+	nop
+	slt        $at, $t0, $t1
+	beqz       $at, .Lcheck_max_light_1
+	lui        $t7, (0x808080 >> 16)
+	b          .Lhave_light_1
+	ori        $t7, $t7, %lo(0x808080)
+
+.Lcheck_max_light_1:
+	slt        $at, $t0, $t2
+	bnez       $at, .L80059D7C
+	add        $t7, $zero, $zero
+	b          .Lhave_light_1
+	nop
+
+.L80059D7C:
+	sub        $t0, $t0, $t1 # t0 = dist[v] - Map_light_min_r2
+	lw         $t2, MAPASM_STACK_light_factor($sp)
+	ori        $t1, $zero, 0x80 # t1 = 0x80
+	mult       $t0, $t2
+	nop
+	mflo       $t0 # t0 = light_factor * (dist[v] - Map_light_min_r2)
+	lui        $t2, (0x10101 >> 16)
+	sra        $t0, $t0, 16
+	ori        $t2, $t2, %lo(0x10101)
+	sub        $t1, $t1, $t0
+	mult       $t1, $t2
+	nop
+	mflo       $t7 # t7 = rgb[1]
+
+.Lhave_light_1:
+	# ------ End of VERTEX 1 ------
+	# ------ VERTEX 2 -------
+
+	lh         $t0, SVEC_vx($s6)
+	lh         $t1, SVEC_vy($s6)
+	lh         $t2, SVEC_vz($s6)
+	sub        $t0, $t0, $t3 # t0 = diff.vx
+	sub        $t1, $t1, $t4 # t1 = diff.vy
+	sub        $t2, $t2, $t5 # t2 = diff.vz
+	andi       $t0, $t0, 0xFFFF
+	sll        $t1, $t1, 16
+	andi       $t2, $t2, 0xFFFF
+	or         $t0, $t0, $t1 # t0 = (diff.vy << 16) | (diff.vx)
+	ctc2       $t2, C2_L13L21
+	ctc2       $t0, C2_L11L12
+	mtc2       $t2, C2_VZ0
+	mtc2       $t0, C2_VXY0
+	nop
+	nop
+	MVMVA      0, 1, 0, 3, 0 # Multiply vertex 0 by row of light matrix we're playing with
+	lw         $t1, MAPASM_STACK_light_min($sp) # DELAY: Fetch light min
+	lw         $t2, MAPASM_STACK_light_max($sp) # DELAY: Fetch light max
+	mfc2       $t0, C2_MAC1 # t0 = (diff.vx*diff.vx)+(diff.vy*diff.vy)+(diff.vz*diff.vz)
+	nop
+	slt        $at, $t0, $t1
+	beqz       $at, .Lcheck_max_light_2
+	lui        $t8, (0x808080 >> 16)
+	b          .Lhave_light_2
+	ori        $t8, $t8, %lo(0x808080)
+
+.Lcheck_max_light_2:
+	slt        $at, $t0, $t2
+	bnez       $at, .Lcalc_light_2
+	add        $t8, $zero, $zero
+	b          .Lhave_light_2
+	nop
+
+.Lcalc_light_2:
+	sub        $t0, $t0, $t1 # t0 = dist[v] - Map_light_min_r2
+	lw         $t2, MAPASM_STACK_light_factor($sp) # t2 = light_factor
+	ori        $t1, $zero, 0x80 # t1 = 0x80
+	mult       $t0, $t2
+	nop
+	mflo       $t0 # t0 = light_factor * (dist[v] - Map_light_min_r2)
+	lui        $t2, (0x10101 >> 16)
+	sra        $t0, $t0, 16
+	ori        $t2, $t2, %lo(0x10101)
+	sub        $t1, $t1, $t0
+	mult       $t1, $t2
+	nop
+	mflo       $t8 # t8 = rgb[2]
+
+.Lhave_light_2:
+	# ------ End of VERTEX 2 ------
+	# ------ VERTEX 3 -------
+
+	lh         $t0, SVEC_vx($s7)
+	lh         $t1, SVEC_vy($s7)
+	lh         $t2, SVEC_vz($s7)
+	sub        $t0, $t0, $t3 # t0 = diff.vx
+	sub        $t1, $t1, $t4 # t1 = diff.vy
+	sub        $t2, $t2, $t5 # t2 = diff.vz
+	andi       $t0, $t0, 0xFFFF
+	sll        $t1, $t1, 16
+	andi       $t2, $t2, 0xFFFF
+	or         $t0, $t0, $t1 # t0 = (diff.vy << 16) | (diff.vx)
+	ctc2       $t2, C2_L13L21
+	ctc2       $t0, C2_L11L12
+	mtc2       $t2, C2_VZ0
+	mtc2       $t0, C2_VXY0
+	nop
+	nop
+	MVMVA      0, 1, 0, 3, 0 # Multiply vertex 0 by row of light matrix we're playing with
+	lw         $t1, 0x40($sp) # DELAY: Fetch light min
+	lw         $t2, 0x44($sp) # DELAY: Fetch light max
+	mfc2       $t0, C2_MAC1 # t0 = (diff.vx*diff.vx)+(diff.vy*diff.vy)+(diff.vz*diff.vz)
+	nop
+	slt        $at, $t0, $t1
+	beqz       $at, .Lcheck_max_light_3
+	lui        $t9, (0x808080 >> 16)
+	b          .Lhave_light_3
+	ori        $t9, $t9, %lo(0x808080)
+
+.Lcheck_max_light_3:
+	slt        $at, $t0, $t2
+	bnez       $at, .Lcalc_light_3
+	add        $t9, $zero, $zero
+	b          .Lhave_light_3
+	nop
+
+.Lcalc_light_3:
+	sub        $t0, $t0, $t1 # t0 = dist[v] - Map_light_min_r2
+	lw         $t2, MAPASM_STACK_light_factor($sp) # t2 = light_factor
+	ori        $t1, $zero, 0x80 # t1 = 0x80
+	mult       $t0, $t2
+	nop
+	mflo       $t0 # t0 = light_factor * (dist[v] - Map_light_min_r2)
+	lui        $t2, (0x10101 >> 16)
+	sra        $t0, $t0, 16
+	ori        $t2, $t2, %lo(0x10101)
+	sub        $t1, $t1, $t0
+	mult       $t1, $t2
+	nop
+	mflo       $t9 # t9 = rgb[0]
+
+.Lhave_light_3:
+	# ------ End of VERTEX 3 ------
+	sb         $t6, -4($s0)
+	sra        $t6, $t6, 8
+	sw         $t7, -4($s1)
+	sb         $t6, -3($s0)
+	sra        $t6, $t6, 8
+	sw         $t8, -4($s2)
+	sb         $t6, -2($s0)
+	sw         $t9, -4($s3)
+	
+	# End of lighting code
+
+.Lcheck_for_textured:
+	lw         $t0, MRP_prim_flags($a1)
+	add        $a3, $zero, $zero # OT(a3) position clear
+	andi       $t0, $t0, MAP_RENDER_FLAGS_TEXTURED
+	beqz       $t0, .Ldo_rotates
+	lhu        $t1, MFT4_flags($v0) # DELAY: Fetch mp_flags
+	nop
+	andi       $t2, $t1, MAP_POLY_ENVMAP
+	beqz       $t2, .Lcheck_for_max_ot
+
+	# Start of ENVMAP MAPASM_STACK_temp_svec_ptr
+	lw         $t0, 0x5C($sp) # DELAY: Get address of MRTemp_svec
+	nop
+	lh         $t3, SVEC_vx($t0)
+	lh         $t5, SVEC_vz($t0)
+	lh         $t2, SVEC_vx($s4)
+	lh         $t4, SVEC_vz($s4)
+	add        $t2, $t2, $t3
+	add        $t4, $t4, $t5
+	sra        $t2, $t2, MAP_POLY_ENVMAP_SHIFT
+	sra        $t4, $t4, MAP_POLY_ENVMAP_SHIFT
+	addi       $t2, $t2, 128
+	addi       $t4, $t4, 128
+	sb         $t2, 4($s0)
+	sb         $t4, 5($s0)
+
+	lh         $t2, SVEC_vx($s5)
+	lh         $t4, SVEC_vz($s5)
+	add        $t2, $t2, $t3
+	add        $t4, $t4, $t5
+	sra        $t2, $t2, MAP_POLY_ENVMAP_SHIFT
+	sra        $t4, $t4, MAP_POLY_ENVMAP_SHIFT
+	addi       $t2, $t2, 128
+	addi       $t4, $t4, 128
+	sb         $t2, 4($s1)
+	sb         $t4, 5($s1)
+
+	lh         $t2, SVEC_vx($s6)
+	lh         $t4, SVEC_vz($s6)
+	add        $t2, $t2, $t3
+	add        $t4, $t4, $t5
+	sra        $t2, $t2, MAP_POLY_ENVMAP_SHIFT
+	sra        $t4, $t4, MAP_POLY_ENVMAP_SHIFT
+	addi       $t2, $t2, 128
+	addi       $t4, $t4, 128
+	sb         $t2, 4($s2)
+	sb         $t4, 5($s2)
+
+	lh         $t2, SVEC_vx($s7)
+	lh         $t4, SVEC_vz($s7)
+	add        $t2, $t2, $t3
+	add        $t4, $t4, $t5
+	sra        $t2, $t2, MAP_POLY_ENVMAP_SHIFT
+	sra        $t4, $t4, MAP_POLY_ENVMAP_SHIFT
+	addi       $t2, $t2, 128
+	addi       $t4, $t4, 128
+	sb         $t2, 4($s3)
+	sb         $t4, 5($s3)
+
+	lw         $t3, MAPASM_STACK_ot_size($sp)
+	b          .Lmaybe_update_textures
+	addi       $a3, $t3, -2 # DELAY: a3 (ot) = MRVp_ot_size - 2
+	# End of ENVMAP stuff
+
+.Lcheck_for_max_ot: # t1 is assumed to still have mp_flags in it.
+	andi       $t2, $t1, MAP_POLY_MAX_OT
+	beqz       $t2, .Lmaybe_update_textures
+	lw         $t3, MAPASM_STACK_ot_size($sp)
+	nop
+	addi       $a3, $t3, -1 # a3 (ot) = MRVp_ot_size - 1
+
+.Lmaybe_update_textures: # t1 is assumed to still have mp_flags in it.
+	andi       $t2, $t1, (MAP_POLY_ANIM_TEXTURE|MAP_POLY_ANIM_UV)
+	beqz       $t2, .Ldo_rotates
+	nop
+	
+	lw         $t0, MFT4_u0($v0) # copy u0/v0/clut into prim
+	lw         $t1, MFT4_u1($v0) # copy u1/v1/tpage into prim
+	lhu        $t2, MFT4_u2($v0) # copy u2/v2 into prim
+	lhu        $t3, MFT4_u3($v0) # copy u3/v3 into prim
+	sw         $t0, 4($s0)
+	sw         $t1, 4($s1)
+	sh         $t2, 4($s2)
+	sh         $t3, 4($s3)
+
+.Ldo_rotates:
+	lwc2       C2_VXY0, SVEC_vx($s4) # Load vector 0 from vertex 0
+	lwc2       C2_VZ0, SVEC_vz($s4)
+	lwc2       C2_VXY1, SVEC_vx($s5) # Load vector 1 from vertex 1
+	lwc2       C2_VZ1, SVEC_vz($s5)
+	lwc2       C2_VXY2, SVEC_vx($s6) # Load vector 2 from vertex 2
+	lwc2       C2_VZ2, SVEC_vz($s6)
+	lw         $t0, MRP_poly_size($a1) # Fetch polygon size
+	nop
+	RTPT
+	add        $v0, $v0, $t0 # DELAY: Increment polygon pointer accordingly	
+
+	lhu        $s4, 0+MF4_vertices($v0) # DELAY: s4 = poly->mp_vertices[0]
+	lhu        $s5, 2+MF4_vertices($v0) # DELAY: s5 = poly->mp_vertices[1]
+	lhu        $s6, 4+MF4_vertices($v0) # DELAY: s6 = poly->mp_vertices[2]
+
+	sll        $s4, $s4, 3 # DELAY: Turn next vertex 0 index into a MR_SVEC offset
+	sll        $s5, $s5, 3 # DELAY: Turn next vertex 1 index into a MR_SVEC offset
+	sll        $s6, $s6, 3 # DELAY: Turn next vertex 2 index into a MR_SVEC offset
+
+	add        $s4, $s8, $s4 # DELAY: s4 = address of vertex 0
+	add        $s5, $s8, $s5 # DELAY: s5 = address of vertex 1
+	add        $s6, $s8, $s6 # DELAY: s6 = address of vertex 2
+
+	NCLIP
+	lwc2       C2_VXY0, SVEC_vx($s7) # DELAY: Load vector 0 from vertex 3 (in NCLIP delay slots)
+	lwc2       C2_VZ0, SVEC_vz($s7)
+	mfc2       $t0, C2_MAC0 # Get first NCLIP result
+	swc2       C2_SXY0, 0($s0) # Store XY0, as it will be pushed out of fifo by vertex 3
+	RTPS
+
+	lhu        $s7, 6+MF4_vertices($v0) # DELAY: s7 = poly->mp_vertices[3]	
+	nop
+	sll        $s7, $s7, 3 # DELAY: Turn next vertex 3 index into a MR_SVEC offset
+
+	bgtz       $t0, .Lvisible_poly
+	add        $s7, $s8, $s7 # DELAY: s7 = address of vertex 3
+
+	NCLIP
+	mfc2       $t0, C2_MAC0
+	nop
+	bgez       $t0, .Lnext_poly
+	nop
+
+.Lvisible_poly:
+	swc2       C2_SXY0, 0($s1) # Store XY coordinates for vertex 1
+	swc2       C2_SXY1, 0($s2) # Store XY coordinates for vertex 2
+	swc2       C2_SXY2, 0($s3) # Store XY coordinates for vertex 3
+
+	bne        $zero, $a3, .Ladd_prim # Fixed OT position (at the back, normally) so skip max Z stuff
+	ori        $t2, $zero, MAP_POLY_CLIP_OTZ # DELAY
+
+	AVSZ4 # Average the SZ0/SZ1/SZ2/SZ3 points in the FIFO
+	mfc2       $a3, C2_OTZ # Fetch OTZ
+	lw         $t1, MAPASM_STACK_otz_shift($sp)
+	slt        $at, $t2, $a3
+	beqz       $at, .Lnext_poly # OTZ <= MAP_POLY_CLIP_OTZ
+	lw         $t0, MAPASM_STACK_ot_size($sp) # DELAY: Load ot size for free...
+
+	srav       $a3, $a3, $t1 # Shift OT into range
+	addi       $a3, $a3, MAP_POLY_OT_OFFSET # Add poly offset
+
+.Lcheck_for_ot_in_range:
+	slt        $at, $a3, $t0
+	beqz       $at, .Lnext_poly
+
+# a2 = prim address 
+# a3 = ot position
+
+.Ladd_prim:
+	lw         $t2, MAPASM_STACK_ot_or_mask($sp) # DELAY: t2 holds OT 'or' mask
+	lw         $t1, MAPASM_STACK_ot_and_mask($sp) # t1 holds OT 'and' mask
+	lw         $t0, MAPASM_STACK_work_ot($sp) # DELAY: t0 holds OT pointer		
+
+	and        $t9, $a2, $t1 # And low 24-bits of primitive address
+	sll        $a3, $a3, 2 # Turn OT position into 32-bit OT offset
+	add        $a3, $a3, $t0 # a3 now points to ordering table entry
+	lw         $at, 0($a3) # Fetch current OT entry contents
+	sw         $t9, 0($a3) # Point OT entry to our current prim
+	or         $at, $at, $t2
+	sw         $at, 0($t9)
+
+# -------- Optionally increment polygon count here? -------- 
+
+.Lnext_poly:
+	lw         $t0, MRP_prim_size($a1) # Fetch primitive size
+	addi       $v1, $v1, -0x1 # Decrement number of polys left in this node
+	add        $s0, $s0, $t0 # Increment to point to next x0
+	add        $s1, $s1, $t0 # Increment to point to next x1
+	add        $s2, $s2, $t0 # Increment to point to next x2
+	add        $s3, $s3, $t0 # Increment to point to next x3
+	bgtz       $v1, .Lprocess_next_polygon # If we've prims left in this node, go and deal with them
+	add        $a2, $a2, $t0 # DELAY: Increment primitive pointer
+	b          .Lfetch_next_node # All polygons for this node processed.. go get next node
+	nop
+
+.Lexit:
+	lw         $s0, MAPASM_STACK_s0($sp)
+	lw         $s1, MAPASM_STACK_s1($sp)
+	lw         $s2, MAPASM_STACK_s2($sp)
+	lw         $s3, MAPASM_STACK_s3($sp)
+	lw         $s4, MAPASM_STACK_s4($sp)
+	lw         $s5, MAPASM_STACK_s5($sp)
+	lw         $s6, MAPASM_STACK_s6($sp)
+	lw         $s7, MAPASM_STACK_s7($sp)
+	lw         $s8, MAPASM_STACK_s8($sp)
+	jr         $ra
+	addiu     $sp, $sp, sizeof_MAPASM_STACK
+
+.set noat      /* allow manual use of $at */
+.set noreorder /* dont insert nops after branches */
+
+#/******************************************************************************
+#/*%%%% MapRenderTrisASM
+#/*------------------------------------------------------------------------------
+#/*
+#/*	SYNOPSIS	MR_VOID	MapRenderTrisASM(
+#/*				POLY_NODE*		poly_node,
+#/*				MAP_RENDER_PARAMS*	params)#
+#/*
+#/*	FUNCTION	Runs through all poly nodes, rotates polys, and adds them
+#/*			to the viewport OT after texture mashing.
+#/*
+#/*	INPUTS		poly_node	-    (a0) Root node of tri list to process
+#/*			params		-    (a1) Pointer to tri rendering info
+#/*
+#/*	NOTES		This function performs equivalent processing to that found
+#/*			in mapdisp.c (MapRenderTris)
 #/*
 #/*	CHANGED		PROGRAMMER		REASON
 #/*	-------		----------		------
@@ -68,489 +661,33 @@
 #	s7	-	pvert[3]
 #	s8	-	Map_vertices
 
-# Handwritten function
-glabel MapRenderQuadsASM
-	addiu      $sp, $sp, -0x60  # Create a stack frame
-	sw         $s0, 0x10($sp)   # Save registers on the stack
-	sw         $s1, 0x14($sp)
-	sw         $s2, 0x18($sp)
-	sw         $s3, 0x1C($sp)
-	sw         $s4, 0x20($sp)
-	sw         $s5, 0x24($sp)
-	sw         $s6, 0x28($sp)
-	sw         $s7, 0x2C($sp)
-	sw         $fp, 0x30($sp)
-
-	lw         $t0, 0x4($a1)
-	lui        $t1, (0xFFFFFF >> 16)
-	sra        $t0, $t0, 2
-	ori        $t1, $t1, (0xFFFFFF & 0xFFFF)
-	addiu      $t0, $t0, -0x1
-	sll        $t0, $t0, 24
-	sw         $t1, 0x54($sp)
-	sw         $t0, 0x58($sp)
-	lui        $fp, %hi(Map_vertices)
-	ori        $fp, $fp, %lo(Map_vertices)
-	lw         $fp, 0x0($fp)
-	lui        $t1, %hi(MRVp_work_ot)
-	lui        $t2, %hi(MRVp_ot_size)
-	lui        $t3, %hi(MRVp_otz_shift)
-	lui        $t4, %hi(MRTemp_svec)
-	ori        $t1, $t1, %lo(MRVp_work_ot)
-	ori        $t2, $t2, %lo(MRVp_ot_size)
-	ori        $t3, $t3, %lo(MRVp_otz_shift)
-	ori        $t4, $t4, %lo(MRTemp_svec)
-	lw         $t1, 0x0($t1)
-	lh         $t2, 0x0($t2)
-	lh         $t3, 0x0($t3)
-	sw         $t1, 0x48($sp)
-	sw         $t2, 0x4C($sp)
-	sw         $t3, 0x50($sp)
-	sw         $t4, 0x5C($sp)
-	lw         $t1, 0xC($a1)
-	nop
-	andi       $t1, $t1, 0x4
-	beqz       $t1, .L80059BB4
-	add        $a3, $zero, $zero # handwritten instruction
-	lui        $t0, 0x80
-	lui        $t1, %hi(Map_light_min_r2)
-	ori        $t1, $t1, %lo(Map_light_min_r2)
-	lw         $t2, 0x0($t1)
-	lui        $t1, %hi(Map_light_max_r2)
-	ori        $t1, $t1, %lo(Map_light_max_r2)
-	lw         $t3, 0x0($t1)
-	sw         $t2, 0x40($sp)
-	sw         $t3, 0x44($sp)
-	sub        $t1, $t3, $t2 # handwritten instruction
-	divu       $zero, $t0, $t1
-	nop
-	mflo       $t0
-	sw         $t0, 0x3C($sp)
-.L80059BB4:
-	lw         $a0, 0x0($a0)
-	lui        $t0, %hi(MRFrame_index)
-	beqz       $a0, .L8005A164
-	ori        $t0, $t0, %lo(MRFrame_index)
-	lw         $t1, 0x0($t0)
-	addi       $t2, $a0, 0x10 # handwritten instruction
-	sll        $t1, $t1, 2
-	add        $t2, $t2, $t1 # handwritten instruction
-	lw         $a2, 0x0($t2)
-	lw         $v1, 0x8($a0)
-	lw         $v0, 0xC($a0)
-	beqz       $v1, .L80059BB4
-	nop
-	lw         $s0, 0x10($a1)
-	lw         $t0, 0x8($a1)
-	addu       $s0, $s0, $a2
-	add        $s1, $s0, $t0 # handwritten instruction
-	add        $s2, $s1, $t0 # handwritten instruction
-	add        $s3, $s2, $t0 # handwritten instruction
-	lhu        $s4, 0x0($v0)
-	lhu        $s5, 0x2($v0)
-	lhu        $s6, 0x4($v0)
-	lhu        $s7, 0x6($v0)
-	sll        $s4, $s4, 3
-	sll        $s5, $s5, 3
-	sll        $s6, $s6, 3
-	sll        $s7, $s7, 3
-	add        $s4, $fp, $s4 # handwritten instruction
-	add        $s5, $fp, $s5 # handwritten instruction
-	add        $s6, $fp, $s6 # handwritten instruction
-	add        $s7, $fp, $s7 # handwritten instruction
-.L80059C30:
-	lw         $t0, 0xC($a1)
-	nop
-	andi       $t1, $t0, 0x4
-	beqz       $t1, .L80059F30
-	nop
-	lh         $t3, 0x14($a1)
-	lh         $t4, 0x16($a1)
-	lh         $t5, 0x18($a1)
-	lh         $t0, 0x0($s4)
-	lh         $t1, 0x2($s4)
-	lh         $t2, 0x4($s4)
-	sub        $t0, $t0, $t3 # handwritten instruction
-	sub        $t1, $t1, $t4 # handwritten instruction
-	sub        $t2, $t2, $t5 # handwritten instruction
-	andi       $t0, $t0, 0xFFFF
-	sll        $t1, $t1, 16
-	andi       $t2, $t2, 0xFFFF
-	or         $t0, $t0, $t1
-	ctc2       $t2, $9 # handwritten instruction
-	ctc2       $t0, $8 # handwritten instruction
-	mtc2       $t2, $1 # handwritten instruction
-	mtc2       $t0, $0 # handwritten instruction
-	nop
-	nop
-	MVMVA      0, 1, 0, 3, 0
-	lw         $t1, 0x40($sp)
-	lw         $t2, 0x44($sp)
-	mfc2       $t0, $25 # handwritten instruction
-	nop
-	slt        $at, $t0, $t1
-	beqz       $at, .L80059CB8
-	lui        $t6, (0x808080 >> 16)
-	b          .L80059D00
-	ori        $t6, $t6, (0x808080 & 0xFFFF)
-.L80059CB8:
-	slt        $at, $t0, $t2
-	bnez       $at, .L80059CCC
-	add        $t6, $zero, $zero # handwritten instruction
-	b          .L80059D00
-	nop
-.L80059CCC:
-	sub        $t0, $t0, $t1 # handwritten instruction
-	lw         $t2, 0x3C($sp)
-	ori        $t1, $zero, 0x80
-	mult       $t0, $t2
-	nop
-	mflo       $t0
-	lui        $t2, (0x10101 >> 16)
-	sra        $t0, $t0, 16
-	ori        $t2, $t2, (0x10101 & 0xFFFF)
-	sub        $t1, $t1, $t0 # handwritten instruction
-	mult       $t1, $t2
-	nop
-	mflo       $t6
-.L80059D00:
-	lh         $t0, 0x0($s5)
-	lh         $t1, 0x2($s5)
-	lh         $t2, 0x4($s5)
-	sub        $t0, $t0, $t3 # handwritten instruction
-	sub        $t1, $t1, $t4 # handwritten instruction
-	sub        $t2, $t2, $t5 # handwritten instruction
-	andi       $t0, $t0, 0xFFFF
-	sll        $t1, $t1, 16
-	andi       $t2, $t2, 0xFFFF
-	or         $t0, $t0, $t1
-	ctc2       $t2, $9 # handwritten instruction
-	ctc2       $t0, $8 # handwritten instruction
-	mtc2       $t2, $1 # handwritten instruction
-	mtc2       $t0, $0 # handwritten instruction
-	nop
-	nop
-	MVMVA      0, 1, 0, 3, 0
-	lw         $t1, 0x40($sp)
-	lw         $t2, 0x44($sp)
-	mfc2       $t0, $25 # handwritten instruction
-	nop
-	slt        $at, $t0, $t1
-	beqz       $at, .L80059D68
-	lui        $t7, (0x808080 >> 16)
-	b          .L80059DB0
-	ori        $t7, $t7, (0x808080 & 0xFFFF)
-.L80059D68:
-	slt        $at, $t0, $t2
-	bnez       $at, .L80059D7C
-	add        $t7, $zero, $zero # handwritten instruction
-	b          .L80059DB0
-	nop
-.L80059D7C:
-	sub        $t0, $t0, $t1 # handwritten instruction
-	lw         $t2, 0x3C($sp)
-	ori        $t1, $zero, 0x80
-	mult       $t0, $t2
-	nop
-	mflo       $t0
-	lui        $t2, (0x10101 >> 16)
-	sra        $t0, $t0, 16
-	ori        $t2, $t2, (0x10101 & 0xFFFF)
-	sub        $t1, $t1, $t0 # handwritten instruction
-	mult       $t1, $t2
-	nop
-	mflo       $t7
-.L80059DB0:
-	lh         $t0, 0x0($s6)
-	lh         $t1, 0x2($s6)
-	lh         $t2, 0x4($s6)
-	sub        $t0, $t0, $t3 # handwritten instruction
-	sub        $t1, $t1, $t4 # handwritten instruction
-	sub        $t2, $t2, $t5 # handwritten instruction
-	andi       $t0, $t0, 0xFFFF
-	sll        $t1, $t1, 16
-	andi       $t2, $t2, 0xFFFF
-	or         $t0, $t0, $t1
-	ctc2       $t2, $9 # handwritten instruction
-	ctc2       $t0, $8 # handwritten instruction
-	mtc2       $t2, $1 # handwritten instruction
-	mtc2       $t0, $0 # handwritten instruction
-	nop
-	nop
-	MVMVA      0, 1, 0, 3, 0
-	lw         $t1, 0x40($sp)
-	lw         $t2, 0x44($sp)
-	mfc2       $t0, $25 # handwritten instruction
-	nop
-	slt        $at, $t0, $t1
-	beqz       $at, .L80059E18
-	lui        $t8, (0x808080 >> 16)
-	b          .L80059E60
-	ori        $t8, $t8, (0x808080 & 0xFFFF)
-.L80059E18:
-	slt        $at, $t0, $t2
-	bnez       $at, .L80059E2C
-	add        $t8, $zero, $zero # handwritten instruction
-	b          .L80059E60
-	nop
-.L80059E2C:
-	sub        $t0, $t0, $t1 # handwritten instruction
-	lw         $t2, 0x3C($sp)
-	ori        $t1, $zero, 0x80
-	mult       $t0, $t2
-	nop
-	mflo       $t0
-	lui        $t2, (0x10101 >> 16)
-	sra        $t0, $t0, 16
-	ori        $t2, $t2, (0x10101 & 0xFFFF)
-	sub        $t1, $t1, $t0 # handwritten instruction
-	mult       $t1, $t2
-	nop
-	mflo       $t8
-.L80059E60:
-	lh         $t0, 0x0($s7)
-	lh         $t1, 0x2($s7)
-	lh         $t2, 0x4($s7)
-	sub        $t0, $t0, $t3 # handwritten instruction
-	sub        $t1, $t1, $t4 # handwritten instruction
-	sub        $t2, $t2, $t5 # handwritten instruction
-	andi       $t0, $t0, 0xFFFF
-	sll        $t1, $t1, 16
-	andi       $t2, $t2, 0xFFFF
-	or         $t0, $t0, $t1
-	ctc2       $t2, $9 # handwritten instruction
-	ctc2       $t0, $8 # handwritten instruction
-	mtc2       $t2, $1 # handwritten instruction
-	mtc2       $t0, $0 # handwritten instruction
-	nop
-	nop
-	MVMVA      0, 1, 0, 3, 0
-	lw         $t1, 0x40($sp)
-	lw         $t2, 0x44($sp)
-	mfc2       $t0, $25 # handwritten instruction
-	nop
-	slt        $at, $t0, $t1
-	beqz       $at, .L80059EC8
-	lui        $t9, (0x808080 >> 16)
-	b          .L80059F10
-	ori        $t9, $t9, (0x808080 & 0xFFFF)
-.L80059EC8:
-	slt        $at, $t0, $t2
-	bnez       $at, .L80059EDC
-	add        $t9, $zero, $zero # handwritten instruction
-	b          .L80059F10
-	nop
-.L80059EDC:
-	sub        $t0, $t0, $t1 # handwritten instruction
-	lw         $t2, 0x3C($sp)
-	ori        $t1, $zero, 0x80
-	mult       $t0, $t2
-	nop
-	mflo       $t0
-	lui        $t2, (0x10101 >> 16)
-	sra        $t0, $t0, 16
-	ori        $t2, $t2, (0x10101 & 0xFFFF)
-	sub        $t1, $t1, $t0 # handwritten instruction
-	mult       $t1, $t2
-	nop
-	mflo       $t9
-.L80059F10:
-	sb         $t6, -0x4($s0)
-	sra        $t6, $t6, 8
-	sw         $t7, -0x4($s1)
-	sb         $t6, -0x3($s0)
-	sra        $t6, $t6, 8
-	sw         $t8, -0x4($s2)
-	sb         $t6, -0x2($s0)
-	sw         $t9, -0x4($s3)
-.L80059F30:
-	lw         $t0, 0xC($a1)
-	add        $a3, $zero, $zero # handwritten instruction
-	andi       $t0, $t0, 0x1
-	beqz       $t0, .L8005A04C
-	lhu        $t1, 0x8($v0)
-	nop
-	andi       $t2, $t1, 0x2
-	beqz       $t2, .L8005A00C
-	lw         $t0, 0x5C($sp)
-	nop
-	lh         $t3, 0x0($t0)
-	lh         $t5, 0x4($t0)
-	lh         $t2, 0x0($s4)
-	lh         $t4, 0x4($s4)
-	add        $t2, $t2, $t3 # handwritten instruction
-	add        $t4, $t4, $t5 # handwritten instruction
-	sra        $t2, $t2, 5
-	sra        $t4, $t4, 5
-	addi       $t2, $t2, 0x80 # handwritten instruction
-	addi       $t4, $t4, 0x80 # handwritten instruction
-	sb         $t2, 0x4($s0)
-	sb         $t4, 0x5($s0)
-	lh         $t2, 0x0($s5)
-	lh         $t4, 0x4($s5)
-	add        $t2, $t2, $t3 # handwritten instruction
-	add        $t4, $t4, $t5 # handwritten instruction
-	sra        $t2, $t2, 5
-	sra        $t4, $t4, 5
-	addi       $t2, $t2, 0x80 # handwritten instruction
-	addi       $t4, $t4, 0x80 # handwritten instruction
-	sb         $t2, 0x4($s1)
-	sb         $t4, 0x5($s1)
-	lh         $t2, 0x0($s6)
-	lh         $t4, 0x4($s6)
-	add        $t2, $t2, $t3 # handwritten instruction
-	add        $t4, $t4, $t5 # handwritten instruction
-	sra        $t2, $t2, 5
-	sra        $t4, $t4, 5
-	addi       $t2, $t2, 0x80 # handwritten instruction
-	addi       $t4, $t4, 0x80 # handwritten instruction
-	sb         $t2, 0x4($s2)
-	sb         $t4, 0x5($s2)
-	lh         $t2, 0x0($s7)
-	lh         $t4, 0x4($s7)
-	add        $t2, $t2, $t3 # handwritten instruction
-	add        $t4, $t4, $t5 # handwritten instruction
-	sra        $t2, $t2, 5
-	sra        $t4, $t4, 5
-	addi       $t2, $t2, 0x80 # handwritten instruction
-	addi       $t4, $t4, 0x80 # handwritten instruction
-	sb         $t2, 0x4($s3)
-	sb         $t4, 0x5($s3)
-	lw         $t3, 0x4C($sp)
-	b          .L8005A020
-	addi       $a3, $t3, -0x2 # handwritten instruction
-.L8005A00C:
-	andi       $t2, $t1, 0x4
-	beqz       $t2, .L8005A020
-	lw         $t3, 0x4C($sp)
-	nop
-	addi       $a3, $t3, -0x1 # handwritten instruction
-.L8005A020:
-	andi       $t2, $t1, 0x18
-	beqz       $t2, .L8005A04C
-	nop
-	lw         $t0, 0xC($v0)
-	lw         $t1, 0x10($v0)
-	lhu        $t2, 0x14($v0)
-	lhu        $t3, 0x16($v0)
-	sw         $t0, 0x4($s0)
-	sw         $t1, 0x4($s1)
-	sh         $t2, 0x4($s2)
-	sh         $t3, 0x4($s3)
-.L8005A04C:
-	lwc2       $0, 0x0($s4)
-	lwc2       $1, 0x4($s4)
-	lwc2       $2, 0x0($s5)
-	lwc2       $3, 0x4($s5)
-	lwc2       $4, 0x0($s6)
-	lwc2       $5, 0x4($s6)
-	lw         $t0, 0x0($a1)
-	nop
-	RTPT
-	add        $v0, $v0, $t0 # handwritten instruction
-	lhu        $s4, 0x0($v0)
-	lhu        $s5, 0x2($v0)
-	lhu        $s6, 0x4($v0)
-	sll        $s4, $s4, 3
-	sll        $s5, $s5, 3
-	sll        $s6, $s6, 3
-	add        $s4, $fp, $s4 # handwritten instruction
-	add        $s5, $fp, $s5 # handwritten instruction
-	add        $s6, $fp, $s6 # handwritten instruction
-	NCLIP
-	lwc2       $0, 0x0($s7)
-	lwc2       $1, 0x4($s7)
-	mfc2       $t0, $24 # handwritten instruction
-	swc2       $12, 0x0($s0)
-	RTPS
-	lhu        $s7, 0x6($v0)
-	nop
-	sll        $s7, $s7, 3
-	bgtz       $t0, .L8005A0D8
-	add        $s7, $fp, $s7 # handwritten instruction
-	NCLIP
-	mfc2       $t0, $24 # handwritten instruction
-	nop
-	bgez       $t0, .L8005A13C
-	nop
-.L8005A0D8:
-	swc2       $12, 0x0($s1)
-	swc2       $13, 0x0($s2)
-	swc2       $14, 0x0($s3)
-	bne        $zero, $a3, .L8005A114
-	ori        $t2, $zero, 0x10
-	AVSZ4
-	mfc2       $a3, $7 # handwritten instruction
-	lw         $t1, 0x50($sp)
-	slt        $at, $t2, $a3
-	beqz       $at, .L8005A13C
-	lw         $t0, 0x4C($sp)
-	srav       $a3, $a3, $t1
-	addi       $a3, $a3, 0x40 # handwritten instruction
-	slt        $at, $a3, $t0
-	beqz       $at, .L8005A13C
-.L8005A114:
-	lw         $t2, 0x58($sp)
-	lw         $t1, 0x54($sp)
-	lw         $t0, 0x48($sp)
-	and        $t9, $a2, $t1
-	sll        $a3, $a3, 2
-	add        $a3, $a3, $t0 # handwritten instruction
-	lw         $at, 0x0($a3)
-	sw         $t9, 0x0($a3)
-	or         $at, $at, $t2
-	sw         $at, 0x0($t9)
-.L8005A13C:
-	lw         $t0, 0x4($a1)
-	addi       $v1, $v1, -0x1 # handwritten instruction
-	add        $s0, $s0, $t0 # handwritten instruction
-	add        $s1, $s1, $t0 # handwritten instruction
-	add        $s2, $s2, $t0 # handwritten instruction
-	add        $s3, $s3, $t0 # handwritten instruction
-	bgtz       $v1, .L80059C30
-	add        $a2, $a2, $t0 # handwritten instruction
-	b          .L80059BB4
-	nop
-.L8005A164:
-	lw         $s0, 0x10($sp)
-	lw         $s1, 0x14($sp)
-	lw         $s2, 0x18($sp)
-	lw         $s3, 0x1C($sp)
-	lw         $s4, 0x20($sp)
-	lw         $s5, 0x24($sp)
-	lw         $s6, 0x28($sp)
-	lw         $s7, 0x2C($sp)
-	lw         $fp, 0x30($sp)
-	jr         $ra
-	addiu      $sp, $sp, 0x60
-
-.set noat      /* allow manual use of $at */
-.set noreorder /* dont insert nops after branches */
-
-# Handwritten function
 glabel MapRenderTrisASM
-	addiu      $sp, $sp, -0x60
-	sw         $s0, 0x10($sp)
-	sw         $s1, 0x14($sp)
-	sw         $s2, 0x18($sp)
-	sw         $s3, 0x1C($sp)
-	sw         $s4, 0x20($sp)
-	sw         $s5, 0x24($sp)
-	sw         $s6, 0x28($sp)
-	sw         $s7, 0x2C($sp)
-	sw         $fp, 0x30($sp)
-	lw         $t0, 0x4($a1)
+.Lstack_saved_registers_tri:
+	addiu      $sp, $sp, -sizeof_MAPASM_STACK # Create a stack frame
+	sw         $s0, MAPASM_STACK_s0($sp) # Save registers on the stack
+	sw         $s1, MAPASM_STACK_s1($sp)
+	sw         $s2, MAPASM_STACK_s2($sp)
+	sw         $s3, MAPASM_STACK_s3($sp)
+	sw         $s4, MAPASM_STACK_s4($sp)
+	sw         $s5, MAPASM_STACK_s5($sp)
+	sw         $s6, MAPASM_STACK_s6($sp)
+	sw         $s7, MAPASM_STACK_s7($sp)
+	sw         $s8, MAPASM_STACK_s8($sp)
+
+.Linit_tri:
+	lw         $t0, MRP_prim_size($a1)
 	lui        $t1, (0xFFFFFF >> 16)
 	sra        $t0, $t0, 2
-	ori        $t1, $t1, (0xFFFFFF & 0xFFFF)
-	addiu      $t0, $t0, -0x1
-	sll        $t0, $t0, 24
-	sw         $t1, 0x54($sp)
-	sw         $t0, 0x58($sp)
-	lui        $fp, %hi(Map_vertices)
-	ori        $fp, $fp, %lo(Map_vertices)
-	lw         $fp, 0x0($fp)
-	lui        $t1, %hi(MRVp_work_ot)
+	ori        $t1, $t1, %lo(0xFFFFFF) # t1 = $ffffff
+	addiu      $t0, $t0, -1
+	sll        $t0, $t0, 24 # t0 = (GPU primitive size << 24)
+	sw         $t1, MAPASM_STACK_ot_and_mask($sp)
+	sw         $t0, MAPASM_STACK_ot_or_mask($sp)
+	lui        $s8, %hi(Map_vertices)
+	ori        $s8, $s8, %lo(Map_vertices)
+	lw         $s8, 0($s8) # s8 = Contents of Map_vertices (pointer to MR_SVEC array)
+
+	lui        $t1, %hi(MRVp_work_ot) # Read and cache the OT pointer, OT size, and OT shift
 	lui        $t2, %hi(MRVp_ot_size)
 	lui        $t3, %hi(MRVp_otz_shift)
 	lui        $t4, %hi(MRTemp_svec)
@@ -558,349 +695,416 @@ glabel MapRenderTrisASM
 	ori        $t2, $t2, %lo(MRVp_ot_size)
 	ori        $t3, $t3, %lo(MRVp_otz_shift)
 	ori        $t4, $t4, %lo(MRTemp_svec)
-	lw         $t1, 0x0($t1)
-	lh         $t2, 0x0($t2)
-	lh         $t3, 0x0($t3)
-	sw         $t1, 0x48($sp)
-	sw         $t2, 0x4C($sp)
-	sw         $t3, 0x50($sp)
-	sw         $t4, 0x5C($sp)
-	lw         $t1, 0xC($a1)
+	lw         $t1, 0($t1)
+	lh         $t2, 0($t2)
+	lh         $t3, 0($t3)
+	sw         $t1, MAPASM_STACK_work_ot($sp)
+	sw         $t2, MAPASM_STACK_ot_size($sp)
+	sw         $t3, MAPASM_STACK_otz_shift($sp)
+	sw         $t4, MAPASM_STACK_temp_svec_ptr($sp)
+
+	lw         $t1, MRP_prim_flags($a1)
 	nop
-	andi       $t1, $t1, 0x4
-	beqz       $t1, .L8005A26C
-	add        $a3, $zero, $zero # handwritten instruction
-	lui        $t0, 0x80
+	andi       $t1, $t1, MAP_RENDER_FLAGS_LIT
+	beqz       $t1, .Lfetch_next_node_tri
+	add        $a3, $zero, $zero # DELAY: light_factor = NULL
+
+	lui        $t0, 128 # t0 = (128<<16)
+
 	lui        $t1, %hi(Map_light_min_r2)
 	ori        $t1, $t1, %lo(Map_light_min_r2)
-	lw         $t2, 0x0($t1)
+	lw         $t2, 0($t1) # t2 = *Map_light_min_r2
+
 	lui        $t1, %hi(Map_light_max_r2)
 	ori        $t1, $t1, %lo(Map_light_max_r2)
-	lw         $t3, 0x0($t1)
-	sw         $t2, 0x40($sp)
-	sw         $t3, 0x44($sp)
-	sub        $t1, $t3, $t2 # handwritten instruction
-	divu       $zero, $t0, $t1
+	lw         $t3, 0($t1) # t3 = *Map_light_max_r2
+
+	sw         $t2, MAPASM_STACK_light_min($sp)
+	sw         $t3, MAPASM_STACK_light_max($sp)
+
+	sub        $t1, $t3, $t2 # t1 = Map_light_max_r2 - Map_light_min_r2
+
+	divu       $zero, $t0, $t1 # start divide of t0 (128<<16) by t1 (Map_light_max_r2 - Map_light_min_r2
 	nop
-	mflo       $t0
-	sw         $t0, 0x3C($sp)
-.L8005A26C:
-	lw         $a0, 0x0($a0)
-	lui        $t0, %hi(MRFrame_index)
-	beqz       $a0, .L8005A6F8
-	ori        $t0, $t0, %lo(MRFrame_index)
-	lw         $t1, 0x0($t0)
-	addi       $t2, $a0, 0x10 # handwritten instruction
-	sll        $t1, $t1, 2
-	add        $t2, $t2, $t1 # handwritten instruction
-	lw         $a2, 0x0($t2)
-	lw         $v1, 0x8($a0)
-	lw         $v0, 0xC($a0)
-	beqz       $v1, .L8005A26C
+	mflo       $t0 # t3 = (128<<16) / (Map_light_max_r2 - Map_light_min_r2)
+	sw         $t0, MAPASM_STACK_light_factor($sp)
+
+.Lfetch_next_node_tri:
+	lw         $a0, PN_next($a0) # poly_node = poly_node->pn_next
+	lui        $t0, %hi(MRFrame_index) # Fetch first part of MRFrame_index address
+	beqz       $a0, .Lexit_tri # leave if we haven't any poly nodes
+	ori        $t0, $t0, %lo(MRFrame_index) # t0 = address of MRFrame_index
+	lw         $t1, 0($t0) # t1 = MRFrame_index
+	addi       $t2, $a0, PN_prims # t2 points to poly_node->pn_prims
+	sll        $t1, $t1, 2 # Turn MRFrame_index into longword offset
+	add        $t2, $t2, $t1 # t2 now points to poly_node->pn_prims[0] or poly_node->pn_prims[1]
+	lw         $a2, 0($t2) # a2 now points to appropriate primitive buffer
+
+	lw         $v1, PN_numpolys($a0) # v1 = numpoly
+	lw         $v0, PN_map_polys($a0) # v0 = poly
+	beqz       $v1, .Lfetch_next_node_tri
 	nop
-	lw         $s0, 0x10($a1)
-	lw         $t0, 0x8($a1)
-	addu       $s0, $s0, $a2
-	add        $s1, $s0, $t0 # handwritten instruction
-	add        $s2, $s1, $t0 # handwritten instruction
-	lhu        $s4, 0x0($v0)
-	lhu        $s5, 0x2($v0)
-	lhu        $s6, 0x4($v0)
-	sll        $s4, $s4, 3
-	sll        $s5, $s5, 3
-	sll        $s6, $s6, 3
-	add        $s4, $fp, $s4 # handwritten instruction
-	add        $s5, $fp, $s5 # handwritten instruction
-	add        $s6, $fp, $s6 # handwritten instruction
-.L8005A2D8:
-	lw         $t0, 0xC($a1)
+
+	# Set s0, s1, and s2 to appropriate addresses within primitive
+
+	lw         $s0, MRP_prim_x0_ofs($a1) # s0 = mr_prim_x0_ofs
+	lw         $t0, MRP_prim_coord_ofs($a1) # load t0 with offset between each x position in prim
+	addu       $s0, $s0, $a2 # s0 = address of x0 in primitive
+	add        $s1, $s0, $t0 # s1 = s0 + mr_prim_coord_ofs
+	add        $s2, $s1, $t0 # s2 = s1 + mr_prim_coord_ofs
+
+	lhu        $s4, 0+MF4_vertices($v0) # t0 = poly->mp_vertices[0]
+	lhu        $s5, 2+MF4_vertices($v0) # t1 = poly->mp_vertices[1]
+	lhu        $s6, 4+MF4_vertices($v0) # t2 = poly->mp_vertices[2]
+
+	sll        $s4, $s4, 3 # Turn next vertex 0 index into a MR_SVEC offset
+	sll        $s5, $s5, 3 # Turn next vertex 1 index into a MR_SVEC offset
+	sll        $s6, $s6, 3 # Turn next vertex 2 index into a MR_SVEC offset
+
+	add        $s4, $s8, $s4 # s4 = address of vertex 0
+	add        $s5, $s8, $s5 # s5 = address of vertex 1
+	add        $s6, $s8, $s6 # s6 = address of vertex 2
+
+.Lprocess_next_polygon_tri:
+	lw         $t0, MRP_prim_flags($a1)
 	nop
-	andi       $t1, $t0, 0x4
-	beqz       $t1, .L8005A524
+	andi       $t1, $t0, MAP_RENDER_FLAGS_LIT
+	beqz       $t1, .Lcheck_for_textured_tri
 	nop
-	lh         $t3, 0x14($a1)
-	lh         $t4, 0x16($a1)
-	lh         $t5, 0x18($a1)
-	lh         $t0, 0x0($s4)
-	lh         $t1, 0x2($s4)
-	lh         $t2, 0x4($s4)
-	sub        $t0, $t0, $t3 # handwritten instruction
-	sub        $t1, $t1, $t4 # handwritten instruction
-	sub        $t2, $t2, $t5 # handwritten instruction
+
+	# Start of lighting code
+	lh         $t3, SVEC_vx+MRP_frog_svec($a1) # Must NOT trash t3/t4/t5
+	lh         $t4, SVEC_vy+MRP_frog_svec($a1) # and must keep t6/t7/t8/t9 holding rgb[0/1/2/3]'s
+	lh         $t5, SVEC_vz+MRP_frog_svec($a1)
+
+	# ------ VERTEX 0 -------
+	lh         $t0, SVEC_vx($s4)
+	lh         $t1, SVEC_vy($s4)
+	lh         $t2, SVEC_vz($s4)
+	sub        $t0, $t0, $t3 # t0 = diff.vx
+	sub        $t1, $t1, $t4 # t1 = diff.vy
+	sub        $t2, $t2, $t5 # t2 = diff.vz
 	andi       $t0, $t0, 0xFFFF
 	sll        $t1, $t1, 16
 	andi       $t2, $t2, 0xFFFF
-	or         $t0, $t0, $t1
-	ctc2       $t2, $9 # handwritten instruction
-	ctc2       $t0, $8 # handwritten instruction
-	mtc2       $t2, $1 # handwritten instruction
-	mtc2       $t0, $0 # handwritten instruction
+	or         $t0, $t0, $t1 # t0 = (diff.vy << 16) | (diff.vx)
+	ctc2       $t2, C2_L13L21
+	ctc2       $t0, C2_L11L12
+	mtc2       $t2, C2_VZ0
+	mtc2       $t0, C2_VXY0
 	nop
 	nop
-	MVMVA      0, 1, 0, 3, 0
-	lw         $t1, 0x40($sp)
-	lw         $t2, 0x44($sp)
-	mfc2       $t0, $25 # handwritten instruction
+	MVMVA      0, 1, 0, 3, 0 # Multiply vertex 0 by row of light matrix we're playing with
+	lw         $t1, MAPASM_STACK_light_min($sp) # DELAY: Fetch light min
+	lw         $t2, MAPASM_STACK_light_max($sp) # DELAY: Fetch light max
+	mfc2       $t0, C2_MAC1 # t0 = (diff.vx*diff.vx)+(diff.vy*diff.vy)+(diff.vz*diff.vz)
 	nop
 	slt        $at, $t0, $t1
-	beqz       $at, .L8005A360
+	beqz       $at, .Lcheck_max_light_0_tri
 	lui        $t6, (0x808080 >> 16)
-	b          .L8005A3A8
-	ori        $t6, $t6, (0x808080 & 0xFFFF)
-.L8005A360:
+	b          .have_light_0_tri
+	ori        $t6, $t6, %lo(0x808080)
+
+.Lcheck_max_light_0_tri:
 	slt        $at, $t0, $t2
-	bnez       $at, .L8005A374
-	add       $t6, $zero, $zero # handwritten instruction
-	b          .L8005A3A8
+	bnez       $at, .Lcalc_light_0_tri
+	add       $t6, $zero, $zero
+	b          .have_light_0_tri
 	nop
-.L8005A374:
-	sub        $t0, $t0, $t1 # handwritten instruction
-	lw         $t2, 0x3C($sp)
-	ori        $t1, $zero, 0x80
+
+.Lcalc_light_0_tri:
+	sub        $t0, $t0, $t1 # t0 = dist[v] - Map_light_min_r2
+	lw         $t2, MAPASM_STACK_light_factor($sp) # t2 = light_factor
+	ori        $t1, $zero, 0x80 # t1 = 0x80
 	mult       $t0, $t2
 	nop
-	mflo       $t0
+	mflo       $t0 # t0 = light_factor * (dist[v] - Map_light_min_r2)
 	lui        $t2, (0x10101 >> 16)
 	sra        $t0, $t0, 16
-	ori        $t2, $t2, (0x10101 & 0xFFFF)
-	sub        $t1, $t1, $t0 # handwritten instruction
+	ori        $t2, $t2, %lo(0x10101)
+	sub        $t1, $t1, $t0
 	mult       $t1, $t2
 	nop
-	mflo       $t6
-.L8005A3A8:
-	lh         $t0, 0x0($s5)
-	lh         $t1, 0x2($s5)
-	lh         $t2, 0x4($s5)
-	sub        $t0, $t0, $t3 # handwritten instruction
-	sub        $t1, $t1, $t4 # handwritten instruction
-	sub        $t2, $t2, $t5 # handwritten instruction
+	mflo       $t6 # t6 = rgb[0]
+
+.have_light_0_tri:
+	# ------ End of VERTEX 0 ------
+	# ------ VERTEX 1 -------
+
+	lh         $t0, SVEC_vx($s5)
+	lh         $t1, SVEC_vy($s5)
+	lh         $t2, SVEC_vz($s5)
+	sub        $t0, $t0, $t3 # t0 = diff.vx
+	sub        $t1, $t1, $t4 # t1 = diff.vy
+	sub        $t2, $t2, $t5 # t2 = diff.vz
 	andi       $t0, $t0, 0xFFFF
 	sll        $t1, $t1, 16
 	andi       $t2, $t2, 0xFFFF
-	or         $t0, $t0, $t1
-	ctc2       $t2, $9 # handwritten instruction
-	ctc2       $t0, $8 # handwritten instruction
-	mtc2       $t2, $1 # handwritten instruction
-	mtc2       $t0, $0 # handwritten instruction
+	or         $t0, $t0, $t1 # t0 = (diff.vy << 16) | (diff.vx)
+	ctc2       $t2, C2_L13L21
+	ctc2       $t0, C2_L11L12
+	mtc2       $t2, C2_VZ0
+	mtc2       $t0, C2_VXY0
 	nop
 	nop
-	MVMVA      0, 1, 0, 3, 0
-	lw         $t1, 0x40($sp)
-	lw         $t2, 0x44($sp)
-	mfc2       $t0, $25 # handwritten instruction
+	MVMVA      0, 1, 0, 3, 0 # Multiply vertex 0 by row of light matrix we're playing with
+	lw         $t1, MAPASM_STACK_light_min($sp) # DELAY: Fetch light min
+	lw         $t2, MAPASM_STACK_light_max($sp) # DELAY: Fetch light max
+	mfc2       $t0, C2_MAC1 # t0 = (diff.vx*diff.vx)+(diff.vy*diff.vy)+(diff.vz*diff.vz)
 	nop
 	slt        $at, $t0, $t1
-	beqz       $at, .L8005A410
+	beqz       $at, .Lcheck_max_light_1_tri
 	lui        $t7, (0x808080 >> 16)
-	b          .L8005A458
-	ori        $t7, $t7, (0x808080 & 0xFFFF)
-.L8005A410:
+	b          .Lhave_light_1_tri
+	ori        $t7, $t7, %lo(0x808080)
+
+.Lcheck_max_light_1_tri:
 	slt        $at, $t0, $t2
-	bnez       $at, .L8005A424
-	add        $t7, $zero, $zero # handwritten instruction
-	b          .L8005A458
+	bnez       $at, .Lcalc_light_1_tri
+	add        $t7, $zero, $zero
+	b          .Lhave_light_1_tri
 	nop
-.L8005A424:
-	sub        $t0, $t0, $t1 # handwritten instruction
-	lw         $t2, 0x3C($sp)
-	ori        $t1, $zero, 0x80
+
+.Lcalc_light_1_tri:
+	sub        $t0, $t0, $t1 # t0 = dist[v] - Map_light_min_r2
+	lw         $t2, MAPASM_STACK_light_factor($sp) # t2 = light_factor
+	ori        $t1, $zero, 0x80 # t1 = 0x80
 	mult       $t0, $t2
 	nop
-	mflo       $t0
+	mflo       $t0 # t0 = light_factor * (dist[v] - Map_light_min_r2)
 	lui        $t2, (0x10101 >> 16)
 	sra        $t0, $t0, 16
-	ori        $t2, $t2, (0x10101 & 0xFFFF)
-	sub        $t1, $t1, $t0 # handwritten instruction
+	ori        $t2, $t2, %lo(0x10101)
+	sub        $t1, $t1, $t0
 	mult       $t1, $t2
 	nop
-	mflo       $t7
-.L8005A458:
-	lh         $t0, 0x0($s6)
-	lh         $t1, 0x2($s6)
-	lh         $t2, 0x4($s6)
-	sub        $t0, $t0, $t3 # handwritten instruction
-	sub        $t1, $t1, $t4 # handwritten instruction
-	sub        $t2, $t2, $t5 # handwritten instruction
+	mflo       $t7 # t7 = rgb[1]
+
+.Lhave_light_1_tri:
+	# ------ End of VERTEX 1 ------
+	# ------ VERTEX 2 -------
+
+	lh         $t0, SVEC_vx($s6)
+	lh         $t1, SVEC_vy($s6)
+	lh         $t2, SVEC_vz($s6)
+	sub        $t0, $t0, $t3 # t0 = diff.vx
+	sub        $t1, $t1, $t4 # t1 = diff.vy
+	sub        $t2, $t2, $t5 # t2 = diff.vz
 	andi       $t0, $t0, 0xFFFF
 	sll        $t1, $t1, 16
 	andi       $t2, $t2, 0xFFFF
-	or         $t0, $t0, $t1
-	ctc2       $t2, $9 # handwritten instruction
-	ctc2       $t0, $8 # handwritten instruction
-	mtc2       $t2, $1 # handwritten instruction
-	mtc2       $t0, $0 # handwritten instruction
+	or         $t0, $t0, $t1 # t0 = (diff.vy << 16) | (diff.vx)
+	ctc2       $t2, C2_L13L21
+	ctc2       $t0, C2_L11L12
+	mtc2       $t2, C2_VZ0
+	mtc2       $t0, C2_VXY0
 	nop
 	nop
-	MVMVA      0, 1, 0, 3, 0
-	lw         $t1, 0x40($sp)
-	lw         $t2, 0x44($sp)
-	mfc2       $t0, $25 # handwritten instruction
+	MVMVA      0, 1, 0, 3, 0 # Multiply vertex 0 by row of light matrix we're playing with
+	lw         $t1, MAPASM_STACK_light_min($sp) # DELAY: Fetch light min
+	lw         $t2, MAPASM_STACK_light_max($sp) # DELAY: Fetch light max
+	mfc2       $t0, C2_MAC1 # t0 = (diff.vx*diff.vx)+(diff.vy*diff.vy)+(diff.vz*diff.vz)
 	nop
 	slt        $at, $t0, $t1
-	beqz       $at, .L8005A4C0
+	beqz       $at, .Lcheck_max_light_2_tri
 	lui        $t8, (0x808080 >> 16)
-	b          .L8005A508
-	ori        $t8, $t8, (0x808080 & 0xFFFF)
-.L8005A4C0:
+	b          .Lhave_light_2_tri
+	ori        $t8, $t8, %lo(0x808080)
+
+.Lcheck_max_light_2_tri:
 	slt        $at, $t0, $t2
-	bnez       $at, .L8005A4D4
-	add        $t8, $zero, $zero # handwritten instruction
-	b          .L8005A508
+	bnez       $at, .Lcalc_light_2_tri
+	add        $t8, $zero, $zero
+	b          .Lhave_light_2_tri
 	nop
-.L8005A4D4:
-	sub        $t0, $t0, $t1 # handwritten instruction
-	lw         $t2, 0x3C($sp)
-	ori        $t1, $zero, 0x80
+
+.Lcalc_light_2_tri:
+	sub        $t0, $t0, $t1 # t0 = dist[v] - Map_light_min_r2
+	lw         $t2, MAPASM_STACK_light_factor($sp) # t2 = light_factor
+	ori        $t1, $zero, 0x80 # t1 = 0x80
 	mult       $t0, $t2
 	nop
-	mflo       $t0
+	mflo       $t0 # t0 = light_factor * (dist[v] - Map_light_min_r2)
 	lui        $t2, (0x10101 >> 16)
 	sra        $t0, $t0, 16
 	ori        $t2, $t2, (0x10101 & 0xFFFF)
-	sub        $t1, $t1, $t0 # handwritten instruction
+	sub        $t1, $t1, $t0
 	mult       $t1, $t2
 	nop
-	mflo       $t8
-.L8005A508:
-	sb         $t6, -0x4($s0)
+	mflo       $t8 # t8 = rgb[2]
+
+.Lhave_light_2_tri:
+	# ------ End of VERTEX 2 ------
+	sb         $t6, -4($s0)
 	sra        $t6, $t6, 8
-	sw         $t7, -0x4($s1)
-	sb         $t6, -0x3($s0)
+	sw         $t7, -4($s1)
+	sb         $t6, -3($s0)
 	sra        $t6, $t6, 8
-	sw         $t8, -0x4($s2)
-	sb         $t6, -0x2($s0)
-.L8005A524:
-	lw         $t0, 0xC($a1)
-	add        $a3, $zero, $zero # handwritten instruction
-	andi       $t0, $t0, 0x1
-	beqz       $t0, .L8005A610
-	lhu        $t1, 0x8($v0)
+	sw         $t8, -4($s2)
+	sb         $t6, -2($s0)
+
+.Lcheck_for_textured_tri:
+	lw         $t0, MRP_prim_flags($a1)
+	add        $a3, $zero, $zero # OT(a3) position clear
+	andi       $t0, $t0, MAP_RENDER_FLAGS_TEXTURED
+	beqz       $t0, .Ldo_rotates_tri
+	lhu        $t1, MFT4_flags($v0) # DELAY: Fetch mp_flags
 	nop
-	andi       $t2, $t1, 0x2
-	beqz       $t2, .L8005A5D8
-	lw         $t0, 0x5C($sp)
+	andi       $t2, $t1, MAP_POLY_ENVMAP
+	beqz       $t2, .Lcheck_for_max_ot_tri
+
+	# Start of ENVMAP stuff
+	lw         $t0, MAPASM_STACK_temp_svec_ptr($sp) # DELAY: Get address of MRTemp_svec
 	nop
-	lh         $t3, 0x0($t0)
-	lh         $t5, 0x4($t0)
-	lh         $t2, 0x0($s4)
-	lh         $t4, 0x4($s4)
-	add        $t2, $t2, $t3 # handwritten instruction
-	add        $t4, $t4, $t5 # handwritten instruction
-	sra        $t2, $t2, 5
-	sra        $t4, $t4, 5
-	addi       $t2, $t2, 0x80 # handwritten instruction
-	addi       $t4, $t4, 0x80 # handwritten instruction
-	sb         $t2, 0x4($s0)
-	sb         $t4, 0x5($s0)
-	lh         $t2, 0x0($s5)
-	lh         $t4, 0x4($s5)
-	add        $t2, $t2, $t3 # handwritten instruction
-	add        $t4, $t4, $t5 # handwritten instruction
-	sra        $t2, $t2, 5
-	sra        $t4, $t4, 5
-	addi       $t2, $t2, 0x80 # handwritten instruction
-	addi       $t4, $t4, 0x80 # handwritten instruction
-	sb         $t2, 0x4($s1)
-	sb         $t4, 0x5($s1)
-	lh         $t2, 0x0($s6)
-	lh         $t4, 0x4($s6)
-	add        $t2, $t2, $t3 # handwritten instruction
-	add        $t4, $t4, $t5 # handwritten instruction
-	sra        $t2, $t2, 5
-	sra        $t4, $t4, 5
-	addi       $t2, $t2, 0x80 # handwritten instruction
-	addi       $t4, $t4, 0x80 # handwritten instruction
-	sb         $t2, 0x4($s2)
-	sb         $t4, 0x5($s2)
-	lw         $t3, 0x4C($sp)
-	b          .L8005A5EC
-	addi       $a3, $t3, -0x2 # handwritten instruction
-.L8005A5D8:
-	andi       $t2, $t1, 0x4
-	beqz       $t2, .L8005A5EC
-	lw         $t3, 0x4C($sp)
+	lh         $t3, SVEC_vx($t0)
+	lh         $t5, SVEC_vz($t0)
+	lh         $t2, SVEC_vx($s4)
+	lh         $t4, SVEC_vz($s4)
+	add        $t2, $t2, $t3
+	add        $t4, $t4, $t5
+	sra        $t2, $t2, MAP_POLY_ENVMAP_SHIFT
+	sra        $t4, $t4, MAP_POLY_ENVMAP_SHIFT
+	addi       $t2, $t2, 128
+	addi       $t4, $t4, 128
+	sb         $t2, 4($s0)
+	sb         $t4, 5($s0)
+
+	lh         $t2, SVEC_vx($s5)
+	lh         $t4, SVEC_vz($s5)
+	add        $t2, $t2, $t3
+	add        $t4, $t4, $t5
+	sra        $t2, $t2, MAP_POLY_ENVMAP_SHIFT
+	sra        $t4, $t4, MAP_POLY_ENVMAP_SHIFT
+	addi       $t2, $t2, 128
+	addi       $t4, $t4, 128
+	sb         $t2, 4($s1)
+	sb         $t4, 5($s1)
+
+	lh         $t2, SVEC_vx($s6)
+	lh         $t4, SVEC_vz($s6)
+	add        $t2, $t2, $t3
+	add        $t4, $t4, $t5
+	sra        $t2, $t2, MAP_POLY_ENVMAP_SHIFT
+	sra        $t4, $t4, MAP_POLY_ENVMAP_SHIFT
+	addi       $t2, $t2, 128
+	addi       $t4, $t4, 128
+	sb         $t2, 4($s2)
+	sb         $t4, 5($s2)
+
+	lw         $t3, MAPASM_STACK_ot_size($sp)
+	b          .Lmaybe_update_textures_tri
+	addi       $a3, $t3, -2 # DELAY: a3 (ot) = MRVp_ot_size - 2
+	# End of ENVMAP stuff
+
+.Lcheck_for_max_ot_tri: # t1 is assumed to still have mp_flags in it
+	andi       $t2, $t1, MAP_POLY_MAX_OT
+	beqz       $t2, .Lmaybe_update_textures_tri
+	lw         $t3, MAPASM_STACK_ot_size($sp)
 	nop
-	addi       $a3, $t3, -0x1 # handwritten instruction
-.L8005A5EC:
-	andi       $t2, $t1, 0x18
-	beqz       $t2, .L8005A610
+	addi       $a3, $t3, -1 # a3 (ot) = MRVp_ot_size - 1
+
+.Lmaybe_update_textures_tri: # t1 is assumed to still have mp_flags in it.
+	andi       $t2, $t1, (MAP_POLY_ANIM_TEXTURE|MAP_POLY_ANIM_UV)
+	beqz       $t2, .Ldo_rotates_tri
 	nop
-	lw         $t0, 0xC($v0)
-	lw         $t1, 0x10($v0)
-	lhu        $t2, 0x14($v0)
-	sw         $t0, 0x4($s0)
-	sw         $t1, 0x4($s1)
-	sh         $t2, 0x4($s2)
-.L8005A610:
-	lwc2       $0, 0x0($s4)
-	lwc2       $1, 0x4($s4)
-	lwc2       $2, 0x0($s5)
-	lwc2       $3, 0x4($s5)
-	lwc2       $4, 0x0($s6)
-	lwc2       $5, 0x4($s6)
-	lw         $t0, 0x0($a1)
+
+	lw         $t0, MFT4_u0($v0) # copy u0/v0/clut into prim
+	lw         $t1, MFT4_u1($v0) # copy u1/v1/tpage into prim
+	lhu        $t2, MFT4_u2($v0) # copy u2/v2 into prim
+	sw         $t0, 4($s0)
+	sw         $t1, 4($s1)
+	sh         $t2, 4($s2)
+
+.Ldo_rotates_tri:
+	lwc2       C2_VXY0, SVEC_vx($s4) # Load vector 0 from vertex 0
+	lwc2       C2_VZ0, SVEC_vz($s4)
+	lwc2       C2_VXY1, SVEC_vx($s5) # Load vector 1 from vertex 1
+	lwc2       C2_VZ1, SVEC_vz($s5)
+	lwc2       C2_VXY2, SVEC_vx($s6) # Load vector 2 from vertex 2
+	lwc2       C2_VZ2, SVEC_vz($s6)
+	lw         $t0, MRP_poly_size($a1) # Fetch polygon size
 	nop
 	RTPT
-	add        $v0, $v0, $t0 # handwritten instruction
-	lhu        $s4, 0x0($v0)
-	lhu        $s5, 0x2($v0)
-	lhu        $s6, 0x4($v0)
-	sll        $s4, $s4, 3
-	sll        $s5, $s5, 3
-	sll        $s6, $s6, 3
-	add        $s4, $fp, $s4 # handwritten instruction
-	add        $s5, $fp, $s5 # handwritten instruction
-	add        $s6, $fp, $s6 # handwritten instruction
+	add        $v0, $v0, $t0 # DELAY: Increment polygon pointer accordingly	
+
+	lhu        $s4, 0+MF4_vertices($v0) # DELAY: s4 = poly->mp_vertices[0]
+	lhu        $s5, 2+MF4_vertices($v0) # DELAY: s5 = poly->mp_vertices[1]
+	lhu        $s6, 4+MF4_vertices($v0) # DELAY: s6 = poly->mp_vertices[2]
+
+	sll        $s4, $s4, 3 # DELAY: Turn next vertex 0 index into a MR_SVEC offset
+	sll        $s5, $s5, 3 # DELAY: Turn next vertex 1 index into a MR_SVEC offset
+	sll        $s6, $s6, 3 # DELAY: Turn next vertex 2 index into a MR_SVEC offset
+
+	add        $s4, $s8, $s4 # DELAY: s4 = address of vertex 0
+	add        $s5, $s8, $s5 # DELAY: s5 = address of vertex 1
+	add        $s6, $s8, $s6 # DELAY: s6 = address of vertex 2
+
 	NCLIP
-	mfc2       $t0, $24 # handwritten instruction
+	mfc2       $t0, C2_MAC0 # Get first NCLIP result
 	nop
-	blez       $t0, .L8005A6D4
+	blez       $t0, .Lnext_poly_tri
 	nop
-	swc2       $12, 0x0($s0)
-	swc2       $13, 0x0($s1)
-	swc2       $14, 0x0($s2)
-	bne        $zero, $a3, .L8005A6AC
-	ori        $t2, $zero, 0x10
-	AVSZ3
-	mfc2       $a3, $7 # handwritten instruction
-	lw         $t1, 0x50($sp)
+
+.Lvisible_poly_tri:
+	swc2       C2_SXY0, 0($s0) # Store XY coordinates for vertex 0
+	swc2       C2_SXY1, 0($s1) # Store XY coordinates for vertex 1
+	swc2       C2_SXY2, 0($s2) # Store XY coordinates for vertex 2
+
+	bne        $zero, $a3, .Ladd_prim_tri # Fixed OT position (at the back, normally) so skip max Z stuff
+	ori        $t2, $zero, MAP_POLY_CLIP_OTZ # DELAY
+
+	AVSZ3 # Average the SZ0/SZ1/SZ2 points in the FIFO
+	mfc2       $a3, C2_OTZ # Fetch OTZ
+	lw         $t1, MAPASM_STACK_otz_shift($sp)
 	slt        $at, $t2, $a3
-	beqz       $at, .L8005A6D4
-	lw         $t0, 0x4C($sp)
-	srav       $a3, $a3, $t1
-	addi       $a3, $a3, 0x40 # handwritten instruction
+	beqz       $at, .Lnext_poly_tri # OTZ <= MAP_POLY_CLIP_OTZ
+	lw         $t0, MAPASM_STACK_ot_size($sp) # DELAY: Load ot size for free...
+
+	srav       $a3, $a3, $t1 # Shift OT into range
+	addi       $a3, $a3, MAP_POLY_OT_OFFSET # Add poly offset
+
+.Lcheck_for_ot_in_range_tri:
 	slt        $at, $a3, $t0
-	beqz       $at, .L8005A6D4
-.L8005A6AC:
-	lw         $t2, 0x58($sp)
-	lw         $t1, 0x54($sp)
-	lw         $t0, 0x48($sp)
-	and        $t9, $a2, $t1
-	sll        $a3, $a3, 2
-	add        $a3, $a3, $t0 # handwritten instruction
-	lw         $at, 0x0($a3)
-	sw         $t9, 0x0($a3)
+	beqz       $at, .Lnext_poly_tri # otz > OT size, so bail..
+
+# a2 = prim address 
+# a3 = ot position
+
+.Ladd_prim_tri:
+	lw         $t2, MAPASM_STACK_ot_or_mask($sp) # DELAY: t2 holds OT 'or' mask
+	lw         $t1, MAPASM_STACK_ot_and_mask($sp) # t1 holds OT 'and' mask
+	lw         $t0, MAPASM_STACK_work_ot($sp) # DELAY: t0 holds OT pointer	
+
+	and        $t9, $a2, $t1 # And low 24-bits of primitive address
+	sll        $a3, $a3, 2 # Turn OT position into 32-bit OT offset
+	add        $a3, $a3, $t0 # a3 now points to ordering table entry
+	lw         $at, 0($a3) # Fetch current OT entry contents
+	sw         $t9, 0($a3) # Point OT entry to our current prim
 	or         $at, $at, $t2
-	sw         $at, 0x0($t9)
-.L8005A6D4:
-	lw         $t0, 0x4($a1)
-	addi       $v1, $v1, -0x1 # handwritten instruction
-	add        $s0, $s0, $t0 # handwritten instruction
-	add        $s1, $s1, $t0 # handwritten instruction
-	add        $s2, $s2, $t0 # handwritten instruction
-	bgtz       $v1, .L8005A2D8
-	add        $a2, $a2, $t0 # handwritten instruction
-	b          .L8005A26C
+	sw         $at, 0($t9)
+
+# -------- Optionally increment polygon count here? --------
+
+.Lnext_poly_tri:
+	lw         $t0, MRP_prim_size($a1) # Fetch primitive size
+	addi       $v1, $v1, -1 # Decrement number of polys left in this node
+	add        $s0, $s0, $t0 # Increment to point to next x0
+	add        $s1, $s1, $t0 # Increment to point to next x1
+	add        $s2, $s2, $t0 # Increment to point to next x2
+	bgtz       $v1, .Lprocess_next_polygon_tri # If we've prims left in this node, go and deal with them
+	add        $a2, $a2, $t0 # Increment primitive pointer
+	b          .Lfetch_next_node_tri # All polygons for this node processed.. go get next node
 	nop
-.L8005A6F8:
-	lw         $s0, 0x10($sp)
-	lw         $s1, 0x14($sp)
-	lw         $s2, 0x18($sp)
-	lw         $s3, 0x1C($sp)
-	lw         $s4, 0x20($sp)
-	lw         $s5, 0x24($sp)
-	lw         $s6, 0x28($sp)
-	lw         $s7, 0x2C($sp)
-	lw         $fp, 0x30($sp)
+
+.Lexit_tri:
+	lw         $s0, MAPASM_STACK_s0($sp)
+	lw         $s1, MAPASM_STACK_s1($sp)
+	lw         $s2, MAPASM_STACK_s2($sp)
+	lw         $s3, MAPASM_STACK_s3($sp)
+	lw         $s4, MAPASM_STACK_s4($sp)
+	lw         $s5, MAPASM_STACK_s5($sp)
+	lw         $s6, MAPASM_STACK_s6($sp)
+	lw         $s7, MAPASM_STACK_s7($sp)
+	lw         $s8, MAPASM_STACK_s8($sp)
 	jr         $ra
-	addiu     $sp, $sp, 0x60
+	addiu      $sp, $sp, sizeof_MAPASM_STACK

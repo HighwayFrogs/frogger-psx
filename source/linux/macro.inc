@@ -17,3 +17,4 @@
 .endm
 
 .include "gte.inc"
+.include "gtereg.i"

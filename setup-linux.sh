@@ -8,7 +8,6 @@
 # It should also be possible to still compile the game using the Windows build pipeline, at least if the Linux-configured repository is cloned on a Windows machine.
 
 # TODO:
-# 2) Improve quality of the linux build pipeline hand-written assembly files.
 # 3) Make api.src and other folders lower-case.
 # 4) Which changes did we want to apply to the windows setup?
 #  - Lower-case header file names? Leaning towards yes
